@@ -1,4 +1,5 @@
-import type { ClientGameState, ClientCardInstance } from '../../../shared/types';
+import { useEffect } from 'react';
+import type { ClientGameState } from '../../../shared/types';
 import { Card } from './Card';
 import { getCardDef } from '../utils/stackHelpers';
 
@@ -6,10 +7,18 @@ interface CombatModalProps {
   gameState: ClientGameState;
   onBlock: (stackId: string | null) => void;
   onCombatTrick: (cardInstanceId: string | null) => void;
+  onDismissCombatResult: () => void;
 }
 
-export function CombatModal({ gameState, onBlock, onCombatTrick }: CombatModalProps) {
+export function CombatModal({ gameState, onBlock, onCombatTrick, onDismissCombatResult }: CombatModalProps) {
   const combat = gameState.combatState;
+  const result = gameState.combatResult;
+
+  // Combat result display — show when combatResult exists but combatState is cleared
+  if (result && !combat) {
+    return <CombatResultOverlay result={result} onDismiss={onDismissCombatResult} />;
+  }
+
   if (!combat) return null;
 
   const pending = gameState.pendingInteraction;
@@ -17,7 +26,6 @@ export function CombatModal({ gameState, onBlock, onCombatTrick }: CombatModalPr
 
   // Block decision phase
   if (combat.phase === 'AWAITING_BLOCK' && isMyAction) {
-    // Find opponent stacks that can block
     const validBlockers = gameState.myStacks.filter((s) => {
       if (s.tapped) return false;
       const stat = combat.missionType === 'POWER'
@@ -138,4 +146,82 @@ export function CombatModal({ gameState, onBlock, onCombatTrick }: CombatModalPr
   }
 
   return null;
+}
+
+/** Standalone combat result overlay */
+function CombatResultOverlay({ result, onDismiss }: { result: NonNullable<ClientGameState['combatResult']>; onDismiss: () => void }) {
+  useEffect(() => {
+    const timer = setTimeout(onDismiss, 5000);
+    return () => clearTimeout(timer);
+  }, [onDismiss]);
+
+  const outcomeText =
+    result.outcome === 'ATK_WIN' ? 'Attacker wins!'
+    : result.outcome === 'DEF_WIN' ? 'Defender wins!'
+    : 'Tie — both take damage!';
+
+  const damageLines: string[] = [];
+  if (result.defenderDamage > 0) damageLines.push(`${result.defenderName} takes ${result.defenderDamage} damage`);
+  if (result.attackerDamage > 0) damageLines.push(`${result.attackerName} takes ${result.attackerDamage} damage`);
+
+  return (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 animate-bounce-in">
+      <div className="bg-board-surface rounded-2xl p-6 shadow-2xl max-w-md w-full mx-4 border border-board-accent">
+        <h3 className="text-lg font-bold text-center mb-4 text-white uppercase tracking-wider">
+          Combat Resolved
+        </h3>
+
+        {/* Attacker */}
+        <div className="text-center mb-3">
+          <div className="text-sm text-gray-400">{result.attackerName}</div>
+          <div className="font-bold text-white">{result.attackerStackName}</div>
+          <div className="text-sm text-gray-300">
+            Base: {result.attackerBase}
+            {result.attackerTrickName && (
+              <span className="text-spero-yellow"> + {result.attackerTrickName} (+{result.attackerTrickBonus})</span>
+            )}
+            <span className="font-bold"> = {result.attackerTotal}</span>
+          </div>
+        </div>
+
+        <div className="text-center text-gray-500 text-sm mb-3">vs</div>
+
+        {/* Defender */}
+        <div className="text-center mb-4">
+          <div className="text-sm text-gray-400">{result.defenderName}</div>
+          <div className="font-bold text-white">{result.defenderStackName}</div>
+          <div className="text-sm text-gray-300">
+            Base: {result.defenderBase}
+            {result.defenderTrickName && (
+              <span className="text-spero-blue"> + {result.defenderTrickName} (+{result.defenderTrickBonus})</span>
+            )}
+            <span className="font-bold"> = {result.defenderTotal}</span>
+          </div>
+        </div>
+
+        {/* Outcome */}
+        <div className="text-center mb-2">
+          <span className={`font-bold text-lg ${
+            result.outcome === 'ATK_WIN' ? 'text-spero-red' :
+            result.outcome === 'DEF_WIN' ? 'text-spero-blue' : 'text-spero-yellow'
+          }`}>
+            {outcomeText}
+          </span>
+        </div>
+
+        {damageLines.length > 0 && (
+          <div className="text-center text-sm text-gray-400 mb-4">
+            {damageLines.map((line, i) => <div key={i}>{line}</div>)}
+          </div>
+        )}
+
+        <button
+          onClick={onDismiss}
+          className="w-full bg-board-accent text-white font-bold py-2 px-4 rounded-lg hover:bg-board-accent/80 transition-all cursor-pointer"
+        >
+          Continue
+        </button>
+      </div>
+    </div>
+  );
 }

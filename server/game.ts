@@ -1,6 +1,7 @@
 import type { GameState, PlayerZone, TurnPhase } from '../shared/types.js';
-import { createDeck, shuffle, resetInstanceCounter } from './deck.js';
+import { createTwoDecks, resetInstanceCounter } from './deck.js';
 import { resetStackCounter } from './actions.js';
+import { addLog, emptyStats } from './log.js';
 
 /** Create a new game for two players */
 export function createGame(
@@ -11,7 +12,7 @@ export function createGame(
   resetInstanceCounter();
   resetStackCounter();
 
-  const deck = shuffle(createDeck());
+  const decks = createTwoDecks();
 
   const players: [PlayerZone, PlayerZone] = [
     {
@@ -32,16 +33,16 @@ export function createGame(
     },
   ];
 
-  // Deal 7 cards each
+  // Deal 7 cards each from their own deck
   for (let i = 0; i < 7; i++) {
-    for (const p of players) {
-      p.hand.push(deck.pop()!);
+    for (let p = 0; p < 2; p++) {
+      players[p].hand.push(decks[p].pop()!);
     }
   }
 
   const game: GameState = {
     players,
-    deck,
+    decks,
     currentPlayerIndex: 0,
     turnPhase: 'BUILD', // First player skips UNTAP and DRAW, goes straight to BUILD
     buildsRemaining: 2,
@@ -53,7 +54,12 @@ export function createGame(
     combatState: null,
     pendingInteraction: null,
     lastAction: `Game started! ${players[0].playerName} goes first.`,
+    log: [],
+    playerStats: [emptyStats(), emptyStats()],
+    combatResult: null,
   };
+
+  addLog(game, null, `Game started! ${players[0].playerName} goes first.`, 'GAME');
 
   return game;
 }
@@ -99,6 +105,7 @@ function executePhase(game: GameState): void {
       if (game.isFirstTurn) {
         // First player's first turn: skip actions
         game.lastAction = `${currentPlayerName(game)}'s first turn — no actions allowed.`;
+        addLog(game, game.currentPlayerIndex, 'First turn — no actions', 'PHASE');
         advancePhase(game);
       }
       // Otherwise wait for player input
@@ -132,16 +139,20 @@ function doDraw(game: GameState): void {
   }
 
   const player = game.players[game.currentPlayerIndex];
+  const playerDeck = game.decks[game.currentPlayerIndex];
 
-  if (game.deck.length === 0) {
+  if (playerDeck.length === 0) {
     // Deck-out = lose
-    game.winner = game.players[game.currentPlayerIndex === 0 ? 1 : 0].playerId;
-    game.lastAction = `${player.playerName} cannot draw — deck out! ${game.players[game.currentPlayerIndex === 0 ? 1 : 0].playerName} wins!`;
+    const winnerId = game.currentPlayerIndex === 0 ? 1 : 0;
+    game.winner = game.players[winnerId].playerId;
+    game.lastAction = `${player.playerName} cannot draw — deck out! ${game.players[winnerId].playerName} wins!`;
+    addLog(game, game.currentPlayerIndex, `${player.playerName} decked out!`, 'GAME');
     return;
   }
 
-  player.hand.push(game.deck.pop()!);
+  player.hand.push(playerDeck.pop()!);
   game.lastAction = `${player.playerName} draws a card.`;
+  addLog(game, game.currentPlayerIndex, `${player.playerName} draws a card`, 'PHASE');
 }
 
 /** END: check win, switch to next player */
@@ -151,6 +162,7 @@ function doEnd(game: GameState): void {
     if (game.apScores[i as 0 | 1] >= 15) {
       game.winner = game.players[i].playerId;
       game.lastAction = `${game.players[i].playerName} wins with ${game.apScores[i as 0 | 1]} AP!`;
+      addLog(game, i as 0 | 1, `${game.players[i].playerName} wins with ${game.apScores[i as 0 | 1]} AP!`, 'GAME');
       return;
     }
   }
@@ -164,6 +176,7 @@ function doEnd(game: GameState): void {
   }
 
   game.lastAction = `${currentPlayerName(game)}'s turn begins.`;
+  addLog(game, game.currentPlayerIndex, `${currentPlayerName(game)}'s turn begins`, 'PHASE');
 
   // Start next turn from UNTAP
   game.turnPhase = 'UNTAP';

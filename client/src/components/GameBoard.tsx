@@ -12,6 +12,7 @@ import { DeckDiscard } from './DeckDiscard';
 import { CombatModal } from './CombatModal';
 import { MissionModal } from './MissionModal';
 import { GameOver } from './GameOver';
+import { GameLog } from './GameLog';
 
 interface GameBoardProps {
   gameState: ClientGameState;
@@ -19,6 +20,7 @@ interface GameBoardProps {
 
 type UIMode =
   | { type: 'idle' }
+  | { type: 'choose-build-mode'; cardInstanceId: string }
   | { type: 'select-stack-for-card'; cardInstanceId: string; faceDown: boolean }
   | { type: 'mission-menu' }
   | { type: 'select-duel-target'; attackerStackId: string }
@@ -26,16 +28,10 @@ type UIMode =
 
 export function GameBoard({ gameState }: GameBoardProps) {
   const [uiMode, setUIMode] = useState<UIMode>({ type: 'idle' });
+  const [logOpen, setLogOpen] = useState(false);
   const actions = useGameActions();
 
-  const isMyTurn = gameState.currentPlayerIndex === (gameState.myPlayerId === gameState.opponent.playerId ? 1 : 0);
-  // More reliable: check whose turn it is
-  const currentPlayerId = isMyTurn ? gameState.myPlayerId : gameState.opponent.playerId;
-  const amICurrentPlayer = currentPlayerId === gameState.myPlayerId;
-
-  const myIdx = gameState.apScores[0] !== undefined ? 0 : 0; // We're always index based on server
-  // Determine my AP index: if I'm player 0 or 1
-  const myPlayerIdx = gameState.currentPlayerIndex;
+  const amICurrentPlayer = gameState.myPlayerIndex === gameState.currentPlayerIndex;
 
   const winnerName = gameState.winner
     ? (gameState.winner === gameState.myPlayerId ? 'You' : gameState.opponent.playerName)
@@ -47,8 +43,8 @@ export function GameBoard({ gameState }: GameBoardProps) {
     if (!amICurrentPlayer) return;
 
     if (gameState.turnPhase === 'BUILD') {
-      // Start selecting a target stack (or new stack)
-      setUIMode({ type: 'select-stack-for-card', cardInstanceId: instanceId, faceDown: false });
+      // Show face-up / face-down choice prompt
+      setUIMode({ type: 'choose-build-mode', cardInstanceId: instanceId });
     } else if (gameState.turnPhase === 'ACTION') {
       // Check if it's an action card
       const card = gameState.myHand.find((c) => c.instanceId === instanceId);
@@ -116,180 +112,217 @@ export function GameBoard({ gameState }: GameBoardProps) {
   }
 
   return (
-    <div className="flex flex-col min-h-screen max-h-screen overflow-hidden">
-      {/* Combat Modal */}
-      {gameState.combatState && (
-        <CombatModal
-          gameState={gameState}
-          onBlock={actions.blockDecision}
-          onCombatTrick={actions.playCombatTrick}
-        />
-      )}
-
-      {/* Mission Menu */}
-      {uiMode.type === 'mission-menu' && (
-        <MissionModal
-          stacks={gameState.myStacks}
-          actedStacks={gameState.actedStacks}
-          onPowerMission={(stackId) => { actions.powerMission(stackId); setUIMode({ type: 'idle' }); }}
-          onSmartsMission={(stackId) => { actions.smartsMission(stackId); setUIMode({ type: 'idle' }); }}
-          onDuel={(stackId) => { setUIMode({ type: 'select-duel-target', attackerStackId: stackId }); }}
-          onCancel={() => setUIMode({ type: 'idle' })}
-        />
-      )}
-
-      {/* Game Over */}
-      {winnerName && (
-        <GameOver
-          winnerName={winnerName}
-          isMe={gameState.winner === gameState.myPlayerId}
-          onPlayAgain={actions.playAgain}
-        />
-      )}
-
-      {/* Top bar: Phase + AP */}
-      <div className="flex items-center gap-3 p-3 bg-board-surface/80 border-b border-board-accent">
-        <PhaseBar
-          currentPhase={gameState.turnPhase}
-          isMyTurn={amICurrentPlayer}
-          buildsRemaining={gameState.buildsRemaining}
-          onEndBuild={actions.endBuildPhase}
-          onEndAction={actions.endActionPhase}
-        />
-        <APCounter
-          myAP={gameState.apScores[gameState.myPlayerId === gameState.opponent.playerId ? 1 : 0]}
-          opponentAP={gameState.apScores[gameState.myPlayerId === gameState.opponent.playerId ? 0 : 1]}
-          myName="You"
-          opponentName={gameState.opponent.playerName}
-        />
-      </div>
-
-      {/* Status bar */}
-      <div className="px-4 py-1 text-center">
-        {gameState.lastAction && (
-          <span className="text-sm text-gray-400">{gameState.lastAction}</span>
+    <div className="flex min-h-screen max-h-screen overflow-hidden">
+      {/* Main board area */}
+      <div className="flex flex-col flex-1 min-w-0">
+        {/* Combat Modal (includes combat result) */}
+        {(gameState.combatState || gameState.combatResult) && (
+          <CombatModal
+            gameState={gameState}
+            onBlock={actions.blockDecision}
+            onCombatTrick={actions.playCombatTrick}
+            onDismissCombatResult={actions.dismissCombatResult}
+          />
         )}
-        {amICurrentPlayer && !gameState.combatState && (
-          <span className="ml-2 text-sm text-spero-yellow font-bold">Your turn!</span>
+
+        {/* Mission Menu */}
+        {uiMode.type === 'mission-menu' && (
+          <MissionModal
+            stacks={gameState.myStacks}
+            actedStacks={gameState.actedStacks}
+            onPowerMission={(stackId) => { actions.powerMission(stackId); setUIMode({ type: 'idle' }); }}
+            onSmartsMission={(stackId) => { actions.smartsMission(stackId); setUIMode({ type: 'idle' }); }}
+            onDuel={(stackId) => { setUIMode({ type: 'select-duel-target', attackerStackId: stackId }); }}
+            onCancel={() => setUIMode({ type: 'idle' })}
+          />
         )}
-      </div>
 
-      {/* Opponent field */}
-      <div className="px-3 py-2">
-        <OpponentField
-          opponent={gameState.opponent}
-          onStackClick={uiMode.type === 'select-duel-target' ? handleOpponentStackClick : undefined}
-          highlightedStackIds={uiMode.type === 'select-duel-target' ? gameState.opponent.stacks.map((s) => s.stackId) : []}
-        />
-      </div>
+        {/* Game Over */}
+        {winnerName && (
+          <GameOver
+            winnerName={winnerName}
+            isMe={gameState.winner === gameState.myPlayerId}
+            onPlayAgain={actions.playAgain}
+            gameState={gameState}
+          />
+        )}
 
-      {/* Center: Deck/Discard + Sideplay */}
-      <div className="flex items-center justify-center gap-6 py-2">
-        <DeckDiscard deckCount={gameState.deckCount} discardCount={gameState.myDiscardCount} />
-        <SideplayZone cards={gameState.mySideplay} />
-      </div>
+        {/* Top bar: Phase + AP + Log toggle */}
+        <div className="flex items-center gap-3 p-3 bg-board-surface/80 border-b border-board-accent">
+          <PhaseBar
+            currentPhase={gameState.turnPhase}
+            isMyTurn={amICurrentPlayer}
+            buildsRemaining={gameState.buildsRemaining}
+            onEndBuild={actions.endBuildPhase}
+            onEndAction={actions.endActionPhase}
+          />
+          <APCounter
+            myAP={gameState.apScores[gameState.myPlayerIndex]}
+            opponentAP={gameState.apScores[gameState.myPlayerIndex === 0 ? 1 : 0]}
+            myName="You"
+            opponentName={gameState.opponent.playerName}
+          />
+          <button
+            onClick={() => setLogOpen((o) => !o)}
+            className={`ml-auto text-xs font-bold px-3 py-1 rounded-lg transition-all cursor-pointer ${
+              logOpen
+                ? 'bg-board-accent text-white'
+                : 'bg-board-surface text-gray-500 hover:text-gray-300'
+            }`}
+          >
+            Log
+          </button>
+        </div>
 
-      {/* My battlefield */}
-      <div className="px-3 py-2 flex-1 min-h-0">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="text-xs text-gray-500 font-bold">YOUR FIELD</span>
-          {amICurrentPlayer && gameState.turnPhase === 'ACTION' && !gameState.combatState && (
-            <button
-              onClick={() => setUIMode({ type: 'mission-menu' })}
-              className="bg-spero-yellow text-black text-xs font-bold px-3 py-1 rounded-lg hover:brightness-110 active:scale-95 transition-all cursor-pointer"
-            >
-              Missions / Duel
-            </button>
+        {/* Status bar */}
+        <div className="px-4 py-1 text-center">
+          {gameState.lastAction && (
+            <span className="text-sm text-gray-400">{gameState.lastAction}</span>
+          )}
+          {amICurrentPlayer && !gameState.combatState && (
+            <span className="ml-2 text-sm text-spero-yellow font-bold">Your turn!</span>
           )}
         </div>
-        <Battlefield
-          stacks={gameState.myStacks}
-          isOwner={true}
-          onStackClick={
-            uiMode.type === 'select-stack-for-card' || uiMode.type === 'select-action-stack'
-              ? handleMyStackClick
-              : undefined
-          }
-          highlightedStackIds={
-            uiMode.type === 'select-stack-for-card' || uiMode.type === 'select-action-stack'
-              ? gameState.myStacks.map((s) => s.stackId)
-              : []
-          }
-          actionLabels={actionLabels}
-        />
 
-        {/* New stack button during build */}
-        {uiMode.type === 'select-stack-for-card' && (
-          <div className="mt-2 flex justify-center">
-            <button
-              onClick={handleNewStack}
-              className="bg-board-accent border-2 border-dashed border-spero-yellow text-spero-yellow text-sm font-bold px-4 py-2 rounded-xl hover:bg-spero-yellow/10 transition-all cursor-pointer"
-            >
-              + New Stack
-            </button>
-            <button
-              onClick={() => setUIMode({ type: 'idle' })}
-              className="ml-2 bg-board-accent text-gray-400 text-sm px-4 py-2 rounded-xl hover:bg-board-accent/80 transition-all cursor-pointer"
-            >
-              Cancel
-            </button>
-            {!uiMode.faceDown && (
-              <button
-                onClick={() => setUIMode({ ...uiMode, faceDown: true })}
-                className="ml-2 bg-board-accent border border-gray-600 text-gray-300 text-sm px-4 py-2 rounded-xl hover:bg-board-accent/80 transition-all cursor-pointer"
-              >
-                Play Face-Down
-              </button>
-            )}
-            {uiMode.faceDown && (
-              <button
-                onClick={() => setUIMode({ ...uiMode, faceDown: false })}
-                className="ml-2 bg-spero-yellow/20 border border-spero-yellow text-spero-yellow text-sm px-4 py-2 rounded-xl cursor-pointer"
-              >
-                Face-Down Mode
-              </button>
-            )}
-          </div>
-        )}
-
-        {uiMode.type === 'select-duel-target' && (
-          <div className="mt-2 flex justify-center">
-            <span className="text-sm text-spero-yellow">Select an opponent stack to duel...</span>
-            <button
-              onClick={() => setUIMode({ type: 'idle' })}
-              className="ml-2 text-gray-400 text-sm underline cursor-pointer"
-            >
-              Cancel
-            </button>
-          </div>
-        )}
-
-        {uiMode.type === 'select-action-stack' && (
-          <div className="mt-2 flex justify-center">
-            <span className="text-sm text-spero-blue">Select a stack to play the action with...</span>
-            <button
-              onClick={() => setUIMode({ type: 'idle' })}
-              className="ml-2 text-gray-400 text-sm underline cursor-pointer"
-            >
-              Cancel
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* My hand */}
-      <div className={`p-3 ${amICurrentPlayer ? 'bg-board-surface/60' : 'bg-board-surface/30'} border-t border-board-accent`}>
-        <div className="text-xs text-gray-500 mb-1 text-center">
-          Hand ({gameState.myHand.length})
-          {gameState.turnPhase === 'BUILD' && amICurrentPlayer && ` — ${gameState.buildsRemaining} builds left`}
+        {/* Opponent field */}
+        <div className="px-3 py-2">
+          <OpponentField
+            opponent={gameState.opponent}
+            onStackClick={uiMode.type === 'select-duel-target' ? handleOpponentStackClick : undefined}
+            highlightedStackIds={uiMode.type === 'select-duel-target' ? gameState.opponent.stacks.map((s) => s.stackId) : []}
+          />
         </div>
-        <Hand
-          cards={gameState.myHand}
-          onCardClick={handleHandCardClick}
-          isMyTurn={amICurrentPlayer}
-          highlightFilter={handHighlight}
-        />
+
+        {/* Center: Deck/Discard + Sideplay */}
+        <div className="flex items-center justify-center gap-6 py-2">
+          <DeckDiscard deckCount={gameState.deckCount} discardCount={gameState.myDiscardCount} />
+          <SideplayZone cards={gameState.mySideplay} />
+        </div>
+
+        {/* My battlefield */}
+        <div className="px-3 py-2 flex-1 min-h-0">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-xs text-gray-500 font-bold">YOUR FIELD</span>
+            {amICurrentPlayer && gameState.turnPhase === 'ACTION' && !gameState.combatState && (
+              <button
+                onClick={() => setUIMode({ type: 'mission-menu' })}
+                className="bg-spero-yellow text-black text-xs font-bold px-3 py-1 rounded-lg hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+              >
+                Missions / Duel
+              </button>
+            )}
+          </div>
+          <Battlefield
+            stacks={gameState.myStacks}
+            isOwner={true}
+            onStackClick={
+              uiMode.type === 'select-stack-for-card' || uiMode.type === 'select-action-stack'
+                ? handleMyStackClick
+                : undefined
+            }
+            highlightedStackIds={
+              uiMode.type === 'select-stack-for-card' || uiMode.type === 'select-action-stack'
+                ? gameState.myStacks.map((s) => s.stackId)
+                : []
+            }
+            actionLabels={actionLabels}
+          />
+
+          {/* New stack button during build */}
+          {uiMode.type === 'select-stack-for-card' && (
+            <div className="mt-2 flex flex-col items-center gap-1">
+              {uiMode.faceDown && (
+                <span className="text-xs text-spero-yellow font-bold">Placing face-down</span>
+              )}
+              <div className="flex justify-center">
+                <button
+                  onClick={handleNewStack}
+                  className="bg-board-accent border-2 border-dashed border-spero-yellow text-spero-yellow text-sm font-bold px-4 py-2 rounded-xl hover:bg-spero-yellow/10 transition-all cursor-pointer"
+                >
+                  + New Stack
+                </button>
+                <button
+                  onClick={() => setUIMode({ type: 'idle' })}
+                  className="ml-2 bg-board-accent text-gray-400 text-sm px-4 py-2 rounded-xl hover:bg-board-accent/80 transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
+          {uiMode.type === 'select-duel-target' && (
+            <div className="mt-2 flex justify-center">
+              <span className="text-sm text-spero-yellow">Select an opponent stack to duel...</span>
+              <button
+                onClick={() => setUIMode({ type: 'idle' })}
+                className="ml-2 text-gray-400 text-sm underline cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+
+          {uiMode.type === 'select-action-stack' && (
+            <div className="mt-2 flex justify-center">
+              <span className="text-sm text-spero-blue">Select a stack to play the action with...</span>
+              <button
+                onClick={() => setUIMode({ type: 'idle' })}
+                className="ml-2 text-gray-400 text-sm underline cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Build mode choice prompt */}
+        {uiMode.type === 'choose-build-mode' && (
+          <div className="flex justify-center gap-2 py-2">
+            <button
+              onClick={() => setUIMode({ type: 'select-stack-for-card', cardInstanceId: uiMode.cardInstanceId, faceDown: false })}
+              className="bg-spero-blue text-white text-sm font-bold px-4 py-2 rounded-xl hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+            >
+              Build Face-Up
+            </button>
+            <button
+              onClick={() => setUIMode({ type: 'select-stack-for-card', cardInstanceId: uiMode.cardInstanceId, faceDown: true })}
+              className="bg-board-accent border border-spero-yellow text-spero-yellow text-sm font-bold px-4 py-2 rounded-xl hover:bg-spero-yellow/10 active:scale-95 transition-all cursor-pointer"
+            >
+              Build Face-Down
+            </button>
+            <button
+              onClick={() => setUIMode({ type: 'idle' })}
+              className="bg-board-accent text-gray-400 text-sm px-4 py-2 rounded-xl hover:bg-board-accent/80 transition-all cursor-pointer"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+
+        {/* My hand */}
+        <div className={`p-3 ${amICurrentPlayer ? 'bg-board-surface/60' : 'bg-board-surface/30'} border-t border-board-accent`}>
+          <div className="text-xs text-gray-500 mb-1 text-center">
+            Hand ({gameState.myHand.length})
+            {gameState.turnPhase === 'BUILD' && amICurrentPlayer && ` — ${gameState.buildsRemaining} builds left`}
+          </div>
+          <Hand
+            cards={gameState.myHand}
+            onCardClick={handleHandCardClick}
+            isMyTurn={amICurrentPlayer}
+            highlightFilter={handHighlight}
+          />
+        </div>
       </div>
+
+      {/* Game Log panel */}
+      {logOpen && (
+        <GameLog
+          log={gameState.log}
+          myPlayerIndex={gameState.myPlayerIndex}
+          onClose={() => setLogOpen(false)}
+        />
+      )}
     </div>
   );
 }

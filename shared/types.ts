@@ -80,11 +80,58 @@ export interface PendingInteraction {
   timeoutAt: number; // timestamp
 }
 
+// ─── Game Log ───
+
+export type LogCategory = 'BUILD' | 'MISSION' | 'COMBAT' | 'AP' | 'PHASE' | 'GAME';
+
+export interface LogEntry {
+  id: number;
+  turnNumber: number;
+  playerIndex: 0 | 1 | null;
+  message: string;
+  category: LogCategory;
+}
+
+// ─── Player Stats ───
+
+export interface PlayerStats {
+  apEarned: number;
+  missionsLaunched: number;
+  missionsUnblocked: number;
+  cardsPlayed: number;
+  combatTricksUsed: number;
+  damageDealt: number;
+  duelsInitiated: number;
+}
+
+// ─── Combat Result ───
+
+export interface CombatResult {
+  missionType: 'POWER' | 'SMARTS';
+  isDuel: boolean;
+  attackerName: string;
+  defenderName: string;
+  attackerStackName: string;
+  defenderStackName: string;
+  attackerBase: number;
+  defenderBase: number;
+  attackerTrickName: string | null;
+  attackerTrickBonus: number;
+  defenderTrickName: string | null;
+  defenderTrickBonus: number;
+  attackerTotal: number;
+  defenderTotal: number;
+  outcome: 'ATK_WIN' | 'DEF_WIN' | 'TIE';
+  attackerDamage: number;
+  defenderDamage: number;
+  apAwarded: number;
+}
+
 // ─── Game State ───
 
 export interface GameState {
   players: [PlayerZone, PlayerZone];
-  deck: CardInstance[];
+  decks: [CardInstance[], CardInstance[]];
   currentPlayerIndex: 0 | 1;
   turnPhase: TurnPhase;
   buildsRemaining: number;
@@ -96,6 +143,9 @@ export interface GameState {
   combatState: CombatState | null;
   pendingInteraction: PendingInteraction | null;
   lastAction: string | null;
+  log: LogEntry[];
+  playerStats: [PlayerStats, PlayerStats];
+  combatResult: CombatResult | null;
 }
 
 // ─── Client State (sanitized per player) ───
@@ -139,6 +189,7 @@ export interface ClientCombatState {
 
 export interface ClientGameState {
   myPlayerId: string;
+  myPlayerIndex: 0 | 1;
   myHand: ClientCardInstance[];
   myStacks: ClientStack[];
   mySideplay: ClientCardInstance[];
@@ -156,6 +207,9 @@ export interface ClientGameState {
   combatState: ClientCombatState | null;
   pendingInteraction: PendingInteraction | null;
   lastAction: string | null;
+  log: LogEntry[];
+  playerStats: [PlayerStats, PlayerStats];
+  combatResult: CombatResult | null;
 }
 
 // ─── Lobby ───

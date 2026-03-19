@@ -52,6 +52,11 @@ export function useGameActions() {
     socket.emit('play-combat-trick', { cardInstanceId });
   };
 
+  // Combat result dismiss
+  const dismissCombatResult = () => {
+    socket.emit('dismiss-combat-result');
+  };
+
   // Meta
   const playAgain = () => {
     socket.emit('play-again');
@@ -70,6 +75,7 @@ export function useGameActions() {
     endActionPhase,
     blockDecision,
     playCombatTrick,
+    dismissCombatResult,
     playAgain,
   };
 }

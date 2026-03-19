@@ -67,12 +67,13 @@ export function getClientState(game: GameState, playerId: string): ClientGameSta
 
   return {
     myPlayerId: playerId,
+    myPlayerIndex: myIdx as 0 | 1,
     myHand: me.hand.map((c) => toClientCard(c, true)),
     myStacks: me.stacks.map((s) => toClientStack(s, true)),
     mySideplay: me.sideplay.map((c) => toClientCard(c, true)),
     myDiscardCount: me.discardPile.length,
     opponent,
-    deckCount: game.deck.length,
+    deckCount: game.decks[myIdx].length,
     currentPlayerIndex: game.currentPlayerIndex,
     turnPhase: game.turnPhase,
     buildsRemaining: game.buildsRemaining,
@@ -84,6 +85,9 @@ export function getClientState(game: GameState, playerId: string): ClientGameSta
     combatState: clientCombat,
     pendingInteraction: game.pendingInteraction,
     lastAction: game.lastAction,
+    log: game.log,
+    playerStats: game.playerStats,
+    combatResult: game.combatResult ?? null,
   };
 }
 

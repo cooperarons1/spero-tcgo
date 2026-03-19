@@ -1,6 +1,8 @@
 import type { GameState, CardInstance, Stack, PlayerZone } from '../shared/types.js';
 import { getCardDef } from './cards.js';
 import { canBuildOnStack, defOf } from './rules.js';
+import { advancePhase } from './game.js';
+import { addLog } from './log.js';
 
 let nextStackId = 1;
 
@@ -60,6 +62,10 @@ export function buildCard(
 
     game.buildsRemaining--;
     game.lastAction = `${player.playerName} played a card face-down`;
+    const pIdx = game.players.indexOf(player) as 0 | 1;
+    addLog(game, pIdx, `${player.playerName} played a card face-down`, 'BUILD');
+    game.playerStats[pIdx].cardsPlayed++;
+    if (game.buildsRemaining <= 0) advancePhase(game);
     return { success: true };
   }
 
@@ -89,6 +95,10 @@ export function buildCard(
 
   game.buildsRemaining--;
   game.lastAction = `${player.playerName} played ${cardDef.name}`;
+  const pIdx2 = game.players.indexOf(player) as 0 | 1;
+  addLog(game, pIdx2, `${player.playerName} played ${cardDef.name}`, 'BUILD');
+  game.playerStats[pIdx2].cardsPlayed++;
+  if (game.buildsRemaining <= 0) advancePhase(game);
   return { success: true };
 }
 
@@ -135,6 +145,8 @@ export function splitStack(
 
   game.buildsRemaining--;
   game.lastAction = `${player.playerName} split a stack`;
+  addLog(game, game.players.indexOf(player) as 0 | 1, `${player.playerName} split a stack`, 'BUILD');
+  if (game.buildsRemaining <= 0) advancePhase(game);
   return { success: true };
 }
 
@@ -170,6 +182,8 @@ export function combineStacks(
 
   game.buildsRemaining--;
   game.lastAction = `${player.playerName} combined stacks`;
+  addLog(game, game.players.indexOf(player) as 0 | 1, `${player.playerName} combined stacks`, 'BUILD');
+  if (game.buildsRemaining <= 0) advancePhase(game);
   return { success: true };
 }
 
@@ -203,5 +217,7 @@ export function restoreCard(
   card.faceUp = true;
   game.buildsRemaining--;
   game.lastAction = `${player.playerName} restored ${cardDef.name}`;
+  addLog(game, game.players.indexOf(player) as 0 | 1, `${player.playerName} restored ${cardDef.name}`, 'BUILD');
+  if (game.buildsRemaining <= 0) advancePhase(game);
   return { success: true };
 }

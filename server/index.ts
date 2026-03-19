@@ -254,6 +254,16 @@ io.on('connection', (socket) => {
     broadcastGameState(room.code);
   });
 
+  // ── Dismiss Combat Result ──
+
+  socket.on('dismiss-combat-result', () => {
+    const room = getRoomByPlayer(socket.id);
+    if (!room?.game) return;
+
+    room.game.combatResult = null;
+    broadcastGameState(room.code);
+  });
+
   // ── Play Again ──
 
   socket.on('play-again', () => {
