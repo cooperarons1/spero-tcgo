@@ -349,7 +349,7 @@ export function DeckBuilder({ deck: initialDeck, uid, onBack }: DeckBuilderProps
             </div>
           )}
 
-          {/* Deck list grouped by type */}
+          {/* Deck cards as images */}
           <div className="flex-1 overflow-y-auto p-3">
             {deckGrouped.length === 0 ? (
               <p className="text-gray-600 text-sm text-center py-8">Drag or click cards to add</p>
@@ -362,23 +362,26 @@ export function DeckBuilder({ deck: initialDeck, uid, onBack }: DeckBuilderProps
                   return (
                     <div key={type}>
                       <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">{type} ({typeCount})</div>
-                      <div className="space-y-1">
+                      <div className="grid grid-cols-3 gap-1.5">
                         {cards.map(card => (
                           <div
                             key={card.code}
-                            className="flex items-center justify-between bg-board-accent rounded-lg px-3 py-1.5 cursor-pointer hover:bg-board-accent/80 select-none"
+                            className="relative cursor-pointer hover:scale-105 transition-all select-none"
                             style={{ touchAction: 'none' }}
                             onClick={() => removeCard(card.code)}
                             onPointerDown={(e) => {
                               drag.startDrag(card.code, 'deck', e.nativeEvent);
                             }}
                           >
-                            <div className="flex items-center gap-2 min-w-0">
-                              <span className={`w-2 h-2 rounded-full shrink-0 ${colorDot[card.color] || 'bg-gray-500'}`} />
-                              <span className="text-xs text-white truncate">{card.name}</span>
-                              <span className="text-[10px] text-gray-500">{card.cost}</span>
-                            </div>
-                            <span className="text-xs text-spero-yellow font-bold ml-2">x{card.count}</span>
+                            <Card
+                              card={{ instanceId: card.code, cardCode: card.code, faceUp: true }}
+                              size="sm"
+                            />
+                            {card.count > 1 && (
+                              <span className="absolute -top-1 -right-1 bg-spero-yellow text-black text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                                x{card.count}
+                              </span>
+                            )}
                           </div>
                         ))}
                       </div>
