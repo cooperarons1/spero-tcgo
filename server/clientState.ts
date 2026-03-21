@@ -8,6 +8,7 @@ import type {
   Stack,
   CardInstance,
 } from '../shared/types.js';
+import { TURN_TIMEOUT_MS } from './game.js';
 
 /** Convert a CardInstance to a client-visible version */
 function toClientCard(card: CardInstance, isOwner: boolean): ClientCardInstance {
@@ -25,6 +26,7 @@ function toClientStack(stack: Stack, isOwner: boolean): ClientStack {
     cards: stack.cards.map((c) => toClientCard(c, isOwner)),
     tapped: stack.tapped,
     ownerId: stack.ownerId,
+    createdOnTurn: stack.createdOnTurn,
   };
 }
 
@@ -65,6 +67,12 @@ export function getClientState(game: GameState, playerId: string): ClientGameSta
     };
   }
 
+  const turnDeadline = game.turnStartedAt && !game.combatState
+    ? game.turnStartedAt + TURN_TIMEOUT_MS
+    : null;
+
+  const isGameOver = !!game.winner;
+
   return {
     myPlayerId: playerId,
     myPlayerIndex: myIdx as 0 | 1,
@@ -74,12 +82,14 @@ export function getClientState(game: GameState, playerId: string): ClientGameSta
     myDiscardCount: me.discardPile.length,
     opponent,
     deckCount: game.decks[myIdx].length,
+    opponentDeckCount: game.decks[oppIdx].length,
     currentPlayerIndex: game.currentPlayerIndex,
     turnPhase: game.turnPhase,
     buildsRemaining: game.buildsRemaining,
     actedStacks: Array.from(game.actedStacks),
     apScores: game.apScores,
     winner: game.winner,
+    winReason: game.winReason,
     turnNumber: game.turnNumber,
     isFirstTurn: game.isFirstTurn,
     combatState: clientCombat,
@@ -88,6 +98,10 @@ export function getClientState(game: GameState, playerId: string): ClientGameSta
     log: game.log,
     playerStats: game.playerStats,
     combatResult: game.combatResult ?? null,
+    turnDeadline,
+    cardStats: isGameOver ? game.cardStats : null,
+    apTimeline: isGameOver ? game.apTimeline : null,
+    turnDurations: isGameOver ? game.turnDurations : null,
   };
 }
 

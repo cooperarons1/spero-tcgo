@@ -5,17 +5,18 @@ interface OpponentFieldProps {
   opponent: ClientPlayerInfo;
   onStackClick?: (stackId: string) => void;
   highlightedStackIds?: string[];
+  opponentHovering?: boolean;
 }
 
 export function OpponentField({ opponent, onStackClick, highlightedStackIds }: OpponentFieldProps) {
+  if (opponent.stacks.length === 0 && opponent.sideplay.length === 0) {
+    return null;
+  }
+
   return (
     <div className="bg-board-surface/40 rounded-xl p-3 border border-board-accent/50">
       <div className="flex items-center justify-between mb-2">
         <span className="text-sm font-bold text-gray-300">{opponent.playerName}</span>
-        <div className="flex gap-3 text-xs text-gray-500">
-          <span>Hand: {opponent.handCount}</span>
-          <span>Discard: {opponent.discardCount}</span>
-        </div>
       </div>
       <Battlefield
         stacks={opponent.stacks}

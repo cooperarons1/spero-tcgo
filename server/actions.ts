@@ -1,8 +1,9 @@
 import type { GameState, CardInstance, Stack, PlayerZone } from '../shared/types.js';
 import { getCardDef } from './cards.js';
 import { canBuildOnStack, defOf } from './rules.js';
-import { advancePhase } from './game.js';
+import { advancePhase, trackCardPlayed } from './game.js';
 import { addLog } from './log.js';
+import { handleOnPlay } from './abilities.js';
 
 let nextStackId = 1;
 
@@ -57,6 +58,7 @@ export function buildCard(
         cards: [removed],
         tapped: false,
         ownerId: playerId,
+        createdOnTurn: game.turnNumber,
       });
     }
 
@@ -65,6 +67,9 @@ export function buildCard(
     const pIdx = game.players.indexOf(player) as 0 | 1;
     addLog(game, pIdx, `${player.playerName} played a card face-down`, 'BUILD');
     game.playerStats[pIdx].cardsPlayed++;
+    game.playerStats[pIdx].buildsUsed++;
+    game.playerStats[pIdx].buildsFaceDown++;
+    trackCardPlayed(game, removed.cardCode);
     if (game.buildsRemaining <= 0) advancePhase(game);
     return { success: true };
   }
@@ -90,6 +95,7 @@ export function buildCard(
       cards: [removed],
       tapped: false,
       ownerId: playerId,
+      createdOnTurn: game.turnNumber,
     });
   }
 
@@ -98,6 +104,15 @@ export function buildCard(
   const pIdx2 = game.players.indexOf(player) as 0 | 1;
   addLog(game, pIdx2, `${player.playerName} played ${cardDef.name}`, 'BUILD');
   game.playerStats[pIdx2].cardsPlayed++;
+  game.playerStats[pIdx2].buildsUsed++;
+  trackCardPlayed(game, removed.cardCode);
+
+  // Handle on-play triggers for face-up cards
+  if (cardDef.rulesText) {
+    const stackId = targetStack ? targetStack.stackId : player.stacks[player.stacks.length - 1].stackId;
+    handleOnPlay(game, playerId, cardDef, stackId);
+  }
+
   if (game.buildsRemaining <= 0) advancePhase(game);
   return { success: true };
 }
@@ -141,6 +156,7 @@ export function splitStack(
     cards: splitCards,
     tapped: stack.tapped, // inherits tapped state
     ownerId: playerId,
+    createdOnTurn: game.turnNumber,
   });
 
   game.buildsRemaining--;

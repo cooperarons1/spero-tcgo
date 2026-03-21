@@ -17,8 +17,8 @@ export function topCharacter(stack: Stack): CardInstance | null {
   return null;
 }
 
-/** Calculate the total Power of a stack (all face-up characters + equipment) */
-export function stackPower(stack: Stack): number {
+/** Calculate the total Power of a stack (all face-up characters + equipment + optional bonus) */
+export function stackPower(stack: Stack, extraBonus?: number): number {
   let total = 0;
   for (const c of stack.cards) {
     if (!c.faceUp) continue;
@@ -27,11 +27,12 @@ export function stackPower(stack: Stack): number {
       total += def.power;
     }
   }
+  if (extraBonus) total += extraBonus;
   return total;
 }
 
 /** Calculate the total Smarts of a stack */
-export function stackSmarts(stack: Stack): number {
+export function stackSmarts(stack: Stack, extraBonus?: number): number {
   let total = 0;
   for (const c of stack.cards) {
     if (!c.faceUp) continue;
@@ -40,6 +41,7 @@ export function stackSmarts(stack: Stack): number {
       total += def.smarts;
     }
   }
+  if (extraBonus) total += extraBonus;
   return total;
 }
 
@@ -197,20 +199,23 @@ export function parseKeywords(rulesText: string): {
   let powerStrategy = 0;
   let smartsStrategy = 0;
 
-  const viciousMatch = rulesText.match(/Vicious[:\s]*(\d+)/i);
+  const viciousMatch = rulesText.match(/Vicious[:\s]*\+?(\d+)/i);
   if (viciousMatch) vicious = parseInt(viciousMatch[1]);
 
-  const psMatch = rulesText.match(/Power Strategy[:\s]*(\d+)/i);
+  const psMatch = rulesText.match(/Power Strategy[:\s]*\+?(\d+)/i);
   if (psMatch) powerStrategy = parseInt(psMatch[1]);
 
-  const ssMatch = rulesText.match(/Smarts Strategy[:\s]*(\d+)/i);
+  const ssMatch = rulesText.match(/Smarts Strategy[:\s]*\+?(\d+)/i);
   if (ssMatch) smartsStrategy = parseInt(ssMatch[1]);
 
   return { vicious, powerStrategy, smartsStrategy };
 }
 
 /** Get combined keywords for all face-up cards in a stack */
-export function getStackKeywords(stack: Stack) {
+export function getStackKeywords(
+  stack: Stack,
+  extraKeywords?: { vicious?: number; powerStrategy?: number; smartsStrategy?: number }
+) {
   let vicious = 0;
   let powerStrategy = 0;
   let smartsStrategy = 0;
@@ -222,6 +227,12 @@ export function getStackKeywords(stack: Stack) {
     vicious += kw.vicious;
     powerStrategy += kw.powerStrategy;
     smartsStrategy += kw.smartsStrategy;
+  }
+
+  if (extraKeywords) {
+    vicious += extraKeywords.vicious ?? 0;
+    powerStrategy += extraKeywords.powerStrategy ?? 0;
+    smartsStrategy += extraKeywords.smartsStrategy ?? 0;
   }
 
   return { vicious, powerStrategy, smartsStrategy };

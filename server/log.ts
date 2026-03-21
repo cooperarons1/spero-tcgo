@@ -24,5 +24,13 @@ export function emptyStats(): PlayerStats {
     combatTricksUsed: 0,
     damageDealt: 0,
     duelsInitiated: 0,
+    blocksAttempted: 0,
+    blocksSucceeded: 0,
+    buildsFaceDown: 0,
+    actionsPlayed: 0,
+    stacksLost: 0,
+    turnsPlayed: 0,
+    buildsUsed: 0,
+    missionsBlocked: 0,
   };
 }

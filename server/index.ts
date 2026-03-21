@@ -4,8 +4,8 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { createRoom, joinRoom, getRoom, getRoomByPlayer, removePlayer } from './room.js';
-import { createGame, endBuildPhase, endActionPhase } from './game.js';
+import { createRoom, joinRoom, getRoom, getRoomByPlayer, removePlayer, clearRoomTimer } from './room.js';
+import { createGame, endBuildPhase, endActionPhase, TURN_TIMEOUT_MS } from './game.js';
 import { buildCard, splitStack, combineStacks, restoreCard } from './actions.js';
 import {
   startPowerMission,
@@ -16,6 +16,7 @@ import {
   playActionCard,
 } from './combat.js';
 import { getClientState } from './clientState.js';
+import { addLog } from './log.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -34,6 +35,44 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: { origin: '*' },
 });
+
+function startRoomTimer(room: ReturnType<typeof getRoom>) {
+  if (!room) return;
+  clearRoomTimer(room);
+  room.timerInterval = setInterval(() => {
+    if (!room.game || room.game.winner) {
+      clearRoomTimer(room);
+      return;
+    }
+    const now = Date.now();
+
+    // Combat interaction timeout (30s, already has timeoutAt)
+    if (room.game.pendingInteraction) {
+      if (now > room.game.pendingInteraction.timeoutAt) {
+        const waitingId = room.game.pendingInteraction.waitingForPlayerId;
+        if (room.game.combatState?.phase === 'AWAITING_BLOCK') {
+          handleBlockDecision(room.game, waitingId, null);
+        } else {
+          handleCombatTrick(room.game, waitingId, null);
+        }
+        broadcastGameState(room.code);
+      }
+      return; // Don't tick turn timer during combat
+    }
+
+    // Turn timer (60s)
+    if (!room.game.turnStartedAt) return;
+    if (now > room.game.turnStartedAt + TURN_TIMEOUT_MS) {
+      const currentId = room.game.players[room.game.currentPlayerIndex].playerId;
+      if (room.game.turnPhase === 'BUILD') {
+        endBuildPhase(room.game, currentId);
+      } else if (room.game.turnPhase === 'ACTION') {
+        endActionPhase(room.game, currentId);
+      }
+      broadcastGameState(room.code);
+    }
+  }, 1000);
+}
 
 function broadcastGameState(roomCode: string) {
   const room = getRoom(roomCode);
@@ -95,6 +134,7 @@ io.on('connection', (socket) => {
 
     const entries = Array.from(room.players.entries()).map(([id, name]) => ({ id, name }));
     room.game = createGame(entries);
+    startRoomTimer(room);
     broadcastGameState(room.code);
   });
 
@@ -264,14 +304,42 @@ io.on('connection', (socket) => {
     broadcastGameState(room.code);
   });
 
+  // ── Concede ──
+
+  socket.on('concede', () => {
+    const room = getRoomByPlayer(socket.id);
+    if (!room?.game || room.game.winner) return;
+    const myIdx = room.game.players.findIndex(p => p.playerId === socket.id);
+    const oppIdx = myIdx === 0 ? 1 : 0;
+    room.game.winner = room.game.players[oppIdx].playerId;
+    room.game.winReason = 'concede';
+    room.game.turnStartedAt = null;
+    room.game.lastAction = `${room.game.players[myIdx].playerName} conceded!`;
+    addLog(room.game, myIdx as 0 | 1, `${room.game.players[myIdx].playerName} conceded`, 'GAME');
+    clearRoomTimer(room);
+    broadcastGameState(room.code);
+  });
+
+  // ── Hover Hand ──
+
+  socket.on('hover-hand', (data: { isHovering: boolean }) => {
+    const room = getRoomByPlayer(socket.id);
+    if (!room?.game) return;
+    for (const [sid] of room.players) {
+      if (sid !== socket.id) io.to(sid).emit('opponent-hovering', data);
+    }
+  });
+
   // ── Play Again ──
 
   socket.on('play-again', () => {
     const room = getRoomByPlayer(socket.id);
     if (!room) return;
 
+    clearRoomTimer(room);
     const entries = Array.from(room.players.entries()).map(([id, name]) => ({ id, name }));
     room.game = createGame(entries);
+    startRoomTimer(room);
     broadcastGameState(room.code);
   });
 
@@ -282,6 +350,9 @@ io.on('connection', (socket) => {
     const room = getRoomByPlayer(socket.id);
     if (room) {
       const code = room.code;
+      if (room.players.size <= 1) {
+        clearRoomTimer(room);
+      }
       removePlayer(socket.id);
       if (!room.game) {
         broadcastLobby(code);

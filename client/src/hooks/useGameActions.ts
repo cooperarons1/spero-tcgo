@@ -57,6 +57,11 @@ export function useGameActions() {
     socket.emit('dismiss-combat-result');
   };
 
+  // Concede
+  const concede = () => {
+    socket.emit('concede');
+  };
+
   // Meta
   const playAgain = () => {
     socket.emit('play-again');
@@ -76,6 +81,7 @@ export function useGameActions() {
     blockDecision,
     playCombatTrick,
     dismissCombatResult,
+    concede,
     playAgain,
   };
 }

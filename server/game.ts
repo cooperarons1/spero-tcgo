@@ -1,7 +1,17 @@
-import type { GameState, PlayerZone, TurnPhase } from '../shared/types.js';
+import type { GameState, CardStats, PlayerZone, TurnPhase } from '../shared/types.js';
 import { createTwoDecks, resetInstanceCounter } from './deck.js';
 import { resetStackCounter } from './actions.js';
 import { addLog, emptyStats } from './log.js';
+import { processSideplayTriggers, getSideplayExtraBuilds } from './abilities.js';
+
+export const TURN_TIMEOUT_MS = 60_000;
+
+export function trackCardPlayed(game: GameState, cardCode: string): void {
+  if (!game.cardStats[cardCode]) {
+    game.cardStats[cardCode] = { timesPlayed: 0, combatWins: 0, combatLosses: 0, trickUses: 0 };
+  }
+  game.cardStats[cardCode].timesPlayed++;
+}
 
 /** Create a new game for two players */
 export function createGame(
@@ -40,23 +50,30 @@ export function createGame(
     }
   }
 
+  const firstPlayer = Math.random() < 0.5 ? 0 : 1;
+
   const game: GameState = {
     players,
     decks,
-    currentPlayerIndex: 0,
+    currentPlayerIndex: firstPlayer,
     turnPhase: 'BUILD', // First player skips UNTAP and DRAW, goes straight to BUILD
     buildsRemaining: 2,
     actedStacks: new Set(),
     apScores: [0, 0],
     winner: null,
+    winReason: null,
     turnNumber: 1,
     isFirstTurn: true, // First player's first turn: no draw, no actions
     combatState: null,
     pendingInteraction: null,
-    lastAction: `Game started! ${players[0].playerName} goes first.`,
+    lastAction: `Game started! ${players[firstPlayer].playerName} goes first.`,
     log: [],
     playerStats: [emptyStats(), emptyStats()],
     combatResult: null,
+    turnDurations: [],
+    apTimeline: [],
+    cardStats: {},
+    turnStartedAt: Date.now(),
   };
 
   addLog(game, null, `Game started! ${players[0].playerName} goes first.`, 'GAME');
@@ -96,12 +113,18 @@ function executePhase(game: GameState): void {
       advancePhase(game);
       break;
 
-    case 'BUILD':
+    case 'BUILD': {
       game.buildsRemaining = 2;
+      // Add sideplay extra builds
+      const extraBuilds = getSideplayExtraBuilds(game, game.currentPlayerIndex);
+      game.buildsRemaining += extraBuilds.extra;
+      game.turnStartedAt = Date.now();
       // Wait for player input
       break;
+    }
 
     case 'ACTION':
+      game.turnStartedAt = Date.now();
       if (game.isFirstTurn) {
         // First player's first turn: skip actions
         game.lastAction = `${currentPlayerName(game)}'s first turn — no actions allowed.`;
@@ -125,9 +148,17 @@ function currentPlayerName(game: GameState): string {
 function doUntap(game: GameState): void {
   const player = game.players[game.currentPlayerIndex];
   for (const stack of player.stacks) {
-    stack.tapped = false;
+    if (stack.skipNextUntap) {
+      stack.skipNextUntap = false;
+      // Don't untap this stack
+    } else {
+      stack.tapped = false;
+    }
   }
   game.actedStacks = new Set();
+
+  // Process sideplay turn-start triggers
+  processSideplayTriggers(game, game.currentPlayerIndex);
 }
 
 /** DRAW: draw 1 card */
@@ -145,6 +176,7 @@ function doDraw(game: GameState): void {
     // Deck-out = lose
     const winnerId = game.currentPlayerIndex === 0 ? 1 : 0;
     game.winner = game.players[winnerId].playerId;
+    game.winReason = 'deckout';
     game.lastAction = `${player.playerName} cannot draw — deck out! ${game.players[winnerId].playerName} wins!`;
     addLog(game, game.currentPlayerIndex, `${player.playerName} decked out!`, 'GAME');
     return;
@@ -157,10 +189,23 @@ function doDraw(game: GameState): void {
 
 /** END: check win, switch to next player */
 function doEnd(game: GameState): void {
+  // Record turn duration
+  if (game.turnStartedAt) {
+    game.turnDurations.push(Date.now() - game.turnStartedAt);
+  }
+  game.turnStartedAt = null;
+
+  // Snapshot AP
+  game.apTimeline.push([game.apScores[0], game.apScores[1]]);
+
+  // Increment turnsPlayed for current player
+  game.playerStats[game.currentPlayerIndex].turnsPlayed++;
+
   // Check 15 AP win
   for (let i = 0; i < 2; i++) {
     if (game.apScores[i as 0 | 1] >= 15) {
       game.winner = game.players[i].playerId;
+      game.winReason = 'ap';
       game.lastAction = `${game.players[i].playerName} wins with ${game.apScores[i as 0 | 1]} AP!`;
       addLog(game, i as 0 | 1, `${game.players[i].playerName} wins with ${game.apScores[i as 0 | 1]} AP!`, 'GAME');
       return;

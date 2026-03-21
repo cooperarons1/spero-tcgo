@@ -33,6 +33,8 @@ export interface Stack {
   cards: CardInstance[]; // bottom-to-top
   tapped: boolean;
   ownerId: string;
+  skipNextUntap?: boolean;
+  createdOnTurn?: number;
 }
 
 // ─── Player Zone ───
@@ -49,6 +51,36 @@ export interface PlayerZone {
 // ─── Turn Phases ───
 
 export type TurnPhase = 'UNTAP' | 'DRAW' | 'BUILD' | 'ACTION' | 'END';
+
+// ─── Combat Trick Effect ───
+
+export interface CombatTrickEffect {
+  statBonus?: { power: number; smarts: number };
+  drawCards?: number;
+  damageToOpposingStack?: number;
+  damageToThisStack?: number;
+  noDamageThisCombat?: boolean;
+  thisStackNoDamage?: boolean;
+  switchStat?: boolean;
+  blockOpponentTricks?: boolean;
+  perCardInStack?: { power: number; smarts: number };
+  perStunnedCard?: { power: number; smarts: number };
+  reduceOpposingCharacterPower?: boolean;
+  opposingNoUntap?: boolean;
+  viciousBonus?: number;
+  smartsStrategyBonus?: number;
+  powerStrategyBonus?: number;
+  conditionalWildAnimal?: CombatTrickEffect;
+  recycleTrickFromDiscard?: boolean;
+  restoreCardInThisStack?: boolean;
+  restoreCardInAnyStack?: boolean;
+  stunCardInOpposingStack?: boolean;
+  stunViciousCard?: boolean;
+  stunSmartsStrategyCard?: boolean;
+  stunPowerStrategyCard?: boolean;
+  destroyEquipmentInOpposingStack?: boolean;
+  drawCardsIfNoDamageTaken?: number;
+}
 
 // ─── Combat State ───
 
@@ -70,6 +102,8 @@ export interface CombatState {
   defenderTrickId: string | null;
   phase: CombatPhase;
   isDuel: boolean;
+  atkTrickEffect: CombatTrickEffect | null;
+  defTrickEffect: CombatTrickEffect | null;
 }
 
 // ─── Pending Interaction ───
@@ -102,6 +136,21 @@ export interface PlayerStats {
   combatTricksUsed: number;
   damageDealt: number;
   duelsInitiated: number;
+  blocksAttempted: number;
+  blocksSucceeded: number;
+  buildsFaceDown: number;
+  actionsPlayed: number;
+  stacksLost: number;
+  turnsPlayed: number;
+  buildsUsed: number;
+  missionsBlocked: number;
+}
+
+export interface CardStats {
+  timesPlayed: number;
+  combatWins: number;
+  combatLosses: number;
+  trickUses: number;
 }
 
 // ─── Combat Result ───
@@ -138,6 +187,7 @@ export interface GameState {
   actedStacks: Set<string>; // stackIds that acted this turn
   apScores: [number, number];
   winner: string | null; // playerId
+  winReason: 'ap' | 'deckout' | 'concede' | null;
   turnNumber: number;
   isFirstTurn: boolean; // first player's first turn (no draw, no actions)
   combatState: CombatState | null;
@@ -146,6 +196,10 @@ export interface GameState {
   log: LogEntry[];
   playerStats: [PlayerStats, PlayerStats];
   combatResult: CombatResult | null;
+  turnDurations: number[];
+  apTimeline: [number, number][];
+  cardStats: Record<string, CardStats>;
+  turnStartedAt: number | null;
 }
 
 // ─── Client State (sanitized per player) ───
@@ -161,6 +215,7 @@ export interface ClientStack {
   cards: ClientCardInstance[];
   tapped: boolean;
   ownerId: string;
+  createdOnTurn?: number;
 }
 
 export interface ClientPlayerInfo {
@@ -196,12 +251,14 @@ export interface ClientGameState {
   myDiscardCount: number;
   opponent: ClientPlayerInfo;
   deckCount: number;
+  opponentDeckCount: number;
   currentPlayerIndex: 0 | 1;
   turnPhase: TurnPhase;
   buildsRemaining: number;
   actedStacks: string[];
   apScores: [number, number];
   winner: string | null;
+  winReason: 'ap' | 'deckout' | 'concede' | null;
   turnNumber: number;
   isFirstTurn: boolean;
   combatState: ClientCombatState | null;
@@ -210,6 +267,10 @@ export interface ClientGameState {
   log: LogEntry[];
   playerStats: [PlayerStats, PlayerStats];
   combatResult: CombatResult | null;
+  turnDeadline: number | null;
+  cardStats: Record<string, CardStats> | null;
+  apTimeline: [number, number][] | null;
+  turnDurations: number[] | null;
 }
 
 // ─── Lobby ───
@@ -227,4 +288,5 @@ export interface Room {
   hostId: string;
   game: GameState | null;
   players: Map<string, string>; // socketId -> playerName
+  timerInterval: ReturnType<typeof setInterval> | null;
 }

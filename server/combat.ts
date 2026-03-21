@@ -1,4 +1,4 @@
-import type { GameState, CombatState, CombatResult, Stack, PlayerZone } from '../shared/types.js';
+import type { GameState, CombatState, CombatResult, CombatTrickEffect, Stack, PlayerZone } from '../shared/types.js';
 import { getCardDef } from './cards.js';
 import {
   stackPower,
@@ -10,6 +10,17 @@ import {
   parseKeywords,
 } from './rules.js';
 import { addLog } from './log.js';
+import { trackCardPlayed } from './game.js';
+import {
+  parseCombatTrickEffect,
+  applyImmediateTrickEffects,
+  calculateTrickStatBonus,
+  calculateTrickViciousBonus,
+  applyPostCombatTrickEffects,
+  handleActionEffect,
+  getSideplayStatBonuses,
+  getSideplayKeywordBonuses,
+} from './abilities.js';
 
 function findPlayer(game: GameState, playerId: string): PlayerZone {
   return game.players.find((z) => z.playerId === playerId)!;
@@ -55,14 +66,24 @@ function startMission(
   const stack = findStack(player, stackId);
   if (!stack) return { success: false, error: 'Stack not found' };
   if (stack.tapped) return { success: false, error: 'Stack is tapped' };
+  if (stack.createdOnTurn === game.turnNumber) return { success: false, error: 'Stack was just built this turn' };
 
-  const stat = missionType === 'POWER' ? stackPower(stack) : stackSmarts(stack);
+  const spBonuses = getSideplayStatBonuses(game, stack, playerId);
+  const stat = missionType === 'POWER'
+    ? stackPower(stack, spBonuses.power)
+    : stackSmarts(stack, spBonuses.smarts);
   if (stat <= 0) return { success: false, error: `Stack has 0 ${missionType.toLowerCase()}` };
 
   const opponent = opponentOf(game, playerId);
 
   // Check if opponent has any stacks that can block
-  const canAnyBlock = opponent.stacks.some((s) => canBlock(s, missionType, stat));
+  const canAnyBlock = opponent.stacks.some((s) => {
+    const defSpBonuses = getSideplayStatBonuses(game, s, s.ownerId);
+    const defStat = missionType === 'POWER'
+      ? stackPower(s, defSpBonuses.power)
+      : stackSmarts(s, defSpBonuses.smarts);
+    return !s.tapped && s.cards.some((c) => c.faceUp) && defStat >= Math.ceil(stat / 2);
+  });
 
   // Tap the stack
   stack.tapped = true;
@@ -73,7 +94,8 @@ function startMission(
 
   if (!canAnyBlock) {
     // Unblocked - score AP immediately, but attacker can still play a trick
-    const keywords = getStackKeywords(stack);
+    const spKeywords = getSideplayKeywordBonuses(game, playerId);
+    const keywords = getStackKeywords(stack, spKeywords);
     const bonusAP = missionType === 'POWER' ? keywords.powerStrategy : keywords.smartsStrategy;
     const totalAP = 1 + bonusAP;
 
@@ -87,6 +109,7 @@ function startMission(
     // Check win
     if (game.apScores[playerIdx] >= 15) {
       game.winner = playerId;
+      game.winReason = 'ap';
       game.lastAction = `${player.playerName} wins with ${game.apScores[playerIdx]} AP!`;
     }
 
@@ -109,6 +132,8 @@ function startMission(
     defenderTrickId: null,
     phase: 'AWAITING_BLOCK',
     isDuel: false,
+    atkTrickEffect: null,
+    defTrickEffect: null,
   };
 
   game.pendingInteraction = {
@@ -139,7 +164,8 @@ export function handleBlockDecision(
   if (!blockingStackId) {
     // Declined to block - attacker scores
     const attackerStack = findStack(attacker, combat.attackerStackId)!;
-    const keywords = getStackKeywords(attackerStack);
+    const spKeywords = getSideplayKeywordBonuses(game, combat.attackerPlayerId);
+    const keywords = getStackKeywords(attackerStack, spKeywords);
     const bonusAP = combat.missionType === 'POWER' ? keywords.powerStrategy : keywords.smartsStrategy;
     const totalAP = 1 + bonusAP;
 
@@ -158,6 +184,7 @@ export function handleBlockDecision(
 
     if (game.apScores[atkIdx] >= 15) {
       game.winner = combat.attackerPlayerId;
+      game.winReason = 'ap';
       game.lastAction = `${attacker.playerName} wins with ${game.apScores[atkIdx]} AP!`;
     }
 
@@ -168,11 +195,24 @@ export function handleBlockDecision(
   const blockStack = findStack(defender, blockingStackId);
   if (!blockStack) return { success: false, error: 'Blocking stack not found' };
 
-  if (!canBlock(blockStack, combat.missionType, combat.attackerStat)) {
+  // Check block eligibility with sideplay bonuses
+  const blockSpBonuses = getSideplayStatBonuses(game, blockStack, playerId);
+  const blockDefStat = combat.missionType === 'POWER'
+    ? stackPower(blockStack, blockSpBonuses.power)
+    : stackSmarts(blockStack, blockSpBonuses.smarts);
+  if (blockStack.tapped || !blockStack.cards.some((c) => c.faceUp) || blockDefStat < Math.ceil(combat.attackerStat / 2)) {
     return { success: false, error: 'Stack cannot block this mission' };
   }
 
-  const defStat = combat.missionType === 'POWER' ? stackPower(blockStack) : stackSmarts(blockStack);
+  const defIdx2 = game.players.indexOf(defender) as 0 | 1;
+  const atkIdx2 = game.players.indexOf(attacker) as 0 | 1;
+  game.playerStats[defIdx2].blocksAttempted++;
+  game.playerStats[atkIdx2].missionsBlocked++;
+
+  const defSpBonuses = getSideplayStatBonuses(game, blockStack, playerId);
+  const defStat = combat.missionType === 'POWER'
+    ? stackPower(blockStack, defSpBonuses.power)
+    : stackSmarts(blockStack, defSpBonuses.smarts);
   combat.defenderStackId = blockingStackId;
   combat.defenderStat = defStat;
   blockStack.tapped = true;
@@ -211,9 +251,31 @@ export function handleCombatTrick(
         return { success: false, error: 'Cannot play this as a combat trick' };
       }
       combat.defenderTrickId = cardInstanceId;
+      // Parse and store trick effect
+      combat.defTrickEffect = parseCombatTrickEffect(cardDef.rulesText);
       // Remove from hand and add to discard
       defender.hand = defender.hand.filter((c) => c.instanceId !== cardInstanceId);
       defender.discardPile.push(card);
+
+      // Apply immediate effects (stuns, restores)
+      if (combat.defTrickEffect) {
+        const attacker = findPlayer(game, combat.attackerPlayerId);
+        const atkStack = findStack(attacker, combat.attackerStackId);
+        const defStack = findStack(defender, combat.defenderStackId!);
+        if (defStack) {
+          applyImmediateTrickEffects(game, combat.defTrickEffect, playerId, defStack, atkStack);
+        }
+      }
+    }
+
+    // Check if defender's trick blocks opponent tricks
+    if (combat.defTrickEffect?.blockOpponentTricks) {
+      // Skip attacker's trick phase, auto-pass
+      const defIdx = game.players.indexOf(findPlayer(game, combat.defenderPlayerId)) as 0 | 1;
+      game.playerStats[defIdx].combatTricksUsed++;
+      addLog(game, defIdx, `Defender plays a combat trick — blocks opponent's tricks!`, 'COMBAT');
+      game.lastAction = `Defender plays a combat trick — blocks opponent's tricks!`;
+      return resolveCombat(game);
     }
 
     // Now attacker plays trick
@@ -249,8 +311,22 @@ export function handleCombatTrick(
         return { success: false, error: 'Cannot play this as a combat trick' };
       }
       combat.attackerTrickId = cardInstanceId;
+      // Parse and store trick effect
+      combat.atkTrickEffect = parseCombatTrickEffect(cardDef.rulesText);
       attacker.hand = attacker.hand.filter((c) => c.instanceId !== cardInstanceId);
       attacker.discardPile.push(card);
+
+      // Apply immediate effects (stuns, restores)
+      if (combat.atkTrickEffect) {
+        const defender = findPlayer(game, combat.defenderPlayerId);
+        const defStack = combat.defenderStackId ? findStack(defender, combat.defenderStackId) : null;
+        const atkStack = findStack(attacker, combat.attackerStackId);
+        if (atkStack) {
+          applyImmediateTrickEffects(game, combat.atkTrickEffect, playerId, atkStack, defStack);
+        }
+      }
+
+      // Check if attacker's trick blocks opponent tricks (shouldn't happen since defender already played, but for completeness)
     }
 
     const atkIdx2 = game.players.indexOf(findPlayer(game, combat.attackerPlayerId)) as 0 | 1;
@@ -269,6 +345,22 @@ export function handleCombatTrick(
   }
 
   return { success: false, error: 'Not awaiting a combat trick' };
+}
+
+function ensureCardStats(game: GameState, cardCode: string): void {
+  if (!game.cardStats[cardCode]) {
+    game.cardStats[cardCode] = { timesPlayed: 0, combatWins: 0, combatLosses: 0, trickUses: 0 };
+  }
+}
+
+function getTopCharacterCode(stack: Stack): string | null {
+  for (let i = stack.cards.length - 1; i >= 0; i--) {
+    if (stack.cards[i].faceUp) {
+      const d = getCardDef(stack.cards[i].cardCode);
+      if (d.typeA === 'CHARACTER') return stack.cards[i].cardCode;
+    }
+  }
+  return null;
 }
 
 /** Get top character name from a stack */
@@ -292,10 +384,45 @@ function resolveCombat(game: GameState): { success: boolean; error?: string } {
   const atkStack = findStack(attacker, combat.attackerStackId)!;
   const defStack = findStack(defender, combat.defenderStackId!)!;
 
-  // Calculate final stats including tricks
-  let atkTotal = combat.attackerStat;
-  let defTotal = combat.defenderStat;
+  // Handle stat switch trick effect
+  let missionType = combat.missionType;
+  if (combat.atkTrickEffect?.switchStat || combat.defTrickEffect?.switchStat) {
+    missionType = missionType === 'POWER' ? 'SMARTS' : 'POWER';
+  }
 
+  // Recalculate base stats after immediate effects (stuns may have changed them)
+  const atkSpBonuses2 = getSideplayStatBonuses(game, atkStack, combat.attackerPlayerId);
+  const defSpBonuses2 = getSideplayStatBonuses(game, defStack, combat.defenderPlayerId);
+  let atkBase = missionType === 'POWER'
+    ? stackPower(atkStack, atkSpBonuses2.power)
+    : stackSmarts(atkStack, atkSpBonuses2.smarts);
+  let defBase = missionType === 'POWER'
+    ? stackPower(defStack, defSpBonuses2.power)
+    : stackSmarts(defStack, defSpBonuses2.smarts);
+
+  // Handle reduce opposing character power
+  if (combat.defTrickEffect?.reduceOpposingCharacterPower && missionType === 'POWER') {
+    // Reduce attacker's top character power to 0 — recalculate without it
+    let reducedPower = 0;
+    for (const c of atkStack.cards) {
+      if (!c.faceUp) continue;
+      const d = defOf(c);
+      if (d.typeA === 'EQUIPMENT') reducedPower += d.power;
+      // Skip CHARACTER power contribution (set to 0)
+    }
+    atkBase = reducedPower;
+  }
+  if (combat.atkTrickEffect?.reduceOpposingCharacterPower && missionType === 'POWER') {
+    let reducedPower = 0;
+    for (const c of defStack.cards) {
+      if (!c.faceUp) continue;
+      const d = defOf(c);
+      if (d.typeA === 'EQUIPMENT') reducedPower += d.power;
+    }
+    defBase = reducedPower;
+  }
+
+  // Calculate trick stat bonuses
   let atkTrickName: string | null = null;
   let atkTrickBonus = 0;
   let defTrickName: string | null = null;
@@ -305,9 +432,12 @@ function resolveCombat(game: GameState): { success: boolean; error?: string } {
     const trickCard = [...attacker.discardPile].find((c) => c.instanceId === combat.attackerTrickId);
     if (trickCard) {
       const td = getCardDef(trickCard.cardCode);
-      atkTrickBonus = combat.missionType === 'POWER' ? td.power : td.smarts;
       atkTrickName = td.name;
-      atkTotal += atkTrickBonus;
+      // Use card's raw stat + effect-based bonus
+      atkTrickBonus = (missionType === 'POWER' ? td.power : td.smarts);
+      if (combat.atkTrickEffect) {
+        atkTrickBonus += calculateTrickStatBonus(combat.atkTrickEffect, missionType, atkStack);
+      }
     }
   }
 
@@ -315,15 +445,42 @@ function resolveCombat(game: GameState): { success: boolean; error?: string } {
     const trickCard = [...defender.discardPile].find((c) => c.instanceId === combat.defenderTrickId);
     if (trickCard) {
       const td = getCardDef(trickCard.cardCode);
-      defTrickBonus = combat.missionType === 'POWER' ? td.power : td.smarts;
       defTrickName = td.name;
-      defTotal += defTrickBonus;
+      defTrickBonus = (missionType === 'POWER' ? td.power : td.smarts);
+      if (combat.defTrickEffect) {
+        defTrickBonus += calculateTrickStatBonus(combat.defTrickEffect, missionType, defStack);
+      }
     }
   }
 
-  // Get keywords
-  const atkKeywords = getStackKeywords(atkStack);
-  const defKeywords = getStackKeywords(defStack);
+  let atkTotal = atkBase + atkTrickBonus;
+  let defTotal = defBase + defTrickBonus;
+
+  // Get keywords with sideplay bonuses
+  const atkSpKeywords = getSideplayKeywordBonuses(game, combat.attackerPlayerId);
+  const defSpKeywords = getSideplayKeywordBonuses(game, combat.defenderPlayerId);
+  const atkKeywords = getStackKeywords(atkStack, atkSpKeywords);
+  const defKeywords = getStackKeywords(defStack, defSpKeywords);
+
+  // Add trick-based keyword bonuses
+  let atkVicious = atkKeywords.vicious;
+  let defVicious = defKeywords.vicious;
+  if (combat.atkTrickEffect) atkVicious += calculateTrickViciousBonus(combat.atkTrickEffect, atkStack);
+  if (combat.defTrickEffect) defVicious += calculateTrickViciousBonus(combat.defTrickEffect, defStack);
+
+  // Strategy bonuses from tricks
+  if (combat.atkTrickEffect?.powerStrategyBonus && missionType === 'POWER') {
+    // Power Strategy from trick doesn't add stat, it adds bonus AP — but only on unblocked
+    // Since we're in blocked combat, this doesn't do anything extra for AP
+  }
+  if (combat.atkTrickEffect?.smartsStrategyBonus && missionType === 'SMARTS') {
+    // Same
+  }
+
+  // Check no-damage flags
+  const noDamage = !!(combat.atkTrickEffect?.noDamageThisCombat || combat.defTrickEffect?.noDamageThisCombat);
+  const atkNoDamage = !!(combat.atkTrickEffect?.thisStackNoDamage);
+  const defNoDamage = !!(combat.defTrickEffect?.thisStackNoDamage);
 
   // Determine loser(s)
   const atkLoses = defTotal >= atkTotal; // tie = both lose
@@ -336,20 +493,24 @@ function resolveCombat(game: GameState): { success: boolean; error?: string } {
   const atkPlayerIdx = game.players.indexOf(attacker) as 0 | 1;
   const defPlayerIdx = game.players.indexOf(defender) as 0 | 1;
 
-  if (defLoses) {
-    const dmg = 1 + atkKeywords.vicious;
+  if (defLoses && !noDamage && !defNoDamage) {
+    const dmg = 1 + atkVicious;
     defenderDamage = dmg;
     applyDamage(defStack, defender, dmg);
     results.push(`Defender takes ${dmg} damage`);
     game.playerStats[atkPlayerIdx].damageDealt += dmg;
+  } else if (defLoses && (noDamage || defNoDamage)) {
+    results.push(`Defender would take damage but is protected`);
   }
 
-  if (atkLoses) {
-    const dmg = 1 + defKeywords.vicious;
+  if (atkLoses && !noDamage && !atkNoDamage) {
+    const dmg = 1 + defVicious;
     attackerDamage = dmg;
     applyDamage(atkStack, attacker, dmg);
     results.push(`Attacker takes ${dmg} damage`);
     game.playerStats[defPlayerIdx].damageDealt += dmg;
+  } else if (atkLoses && (noDamage || atkNoDamage)) {
+    results.push(`Attacker would take damage but is protected`);
   }
 
   // Determine outcome
@@ -358,16 +519,29 @@ function resolveCombat(game: GameState): { success: boolean; error?: string } {
   else if (defTotal > atkTotal) outcome = 'DEF_WIN';
   else outcome = 'TIE';
 
+  // Award AP for winning a blocked combat (non-duel)
+  let apAwarded = 0;
+  if (outcome === 'ATK_WIN' && !combat.isDuel) {
+    apAwarded = 1;
+    game.apScores[atkPlayerIdx] += apAwarded;
+    game.playerStats[atkPlayerIdx].apEarned += apAwarded;
+    addLog(game, atkPlayerIdx, `Attacker wins combat — +${apAwarded} AP`, 'AP');
+    if (game.apScores[atkPlayerIdx] >= 15) {
+      game.winner = combat.attackerPlayerId;
+      game.winReason = 'ap';
+    }
+  }
+
   // Build CombatResult
   const combatResult: CombatResult = {
-    missionType: combat.missionType,
+    missionType,
     isDuel: combat.isDuel,
     attackerName: attacker.playerName,
     defenderName: defender.playerName,
     attackerStackName: getStackTopName(atkStack),
     defenderStackName: getStackTopName(defStack),
-    attackerBase: combat.attackerStat,
-    defenderBase: combat.defenderStat,
+    attackerBase: atkBase,
+    defenderBase: defBase,
     attackerTrickName: atkTrickName,
     attackerTrickBonus: atkTrickBonus,
     defenderTrickName: defTrickName,
@@ -377,12 +551,67 @@ function resolveCombat(game: GameState): { success: boolean; error?: string } {
     outcome,
     attackerDamage,
     defenderDamage,
-    apAwarded: 0,
+    apAwarded,
   };
   game.combatResult = combatResult;
 
+  // Apply post-combat trick effects (draw, damage to opposing stack, untap prevention)
+  if (combat.atkTrickEffect) {
+    applyPostCombatTrickEffects(
+      game, combat.atkTrickEffect, combat.attackerPlayerId,
+      atkStack, defStack, attackerDamage > 0
+    );
+  }
+  if (combat.defTrickEffect) {
+    applyPostCombatTrickEffects(
+      game, combat.defTrickEffect, combat.defenderPlayerId,
+      defStack, atkStack, defenderDamage > 0
+    );
+  }
+
+  // Track blocksSucceeded
+  if (outcome === 'DEF_WIN') {
+    game.playerStats[defPlayerIdx].blocksSucceeded++;
+  }
+
+  // Per-card combat wins/losses (top character of each stack)
+  const atkTopCard = getTopCharacterCode(atkStack);
+  const defTopCard = getTopCharacterCode(defStack);
+  if (atkTopCard) {
+    ensureCardStats(game, atkTopCard);
+    if (outcome === 'ATK_WIN') game.cardStats[atkTopCard].combatWins++;
+    else game.cardStats[atkTopCard].combatLosses++;
+  }
+  if (defTopCard) {
+    ensureCardStats(game, defTopCard);
+    if (outcome === 'DEF_WIN') game.cardStats[defTopCard].combatWins++;
+    else game.cardStats[defTopCard].combatLosses++;
+  }
+
+  // Track trick uses on card stats
+  if (combat.attackerTrickId) {
+    const trickCard = attacker.discardPile.find((c) => c.instanceId === combat.attackerTrickId);
+    if (trickCard) {
+      ensureCardStats(game, trickCard.cardCode);
+      game.cardStats[trickCard.cardCode].trickUses++;
+    }
+  }
+  if (combat.defenderTrickId) {
+    const trickCard = defender.discardPile.find((c) => c.instanceId === combat.defenderTrickId);
+    if (trickCard) {
+      ensureCardStats(game, trickCard.cardCode);
+      game.cardStats[trickCard.cardCode].trickUses++;
+    }
+  }
+
   game.lastAction = `Combat resolved (ATK ${atkTotal} vs DEF ${defTotal}): ${results.join(', ')}`;
   addLog(game, null, `Combat resolved (ATK ${atkTotal} vs DEF ${defTotal}): ${results.join(', ')}`, 'COMBAT');
+
+  // Track stacksLost before cleanup
+  const atkStackLost = atkStack.cards.length === 0;
+  const defStackLost = defStack.cards.length === 0;
+  if (atkStackLost) game.playerStats[atkPlayerIdx].stacksLost++;
+  if (defStackLost) game.playerStats[defPlayerIdx].stacksLost++;
 
   // Clean up empty stacks
   attacker.stacks = attacker.stacks.filter((s) => s.cards.length > 0);
@@ -431,10 +660,13 @@ export function startDuel(
   if (!atkStack) return { success: false, error: 'Attacker stack not found' };
   if (!defStack) return { success: false, error: 'Target stack not found' };
   if (atkStack.tapped) return { success: false, error: 'Attacker stack is tapped' };
+  if (atkStack.createdOnTurn === game.turnNumber) return { success: false, error: 'Stack was just built this turn' };
 
   // Duel uses Power by default
-  const atkStat = stackPower(atkStack);
-  const defStat = stackPower(defStack);
+  const atkSpBonuses = getSideplayStatBonuses(game, atkStack, playerId);
+  const defSpBonuses2 = getSideplayStatBonuses(game, defStack, opponent.playerId);
+  const atkStat = stackPower(atkStack, atkSpBonuses.power);
+  const defStat = stackPower(defStack, defSpBonuses2.power);
 
   atkStack.tapped = true;
   game.actedStacks.add(attackerStackId);
@@ -456,6 +688,8 @@ export function startDuel(
     defenderTrickId: null,
     phase: 'AWAITING_DEFENDER_TRICK',
     isDuel: true,
+    atkTrickEffect: null,
+    defTrickEffect: null,
   };
 
   game.pendingInteraction = {
@@ -516,6 +750,8 @@ export function playActionCard(
 
   const actionPlayerIdx = game.players.indexOf(player) as 0 | 1;
   game.playerStats[actionPlayerIdx].cardsPlayed++;
+  game.playerStats[actionPlayerIdx].actionsPlayed++;
+  trackCardPlayed(game, card.cardCode);
 
   // Check if it's a Sideplay card
   if (cardDef.typeB === 'SIDEPLAY') {
@@ -526,6 +762,9 @@ export function playActionCard(
     player.discardPile.push(card);
     game.lastAction = `${player.playerName} played action: ${cardDef.name}`;
     addLog(game, actionPlayerIdx, `${player.playerName} played action: ${cardDef.name}`, 'BUILD');
+
+    // Execute action card effects
+    handleActionEffect(game, playerId, cardDef, stackId);
   }
 
   return { success: true };

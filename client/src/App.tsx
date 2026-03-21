@@ -8,6 +8,7 @@ function App() {
   const [lobby, setLobby] = useState<LobbyState | null>(null);
   const [gameState, setGameState] = useState<ClientGameState | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [opponentHovering, setOpponentHovering] = useState(false);
 
   useEffect(() => {
     socket.on('lobby-update', (data: LobbyState) => {
@@ -18,6 +19,7 @@ function App() {
     socket.on('game-state', (state: ClientGameState) => {
       setGameState(state);
       setLobby(null);
+      setOpponentHovering(false);
     });
 
     socket.on('error', (msg: string) => {
@@ -25,10 +27,15 @@ function App() {
       setTimeout(() => setError(null), 3000);
     });
 
+    socket.on('opponent-hovering', (data: { isHovering: boolean }) => {
+      setOpponentHovering(data.isHovering);
+    });
+
     return () => {
       socket.off('lobby-update');
       socket.off('game-state');
       socket.off('error');
+      socket.off('opponent-hovering');
     };
   }, []);
 
@@ -41,7 +48,7 @@ function App() {
       )}
 
       {gameState ? (
-        <GameBoard gameState={gameState} />
+        <GameBoard gameState={gameState} opponentHovering={opponentHovering} />
       ) : (
         <Lobby lobby={lobby} />
       )}

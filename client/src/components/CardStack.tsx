@@ -9,13 +9,20 @@ interface CardStackProps {
   onStackClick?: () => void;
   highlighted?: boolean;
   actionLabel?: string;
+  isActionPhase?: boolean;
+  acted?: boolean;
+  onPowerMission?: (stackId: string) => void;
+  onSmartsMission?: (stackId: string) => void;
+  onDuel?: (stackId: string) => void;
+  turnNumber?: number;
 }
 
-export function CardStack({ stack, isOwner, onCardClick, onStackClick, highlighted, actionLabel }: CardStackProps) {
+export function CardStack({ stack, isOwner, onCardClick, onStackClick, highlighted, actionLabel, isActionPhase, acted, onPowerMission, onSmartsMission, onDuel, turnNumber }: CardStackProps) {
   const power = clientStackPower(stack);
   const smarts = clientStackSmarts(stack);
   const name = topCharacterName(stack);
   const color = clientStackColor(stack);
+  const hasSummoningSickness = turnNumber !== undefined && stack.createdOnTurn === turnNumber;
 
   const colorAccent: Record<string, string> = {
     red: 'border-spero-red/60',
@@ -38,22 +45,17 @@ export function CardStack({ stack, isOwner, onCardClick, onStackClick, highlight
       `}
       onClick={onStackClick}
     >
-      {/* Stack name */}
-      <div className="text-[10px] font-bold text-gray-300 truncate max-w-20">
-        {name}
-      </div>
-
-      {/* Fanned cards */}
-      <div className="relative" style={{ height: `${Math.min(120, 50 + stack.cards.length * 16)}px`, width: '64px' }}>
+      {/* Fanned cards — no height cap */}
+      <div className="relative" style={{ height: `${80 + stack.cards.length * 32}px`, width: '144px' }}>
         {stack.cards.map((card, i) => (
           <div
             key={card.instanceId}
-            className="absolute left-0"
-            style={{ top: `${i * 16}px`, zIndex: i }}
+            className="absolute left-0 hover:scale-125 hover:z-50 transition-transform duration-200"
+            style={{ top: `${i * 32}px`, zIndex: i }}
           >
             <Card
               card={card}
-              size="sm"
+              size="md"
               onClick={onCardClick ? () => onCardClick(card.instanceId) : undefined}
             />
           </div>
@@ -61,10 +63,9 @@ export function CardStack({ stack, isOwner, onCardClick, onStackClick, highlight
       </div>
 
       {/* Stats bar */}
-      <div className="flex gap-2 text-[10px] font-bold">
-        {smarts > 0 && <span className="text-blue-400">S:{smarts}</span>}
+      <div className="flex gap-2 text-base font-bold">
         {power > 0 && <span className="text-red-400">P:{power}</span>}
-        <span className="text-gray-500">x{stack.cards.length}</span>
+        {smarts > 0 && <span className="text-blue-400">S:{smarts}</span>}
       </div>
 
       {/* Tapped indicator */}
@@ -79,6 +80,35 @@ export function CardStack({ stack, isOwner, onCardClick, onStackClick, highlight
         <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-spero-yellow text-black text-[8px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
           {actionLabel}
         </span>
+      )}
+
+      {/* Summoning sickness indicator */}
+      {hasSummoningSickness && (
+        <span className="absolute -top-1 -left-1 bg-yellow-600 text-[8px] text-white px-1 rounded">
+          NEW
+        </span>
+      )}
+
+      {/* Inline action buttons during ACTION phase */}
+      {isActionPhase && !stack.tapped && !acted && !hasSummoningSickness && (
+        <div className="flex gap-1 mt-1.5 justify-center animate-action-pop">
+          {power > 0 && (
+            <button onClick={(e) => { e.stopPropagation(); onPowerMission?.(stack.stackId); }}
+              className="bg-spero-red text-white text-[10px] font-bold px-2 py-0.5 rounded-full hover:brightness-125 active:scale-95 transition-all cursor-pointer">
+              PWR
+            </button>
+          )}
+          {smarts > 0 && (
+            <button onClick={(e) => { e.stopPropagation(); onSmartsMission?.(stack.stackId); }}
+              className="bg-spero-blue text-white text-[10px] font-bold px-2 py-0.5 rounded-full hover:brightness-125 active:scale-95 transition-all cursor-pointer">
+              SMT
+            </button>
+          )}
+          <button onClick={(e) => { e.stopPropagation(); onDuel?.(stack.stackId); }}
+            className="bg-gray-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full hover:brightness-125 active:scale-95 transition-all cursor-pointer">
+            DUEL
+          </button>
+        </div>
       )}
     </div>
   );

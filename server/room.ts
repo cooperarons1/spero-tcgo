@@ -11,6 +11,13 @@ function generateCode(): string {
   return code;
 }
 
+export function clearRoomTimer(room: Room): void {
+  if (room.timerInterval) {
+    clearInterval(room.timerInterval);
+    room.timerInterval = null;
+  }
+}
+
 export function createRoom(hostId: string, hostName: string): Room {
   const code = generateCode();
   const room: Room = {
@@ -18,6 +25,7 @@ export function createRoom(hostId: string, hostName: string): Room {
     hostId,
     game: null,
     players: new Map([[hostId, hostName]]),
+    timerInterval: null,
   };
   rooms.set(code, room);
   return room;

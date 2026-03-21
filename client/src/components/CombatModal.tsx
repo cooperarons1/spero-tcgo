@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import type { ClientGameState } from '../../../shared/types';
 import { Card } from './Card';
-import { getCardDef } from '../utils/stackHelpers';
+import { getCardDef, topCharacterName } from '../utils/stackHelpers';
 
 interface CombatModalProps {
   gameState: ClientGameState;
@@ -63,7 +63,7 @@ export function CombatModal({ gameState, onBlock, onCombatTrick, onDismissCombat
                     onClick={() => onBlock(s.stackId)}
                     className="bg-board-accent hover:bg-spero-blue/30 border border-spero-blue rounded-lg px-4 py-2 text-sm font-bold text-white cursor-pointer transition-all hover:scale-105"
                   >
-                    Stack ({s.cards.length} cards)
+                    {topCharacterName(s)} ({s.cards.length} cards)
                   </button>
                 ))}
               </div>

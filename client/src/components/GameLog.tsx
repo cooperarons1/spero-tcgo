@@ -22,10 +22,10 @@ const categoryLabels: Record<LogCategory, string> = {
 interface GameLogProps {
   log: LogEntry[];
   myPlayerIndex: 0 | 1;
-  onClose: () => void;
+  onClose?: () => void;
 }
 
-export function GameLog({ log, myPlayerIndex, onClose }: GameLogProps) {
+export function GameLog({ log, myPlayerIndex }: GameLogProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -33,18 +33,12 @@ export function GameLog({ log, myPlayerIndex, onClose }: GameLogProps) {
   }, [log.length]);
 
   return (
-    <div className="w-[280px] bg-board-surface border-l border-board-accent flex flex-col h-full shrink-0">
-      <div className="flex items-center justify-between px-3 py-2 border-b border-board-accent">
-        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Game Log</span>
-        <button
-          onClick={onClose}
-          className="text-gray-500 hover:text-white text-sm cursor-pointer"
-        >
-          &times;
-        </button>
+    <div className="flex flex-col h-full">
+      <div className="px-2 py-1.5">
+        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Game Log</span>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-2 py-1 space-y-1">
+      <div className="flex-1 overflow-y-auto px-1 py-1 space-y-0.5">
         {log.map((entry) => {
           const isMe = entry.playerIndex === myPlayerIndex;
           const isOpponent = entry.playerIndex !== null && !isMe;
@@ -52,14 +46,14 @@ export function GameLog({ log, myPlayerIndex, onClose }: GameLogProps) {
           return (
             <div
               key={entry.id}
-              className={`flex items-start gap-2 text-xs py-1 border-l-2 pl-2 ${categoryColors[entry.category]}`}
+              className={`flex items-start gap-1.5 text-[11px] py-0.5 border-l-2 pl-1.5 ${categoryColors[entry.category]}`}
             >
-              <span className="text-gray-600 shrink-0 w-5 text-right">{entry.turnNumber}</span>
-              <span className="text-gray-500 shrink-0 w-7 text-[10px] font-mono">
+              <span className="text-gray-600 shrink-0 w-4 text-right">{entry.turnNumber}</span>
+              <span className="text-gray-500 shrink-0 w-6 text-[9px] font-mono">
                 {categoryLabels[entry.category]}
               </span>
               <span
-                className={`leading-relaxed ${
+                className={`leading-snug ${
                   isMe ? 'text-spero-green' : isOpponent ? 'text-spero-red' : 'text-gray-400'
                 }`}
               >

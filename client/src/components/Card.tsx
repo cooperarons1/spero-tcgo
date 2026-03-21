@@ -14,9 +14,9 @@ interface CardProps {
 }
 
 const sizeMap = {
-  sm: 'w-16 h-22',
-  md: 'w-24 h-34',
-  lg: 'w-32 h-44',
+  sm: 'w-24 h-[132px]',
+  md: 'w-36 h-[198px]',
+  lg: 'w-48 h-[264px]',
 };
 
 export function Card({ card, onClick, disabled, highlighted, size = 'md' }: CardProps) {
@@ -66,7 +66,7 @@ export function Card({ card, onClick, disabled, highlighted, size = 'md' }: Card
           flex flex-col overflow-hidden relative
           transition-all duration-200
           ${onClick && !disabled ? 'cursor-pointer hover:-translate-y-2 hover:shadow-lg hover:shadow-white/20 active:scale-95' : ''}
-          ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
+          ${disabled ? 'cursor-not-allowed' : ''}
           ${highlighted ? 'animate-pulse-glow -translate-y-1 ring-2 ring-white/50' : ''}
         `}
       >
@@ -76,39 +76,18 @@ export function Card({ card, onClick, disabled, highlighted, size = 'md' }: Card
           alt={def.name}
           className="absolute inset-0 w-full h-full object-cover rounded-lg"
           onError={(e) => {
-            (e.target as HTMLImageElement).style.display = 'none';
+            const el = e.target as HTMLImageElement;
+            el.style.display = 'none';
+            el.parentElement?.classList.add('fallback-card');
           }}
         />
 
-        {/* Stats overlay */}
-        <div className="absolute inset-0 flex flex-col justify-between p-0.5 pointer-events-none">
-          {/* Cost badge */}
-          <div className="flex justify-between items-start">
-            <span className="bg-black/70 text-white text-[10px] font-bold rounded px-1">
-              {def.cost}
-            </span>
-            {size !== 'sm' && (
-              <span className="bg-black/70 text-white text-[8px] rounded px-1 max-w-[60%] truncate">
-                {def.name}
-              </span>
-            )}
-          </div>
-
-          {/* Bottom stats */}
-          <div className="flex justify-between items-end">
-            {def.smarts > 0 && (
-              <span className="bg-blue-600/90 text-white text-[10px] font-bold rounded px-1">
-                S:{def.smarts}
-              </span>
-            )}
-            <span className="flex-1" />
-            {def.power > 0 && (
-              <span className="bg-red-600/90 text-white text-[10px] font-bold rounded px-1">
-                P:{def.power}
-              </span>
-            )}
-          </div>
+        {/* Fallback overlay — only visible when image fails */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-2 hidden [.fallback-card>&]:flex">
+          <span className="text-white text-xs font-bold text-center">{def.name}</span>
+          <span className="text-gray-400 text-[10px]">{def.typeA}</span>
         </div>
+
       </button>
       {tooltipVisible && btnRef.current && (
         <CardTooltip cardDef={def} anchorRect={btnRef.current.getBoundingClientRect()} />

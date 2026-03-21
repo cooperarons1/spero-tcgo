@@ -1,5 +1,6 @@
 import { createPortal } from 'react-dom';
 import type { CardDef } from '../../../shared/types';
+import { getCardImagePath } from '../utils/cardImages';
 
 const colorMap: Record<string, string> = {
   red: 'text-spero-red',
@@ -26,10 +27,17 @@ interface CardTooltipProps {
 
 export function CardTooltip({ cardDef, anchorRect }: CardTooltipProps) {
   const flipBelow = anchorRect.top < 200;
+  const tooltipWidth = 320;
+
+  // Clamp horizontally to stay within viewport
+  const rawLeft = anchorRect.left + anchorRect.width / 2;
+  const minLeft = tooltipWidth / 2 + 8;
+  const maxLeft = window.innerWidth - tooltipWidth / 2 - 8;
+  const clampedLeft = Math.max(minLeft, Math.min(maxLeft, rawLeft));
 
   const style: React.CSSProperties = {
     position: 'fixed',
-    left: anchorRect.left + anchorRect.width / 2,
+    left: clampedLeft,
     transform: 'translateX(-50%)',
     zIndex: 100,
     ...(flipBelow
@@ -40,46 +48,61 @@ export function CardTooltip({ cardDef, anchorRect }: CardTooltipProps) {
   return createPortal(
     <div
       style={style}
-      className="bg-board-surface border border-board-accent rounded-lg shadow-2xl p-3 text-sm max-w-[250px] animate-tooltip-fade pointer-events-none"
+      className="bg-board-surface border border-board-accent rounded-lg shadow-2xl text-sm max-w-[320px] w-[320px] animate-tooltip-fade pointer-events-none overflow-hidden"
     >
-      {/* Header */}
-      <div className="flex justify-between items-start gap-2 mb-1">
-        <span className="font-bold text-white leading-tight">{cardDef.name}</span>
-        <span className="text-gray-400 text-xs shrink-0">Cost {cardDef.cost}</span>
-      </div>
+      {/* Card image */}
+      <img
+        src={getCardImagePath(cardDef.cardCode)}
+        alt={cardDef.name}
+        className="w-full h-44 object-cover"
+        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+      />
 
-      {/* Type line */}
-      <div className="text-xs text-gray-400 mb-2">
-        {cardDef.typeA}{cardDef.typeB ? ` — ${cardDef.typeB}` : ''}
-      </div>
+      <div className="p-3">
+        {/* Header */}
+        <div className="flex justify-between items-start gap-2 mb-1">
+          <span className="text-lg font-bold text-white leading-tight">{cardDef.name}</span>
+          <span className="text-gray-400 text-sm shrink-0">Cost {cardDef.cost}</span>
+        </div>
 
-      <div className="border-t border-board-accent my-1" />
-
-      {/* Stats row */}
-      <div className="flex items-center gap-3 text-xs mb-1">
-        {cardDef.power > 0 && (
-          <span className="text-spero-red font-bold">P: {cardDef.power}</span>
-        )}
-        {cardDef.smarts > 0 && (
-          <span className="text-spero-blue font-bold">S: {cardDef.smarts}</span>
-        )}
-        <span className="flex items-center gap-1">
-          <span className={`w-2 h-2 rounded-full ${colorDot[cardDef.color] ?? colorDot.none}`} />
-          <span className={`${colorMap[cardDef.color] ?? colorMap.none} capitalize`}>
-            {cardDef.color}
+        {/* Type line */}
+        <div className="text-sm text-gray-400 mb-2">
+          {cardDef.typeA}{cardDef.typeB ? ` — ${cardDef.typeB}` : ''}
+          <span className="ml-2 inline-flex items-center gap-1">
+            <span className={`w-2 h-2 rounded-full ${colorDot[cardDef.color] ?? colorDot.none}`} />
+            <span className={`${colorMap[cardDef.color] ?? colorMap.none} capitalize`}>
+              {cardDef.color}
+            </span>
           </span>
-        </span>
-      </div>
+        </div>
 
-      {/* Rules text */}
-      {cardDef.rulesText && (
-        <>
-          <div className="border-t border-board-accent my-1" />
-          <p className="text-gray-300 text-xs leading-relaxed whitespace-pre-wrap">
-            {cardDef.rulesText}
-          </p>
-        </>
-      )}
+        <div className="border-t border-board-accent my-1" />
+
+        {/* Stats row */}
+        <div className="flex items-center gap-2 text-base font-bold mb-2">
+          {cardDef.power > 0 && (
+            <span className="bg-red-600/20 text-spero-red px-2 py-0.5 rounded-full text-sm">P: {cardDef.power}</span>
+          )}
+          {cardDef.smarts > 0 && (
+            <span className="bg-blue-600/20 text-spero-blue px-2 py-0.5 rounded-full text-sm">S: {cardDef.smarts}</span>
+          )}
+        </div>
+
+        {/* Rules text */}
+        {cardDef.rulesText && (
+          <>
+            <div className="border-t border-board-accent my-1" />
+            <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
+              {cardDef.rulesText}
+            </p>
+          </>
+        )}
+
+        {/* Flavor text */}
+        {(cardDef as any).flavorText && (
+          <p className="text-xs italic text-gray-500 mt-1">{(cardDef as any).flavorText}</p>
+        )}
+      </div>
     </div>,
     document.body
   );

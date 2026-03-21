@@ -9,9 +9,9 @@ export function SideplayZone({ cards }: SideplayZoneProps) {
   if (cards.length === 0) return null;
 
   return (
-    <div className="bg-board-accent/30 rounded-lg p-2 border border-board-accent">
-      <div className="text-[10px] font-bold text-gray-500 mb-1">SIDEPLAY</div>
-      <div className="flex gap-1 flex-wrap">
+    <div className="bg-board-surface rounded-xl p-3 border border-board-accent">
+      <div className="text-xs uppercase tracking-wider text-gray-600 mb-1">Sideplay</div>
+      <div className="flex flex-col gap-1">
         {cards.map((card) => (
           <Card key={card.instanceId} card={card} size="sm" />
         ))}
