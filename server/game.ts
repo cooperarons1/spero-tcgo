@@ -1,4 +1,5 @@
 import type { GameState, CardStats, PlayerZone, TurnPhase } from '../shared/types.js';
+import { AP_TO_WIN } from '../shared/types.js';
 import { createTwoDecks, createDeckFromList, resetInstanceCounter } from './deck.js';
 import { resetStackCounter } from './actions.js';
 import { addLog, emptyStats } from './log.js';
@@ -213,9 +214,9 @@ function doEnd(game: GameState): void {
   // Increment turnsPlayed for current player
   game.playerStats[game.currentPlayerIndex].turnsPlayed++;
 
-  // Check 15 AP win
+  // Check AP win
   for (let i = 0; i < 2; i++) {
-    if (game.apScores[i as 0 | 1] >= 15) {
+    if (game.apScores[i as 0 | 1] >= AP_TO_WIN) {
       game.winner = game.players[i].playerId;
       game.winReason = 'ap';
       game.lastAction = `${game.players[i].playerName} wins with ${game.apScores[i as 0 | 1]} AP!`;

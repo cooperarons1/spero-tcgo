@@ -1,7 +1,7 @@
 import type { ClientStack } from '../../../shared/types';
 import type { GameEffect } from '../hooks/useGameAnimations';
 import { Card } from './Card';
-import { clientStackPower, clientStackSmarts, topCharacterName, clientStackColor } from '../utils/stackHelpers';
+import { clientStackPower, clientStackSmarts, topCharacterName, clientStackColor, getCardDef } from '../utils/stackHelpers';
 
 interface CardStackProps {
   stack: ClientStack;
@@ -16,9 +16,11 @@ interface CardStackProps {
   cardSize?: 'sm' | 'md';
   activeEffect?: GameEffect | null;
   animatingBuilds?: Set<string>;
+  onRestoreCard?: (stackId: string, cardInstanceId: string) => void;
+  canRestore?: boolean;
 }
 
-export function CardStack({ stack, isOwner, onCardClick, onStackClick, highlighted, actionLabel, isActionPhase, acted, turnNumber, cardSize = 'md', activeEffect, animatingBuilds }: CardStackProps) {
+export function CardStack({ stack, isOwner, onCardClick, onStackClick, highlighted, actionLabel, isActionPhase, acted, turnNumber, cardSize = 'md', activeEffect, animatingBuilds, onRestoreCard, canRestore }: CardStackProps) {
   const power = clientStackPower(stack);
   const smarts = clientStackSmarts(stack);
   const name = topCharacterName(stack);
@@ -65,19 +67,36 @@ export function CardStack({ stack, isOwner, onCardClick, onStackClick, highlight
     >
       {/* Fanned cards — dynamic offset */}
       <div className="relative" style={{ height: `${baseHeight + stack.cards.length * cardOffset}px`, width: containerWidth }}>
-        {stack.cards.map((card, i) => (
-          <div
-            key={card.instanceId}
-            className={`absolute left-0 hover:scale-125 hover:z-50 transition-transform duration-200 ${animatingBuilds?.has(card.instanceId) ? 'animate-card-deal' : ''}`}
-            style={{ top: `${i * cardOffset}px`, zIndex: i }}
-          >
-            <Card
-              card={card}
-              size={cardSize}
-              onClick={onCardClick ? () => onCardClick(card.instanceId) : undefined}
-            />
-          </div>
-        ))}
+        {stack.cards.map((card, i) => {
+          const canFlip = canRestore && !card.faceUp && card.cardCode && (() => {
+            const def = getCardDef(card.cardCode!);
+            return def ? def.cost <= stack.cards.length : false;
+          })();
+          return (
+            <div
+              key={card.instanceId}
+              className={`absolute left-0 group hover:scale-125 hover:z-50 transition-transform duration-200 ${animatingBuilds?.has(card.instanceId) ? 'animate-card-deal' : ''}`}
+              style={{ top: `${i * cardOffset}px`, zIndex: i }}
+            >
+              <Card
+                card={card}
+                size={cardSize}
+                onClick={onCardClick ? () => onCardClick(card.instanceId) : undefined}
+              />
+              {canFlip && (
+                <button
+                  className="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 rounded-lg cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRestoreCard?.(stack.stackId, card.instanceId);
+                  }}
+                >
+                  <span className="bg-spero-yellow text-black text-xs font-bold px-3 py-1 rounded-full shadow">Flip</span>
+                </button>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Stats bar */}

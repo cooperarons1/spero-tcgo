@@ -316,6 +316,7 @@ export interface DeckList {
 
 export const DECK_SIZE = 60;
 export const MAX_COPIES_PER_CARD = 2;
+export const AP_TO_WIN = 30;
 
 export interface UserProfile {
   uid: string;
@@ -336,4 +337,37 @@ export interface Room {
   rematchProposedBy: string | null;
   lastFirstPlayerIndex: 0 | 1 | null;
   selectedDecks: Map<string, string[]>; // uid -> cardCodes
+}
+
+// ─── Friends & Chat ───
+
+export interface FriendRecord {
+  uid: string;
+  displayName: string;
+  addedAt: number;
+}
+
+export interface FriendRequest {
+  id: string;
+  fromUid: string;
+  fromName: string;
+  toUid: string;
+  toName: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  createdAt: number;
+}
+
+export interface ChatMessage {
+  id: string;
+  fromUid: string;
+  text: string;
+  timestamp: number;
+}
+
+export interface DuelChallenge {
+  id: string;
+  fromUid: string;
+  fromName: string;
+  toUid: string;
+  createdAt: number;
 }

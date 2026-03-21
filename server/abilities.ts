@@ -1,6 +1,7 @@
 // Card-specific ability handlers — combat tricks, sideplay passives, on-play triggers, action effects
 
 import type { GameState, CombatTrickEffect, CardDef, Stack, PlayerZone } from '../shared/types.js';
+import { AP_TO_WIN } from '../shared/types.js';
 import { getCardDef, getAllCardDefs } from './cards.js';
 import { defOf } from './rules.js';
 import { addLog } from './log.js';
@@ -518,7 +519,7 @@ export function processSideplayTriggers(game: GameState, playerIdx: 0 | 1): void
       game.apScores[playerIdx] += 1;
       game.playerStats[playerIdx].apEarned += 1;
       addLog(game, playerIdx, `${def.name} gives +1 Mission Point`, 'AP');
-      if (game.apScores[playerIdx] >= 15) {
+      if (game.apScores[playerIdx] >= AP_TO_WIN) {
         game.winner = player.playerId;
         game.winReason = 'ap';
       }

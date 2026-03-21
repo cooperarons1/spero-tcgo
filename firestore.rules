@@ -14,6 +14,28 @@ service cloud.firestore {
         allow read: if request.auth != null && request.auth.uid == uid;
         // Server-only write via admin SDK
       }
+
+      match /friends/{friendUid} {
+        allow read: if request.auth != null && request.auth.uid == uid;
+        // Server-only write via admin SDK
+      }
+    }
+
+    // Friend requests: readable by sender or recipient
+    match /friendRequests/{requestId} {
+      allow read: if request.auth != null &&
+        (resource.data.fromUid == request.auth.uid || resource.data.toUid == request.auth.uid);
+      // Server-only write via admin SDK
+    }
+
+    // Conversations: readable by either participant
+    match /conversations/{convoId} {
+      allow read: if request.auth != null;
+
+      match /messages/{messageId} {
+        allow read: if request.auth != null;
+        // Server-only write via admin SDK
+      }
     }
   }
 }

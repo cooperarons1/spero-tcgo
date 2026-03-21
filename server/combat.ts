@@ -1,4 +1,5 @@
 import type { GameState, CombatState, CombatResult, CombatTrickEffect, Stack, PlayerZone } from '../shared/types.js';
+import { AP_TO_WIN } from '../shared/types.js';
 import { getCardDef } from './cards.js';
 import {
   stackPower,
@@ -107,7 +108,7 @@ function startMission(
     addLog(game, playerIdx, `${player.playerName} launches ${missionType} mission — unblocked! +${totalAP} AP`, 'MISSION');
 
     // Check win
-    if (game.apScores[playerIdx] >= 15) {
+    if (game.apScores[playerIdx] >= AP_TO_WIN) {
       game.winner = playerId;
       game.winReason = 'ap';
       game.lastAction = `${player.playerName} wins with ${game.apScores[playerIdx]} AP!`;
@@ -182,7 +183,7 @@ export function handleBlockDecision(
     game.combatState = null;
     game.pendingInteraction = null;
 
-    if (game.apScores[atkIdx] >= 15) {
+    if (game.apScores[atkIdx] >= AP_TO_WIN) {
       game.winner = combat.attackerPlayerId;
       game.winReason = 'ap';
       game.lastAction = `${attacker.playerName} wins with ${game.apScores[atkIdx]} AP!`;
@@ -526,7 +527,7 @@ function resolveCombat(game: GameState): { success: boolean; error?: string } {
     game.apScores[atkPlayerIdx] += apAwarded;
     game.playerStats[atkPlayerIdx].apEarned += apAwarded;
     addLog(game, atkPlayerIdx, `Attacker wins combat — +${apAwarded} AP`, 'AP');
-    if (game.apScores[atkPlayerIdx] >= 15) {
+    if (game.apScores[atkPlayerIdx] >= AP_TO_WIN) {
       game.winner = combat.attackerPlayerId;
       game.winReason = 'ap';
     }

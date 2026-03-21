@@ -1,6 +1,53 @@
 import type { ClientStack } from '../../../shared/types';
 import type { GameEffect } from '../hooks/useGameAnimations';
 import { CardStack } from './CardStack';
+import { clientStackPower, clientStackSmarts, topCharacterName } from '../utils/stackHelpers';
+
+interface MissionPopoverProps {
+  stackId: string;
+  power: number;
+  smarts: number;
+  name: string;
+  onPowerMission: () => void;
+  onSmartsMission: () => void;
+  onCancel: () => void;
+}
+
+function MissionPopover({ power, smarts, name, onPowerMission, onSmartsMission, onCancel }: MissionPopoverProps) {
+  return (
+    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-30 animate-bounce-in" onClick={(e) => e.stopPropagation()}>
+      <div className="flex flex-col items-center gap-2 bg-board-surface border border-board-accent rounded-xl p-3 shadow-2xl min-w-[180px]">
+        <div className="text-xs font-bold text-white">{name}</div>
+        <div className="flex gap-2">
+          {power > 0 && (
+            <button
+              onClick={onPowerMission}
+              className="flex flex-col items-center gap-0.5 bg-spero-red text-white font-bold px-4 py-2 rounded-lg hover:brightness-110 active:scale-95 transition-all cursor-pointer text-sm"
+            >
+              <span>Power</span>
+              <span className="text-lg">{power}</span>
+            </button>
+          )}
+          {smarts > 0 && (
+            <button
+              onClick={onSmartsMission}
+              className="flex flex-col items-center gap-0.5 bg-spero-blue text-white font-bold px-4 py-2 rounded-lg hover:brightness-110 active:scale-95 transition-all cursor-pointer text-sm"
+            >
+              <span>Smarts</span>
+              <span className="text-lg">{smarts}</span>
+            </button>
+          )}
+        </div>
+        <button
+          onClick={onCancel}
+          className="text-gray-400 text-xs underline cursor-pointer"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
 
 interface BattlefieldProps {
   stacks: ClientStack[];
@@ -8,6 +55,7 @@ interface BattlefieldProps {
   onStackClick?: (stackId: string) => void;
   onCardClick?: (stackId: string, instanceId: string) => void;
   highlightedStackIds?: string[];
+  highlightStyle?: 'default' | 'block';
   actionLabels?: Record<string, string>;
   showNewStackSlots?: boolean;
   onNewStack?: () => void;
@@ -21,6 +69,15 @@ interface BattlefieldProps {
   stackOrder?: string[];
   getStackEffect?: (stackId: string) => GameEffect | null;
   animatingBuilds?: Set<string>;
+  onRestoreCard?: (stackId: string, cardInstanceId: string) => void;
+  canRestore?: boolean;
+  // Mission popover
+  selectedStackId?: string;
+  onPowerMission?: (stackId: string) => void;
+  onSmartsMission?: (stackId: string) => void;
+  onMissionCancel?: () => void;
+  // Ready stack glow
+  readyStackIds?: string[];
 }
 
 export function Battlefield({
@@ -29,6 +86,7 @@ export function Battlefield({
   onStackClick,
   onCardClick,
   highlightedStackIds = [],
+  highlightStyle = 'default',
   actionLabels = {},
   showNewStackSlots = false,
   onNewStack,
@@ -42,6 +100,13 @@ export function Battlefield({
   stackOrder,
   getStackEffect,
   animatingBuilds,
+  onRestoreCard,
+  canRestore,
+  selectedStackId,
+  onPowerMission,
+  onSmartsMission,
+  onMissionCancel,
+  readyStackIds = [],
 }: BattlefieldProps) {
   const showGaps = showNewStackSlots || isDragActive;
 
@@ -69,13 +134,26 @@ export function Battlefield({
     return <div className="min-h-[80px]" />;
   }
 
+  // Hearthstone-style gaps: narrow base, adjacent stacks slide apart when hovered
   const gapClass = (index: number) => {
     const isHovered = hoveredDropTarget === `gap-${index}`;
-    return `flex-shrink-0 rounded-lg border-2 border-dashed transition-all self-stretch flex items-center justify-center
+    return `flex-shrink-0 rounded-lg border-2 border-dashed transition-all duration-200 self-stretch flex items-center justify-center
       ${showGaps
-        ? `${isHovered ? 'w-20 border-spero-yellow bg-spero-yellow/10 ring-2 ring-spero-yellow' : 'w-4 border-spero-yellow/30 hover:w-12 hover:border-spero-yellow/60 hover:bg-spero-yellow/5'}
+        ? `${isHovered ? 'w-2 border-spero-yellow bg-spero-yellow/10' : 'w-2 border-spero-yellow/30 hover:border-spero-yellow/60'}
            cursor-pointer ${isDragActive ? 'animate-lane-pulse' : ''}`
         : 'w-0 border-transparent pointer-events-none overflow-hidden'}`;
+  };
+
+  // Compute margin classes for stacks adjacent to a hovered gap
+  const getStackMargin = (stackIndex: number) => {
+    if (!hoveredDropTarget?.startsWith('gap-')) return '';
+    const gapIndex = parseInt(hoveredDropTarget.split('-')[1], 10);
+    const classes: string[] = [];
+    // Stack before the gap gets right margin
+    if (stackIndex === gapIndex - 1) classes.push('mr-8');
+    // Stack after the gap gets left margin
+    if (stackIndex === gapIndex) classes.push('ml-8');
+    return classes.join(' ');
   };
 
   const handleGapClick = (index: number) => {
@@ -100,13 +178,19 @@ export function Battlefield({
 
       {orderedStacks.map((stack, i) => {
         const isHovered = hoveredDropTarget === stack.stackId;
+        const isReady = readyStackIds.includes(stack.stackId);
+        const isSelected = selectedStackId === stack.stackId;
+        const isBlockHighlighted = highlightStyle === 'block' && highlightedStackIds.includes(stack.stackId);
+        const stackMargin = getStackMargin(i);
         return (
-          <div key={stack.stackId} className="flex items-start">
+          <div key={stack.stackId} className={`flex items-start transition-all duration-200 ${stackMargin}`}>
             <div
               data-drop-stack={stack.stackId}
-              className={`transition-all rounded-xl ${
+              className={`transition-all rounded-xl relative ${
                 isDragActive ? 'ring-1 ring-spero-yellow/30 animate-lane-pulse' : ''
-              } ${isHovered ? 'ring-2 ring-spero-yellow bg-spero-yellow/10' : ''}`}
+              } ${isHovered ? 'ring-2 ring-spero-yellow bg-spero-yellow/10' : ''
+              } ${isReady ? 'ring-2 ring-green-500/50 animate-pulse' : ''
+              } ${isBlockHighlighted ? 'ring-2 ring-spero-blue shadow-lg shadow-spero-blue/20' : ''}`}
             >
               <CardStack
                 stack={stack}
@@ -121,7 +205,21 @@ export function Battlefield({
                 cardSize={cardSize}
                 activeEffect={getStackEffect?.(stack.stackId) ?? null}
                 animatingBuilds={animatingBuilds}
+                onRestoreCard={onRestoreCard}
+                canRestore={canRestore}
               />
+              {/* Mission popover positioned near the stack */}
+              {isSelected && onPowerMission && onSmartsMission && onMissionCancel && (
+                <MissionPopover
+                  stackId={stack.stackId}
+                  power={clientStackPower(stack)}
+                  smarts={clientStackSmarts(stack)}
+                  name={topCharacterName(stack)}
+                  onPowerMission={() => onPowerMission(stack.stackId)}
+                  onSmartsMission={() => onSmartsMission(stack.stackId)}
+                  onCancel={onMissionCancel}
+                />
+              )}
             </div>
             {/* Trailing gap after each stack */}
             <div

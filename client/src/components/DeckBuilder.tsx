@@ -156,7 +156,7 @@ export function DeckBuilder({ deck: initialDeck, uid, onBack }: DeckBuilderProps
 
   // Drag & drop handlers
   useEffect(() => {
-    if (!drag.isDragging && !drag.state) return;
+    if (!drag.isDragging && !drag.state && !drag.isPending) return;
 
     const onMove = (e: PointerEvent) => drag.updateDrag(e);
     const onUp = (e: PointerEvent) => {
@@ -301,13 +301,6 @@ export function DeckBuilder({ deck: initialDeck, uid, onBack }: DeckBuilderProps
                       card={{ instanceId: c.cardCode, cardCode: c.cardCode, faceUp: true }}
                       size="sm"
                     />
-                    {count > 0 && (
-                      <span className={`absolute -top-1 -right-1 text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center ${
-                        count >= MAX_COPIES_PER_CARD ? 'bg-gray-500 text-white' : 'bg-spero-yellow text-black'
-                      }`}>
-                        {count}/{MAX_COPIES_PER_CARD}
-                      </span>
-                    )}
                   </div>
                 );
               })}

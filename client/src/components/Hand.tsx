@@ -62,7 +62,7 @@ export function Hand({ cards, onCardClick, isMyTurn, highlightFilter, onDragStar
               highlighted={!!playable}
             />
             {/* Invisible drag overlay — captures pointer without fighting the button */}
-            {playable && onDragStart && (
+            {onDragStart && (
               <div
                 className="absolute inset-0 z-10"
                 style={{ cursor: 'grab', touchAction: 'none' }}

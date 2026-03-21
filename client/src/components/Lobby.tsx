@@ -9,14 +9,16 @@ interface LobbyProps {
   user: User;
   onDeckCollection: () => void;
   onMatchHistory: () => void;
+  onFriends: () => void;
   onSignOut: () => void;
 }
 
-export function Lobby({ lobby, user, onDeckCollection, onMatchHistory, onSignOut }: LobbyProps) {
+export function Lobby({ lobby, user, onDeckCollection, onMatchHistory, onFriends, onSignOut }: LobbyProps) {
   const [joinCode, setJoinCode] = useState('');
   const [mode, setMode] = useState<'menu' | 'join'>('menu');
   const [matchmaking, setMatchmaking] = useState<'idle' | 'searching'>('idle');
   const [selectedDeckCards, setSelectedDeckCards] = useState<string[] | null>(null);
+  const [deckError, setDeckError] = useState<string | null>(null);
 
   const displayName = user.displayName || 'Player';
 
@@ -40,8 +42,10 @@ export function Lobby({ lobby, user, onDeckCollection, onMatchHistory, onSignOut
 
   const handleFindMatch = () => {
     if (!selectedDeckCards || selectedDeckCards.length !== 60) {
+      setDeckError('Select a valid 60-card deck first');
       return;
     }
+    setDeckError(null);
 
     setMatchmaking('searching');
     socket.emit('join-queue', { deckCards: selectedDeckCards });
@@ -130,7 +134,7 @@ export function Lobby({ lobby, user, onDeckCollection, onMatchHistory, onSignOut
           <div className="fixed inset-0 z-50 bg-black/60 flex flex-col items-center justify-center">
             <div className="bg-board-surface rounded-2xl p-8 border border-board-accent text-center">
               <div className="w-12 h-12 border-4 border-spero-yellow border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-              <p className="text-white font-bold text-lg mb-2">Searching for opponent...</p>
+              <p className="text-white font-bold text-lg mb-2">Searching for an Opponent...</p>
               <p className="text-gray-400 text-sm mb-6">This may take a moment</p>
               <button
                 onClick={handleCancelQueue}
@@ -144,9 +148,18 @@ export function Lobby({ lobby, user, onDeckCollection, onMatchHistory, onSignOut
 
         {mode === 'menu' && (
           <div className="space-y-4">
+            <div className="mb-2">
+              <DeckSelector uid={user.uid} onSelectDeck={handleDeckSelect} />
+            </div>
+
+            {deckError && (
+              <div className="text-spero-red text-sm font-medium -mb-2">{deckError}</div>
+            )}
+
             <button
               onClick={handleFindMatch}
-              className="w-full bg-spero-yellow text-black font-bold py-3 px-6 rounded-xl text-lg hover:brightness-110 active:scale-95 transition-all shadow-lg cursor-pointer"
+              disabled={!selectedDeckCards || selectedDeckCards.length !== 60}
+              className="w-full bg-spero-yellow text-black font-bold py-3 px-6 rounded-xl text-lg hover:brightness-110 active:scale-95 transition-all shadow-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100"
             >
               Find Match
             </button>
@@ -164,7 +177,13 @@ export function Lobby({ lobby, user, onDeckCollection, onMatchHistory, onSignOut
             >
               Join Room
             </button>
-            <div className="flex gap-3 mt-4">
+            <button
+              onClick={onFriends}
+              className="w-full bg-spero-green/20 border border-spero-green/40 text-spero-green font-bold py-2.5 px-6 rounded-xl text-sm hover:bg-spero-green/30 active:scale-95 transition-all cursor-pointer mt-2"
+            >
+              Friends
+            </button>
+            <div className="flex gap-3 mt-2">
               <button
                 onClick={onDeckCollection}
                 className="flex-1 bg-board-accent text-gray-300 font-bold py-2.5 px-4 rounded-xl text-sm hover:bg-board-accent/80 active:scale-95 transition-all cursor-pointer"

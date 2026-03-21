@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { ClientGameState, ClientCardInstance } from '../../../shared/types';
+import { AP_TO_WIN } from '../../../shared/types';
 import { useGameActions } from '../hooks/useGameActions';
 import { useGameAnimations, type GameEffect } from '../hooks/useGameAnimations';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 import { useOnboardingHints } from '../hooks/useOnboardingHints';
 import { getCardDef, clientStackPower, clientStackSmarts, topCharacterName } from '../utils/stackHelpers';
 import { PhaseBar } from './PhaseBar';
-import { APCounter } from './APCounter';
+
 import { OpponentField } from './OpponentField';
 import { Battlefield } from './Battlefield';
 import { Hand } from './Hand';
@@ -25,6 +26,7 @@ import { Settings } from './Settings';
 import { DragOverlay } from './DragOverlay';
 import { useDragCard } from '../hooks/useDragCard';
 import { HeroPortrait } from './HeroPortrait';
+import { Friends } from './Friends';
 
 type RematchState = 'default' | 'proposed' | 'received' | 'declined';
 
@@ -34,6 +36,8 @@ interface GameBoardProps {
   opponentEmote?: string | null;
   rematchState: RematchState;
   onRematchStateChange: (state: RematchState) => void;
+  onLeaveGame?: () => void;
+  uid?: string;
 }
 
 type UIMode =
@@ -52,12 +56,12 @@ function useLayoutSize() {
     const w = typeof window !== 'undefined' ? window.innerWidth : 1920;
     const h = typeof window !== 'undefined' ? window.innerHeight : 1080;
     if (w < 1024) {
-      return { boardScale: 'sm' as const, handCardSize: 'sm' as const, sidebarWidth: 'w-40', handHeight: 'h-[100px]', oppHandCard: 'w-12 h-[66px]' };
+      return { boardScale: 'sm' as const, handCardSize: 'sm' as const, sidebarWidth: 'w-40', handHeight: 'h-[150px]', oppHandBase: { w: 56, h: 77 }, oppHandContainer: 'h-20' };
     }
     if (w <= 1440 || h < 900) {
-      return { boardScale: 'sm' as const, handCardSize: 'md' as const, sidebarWidth: 'w-40', handHeight: 'h-[120px]', oppHandCard: 'w-14 h-[77px]' };
+      return { boardScale: 'sm' as const, handCardSize: 'md' as const, sidebarWidth: 'w-40', handHeight: 'h-[160px]', oppHandBase: { w: 64, h: 88 }, oppHandContainer: 'h-20 md:h-24' };
     }
-    return { boardScale: 'md' as const, handCardSize: 'md' as const, sidebarWidth: 'w-48', handHeight: 'h-[160px]', oppHandCard: 'w-16 h-[88px]' };
+    return { boardScale: 'md' as const, handCardSize: 'md' as const, sidebarWidth: 'w-48', handHeight: 'h-[220px]', oppHandBase: { w: 72, h: 100 }, oppHandContainer: 'h-24' };
   }
 
   useEffect(() => {
@@ -69,7 +73,7 @@ function useLayoutSize() {
   return size;
 }
 
-export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchState, onRematchStateChange }: GameBoardProps) {
+export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchState, onRematchStateChange, onLeaveGame, uid }: GameBoardProps) {
   const [uiMode, setUIMode] = useState<UIMode>({ type: 'idle' });
   const [showSettings, setShowSettings] = useState(false);
   const [hoveredDropTarget, setHoveredDropTarget] = useState<string | null>(null);
@@ -80,6 +84,8 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
   const [showTurnBanner, setShowTurnBanner] = useState(false);
   const [turnBannerIsMyTurn, setTurnBannerIsMyTurn] = useState(false);
   const [animatingBuilds, setAnimatingBuilds] = useState<Set<string>>(new Set());
+  const [handHovered, setHandHovered] = useState(false);
+  const [showFriendsPanel, setShowFriendsPanel] = useState(false);
 
   const layout = useLayoutSize();
   const effects = useGameAnimations(gameState);
@@ -176,6 +182,12 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
         setHoveredDropTarget(null);
         return;
       }
+      const zone = (el as HTMLElement).dataset?.dropZone;
+      if (zone === 'my-field') {
+        setUIMode({ type: 'choose-drag-build-mode', cardInstanceId, targetStackId: undefined });
+        setHoveredDropTarget(null);
+        return;
+      }
     }
     setHoveredDropTarget(null);
   };
@@ -194,6 +206,11 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
       if (lane === 'new') {
         const dropIndex = (el as HTMLElement).dataset?.dropIndex;
         setHoveredDropTarget(dropIndex !== undefined ? `gap-${dropIndex}` : 'new');
+        return;
+      }
+      const zone = (el as HTMLElement).dataset?.dropZone;
+      if (zone === 'my-field') {
+        setHoveredDropTarget('my-field');
         return;
       }
     }
@@ -221,15 +238,54 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
   });
 
   const amICurrentPlayer = gameState.myPlayerIndex === gameState.currentPlayerIndex;
+  const combat = gameState.combatState;
 
   const winnerName = gameState.winner
     ? (gameState.winner === gameState.myPlayerId ? 'You' : gameState.opponent.playerName)
     : null;
 
+  // ─── Combat: compute valid blocker IDs ───
+  const validBlockerIds: string[] = [];
+  if (combat?.phase === 'AWAITING_BLOCK' && gameState.pendingInteraction?.waitingForPlayerId === gameState.myPlayerId) {
+    for (const s of gameState.myStacks) {
+      if (s.tapped) continue;
+      const stat = combat.missionType === 'POWER'
+        ? s.cards.reduce((sum, c) => {
+            if (!c.faceUp || !c.cardCode) return sum;
+            const def = getCardDef(c.cardCode);
+            return sum + (def && (def.typeA === 'CHARACTER' || def.typeA === 'EQUIPMENT') ? def.power : 0);
+          }, 0)
+        : s.cards.reduce((sum, c) => {
+            if (!c.faceUp || !c.cardCode) return sum;
+            const def = getCardDef(c.cardCode);
+            return sum + (def && (def.typeA === 'CHARACTER' || def.typeA === 'EQUIPMENT') ? def.smarts : 0);
+          }, 0);
+      if (stat >= Math.ceil(combat.attackerStat / 2)) {
+        validBlockerIds.push(s.stackId);
+      }
+    }
+  }
+
+  // ─── Combat: check if in trick phase ───
+  const isMyTrickPhase = combat
+    && (combat.phase === 'AWAITING_DEFENDER_TRICK' || combat.phase === 'AWAITING_ATTACKER_TRICK')
+    && gameState.pendingInteraction?.waitingForPlayerId === gameState.myPlayerId;
+
   // ─── Build Phase: Card Click → Play to Stack ───
 
   const handleHandCardClick = (instanceId: string) => {
     if (!amICurrentPlayer) return;
+
+    // Combat trick: click a highlighted combat trick card in hand
+    if (isMyTrickPhase) {
+      const card = gameState.myHand.find((c) => c.instanceId === instanceId);
+      if (!card?.cardCode) return;
+      const def = getCardDef(card.cardCode);
+      if (def?.typeA === 'COMBAT TRICK') {
+        actions.playCombatTrick(instanceId);
+        return;
+      }
+    }
 
     if (gameState.turnPhase === 'BUILD') {
       setUIMode({ type: 'select-stack-for-card', cardInstanceId: instanceId, faceDown: false });
@@ -244,6 +300,12 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
   };
 
   const handleMyStackClick = (stackId: string) => {
+    // Block phase: click a valid blocker stack
+    if (validBlockerIds.length > 0 && validBlockerIds.includes(stackId)) {
+      actions.blockDecision(stackId);
+      return;
+    }
+
     if (uiMode.type === 'select-stack-for-card') {
       actions.buildCard(uiMode.cardInstanceId, stackId, uiMode.faceDown);
       setUIMode({ type: 'idle' });
@@ -254,7 +316,7 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
       setUIMode({ type: 'idle' });
       return;
     }
-    // Action phase: click a ready stack → open mission type chooser
+    // Action phase: click a ready stack → open mission type chooser popover
     if (isActionPhase && uiMode.type === 'idle') {
       const stack = gameState.myStacks.find(s => s.stackId === stackId);
       if (stack && !stack.tapped && !gameState.actedStacks.includes(stackId)) {
@@ -297,6 +359,11 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
     const def = getCardDef(card.cardCode);
     if (!def) return false;
 
+    // Highlight combat trick cards during trick phases
+    if (isMyTrickPhase && def.typeA === 'COMBAT TRICK') {
+      return true;
+    }
+
     if (gameState.turnPhase === 'BUILD' && gameState.buildsRemaining > 0) {
       return true;
     }
@@ -309,15 +376,30 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
   // ─── Action labels for stacks ───
 
   const actionLabels: Record<string, string> = {};
+  const readyStackIds: string[] = [];
   if (amICurrentPlayer && gameState.turnPhase === 'ACTION' && !gameState.combatState) {
     for (const s of gameState.myStacks) {
       if (!s.tapped && !gameState.actedStacks.includes(s.stackId)) {
-        actionLabels[s.stackId] = 'Ready';
+        const hasSummoningSickness = s.createdOnTurn === gameState.turnNumber;
+        if (!hasSummoningSickness) {
+          actionLabels[s.stackId] = 'Ready';
+          readyStackIds.push(s.stackId);
+        }
       }
     }
   }
 
   const isActionPhase = amICurrentPlayer && gameState.turnPhase === 'ACTION' && !gameState.combatState;
+
+  // Determine battlefield highlighted stacks and style
+  let battlefieldHighlightedIds: string[] = [];
+  let battlefieldHighlightStyle: 'default' | 'block' = 'default';
+  if (validBlockerIds.length > 0) {
+    battlefieldHighlightedIds = validBlockerIds;
+    battlefieldHighlightStyle = 'block';
+  } else if (uiMode.type === 'select-stack-for-card' || uiMode.type === 'select-action-stack') {
+    battlefieldHighlightedIds = gameState.myStacks.map((s) => s.stackId);
+  }
 
   const myAP = gameState.apScores[gameState.myPlayerIndex];
   const oppAP = gameState.apScores[gameState.myPlayerIndex === 0 ? 1 : 0];
@@ -348,6 +430,7 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
           onDeclineRematch={() => { actions.declineRematch(); onRematchStateChange('declined'); }}
           gameState={gameState}
           rematchState={rematchState}
+          onLeaveGame={onLeaveGame}
         />
       )}
       {showSettings && (
@@ -370,11 +453,6 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
 
       {/* MOBILE TOP BAR */}
       <div className="md:hidden flex items-center justify-between gap-2 px-3 py-2 border-b border-board-accent/50 bg-board-surface/30 shrink-0">
-        <div className="flex items-center gap-3 text-sm font-bold">
-          <span className="text-spero-green">HP: {15 - oppAP}</span>
-          <span className="text-gray-500">|</span>
-          <span className="text-gray-400">{gameState.opponent.playerName}: {15 - myAP}</span>
-        </div>
         <div className="flex items-center gap-2">
           <span className="text-xs text-gray-400 flex items-center gap-1">
             <span className={`w-1.5 h-1.5 rounded-full ${amICurrentPlayer ? 'bg-spero-yellow' : 'bg-gray-600'}`} />
@@ -412,14 +490,6 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
 
       {/* LEFT SIDEBAR */}
       <div className={`hidden md:flex ${layout.sidebarWidth === 'w-40' ? 'md:w-40' : 'md:w-48'} flex-col gap-4 p-3 border-r border-board-accent/50 bg-board-surface/30 shrink-0 overflow-y-auto`}>
-        <APCounter
-          myAP={myAP}
-          opponentAP={oppAP}
-          myName="You"
-          opponentName={gameState.opponent.playerName}
-          myPlayerIndex={gameState.myPlayerIndex}
-          effects={effects}
-        />
         <DeckDiscard deckCount={gameState.deckCount} discardCount={gameState.myDiscardCount} discardCards={gameState.myDiscard} />
         <SideplayZone cards={gameState.mySideplay} />
       </div>
@@ -433,25 +503,13 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
             <span className="text-sm text-spero-yellow font-bold animate-pulse-glow">Your turn!</span>
           )}
           <div className="absolute right-3 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-2">
-            <div className="relative">
-              <button
-                onClick={() => setShowEmotePanel(!showEmotePanel)}
-                className="text-gray-500 hover:text-gray-300 transition-colors cursor-pointer text-lg p-1"
-                title="Emotes"
-              >
-                💬
-              </button>
-              {showEmotePanel && (
-                <EmotePanel
-                  onEmote={(e: EmoteId) => {
-                    actions.emitEmote(e);
-                    setMyEmote(e);
-                    setTimeout(() => setMyEmote(null), 3000);
-                  }}
-                  onClose={() => setShowEmotePanel(false)}
-                />
-              )}
-            </div>
+            <button
+              onClick={() => setShowFriendsPanel(!showFriendsPanel)}
+              className="text-gray-500 hover:text-gray-300 transition-colors cursor-pointer text-lg p-1"
+              title="Friends"
+            >
+              👥
+            </button>
             <button
               onClick={() => setShowSettings(true)}
               className="text-gray-500 hover:text-gray-300 transition-colors cursor-pointer text-2xl p-2"
@@ -464,28 +522,48 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
         <TurnTimer deadline={gameState.turnDeadline} isMyTurn={amICurrentPlayer} />
 
         {/* Opponent Hero Portrait */}
-        <div className="flex justify-center py-1 shrink-0">
+        <div className="flex justify-center py-1 shrink-0 -mb-2 z-20 relative">
           <HeroPortrait
             playerName={gameState.opponent.playerName}
-            health={15 - myAP}
+            health={AP_TO_WIN - myAP}
+            ap={oppAP}
             isOpponent={true}
             effects={effects}
             playerIndex={gameState.myPlayerIndex === 0 ? 1 : 0}
           />
         </div>
 
-        {/* Opponent hand (face-down cards) */}
-        <div className={`${layout.boardScale === 'sm' ? 'h-16' : 'h-16 md:h-28'} shrink-0 flex items-center justify-center gap-1 px-4 overflow-hidden relative`}>
+        {/* Opponent hand (fanned arc) — dynamic sizing */}
+        <div className={`${layout.oppHandContainer} shrink-0 flex items-start justify-center px-4 overflow-visible relative z-10`}>
           {opponentEmote && <EmoteBubble text={opponentEmote} position="top" />}
           {gameState.opponent.handCount > 0 ? (
-            Array.from({ length: gameState.opponent.handCount }).map((_, i) => (
-              <div
-                key={i}
-                className={`${layout.oppHandCard} rounded border border-gray-600 bg-gradient-to-br from-board-accent via-board-surface to-board-accent flex items-center justify-center shrink-0 hover:-translate-y-2 hover:scale-110 transition-all duration-200 cursor-default`}
-              >
-                <span className="text-gray-500 text-[10px] font-bold">S</span>
-              </div>
-            ))
+            (() => {
+              const total = gameState.opponent.handCount;
+              const fanAngle = Math.min(3, 18 / total);
+              const scale = Math.min(1, 7 / total);
+              const cardW = Math.round(layout.oppHandBase.w * scale);
+              const cardH = Math.round(layout.oppHandBase.h * scale);
+              return Array.from({ length: total }).map((_, i) => {
+                const offset = i - (total - 1) / 2;
+                const rotation = offset * fanAngle;
+                const translateY = Math.abs(offset) * 2;
+                return (
+                  <div
+                    key={i}
+                    className="rounded-lg border border-gray-600 bg-gradient-to-b from-board-accent via-board-surface to-board-accent flex items-center justify-center shrink-0 hover:scale-125 hover:translate-y-2 hover:z-50 transition-all duration-200 cursor-default shadow-md"
+                    style={{
+                      width: cardW,
+                      height: cardH,
+                      transform: `translateY(${translateY}px) rotate(${rotation}deg)`,
+                      transformOrigin: 'top center',
+                      marginLeft: i === 0 ? 0 : '-8px',
+                    }}
+                  >
+                    <span className="text-gray-500 text-[10px] font-bold tracking-widest select-none">SPERO</span>
+                  </div>
+                );
+              });
+            })()
           ) : (
             <span className="text-xs text-gray-600">No cards in hand</span>
           )}
@@ -510,21 +588,21 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
         </div>
 
         {/* My half — pushes content toward center */}
-        <div className="flex-1 px-4 py-2 min-h-0 flex flex-col items-center justify-start relative" data-hint-target="stacks" data-hint-target2="action-area">
+        <div className="flex-1 px-4 py-2 min-h-0 flex flex-col items-center justify-start relative" data-hint-target="stacks" data-hint-target2="action-area" data-drop-zone="my-field">
           {myEmote && <EmoteBubble text={myEmote} position="bottom" />}
           <Battlefield
             stacks={gameState.myStacks}
             isOwner={true}
             onStackClick={
-              uiMode.type === 'select-stack-for-card' || uiMode.type === 'select-action-stack' || (isActionPhase && uiMode.type === 'idle')
+              validBlockerIds.length > 0
+                || uiMode.type === 'select-stack-for-card'
+                || uiMode.type === 'select-action-stack'
+                || (isActionPhase && uiMode.type === 'idle')
                 ? handleMyStackClick
                 : undefined
             }
-            highlightedStackIds={
-              uiMode.type === 'select-stack-for-card' || uiMode.type === 'select-action-stack'
-                ? gameState.myStacks.map((s) => s.stackId)
-                : []
-            }
+            highlightedStackIds={battlefieldHighlightedIds}
+            highlightStyle={battlefieldHighlightStyle}
             actionLabels={actionLabels}
             showNewStackSlots={uiMode.type === 'select-stack-for-card' || !!drag.state}
             onNewStack={handleNewStack}
@@ -538,6 +616,19 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
             stackOrder={stackOrder}
             getStackEffect={getStackEffect}
             animatingBuilds={animatingBuilds}
+            onRestoreCard={actions.restoreCard}
+            canRestore={canDrag}
+            selectedStackId={uiMode.type === 'select-mission-type' ? uiMode.stackId : undefined}
+            onPowerMission={(stackId) => {
+              actions.powerMission(stackId);
+              setUIMode({ type: 'idle' });
+            }}
+            onSmartsMission={(stackId) => {
+              actions.smartsMission(stackId);
+              setUIMode({ type: 'idle' });
+            }}
+            onMissionCancel={() => setUIMode({ type: 'idle' })}
+            readyStackIds={readyStackIds}
           />
 
           {/* Floating prompts */}
@@ -619,72 +710,43 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
               </div>
             </div>
           )}
-
-          {/* Floating mission type chooser */}
-          {uiMode.type === 'select-mission-type' && (() => {
-            const stack = gameState.myStacks.find(s => s.stackId === uiMode.stackId);
-            if (!stack) return null;
-            const power = clientStackPower(stack);
-            const smarts = clientStackSmarts(stack);
-            const name = topCharacterName(stack);
-            return (
-              <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 rounded-xl">
-                <div className="flex flex-col items-center gap-3 bg-board-surface border border-board-accent rounded-2xl p-5 shadow-2xl">
-                  <div className="text-sm font-bold text-white mb-1">{name}</div>
-                  <div className="flex gap-3">
-                    {power > 0 && (
-                      <button
-                        onClick={() => {
-                          actions.powerMission(uiMode.stackId);
-                          setUIMode({ type: 'idle' });
-                        }}
-                        className="flex flex-col items-center gap-1 bg-spero-red text-white font-bold px-6 py-4 rounded-xl hover:brightness-110 active:scale-95 transition-all cursor-pointer min-w-[120px]"
-                      >
-                        <span className="text-lg">Power Mission</span>
-                        <span className="text-2xl">{power}</span>
-                      </button>
-                    )}
-                    {smarts > 0 && (
-                      <button
-                        onClick={() => {
-                          actions.smartsMission(uiMode.stackId);
-                          setUIMode({ type: 'idle' });
-                        }}
-                        className="flex flex-col items-center gap-1 bg-spero-blue text-white font-bold px-6 py-4 rounded-xl hover:brightness-110 active:scale-95 transition-all cursor-pointer min-w-[120px]"
-                      >
-                        <span className="text-lg">Smarts Mission</span>
-                        <span className="text-2xl">{smarts}</span>
-                      </button>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => setUIMode({ type: 'idle' })}
-                    className="text-gray-400 text-sm underline cursor-pointer mt-1"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            );
-          })()}
         </div>
 
 
         {/* Player Hero Portrait */}
-        <div className="flex justify-center py-1 shrink-0">
-          <HeroPortrait
-            playerName={gameState.myPlayerName}
-            health={15 - oppAP}
-            isOpponent={false}
-            effects={effects}
-            playerIndex={gameState.myPlayerIndex}
-          />
+        <div className="flex justify-center py-1 shrink-0 z-20 relative" data-hint-target="player-portrait">
+          <div className="relative">
+            <HeroPortrait
+              playerName={gameState.myPlayerName}
+              health={AP_TO_WIN - oppAP}
+              ap={myAP}
+              isOpponent={false}
+              effects={effects}
+              playerIndex={gameState.myPlayerIndex}
+              onClick={() => setShowEmotePanel(!showEmotePanel)}
+            />
+            {showEmotePanel && (
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-30">
+                <EmotePanel
+                  onEmote={(e: EmoteId) => {
+                    actions.emitEmote(e);
+                    setMyEmote(e);
+                    setTimeout(() => setMyEmote(null), 3000);
+                    setShowEmotePanel(false);
+                  }}
+                  onClose={() => setShowEmotePanel(false)}
+                />
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Hand */}
         <div
           data-hint-target="hand"
-          className={`${layout.handHeight} shrink-0 p-2 md:p-4 border-t border-board-accent ${amICurrentPlayer ? 'bg-board-surface/50' : 'bg-board-surface/20'}`}
+          className={`shrink-0 p-2 md:p-4 border-t border-board-accent ${handHovered || drag.isDragging ? 'z-30' : 'z-10'} relative transition-all duration-300 ${layout.handHeight} ${amICurrentPlayer ? 'bg-board-surface/50' : 'bg-board-surface/20'}`}
+          onMouseEnter={() => setHandHovered(true)}
+          onMouseLeave={() => setHandHovered(false)}
           onPointerMove={drag.state ? (e) => handleDragMove(e) : undefined}
           onPointerUp={drag.state ? handleDragEnd : undefined}
         >
@@ -697,7 +759,7 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
             onCardClick={handleHandCardClick}
             isMyTurn={amICurrentPlayer}
             highlightFilter={handHighlight}
-            onDragStart={canDrag ? (id, e) => drag.startDrag(id, e.nativeEvent) : undefined}
+            onDragStart={amICurrentPlayer ? (id, e) => drag.startDrag(id, e.nativeEvent) : undefined}
             draggingCardId={drag.state?.cardInstanceId ?? null}
             cardSize={layout.handCardSize}
           />
@@ -723,6 +785,21 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
         </div>
 
       </div>
+
+      {/* Friends Panel Overlay */}
+      {showFriendsPanel && uid && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50">
+          <div className="bg-board-surface rounded-2xl shadow-2xl border border-board-accent max-w-md w-full mx-4 max-h-[80vh] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-board-accent">
+              <h2 className="text-white font-bold">Friends</h2>
+              <button onClick={() => setShowFriendsPanel(false)} className="text-gray-400 hover:text-white cursor-pointer text-lg">✕</button>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              <Friends uid={uid} onBack={() => setShowFriendsPanel(false)} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

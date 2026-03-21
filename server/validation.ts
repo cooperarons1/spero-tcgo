@@ -80,3 +80,37 @@ export const DeckListSchema = z.object({
 export const JoinQueueSchema = z.object({
   deckCards: z.array(z.string()).length(60),
 });
+
+// ── Friends & Chat ──
+
+export const SearchUsersSchema = z.object({
+  query: z.string().min(1).max(30),
+});
+
+export const FriendRequestSchema = z.object({
+  targetUid: z.string().min(1).max(128),
+});
+
+export const FriendRequestActionSchema = z.object({
+  requestId: z.string().min(1).max(128),
+});
+
+export const RemoveFriendSchema = z.object({
+  friendUid: z.string().min(1).max(128),
+});
+
+export const SendChatSchema = z.object({
+  friendUid: z.string().min(1).max(128),
+  text: z.string().min(1).max(500),
+});
+
+export const ChallengeFriendSchema = z.object({
+  friendUid: z.string().min(1).max(128),
+  deckCards: z.array(z.string()).length(60),
+});
+
+export const ChallengeResponseSchema = z.object({
+  challengeId: z.string().min(1).max(128),
+  accept: z.boolean(),
+  deckCards: z.array(z.string()).length(60).optional(),
+});

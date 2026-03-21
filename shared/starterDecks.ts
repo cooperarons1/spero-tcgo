@@ -5,115 +5,341 @@ export interface StarterDeckDef {
   cards: string[]; // 60 card codes
 }
 
-// Red cards (41 unique)
-const RED_CARDS = [
-  'BL005', 'R001', 'R002', 'R003', 'R004', 'R005', 'R006', 'R007', 'R008', 'R009',
-  'R010', 'R011', 'R012', 'R013', 'R014', 'R015', 'R016', 'R017', 'R018', 'R019',
-  'R020', 'R021', 'R022', 'R023', 'R024', 'R025', 'R026', 'R027', 'R028', 'R029',
-  'R030', 'R031', 'R032', 'R033', 'R034', 'R035', 'R036', 'R037', 'R038', 'R039', 'R040',
+/**
+ * Synergistic starter decks built around characters that share stackGroups.
+ * Each deck: exactly 60 cards, no card appears more than 2x, multi-color where
+ * characters naturally span colors.
+ */
+
+// Deck 1: "Jimmy's Crew" — Red + Blue + Yellow
+// Jimmy stack (Red), Otto (Blue), Linus AI (Yellow)
+const JIMMYS_CREW: string[] = [
+  // Characters — core 2x
+  'R013', 'R013', // Jimmy
+  'R011', 'R011', // Surfing Jimmy
+  'R015', 'R015', // Snowboarding Jimmy
+  'U014', 'U014', // Otto
+  'U015', 'U015', // Fearless Otto
+  'Y001', 'Y001', // Linus
+  'Y002', 'Y002', // Smart Linus
+  // Characters — support 1x
+  'R012',          // Fast Jimmy
+  'R014',          // Adventurous Jimmy
+  'U016',          // Sneaky Otto
+  'Y003',          // Linus on Gavelon
+  'R019',          // Dr. Innova (any color combat trick)
+  // Equipment
+  'R020', 'R020',  // Golden Plasma Hammer
+  'R022', 'R022',  // Flaming Sword
+  'R021',          // Fire Orb
+  'Y020',          // Yellow Aster Egg
+  'U020',          // Ice Bow
+  // Actions
+  'R007', 'R007',  // Search for Knowledge
+  'R003',          // Fireball
+  'R004',          // Abundant Harvest
+  'R006',          // Meltdown
+  'Y009',          // Planning
+  // Combat Tricks
+  'R025', 'R025',  // Burst of Strength
+  'R026', 'R026',  // Sucker Punch
+  'R024',          // Booby Trap
+  'R027',          // Superiority
+  'R028',          // Nice Find
+  'R029',          // Deft Maneuver
+  'Y008',          // Flexible Approach
+  // Colorless fill
+  'LESS004', 'LESS004', // Hercules
+  'LESS028', 'LESS028', // Benjie
+  'LESS036', 'LESS036', // Rory
+  'LESS027',        // Helping Hand
+  'LESS005',        // Mean Hercules
+  'LESS029',        // Willie
+  'LESS030',        // Sonic
+  'LESS040',        // Daisy
+  'LESS031',        // Reggie
+  'LESS041',        // Everett
+  'LESS023',        // Fuel Cell Box
+  'LESS032',        // Buster
+  'LESS033',        // Rosie
+  'LESS037',        // Savannah
+  'LESS038',        // Amra
+  'LESS039',        // Nala
 ];
 
-// Green cards (35 unique)
-const GREEN_CARDS = [
-  'GR001', 'GR002', 'GR003', 'GR004', 'GR005', 'GR006', 'GR007', 'GR008', 'GR009', 'GR010',
-  'GR011', 'GR012', 'GR013', 'GR014', 'GR015', 'GR016', 'GR017', 'GR018', 'GR019', 'GR020',
-  'GR021', 'GR022', 'GR023', 'GR024', 'GR025', 'GR026', 'GR027', 'GR028', 'GR029', 'GR030',
-  'GR031', 'GR032', 'GR033', 'GR034', 'GR035',
+// Deck 2: "Tala's Rangers" — Green + Blue
+// Tala stack (Green), Snowball (Blue), Lexi AI (Green)
+const TALAS_RANGERS: string[] = [
+  // Characters — core 2x
+  'GR015', 'GR015', // Tala
+  'GR011', 'GR011', // Rescue Tala
+  'GR012', 'GR012', // Champ Tala
+  'U017', 'U017',   // Snowball
+  'U018', 'U018',   // Tracker Snowball
+  'GR013', 'GR013', // Lexi
+  'GR014', 'GR014', // Flying Lexi
+  // Characters — support 1x
+  'GR016',           // Masterful Tala
+  'U019',            // Crafty Snowball
+  'U010',            // Hoot the Snow Owl
+  'GR031',           // Kingley
+  // Equipment
+  'GR022', 'GR022',  // Healing Hedron
+  'U025', 'U025',    // Ice Armor
+  'GR021',           // Flora Orb
+  'U021',            // Spear of Balance
+  'U024',            // Multi-Tool
+  'GR032',           // Escape Hatch
+  // Actions
+  'GR004', 'GR004',  // Double Remedy
+  'GR002',           // Grand Trickery
+  'GR029',           // From the Vault
+  'GR033',           // Recharge
+  'U002',            // Blizzard
+  'U004',            // Team Up
+  // Combat Tricks
+  'GR027', 'GR027',  // Reinforcements
+  'U026', 'U026',    // Truce
+  'GR024',           // Calming Force
+  'GR025',           // Strength in Numbers
+  'GR028',           // Refresh
+  'U030',            // Freeze
+  'U031',            // Deflection
+  // Colorless fill
+  'LESS006', 'LESS006', // Xolo
+  'LESS033', 'LESS033', // Rosie
+  'LESS007',         // Fearless Xolo
+  'LESS034',         // Aviator Glasses
+  'LESS008',         // Haydar
+  'LESS037',         // Savannah
+  'LESS026',         // Chomp
+  'LESS035',         // Rampage
+  'LESS029',         // Willie
+  'LESS030',         // Sonic
+  'LESS031',         // Reggie
+  'LESS041',         // Everett
+  'LESS023',         // Fuel Cell Box
+  'LESS009',         // Rolo
+  'LESS040',         // Daisy
+  'LESS022',         // Aster Key
 ];
 
-// Blue cards (33 unique)
-const BLUE_CARDS = [
-  'U001', 'U002', 'U003', 'U004', 'U005', 'U006', 'U007', 'U008', 'U009', 'U010',
-  'U011', 'U012', 'U013', 'U014', 'U015', 'U016', 'U017', 'U018', 'U019', 'U020',
-  'U021', 'U022', 'U023', 'U024', 'U025', 'U026', 'U027', 'U028', 'U029', 'U030',
-  'U031', 'U032', 'U033',
+// Deck 3: "Derek's Arsenal" — Yellow + Green
+// Derek (Yellow, plays any color), Ava (Yellow, tutors), Astrid (Green, extra builds), Leonardo AI (Yellow)
+const DEREKS_ARSENAL: string[] = [
+  // Characters — core 2x
+  'Y004', 'Y004',   // Derek
+  'Y005', 'Y005',   // Smart Derek
+  'Y006', 'Y006',   // Surfing Derek
+  'Y016', 'Y016',   // Ava
+  'Y017', 'Y017',   // Clever Ava
+  'GR017', 'GR017', // Astrid
+  'GR018', 'GR018', // Astrid the Diplomat
+  // Characters — support 1x
+  'Y018',            // Resourceful Ava
+  'GR019',           // Elegant Astrid
+  'Y019',            // Leonardo
+  'Y023',            // Lucy AI
+  'Y024',            // Turig AI
+  // Equipment
+  'Y020', 'Y020',    // Yellow Aster Egg
+  'Y027', 'Y027',    // Radio
+  'Y021',            // Plasma Amulet
+  'GR021',           // Flora Orb
+  'LESS021',         // Colorless Aster Egg
+  'LESS024',         // Aster Boots of Speed
+  // Actions
+  'Y009', 'Y009',    // Planning (draw 3)
+  'Y012',            // Tweedle
+  'Y013',            // Double Tweedle
+  'Y014',            // Tweedle All
+  'Y015',            // Be the Ball
+  'GR029',           // From the Vault
+  // Combat Tricks
+  'Y011', 'Y011',    // Daze
+  'Y008', 'Y008',    // Flexible Approach
+  'Y022',            // Blind Side
+  'Y034',            // Plasma Storm
+  'GR026',           // Intelligence Replenished
+  'LESS027',         // Helping Hand
+  // Colorless fill
+  'LESS014', 'LESS014', // Levi
+  'LESS015', 'LESS015', // Charlotte
+  'LESS010',         // Hanu
+  'LESS016',         // Willa
+  'LESS017',         // Wise Willa
+  'LESS042',         // Phantom
+  'LESS043',         // Shadow
+  'LESS022',         // Aster Key
+  'LESS028',         // Benjie
+  'LESS036',         // Rory
+  'LESS009',         // Rolo
+  'LESS004',         // Hercules
+  'LESS033',         // Rosie
+  'LESS038',         // Amra
+  'LESS029',         // Willie
+  'LESS030',         // Sonic
 ];
 
-// Yellow cards (32 unique)
-const YELLOW_CARDS = [
-  'Y001', 'Y002', 'Y003', 'Y004', 'Y005', 'Y006', 'Y007', 'Y008', 'Y009', 'Y011',
-  'Y012', 'Y013', 'Y014', 'Y015', 'Y016', 'Y017', 'Y018', 'Y019', 'Y020', 'Y021',
-  'Y022', 'Y023', 'Y024', 'Y025', 'Y026', 'Y027', 'Y028', 'Y032', 'Y033', 'Y034',
-  'Y035', 'Y036',
+// Deck 4: "Anders' Pack" — Red + Green
+// Anders (Red), Fang (Green), Izzy+Bling (Red), Mighty Mink (Green)
+const ANDERS_PACK: string[] = [
+  // Characters — core 2x
+  'R008', 'R008',   // Anders
+  'R009', 'R009',   // Hockbandy Star Anders
+  'R010', 'R010',   // Pilot Anders
+  'GR006', 'GR006', // Fang
+  'R016', 'R016',   // Izzy
+  'GR007', 'GR007', // Mighty the Mink
+  'R018', 'R018',   // Bling
+  // Characters — support 1x
+  'R017',            // Masterful Izzy
+  'GR008',           // Elegant Mighty
+  'GR009',           // Sengo
+  'GR010',           // Fiona
+  'GR020',           // Ms. Swift
+  // Equipment
+  'R020', 'R020',    // Golden Plasma Hammer (X=cards in stack)
+  'R022',            // Flaming Sword
+  'R033',            // Aster Academy Space Jet
+  'GR022',           // Healing Hedron
+  'GR032',           // Escape Hatch
+  'LESS023',         // Fuel Cell Box
+  // Actions
+  'R003', 'R003',    // Fireball
+  'GR004', 'GR004',  // Double Remedy
+  'R004',            // Abundant Harvest
+  'R006',            // Meltdown
+  'R034',            // On the Hunt
+  'GR033',           // Recharge
+  'GR001',           // Bronze Bear Coin
+  // Combat Tricks
+  'R025', 'R025',    // Burst of Strength
+  'GR027', 'GR027',  // Reinforcements
+  'R026',            // Sucker Punch
+  'R027',            // Superiority
+  'GR024',           // Calming Force
+  'GR025',           // Strength in Numbers
+  'LESS026',         // Chomp
+  // Colorless fill
+  'LESS009', 'LESS009', // Rolo
+  'LESS028', 'LESS028', // Benjie
+  'LESS011',         // Rolo Pack Leader
+  'LESS036',         // Rory
+  'LESS038',         // Amra
+  'LESS041',         // Everett
+  'LESS004',         // Hercules
+  'LESS005',         // Mean Hercules
+  'LESS029',         // Willie
+  'LESS030',         // Sonic
+  'LESS037',         // Savannah
+  'LESS040',         // Daisy
+  'LESS042',         // Phantom
+  'LESS043',         // Shadow
 ];
 
-// Black cards (34 unique, BL005 is red)
-const BLACK_CARDS = [
-  'BL001', 'BL002', 'BL003', 'BL004', 'BL006', 'BL007', 'BL008', 'BL009', 'BL010',
-  'BL011', 'BL012', 'BL013', 'BL014', 'BL015', 'BL016', 'BL017', 'BL018', 'BL019',
-  'BL020', 'BL021', 'BL022', 'BL023', 'BL024', 'BL025', 'BL026', 'BL027', 'BL028',
-  'BL029', 'BL030', 'BL031', 'BL032', 'BL033', 'BL034', 'BL035',
+// Deck 5: "Shadow Command" — Black
+// Des (BL011-BL013), Venus (BL016-BL017), Dawson (BL028-BL030), Lucas+Jax (BL019-BL021), Jack (BL031-BL032)
+const SHADOW_COMMAND: string[] = [
+  // Characters — core 2x
+  'BL011', 'BL011', // Des Aster
+  'BL012', 'BL012', // Commander Des
+  'BL019', 'BL019', // Lucas
+  'BL020', 'BL020', // Speedy Lucas
+  'BL017', 'BL017', // Venus
+  'BL016', 'BL016', // Princess Venus
+  'BL030', 'BL030', // Dawson
+  'BL028', 'BL028', // Loyal Dawson
+  // Characters — support 1x
+  'BL013',           // Controlling Des
+  'BL014',           // Bossy Venus
+  'BL021',           // Jax
+  'BL029',           // Dawson The Mercenary
+  'BL018',           // Eldena (any color Action)
+  'BL031',           // Explorer Jack
+  'BL032',           // Professor Jack
+  // Equipment
+  'BL024', 'BL024',  // Obsidian Armor
+  'BL022',           // Collar
+  'BL023',           // Black Aster Egg
+  'LESS025',         // Dampening Orb
+  // Actions
+  'BL003', 'BL003',  // Night Lightning
+  'BL006', 'BL006',  // Oora Drain
+  'BL002',           // Battle of Wits
+  'BL004',           // Demolish
+  'BL001',           // Cargo Ship
+  'BL008',           // Obey
+  'BL009',           // Really Ruthless
+  // Combat Tricks
+  'BL025', 'BL025',  // Dark Plasma Ball
+  'BL027', 'BL027',  // Perfect Plan
+  'BL026',           // Clever Deterrence
+  'LESS035',         // Rampage
+  // Colorless fill (Vicious-synergy wild animals)
+  'LESS028', 'LESS028', // Benjie (Vicious +1)
+  'LESS009', 'LESS009', // Rolo (Vicious)
+  'LESS011',         // Rolo Pack Leader
+  'LESS041',         // Everett (Vicious +2)
+  'LESS036',         // Rory
+  'LESS038',         // Amra
+  'LESS043',         // Shadow
+  'LESS004',         // Hercules
+  'LESS005',         // Mean Hercules
+  'LESS006',         // Xolo
+  'LESS029',         // Willie
+  'LESS030',         // Sonic
+  'LESS031',         // Reggie
+  'LESS033',         // Rosie
+  'LESS037',         // Savannah
 ];
 
-// All 44 colorless cards
-const COLORLESS_CARDS = [
-  'LESS001', 'LESS002', 'LESS003', 'LESS004', 'LESS005', 'LESS006', 'LESS007', 'LESS008',
-  'LESS009', 'LESS010', 'LESS011', 'LESS012', 'LESS013', 'LESS014', 'LESS015', 'LESS016',
-  'LESS017', 'LESS018', 'LESS019', 'LESS020', 'LESS021', 'LESS022', 'LESS023', 'LESS024',
-  'LESS025', 'LESS026', 'LESS027', 'LESS028', 'LESS029', 'LESS030', 'LESS031', 'LESS032',
-  'LESS033', 'LESS034', 'LESS035', 'LESS036', 'LESS037', 'LESS038', 'LESS039', 'LESS040',
-  'LESS041', 'LESS042', 'LESS043',
-];
-
-/** Fill a deck to 60 cards using colorless cards (up to 2 copies each) */
-function fillWithColorless(colorCards: string[], pool: string[]): string[] {
-  const needed = 60 - colorCards.length;
-  const filler: string[] = [];
-  let poolIdx = 0;
-
-  // First pass: 1 copy each
-  while (filler.length < needed && poolIdx < pool.length) {
-    filler.push(pool[poolIdx]);
-    poolIdx++;
+// Validate at module load: each deck must be exactly 60 cards, no card > 2 copies
+function validateDeck(name: string, cards: string[]): string[] {
+  if (cards.length !== 60) {
+    throw new Error(`Starter deck "${name}" has ${cards.length} cards, expected 60`);
   }
-  // Second pass: 2nd copy if still needed
-  let poolIdx2 = 0;
-  while (filler.length < needed && poolIdx2 < pool.length) {
-    filler.push(pool[poolIdx2]);
-    poolIdx2++;
+  const counts = new Map<string, number>();
+  for (const c of cards) {
+    counts.set(c, (counts.get(c) ?? 0) + 1);
   }
-
-  return [...colorCards, ...filler.slice(0, needed)];
-}
-
-// Distribute colorless so each deck gets a different starting slice
-function colorlessSlice(offset: number): string[] {
-  const result: string[] = [];
-  for (let i = 0; i < COLORLESS_CARDS.length; i++) {
-    result.push(COLORLESS_CARDS[(i + offset) % COLORLESS_CARDS.length]);
+  for (const [card, count] of counts) {
+    if (count > 2) {
+      throw new Error(`Starter deck "${name}" has ${count}x ${card}, max is 2`);
+    }
   }
-  return result;
+  return cards;
 }
 
 export const STARTER_DECKS: StarterDeckDef[] = [
   {
-    id: 'starter-red-blaze',
-    name: 'Red Blaze',
+    id: 'starter-jimmys-crew',
+    name: "Jimmy's Crew",
     color: 'red',
-    cards: fillWithColorless(RED_CARDS, colorlessSlice(0)),
+    cards: validateDeck("Jimmy's Crew", JIMMYS_CREW),
   },
   {
-    id: 'starter-green-guardian',
-    name: 'Green Guardian',
+    id: 'starter-talas-rangers',
+    name: "Tala's Rangers",
     color: 'green',
-    cards: fillWithColorless(GREEN_CARDS, colorlessSlice(8)),
+    cards: validateDeck("Tala's Rangers", TALAS_RANGERS),
   },
   {
-    id: 'starter-blue-control',
-    name: 'Blue Control',
-    color: 'blue',
-    cards: fillWithColorless(BLUE_CARDS, colorlessSlice(16)),
-  },
-  {
-    id: 'starter-yellow-trickster',
-    name: 'Yellow Trickster',
+    id: 'starter-dereks-arsenal',
+    name: "Derek's Arsenal",
     color: 'yellow',
-    cards: fillWithColorless(YELLOW_CARDS, colorlessSlice(24)),
+    cards: validateDeck("Derek's Arsenal", DEREKS_ARSENAL),
   },
   {
-    id: 'starter-shadow-arsenal',
-    name: 'Shadow Arsenal',
+    id: 'starter-anders-pack',
+    name: "Anders' Pack",
+    color: 'red',
+    cards: validateDeck("Anders' Pack", ANDERS_PACK),
+  },
+  {
+    id: 'starter-shadow-command',
+    name: 'Shadow Command',
     color: 'black',
-    cards: fillWithColorless(BLACK_CARDS, colorlessSlice(32)),
+    cards: validateDeck('Shadow Command', SHADOW_COMMAND),
   },
 ];

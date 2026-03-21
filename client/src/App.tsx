@@ -9,8 +9,9 @@ import { GameIntro } from './components/GameIntro';
 import { DeckBuilder } from './components/DeckBuilder';
 import { DeckCollection } from './components/DeckCollection';
 import { MatchHistory } from './components/MatchHistory';
+import { Friends } from './components/Friends';
 
-type View = 'lobby' | 'game' | 'deckbuilder' | 'deckcollection' | 'matchhistory';
+type View = 'lobby' | 'game' | 'deckbuilder' | 'deckcollection' | 'matchhistory' | 'friends';
 type RematchState = 'default' | 'proposed' | 'received' | 'declined';
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
   const introShownRef = useRef(false);
   const matchSavedRef = useRef(false);
   const [editingDeck, setEditingDeck] = useState<any>(null);
+  const [incomingChallenge, setIncomingChallenge] = useState<{ challengeId: string; fromUid: string; fromName: string } | null>(null);
 
   // Connect socket when auth resolves
   useEffect(() => {
@@ -100,6 +102,11 @@ function App() {
       setTimeout(() => setError(null), 3000);
     });
 
+    socket.on('duel-challenge', (data: { challengeId: string; fromUid: string; fromName: string }) => {
+      setIncomingChallenge(data);
+      setView('friends');
+    });
+
     return () => {
       socket.off('lobby-update');
       socket.off('game-state');
@@ -110,6 +117,7 @@ function App() {
       socket.off('rematch-declined');
       socket.off('match-found');
       socket.off('queue-timeout');
+      socket.off('duel-challenge');
     };
   }, []);
 
@@ -149,6 +157,8 @@ function App() {
             opponentEmote={opponentEmote}
             rematchState={rematchState}
             onRematchStateChange={setRematchState}
+            onLeaveGame={() => { setGameState(null); setView('lobby'); }}
+            uid={user.uid}
           />
           {showIntro && (
             <GameIntro
@@ -174,12 +184,15 @@ function App() {
         />
       ) : view === 'matchhistory' ? (
         <MatchHistory uid={user.uid} onBack={() => setView('lobby')} />
+      ) : view === 'friends' ? (
+        <Friends uid={user.uid} onBack={() => setView('lobby')} incomingChallenge={incomingChallenge} onChallengeHandled={() => setIncomingChallenge(null)} />
       ) : (
         <Lobby
           lobby={lobby}
           user={user}
           onDeckCollection={() => setView('deckcollection')}
           onMatchHistory={() => setView('matchhistory')}
+          onFriends={() => setView('friends')}
           onSignOut={signOut}
         />
       )}

@@ -51,6 +51,7 @@ export function useDeckBuilderDrag() {
   return {
     state: dragState,
     isDragging: !!dragState,
+    isPending: !!pending,
     startDrag,
     updateDrag,
     endDrag,

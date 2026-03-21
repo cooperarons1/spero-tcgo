@@ -37,7 +37,25 @@ import {
   EmoteSchema,
   SelectDeckSchema,
   JoinQueueSchema,
+  SearchUsersSchema,
+  FriendRequestSchema,
+  FriendRequestActionSchema,
+  RemoveFriendSchema,
+  SendChatSchema,
+  ChallengeFriendSchema,
+  ChallengeResponseSchema,
 } from './validation.js';
+import {
+  searchUsers,
+  sendFriendRequest,
+  acceptFriendRequest,
+  rejectFriendRequest,
+  removeFriend,
+  saveChatMessage,
+  getPendingRequests,
+  getFriendsList,
+  getChatHistory,
+} from './friends.js';
 import { resolveTargetChoice } from './targeting.js';
 import { addToQueue, removeFromQueue, isInQueue, processQueue } from './matchmaking.js';
 
@@ -104,6 +122,22 @@ function createRateLimiter(maxEvents: number, windowMs: number) {
 
 const lobbyLimiter = createRateLimiter(5, 10_000);
 const gameActionLimiter = createRateLimiter(30, 5_000);
+const socialLimiter = createRateLimiter(15, 10_000);
+
+// ── Online user tracking (uid -> socketId) ──
+const onlineUsers = new Map<string, string>();
+
+// ── Pending duel challenges (challengeId -> challenge data) ──
+interface PendingChallenge {
+  id: string;
+  fromUid: string;
+  fromName: string;
+  fromSocketId: string;
+  toUid: string;
+  deckCards: string[];
+  createdAt: number;
+}
+const pendingChallenges = new Map<string, PendingChallenge>();
 
 // ── Validation wrapper ──
 
@@ -130,34 +164,40 @@ setInterval(() => {
 
   if (matched) {
     const [p1, p2] = matched;
-    // Auto-create room and start game
-    const room = createRoom(p1.uid, p1.socketId, p1.displayName);
-    joinRoom(room.code, p2.uid, p2.socketId, p2.displayName);
 
-    room.selectedDecks.set(p1.uid, p1.deckCards);
-    room.selectedDecks.set(p2.uid, p2.deckCards);
+    // Add a 3-second delay so "Searching..." feels natural
+    setTimeout(() => {
+      // Verify both sockets are still connected
+      const s1 = io.sockets.sockets.get(p1.socketId);
+      const s2 = io.sockets.sockets.get(p2.socketId);
+      if (!s1 || !s2) return;
 
-    // Join socket rooms
-    const s1 = io.sockets.sockets.get(p1.socketId);
-    const s2 = io.sockets.sockets.get(p2.socketId);
-    s1?.join(room.code);
-    s2?.join(room.code);
+      // Auto-create room and start game
+      const room = createRoom(p1.uid, p1.socketId, p1.displayName);
+      joinRoom(room.code, p2.uid, p2.socketId, p2.displayName);
 
-    const entries = Array.from(room.players.entries()).map(([id, name]) => ({ id, name }));
-    const uids = Array.from(room.players.keys());
-    const deckLists: [string[] | null, string[] | null] = [
-      room.selectedDecks.get(uids[0]) ?? null,
-      room.selectedDecks.get(uids[1]) ?? null,
-    ];
-    room.game = createGame(entries, { deckLists });
-    room.lastFirstPlayerIndex = room.game.currentPlayerIndex;
+      room.selectedDecks.set(p1.uid, p1.deckCards);
+      room.selectedDecks.set(p2.uid, p2.deckCards);
 
-    // Emit match-found to both
-    io.to(p1.socketId).emit('match-found');
-    io.to(p2.socketId).emit('match-found');
+      s1.join(room.code);
+      s2.join(room.code);
 
-    startRoomTimer(room);
-    broadcastGameState(room.code);
+      const entries = Array.from(room.players.entries()).map(([id, name]) => ({ id, name }));
+      const uids = Array.from(room.players.keys());
+      const deckLists: [string[] | null, string[] | null] = [
+        room.selectedDecks.get(uids[0]) ?? null,
+        room.selectedDecks.get(uids[1]) ?? null,
+      ];
+      room.game = createGame(entries, { deckLists });
+      room.lastFirstPlayerIndex = room.game.currentPlayerIndex;
+
+      // Emit match-found to both
+      io.to(p1.socketId).emit('match-found');
+      io.to(p2.socketId).emit('match-found');
+
+      startRoomTimer(room);
+      broadcastGameState(room.code);
+    }, 3000);
   }
 }, 2000);
 
@@ -295,6 +335,13 @@ io.on('connection', (socket) => {
   const uid = socket.data.uid as string;
   const displayName = socket.data.displayName as string;
   console.log(`Connected: ${uid} (${displayName}) [${socket.id}]`);
+  onlineUsers.set(uid, socket.id);
+
+  // Ensure user profile doc exists (for friend search)
+  adminDb.collection('users').doc(uid).set(
+    { displayName, displayNameLower: displayName.toLowerCase(), lastSeen: Date.now() },
+    { merge: true }
+  ).catch(() => {});
 
   // ── Lobby ──
 
@@ -679,10 +726,219 @@ io.on('connection', (socket) => {
     broadcastGameState(room.code);
   });
 
+  // ── Friends & Social ──
+
+  socket.on('search-users', validated(SearchUsersSchema, async (data) => {
+    if (!socialLimiter.allow(uid)) return;
+    try {
+      const results = await searchUsers(data.query, uid);
+      socket.emit('search-results', results);
+    } catch (err) {
+      console.error('search-users error:', err);
+      socket.emit('search-results', []);
+    }
+  }));
+
+  socket.on('send-friend-request', validated(FriendRequestSchema, async (data) => {
+    if (!socialLimiter.allow(uid)) return;
+    if (data.targetUid === uid) return;
+    try {
+      const targetDoc = await adminDb.collection('users').doc(data.targetUid).get();
+      const targetName = targetDoc.exists ? (targetDoc.data()?.displayName as string || 'Player') : 'Player';
+      const reqId = await sendFriendRequest(uid, displayName, data.targetUid, targetName);
+      if (reqId) {
+        socket.emit('friend-request-sent', { requestId: reqId });
+        // Notify target if online
+        const targetSocket = onlineUsers.get(data.targetUid);
+        if (targetSocket) {
+          io.to(targetSocket).emit('friend-request-received', {
+            id: reqId, fromUid: uid, fromName: displayName, toUid: data.targetUid, toName: targetName, status: 'pending', createdAt: Date.now(),
+          });
+        }
+      } else {
+        socket.emit('error', 'Already friends or request pending');
+      }
+    } catch (err) {
+      console.error('send-friend-request error:', err);
+      socket.emit('error', 'Failed to send friend request');
+    }
+  }));
+
+  socket.on('accept-friend-request', validated(FriendRequestActionSchema, async (data) => {
+    if (!socialLimiter.allow(uid)) return;
+    try {
+      const ok = await acceptFriendRequest(data.requestId, uid);
+      if (ok) {
+        socket.emit('friend-request-accepted', { requestId: data.requestId });
+        // Reload both friend lists
+        socket.emit('friends-updated');
+        // Notify the sender if online
+        const reqDoc = await adminDb.collection('friendRequests').doc(data.requestId).get();
+        const senderUid = reqDoc.data()?.fromUid;
+        if (senderUid) {
+          const senderSocket = onlineUsers.get(senderUid);
+          if (senderSocket) {
+            io.to(senderSocket).emit('friends-updated');
+          }
+        }
+      } else {
+        socket.emit('error', 'Could not accept request');
+      }
+    } catch (err) {
+      console.error('accept-friend-request error:', err);
+    }
+  }));
+
+  socket.on('reject-friend-request', validated(FriendRequestActionSchema, async (data) => {
+    if (!socialLimiter.allow(uid)) return;
+    try {
+      await rejectFriendRequest(data.requestId, uid);
+      socket.emit('friend-request-rejected', { requestId: data.requestId });
+    } catch (err) {
+      console.error('reject-friend-request error:', err);
+    }
+  }));
+
+  socket.on('remove-friend', validated(RemoveFriendSchema, async (data) => {
+    if (!socialLimiter.allow(uid)) return;
+    try {
+      await removeFriend(uid, data.friendUid);
+      socket.emit('friends-updated');
+      const friendSocket = onlineUsers.get(data.friendUid);
+      if (friendSocket) {
+        io.to(friendSocket).emit('friends-updated');
+      }
+    } catch (err) {
+      console.error('remove-friend error:', err);
+    }
+  }));
+
+  socket.on('get-friends', async () => {
+    if (!socialLimiter.allow(uid)) return;
+    try {
+      const [friends, requests] = await Promise.all([
+        getFriendsList(uid),
+        getPendingRequests(uid),
+      ]);
+      const onlineUids = friends.map(f => f.uid).filter(fUid => onlineUsers.has(fUid));
+      socket.emit('friends-list', { friends, requests, onlineUids });
+    } catch (err) {
+      console.error('get-friends error:', err);
+      socket.emit('friends-list', { friends: [], requests: [], onlineUids: [] });
+    }
+  });
+
+  socket.on('get-chat-history', validated(RemoveFriendSchema, async (data) => {
+    if (!socialLimiter.allow(uid)) return;
+    try {
+      const messages = await getChatHistory(uid, data.friendUid);
+      socket.emit('chat-history', { friendUid: data.friendUid, messages });
+    } catch (err) {
+      console.error('get-chat-history error:', err);
+      socket.emit('chat-history', { friendUid: data.friendUid, messages: [] });
+    }
+  }));
+
+  socket.on('send-chat-message', validated(SendChatSchema, async (data) => {
+    if (!socialLimiter.allow(uid)) return;
+    try {
+      const msg = await saveChatMessage(uid, data.friendUid, data.text);
+      socket.emit('new-chat-message', { friendUid: data.friendUid, message: msg });
+      // Forward to friend if online
+      const friendSocket = onlineUsers.get(data.friendUid);
+      if (friendSocket) {
+        io.to(friendSocket).emit('new-chat-message', { friendUid: uid, message: msg });
+      }
+    } catch (err) {
+      console.error('send-chat-message error:', err);
+    }
+  }));
+
+  socket.on('challenge-friend', validated(ChallengeFriendSchema, async (data) => {
+    if (!socialLimiter.allow(uid)) return;
+    const friendSocket = onlineUsers.get(data.friendUid);
+    if (!friendSocket) {
+      socket.emit('error', 'Friend is not online');
+      return;
+    }
+    // Check if already in a room
+    if (getRoomByPlayer(uid)) {
+      socket.emit('error', 'You are already in a game');
+      return;
+    }
+    const challengeId = `ch_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+    pendingChallenges.set(challengeId, {
+      id: challengeId,
+      fromUid: uid,
+      fromName: displayName,
+      fromSocketId: socket.id,
+      toUid: data.friendUid,
+      deckCards: data.deckCards,
+      createdAt: Date.now(),
+    });
+    io.to(friendSocket).emit('duel-challenge', { challengeId, fromUid: uid, fromName: displayName });
+    socket.emit('challenge-sent', { challengeId });
+    // Auto-expire after 30s
+    setTimeout(() => {
+      if (pendingChallenges.has(challengeId)) {
+        pendingChallenges.delete(challengeId);
+        socket.emit('challenge-expired', { challengeId });
+        const target = onlineUsers.get(data.friendUid);
+        if (target) io.to(target).emit('challenge-expired', { challengeId });
+      }
+    }, 30_000);
+  }));
+
+  socket.on('respond-challenge', validated(ChallengeResponseSchema, (data) => {
+    if (!socialLimiter.allow(uid)) return;
+    const challenge = pendingChallenges.get(data.challengeId);
+    if (!challenge || challenge.toUid !== uid) return;
+    pendingChallenges.delete(data.challengeId);
+
+    const challengerSocket = onlineUsers.get(challenge.fromUid);
+    if (!data.accept) {
+      if (challengerSocket) {
+        io.to(challengerSocket).emit('challenge-declined', { challengeId: data.challengeId });
+      }
+      return;
+    }
+
+    // Accept: create a room and start the game
+    if (!data.deckCards || !challengerSocket) {
+      socket.emit('error', 'Invalid challenge response');
+      return;
+    }
+
+    const room = createRoom(challenge.fromUid, challenge.fromSocketId, challenge.fromName);
+    joinRoom(room.code, uid, socket.id, displayName);
+
+    room.selectedDecks.set(challenge.fromUid, challenge.deckCards);
+    room.selectedDecks.set(uid, data.deckCards);
+
+    const s1 = io.sockets.sockets.get(challenge.fromSocketId);
+    const s2 = io.sockets.sockets.get(socket.id);
+    s1?.join(room.code);
+    s2?.join(room.code);
+
+    const entries = Array.from(room.players.entries()).map(([id, name]) => ({ id, name }));
+    const uids = Array.from(room.players.keys());
+    const deckLists: [string[] | null, string[] | null] = [
+      room.selectedDecks.get(uids[0]) ?? null,
+      room.selectedDecks.get(uids[1]) ?? null,
+    ];
+    room.game = createGame(entries, { deckLists });
+    room.lastFirstPlayerIndex = room.game.currentPlayerIndex;
+
+    io.to(challenge.fromSocketId).emit('challenge-accepted', { challengeId: data.challengeId });
+    startRoomTimer(room);
+    broadcastGameState(room.code);
+  }));
+
   // ── Disconnect ──
 
   socket.on('disconnect', () => {
     console.log(`Disconnected: ${uid} [${socket.id}]`);
+    onlineUsers.delete(uid);
     lobbyLimiter.remove(uid);
     gameActionLimiter.remove(uid);
     removeFromQueue(uid);

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { GameEffect } from '../hooks/useGameAnimations';
+import { AP_TO_WIN } from '../../../shared/types';
 
 interface APCounterProps {
   myAP: number;
@@ -11,9 +12,9 @@ interface APCounterProps {
 }
 
 export function APCounter({ myAP, opponentAP, myName, opponentName, myPlayerIndex, effects }: APCounterProps) {
-  const maxAP = 15;
-  const myHealth = maxAP - opponentAP; // My health = 15 - opponent's AP
-  const oppHealth = maxAP - myAP;      // Opp health = 15 - my AP
+  const maxAP = AP_TO_WIN;
+  const myHealth = maxAP - opponentAP;
+  const oppHealth = maxAP - myAP;
 
   const [myBurst, setMyBurst] = useState(false);
   const [oppBurst, setOppBurst] = useState(false);
@@ -39,8 +40,8 @@ export function APCounter({ myAP, opponentAP, myName, opponentName, myPlayerInde
   }, [effects, myPlayerIndex]);
 
   const healthColor = (health: number) => {
-    if (health > 7) return 'bg-spero-green';
-    if (health >= 4) return 'bg-spero-yellow';
+    if (health > maxAP * 0.5) return 'bg-spero-green';
+    if (health >= maxAP * 0.25) return 'bg-spero-yellow';
     return 'bg-spero-red';
   };
 
@@ -52,7 +53,7 @@ export function APCounter({ myAP, opponentAP, myName, opponentName, myPlayerInde
       <div className="mb-3 relative">
         <div className="flex justify-between items-baseline mb-1">
           <span className="text-xs text-gray-400">{myName}</span>
-          <span className={`text-xl font-bold ${myHealth > 7 ? 'text-spero-green' : myHealth >= 4 ? 'text-spero-yellow' : 'text-spero-red'} ${myBurst ? 'animate-ap-burst' : ''}`}>
+          <span className={`text-xl font-bold ${myHealth > maxAP * 0.5 ? 'text-spero-green' : myHealth >= maxAP * 0.25 ? 'text-spero-yellow' : 'text-spero-red'} ${myBurst ? 'animate-ap-burst' : ''}`}>
             {myHealth}
           </span>
         </div>
@@ -71,7 +72,7 @@ export function APCounter({ myAP, opponentAP, myName, opponentName, myPlayerInde
       <div className="relative">
         <div className="flex justify-between items-baseline mb-1">
           <span className="text-xs text-gray-400">{opponentName}</span>
-          <span className={`text-xl font-bold ${oppHealth > 7 ? 'text-spero-green' : oppHealth >= 4 ? 'text-spero-yellow' : 'text-spero-red'} ${oppBurst ? 'animate-ap-burst' : ''}`}>
+          <span className={`text-xl font-bold ${oppHealth > maxAP * 0.5 ? 'text-spero-green' : oppHealth >= maxAP * 0.25 ? 'text-spero-yellow' : 'text-spero-red'} ${oppBurst ? 'animate-ap-burst' : ''}`}>
             {oppHealth}
           </span>
         </div>
