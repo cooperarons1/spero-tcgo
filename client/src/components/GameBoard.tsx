@@ -24,6 +24,7 @@ import { HintOverlay } from './HintOverlay';
 import { Settings } from './Settings';
 import { DragOverlay } from './DragOverlay';
 import { useDragCard } from '../hooks/useDragCard';
+import { HeroPortrait } from './HeroPortrait';
 
 type RematchState = 'default' | 'proposed' | 'received' | 'declined';
 
@@ -370,9 +371,9 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
       {/* MOBILE TOP BAR */}
       <div className="md:hidden flex items-center justify-between gap-2 px-3 py-2 border-b border-board-accent/50 bg-board-surface/30 shrink-0">
         <div className="flex items-center gap-3 text-sm font-bold">
-          <span className="text-spero-yellow">You: {myAP}</span>
+          <span className="text-spero-green">HP: {15 - oppAP}</span>
           <span className="text-gray-500">|</span>
-          <span className="text-gray-400">{gameState.opponent.playerName}: {oppAP}</span>
+          <span className="text-gray-400">{gameState.opponent.playerName}: {15 - myAP}</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs text-gray-400 flex items-center gap-1">
@@ -461,6 +462,17 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
           </div>
         </div>
         <TurnTimer deadline={gameState.turnDeadline} isMyTurn={amICurrentPlayer} />
+
+        {/* Opponent Hero Portrait */}
+        <div className="flex justify-center py-1 shrink-0">
+          <HeroPortrait
+            playerName={gameState.opponent.playerName}
+            health={15 - myAP}
+            isOpponent={true}
+            effects={effects}
+            playerIndex={gameState.myPlayerIndex === 0 ? 1 : 0}
+          />
+        </div>
 
         {/* Opponent hand (face-down cards) */}
         <div className={`${layout.boardScale === 'sm' ? 'h-16' : 'h-16 md:h-28'} shrink-0 flex items-center justify-center gap-1 px-4 overflow-hidden relative`}>
@@ -657,6 +669,17 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
           })()}
         </div>
 
+
+        {/* Player Hero Portrait */}
+        <div className="flex justify-center py-1 shrink-0">
+          <HeroPortrait
+            playerName={gameState.myPlayerName}
+            health={15 - oppAP}
+            isOpponent={false}
+            effects={effects}
+            playerIndex={gameState.myPlayerIndex}
+          />
+        </div>
 
         {/* Hand */}
         <div

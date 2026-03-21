@@ -311,18 +311,29 @@ export interface DeckList {
   cards: string[];    // cardCodes, length 60, duplicates = multiple copies
   createdAt: number;
   updatedAt: number;
+  isStarterDeck?: boolean;
 }
 
 export const DECK_SIZE = 60;
-export const MAX_COPIES_PER_CARD = 4;
+export const MAX_COPIES_PER_CARD = 2;
+
+export interface UserProfile {
+  uid: string;
+  displayName: string;
+  email: string;
+  createdAt: number;
+  gamesPlayed: number;
+  gamesWon: number;
+}
 
 export interface Room {
   code: string;
   hostId: string;
   game: GameState | null;
-  players: Map<string, string>; // socketId -> playerName
+  players: Map<string, string>; // uid -> playerName
+  sockets: Map<string, string>; // uid -> socketId
   timerInterval: ReturnType<typeof setInterval> | null;
   rematchProposedBy: string | null;
   lastFirstPlayerIndex: 0 | 1 | null;
-  selectedDecks: Map<string, string[]>; // socketId -> cardCodes
+  selectedDecks: Map<string, string[]>; // uid -> cardCodes
 }

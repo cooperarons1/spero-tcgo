@@ -1,12 +1,16 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import cardData from '../../../data/cards.json';
 import { validateDeck, DECK_SIZE, MAX_COPIES_PER_CARD } from '../../../shared/deckRules';
-import { type DeckList, saveDeck, generateId } from '../utils/deckStorage';
+import { saveDeck, generateId, type DeckList } from '../utils/deckStorage';
 import { getCardDef } from '../utils/stackHelpers';
 import { Card } from './Card';
+import { DeckStats } from './DeckStats';
+import { DeckCardGhost } from './DeckCardGhost';
+import { useDeckBuilderDrag } from '../hooks/useDeckBuilderDrag';
 
 interface DeckBuilderProps {
   deck: DeckList | null;
+  uid: string;
   onBack: () => void;
 }
 
@@ -17,16 +21,21 @@ const COLOR_LABELS: Record<string, string> = {
   red: 'Red', blue: 'Blue', green: 'Green', yellow: 'Yellow', black: 'Black', none: 'Colorless',
 };
 
-export function DeckBuilder({ deck: initialDeck, onBack }: DeckBuilderProps) {
+export function DeckBuilder({ deck: initialDeck, uid, onBack }: DeckBuilderProps) {
   const [deckName, setDeckName] = useState(initialDeck?.name ?? 'New Deck');
   const [deckCards, setDeckCards] = useState<string[]>(initialDeck?.cards ?? []);
   const [deckId] = useState(initialDeck?.id ?? generateId());
   const [createdAt] = useState(initialDeck?.createdAt ?? Date.now());
+  const [isStarter] = useState(initialDeck?.isStarterDeck ?? false);
+  const [saving, setSaving] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
 
   // Filters
   const [filterColor, setFilterColor] = useState<string | null>(null);
   const [filterType, setFilterType] = useState<string | null>(null);
   const [filterSearch, setFilterSearch] = useState('');
+
+  const drag = useDeckBuilderDrag();
 
   const allCards = useMemo(() => cardData as any[], []);
 
@@ -39,7 +48,6 @@ export function DeckBuilder({ deck: initialDeck, onBack }: DeckBuilderProps) {
     }).sort((a, b) => a.cost - b.cost || a.name.localeCompare(b.name));
   }, [allCards, filterColor, filterType, filterSearch]);
 
-  // Count per card in deck
   const deckCounts = useMemo(() => {
     const counts = new Map<string, number>();
     for (const code of deckCards) {
@@ -48,7 +56,6 @@ export function DeckBuilder({ deck: initialDeck, onBack }: DeckBuilderProps) {
     return counts;
   }, [deckCards]);
 
-  // Grouped deck cards for display
   const deckGrouped = useMemo(() => {
     const groups: { code: string; name: string; typeA: string; color: string; cost: number; count: number }[] = [];
     const seen = new Set<string>();
@@ -97,22 +104,101 @@ export function DeckBuilder({ deck: initialDeck, onBack }: DeckBuilderProps) {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    setSaving(true);
     const deck: DeckList = {
       id: deckId,
       name: deckName.trim() || 'Unnamed Deck',
       cards: deckCards,
       createdAt,
       updatedAt: Date.now(),
+      isStarterDeck: isStarter,
     };
-    saveDeck(deck);
-    onBack();
+    try {
+      await saveDeck(uid, deck);
+      onBack();
+    } catch (err: any) {
+      setImportError(err?.message || 'Failed to save');
+    } finally {
+      setSaving(false);
+    }
   };
+
+  const handleExport = () => {
+    const code = btoa(JSON.stringify(deckCards));
+    navigator.clipboard.writeText(code);
+    setImportError('Deck code copied to clipboard!');
+    setTimeout(() => setImportError(null), 2000);
+  };
+
+  const handleImport = () => {
+    const code = prompt('Paste deck code:');
+    if (!code) return;
+    try {
+      const cards = JSON.parse(atob(code));
+      if (!Array.isArray(cards) || cards.some((c: any) => typeof c !== 'string')) {
+        setImportError('Invalid deck code format');
+        return;
+      }
+      // Validate cards exist
+      for (const c of cards) {
+        if (!getCardDef(c)) {
+          setImportError(`Unknown card: ${c}`);
+          return;
+        }
+      }
+      setDeckCards(cards);
+      setImportError(null);
+    } catch {
+      setImportError('Failed to decode deck code');
+    }
+  };
+
+  // Drag & drop handlers
+  useEffect(() => {
+    if (!drag.isDragging && !drag.state) return;
+
+    const onMove = (e: PointerEvent) => drag.updateDrag(e);
+    const onUp = (e: PointerEvent) => {
+      const result = drag.endDrag();
+      if (!result) return;
+
+      const elements = document.elementsFromPoint(e.clientX, e.clientY);
+      for (const el of elements) {
+        const zone = (el as HTMLElement).dataset?.dropZone;
+        if (zone === 'deck' && result.source === 'collection') {
+          addCard(result.cardCode);
+          return;
+        }
+        if (zone === 'collection' && result.source === 'deck') {
+          removeCard(result.cardCode);
+          return;
+        }
+      }
+    };
+
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
+    return () => {
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+    };
+  });
 
   const colorDot: Record<string, string> = {
     red: 'bg-spero-red', blue: 'bg-spero-blue', green: 'bg-spero-green',
     yellow: 'bg-spero-yellow', black: 'bg-spero-black', none: 'bg-gray-500',
   };
+
+  // Group deck by type for display
+  const typeGroups = useMemo(() => {
+    const groups: Record<string, typeof deckGrouped> = {};
+    for (const card of deckGrouped) {
+      if (!groups[card.typeA]) groups[card.typeA] = [];
+      groups[card.typeA].push(card);
+    }
+    return groups;
+  }, [deckGrouped]);
 
   return (
     <div className="flex flex-col h-screen">
@@ -122,17 +208,38 @@ export function DeckBuilder({ deck: initialDeck, onBack }: DeckBuilderProps) {
           &larr; Back
         </button>
         <h1 className="text-lg font-bold text-white">Deck Builder</h1>
-        <button
-          onClick={handleSave}
-          className="bg-spero-green text-white font-bold px-4 py-1.5 rounded-lg text-sm hover:brightness-110 active:scale-95 cursor-pointer"
-        >
-          Save
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleImport}
+            className="text-gray-400 hover:text-white text-xs px-2 py-1 border border-gray-600 rounded-lg cursor-pointer"
+          >
+            Import
+          </button>
+          <button
+            onClick={handleExport}
+            className="text-gray-400 hover:text-white text-xs px-2 py-1 border border-gray-600 rounded-lg cursor-pointer"
+          >
+            Export
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving || !validation.valid}
+            className="bg-spero-green text-white font-bold px-4 py-1.5 rounded-lg text-sm hover:brightness-110 active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {saving ? 'Saving...' : 'Save'}
+          </button>
+        </div>
       </div>
 
+      {importError && (
+        <div className="px-4 py-2 text-center text-sm text-spero-yellow bg-spero-yellow/10 shrink-0">
+          {importError}
+        </div>
+      )}
+
       <div className="flex-1 flex min-h-0">
-        {/* Collection (left 60%) */}
-        <div className="w-[60%] flex flex-col border-r border-board-accent/30">
+        {/* Collection (left 55%) */}
+        <div className="w-[55%] flex flex-col border-r border-board-accent/30" data-drop-zone="collection">
           {/* Filters */}
           <div className="p-3 space-y-2 border-b border-board-accent/30 shrink-0">
             <div className="flex gap-1 flex-wrap">
@@ -174,23 +281,31 @@ export function DeckBuilder({ deck: initialDeck, onBack }: DeckBuilderProps) {
 
           {/* Card grid */}
           <div className="flex-1 overflow-y-auto p-3">
-            <div className="grid grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-2">
+            <div className="grid grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-2">
               {filteredCards.map((c: any) => {
                 const count = deckCounts.get(c.cardCode) || 0;
                 const maxed = count >= MAX_COPIES_PER_CARD || deckCards.length >= DECK_SIZE;
                 return (
                   <div
                     key={c.cardCode}
-                    className={`relative cursor-pointer transition-all ${maxed ? 'opacity-40' : 'hover:scale-105'}`}
+                    className={`relative cursor-pointer transition-all select-none ${maxed ? 'opacity-40' : 'hover:scale-105'}`}
+                    style={{ touchAction: 'none' }}
                     onClick={() => !maxed && addCard(c.cardCode)}
+                    onPointerDown={(e) => {
+                      if (!maxed) {
+                        drag.startDrag(c.cardCode, 'collection', e.nativeEvent);
+                      }
+                    }}
                   >
                     <Card
                       card={{ instanceId: c.cardCode, cardCode: c.cardCode, faceUp: true }}
                       size="sm"
                     />
                     {count > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-spero-yellow text-black text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
-                        {count}
+                      <span className={`absolute -top-1 -right-1 text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center ${
+                        count >= MAX_COPIES_PER_CARD ? 'bg-gray-500 text-white' : 'bg-spero-yellow text-black'
+                      }`}>
+                        {count}/{MAX_COPIES_PER_CARD}
                       </span>
                     )}
                   </div>
@@ -200,8 +315,8 @@ export function DeckBuilder({ deck: initialDeck, onBack }: DeckBuilderProps) {
           </div>
         </div>
 
-        {/* Deck panel (right 40%) */}
-        <div className="w-[40%] flex flex-col">
+        {/* Deck panel (right 45%) */}
+        <div className="w-[45%] flex flex-col" data-drop-zone="deck">
           <div className="p-3 border-b border-board-accent/30 shrink-0">
             <input
               type="text"
@@ -234,31 +349,61 @@ export function DeckBuilder({ deck: initialDeck, onBack }: DeckBuilderProps) {
             </div>
           )}
 
-          {/* Deck list */}
+          {/* Deck list grouped by type */}
           <div className="flex-1 overflow-y-auto p-3">
             {deckGrouped.length === 0 ? (
-              <p className="text-gray-600 text-sm text-center py-8">Click cards to add them</p>
+              <p className="text-gray-600 text-sm text-center py-8">Drag or click cards to add</p>
             ) : (
-              <div className="space-y-1">
-                {deckGrouped.map(card => (
-                  <div
-                    key={card.code}
-                    className="flex items-center justify-between bg-board-accent rounded-lg px-3 py-1.5 cursor-pointer hover:bg-board-accent/80"
-                    onClick={() => removeCard(card.code)}
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span className={`w-2 h-2 rounded-full shrink-0 ${colorDot[card.color] || 'bg-gray-500'}`} />
-                      <span className="text-xs text-white truncate">{card.name}</span>
-                      <span className="text-[10px] text-gray-500">{card.cost}</span>
+              <div className="space-y-3">
+                {['CHARACTER', 'EQUIPMENT', 'ACTION', 'COMBAT TRICK'].map(type => {
+                  const cards = typeGroups[type];
+                  if (!cards || cards.length === 0) return null;
+                  const typeCount = cards.reduce((s, c) => s + c.count, 0);
+                  return (
+                    <div key={type}>
+                      <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">{type} ({typeCount})</div>
+                      <div className="space-y-1">
+                        {cards.map(card => (
+                          <div
+                            key={card.code}
+                            className="flex items-center justify-between bg-board-accent rounded-lg px-3 py-1.5 cursor-pointer hover:bg-board-accent/80 select-none"
+                            style={{ touchAction: 'none' }}
+                            onClick={() => removeCard(card.code)}
+                            onPointerDown={(e) => {
+                              drag.startDrag(card.code, 'deck', e.nativeEvent);
+                            }}
+                          >
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span className={`w-2 h-2 rounded-full shrink-0 ${colorDot[card.color] || 'bg-gray-500'}`} />
+                              <span className="text-xs text-white truncate">{card.name}</span>
+                              <span className="text-[10px] text-gray-500">{card.cost}</span>
+                            </div>
+                            <span className="text-xs text-spero-yellow font-bold ml-2">x{card.count}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <span className="text-xs text-spero-yellow font-bold ml-2">x{card.count}</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
+
+          {/* Deck Stats */}
+          <div className="p-3 border-t border-board-accent/30 shrink-0">
+            <DeckStats deckCards={deckCards} />
+          </div>
         </div>
       </div>
+
+      {/* Drag ghost */}
+      {drag.state && (
+        <DeckCardGhost
+          cardCode={drag.state.cardCode}
+          cursorX={drag.state.cursorX}
+          cursorY={drag.state.cursorY}
+        />
+      )}
     </div>
   );
 }

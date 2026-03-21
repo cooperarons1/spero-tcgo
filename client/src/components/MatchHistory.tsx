@@ -1,7 +1,8 @@
-import { useState } from 'react';
-import { getHistory, clearHistory, type MatchRecord } from '../utils/matchHistory';
+import { useState, useEffect } from 'react';
+import { getHistory, type MatchRecord } from '../utils/matchHistory';
 
 interface MatchHistoryProps {
+  uid: string;
   onBack: () => void;
 }
 
@@ -43,8 +44,13 @@ function MatchRow({ match }: { match: MatchRecord }) {
   );
 }
 
-export function MatchHistory({ onBack }: MatchHistoryProps) {
-  const [history, setHistory] = useState(getHistory);
+export function MatchHistory({ uid, onBack }: MatchHistoryProps) {
+  const [history, setHistory] = useState<MatchRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getHistory(uid).then(h => { setHistory(h); setLoading(false); });
+  }, [uid]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
@@ -54,18 +60,14 @@ export function MatchHistory({ onBack }: MatchHistoryProps) {
           <button onClick={onBack} className="text-gray-400 hover:text-white text-sm underline cursor-pointer">Back</button>
         </div>
 
-        {history.length === 0 ? (
+        {loading ? (
+          <p className="text-gray-500 text-center py-8">Loading...</p>
+        ) : history.length === 0 ? (
           <p className="text-gray-500 text-center py-8">No matches played yet.</p>
         ) : (
           <>
-            <div className="text-xs text-gray-500 mb-3 flex justify-between">
+            <div className="text-xs text-gray-500 mb-3">
               <span>{history.filter(m => m.isWin).length}W - {history.filter(m => !m.isWin).length}L</span>
-              <button
-                onClick={() => { clearHistory(); setHistory([]); }}
-                className="text-red-400 hover:text-red-300 cursor-pointer"
-              >
-                Clear
-              </button>
             </div>
             <div className="space-y-2 max-h-[60vh] overflow-y-auto">
               {history.map(m => <MatchRow key={m.id} match={m} />)}

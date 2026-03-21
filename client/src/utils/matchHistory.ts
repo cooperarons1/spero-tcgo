@@ -1,5 +1,5 @@
-const STORAGE_KEY = 'spero-match-history';
-const MAX_ENTRIES = 50;
+import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
+import { db } from '../firebase';
 
 export interface MatchRecord {
   id: string;
@@ -17,25 +17,16 @@ export interface MatchRecord {
   opponentDamage: number;
 }
 
-export function saveMatch(record: MatchRecord): void {
-  const history = getHistory();
-  history.unshift(record);
-  if (history.length > MAX_ENTRIES) history.length = MAX_ENTRIES;
+export async function getHistory(uid: string): Promise<MatchRecord[]> {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
-  } catch { /* storage full */ }
-}
-
-export function getHistory(): MatchRecord[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    return JSON.parse(raw) as MatchRecord[];
+    const q = query(
+      collection(db, 'users', uid, 'matches'),
+      orderBy('date', 'desc'),
+      limit(50)
+    );
+    const snap = await getDocs(q);
+    return snap.docs.map(d => ({ id: d.id, ...d.data() } as MatchRecord));
   } catch {
     return [];
   }
-}
-
-export function clearHistory(): void {
-  localStorage.removeItem(STORAGE_KEY);
 }

@@ -1,5 +1,5 @@
 export const DECK_SIZE = 60;
-export const MAX_COPIES_PER_CARD = 4;
+export const MAX_COPIES_PER_CARD = 2;
 
 export interface DeckValidationResult {
   valid: boolean;

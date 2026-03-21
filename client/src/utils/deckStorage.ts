@@ -1,46 +1,104 @@
+import {
+  collection,
+  getDocs,
+  setDoc,
+  deleteDoc,
+  doc,
+  query,
+  orderBy,
+} from 'firebase/firestore';
+import { db } from '../firebase';
+import { STARTER_DECKS } from '../../../shared/starterDecks';
+
 export interface DeckList {
   id: string;
   name: string;
-  cards: string[];    // cardCodes, length 60, duplicates = multiple copies
+  cards: string[];
   createdAt: number;
   updatedAt: number;
+  isStarterDeck?: boolean;
 }
 
-const DECKS_KEY = 'spero-decks';
+const MAX_DECKS = 30;
 const SELECTED_KEY = 'spero-selected-deck';
 
-export function loadDecks(): DeckList[] {
-  try {
-    const raw = localStorage.getItem(DECKS_KEY);
-    if (!raw) return [];
-    return JSON.parse(raw) as DeckList[];
-  } catch {
-    return [];
+export async function loadDecks(uid: string): Promise<DeckList[]> {
+  const q = query(collection(db, 'users', uid, 'decks'), orderBy('createdAt', 'asc'));
+  const snap = await getDocs(q);
+  return snap.docs.map(d => ({ id: d.id, ...d.data() } as DeckList));
+}
+
+export async function saveDeck(uid: string, deck: DeckList): Promise<void> {
+  const decks = await loadDecks(uid);
+  const existing = decks.find(d => d.id === deck.id);
+  if (!existing && decks.length >= MAX_DECKS) {
+    throw new Error(`Deck limit reached (${MAX_DECKS})`);
   }
+  await setDoc(doc(db, 'users', uid, 'decks', deck.id), {
+    name: deck.name,
+    cards: deck.cards,
+    createdAt: deck.createdAt,
+    updatedAt: deck.updatedAt,
+    isStarterDeck: deck.isStarterDeck || false,
+  });
 }
 
-export function saveDecks(decks: DeckList[]): void {
-  try {
-    localStorage.setItem(DECKS_KEY, JSON.stringify(decks));
-  } catch { /* storage full */ }
-}
-
-export function saveDeck(deck: DeckList): void {
-  const decks = loadDecks();
-  const idx = decks.findIndex(d => d.id === deck.id);
-  if (idx >= 0) {
-    decks[idx] = deck;
-  } else {
-    decks.push(deck);
+export async function deleteDeck(uid: string, id: string): Promise<void> {
+  const decks = await loadDecks(uid);
+  const deck = decks.find(d => d.id === id);
+  if (deck?.isStarterDeck) {
+    throw new Error('Cannot delete starter decks');
   }
-  saveDecks(decks);
-}
-
-export function deleteDeck(id: string): void {
-  const decks = loadDecks().filter(d => d.id !== id);
-  saveDecks(decks);
+  await deleteDoc(doc(db, 'users', uid, 'decks', id));
   if (getSelectedDeckId() === id) {
     localStorage.removeItem(SELECTED_KEY);
+  }
+}
+
+export async function seedStarterDecks(uid: string): Promise<void> {
+  const existing = await loadDecks(uid);
+  if (existing.length > 0) return; // Already has decks
+
+  const now = Date.now();
+  for (const starter of STARTER_DECKS) {
+    await setDoc(doc(db, 'users', uid, 'decks', starter.id), {
+      name: starter.name,
+      cards: starter.cards,
+      createdAt: now,
+      updatedAt: now,
+      isStarterDeck: true,
+    });
+  }
+}
+
+export async function migrateLocalStorageDecks(uid: string): Promise<void> {
+  const MIGRATED_KEY = 'spero-decks-migrated';
+  if (localStorage.getItem(MIGRATED_KEY)) return;
+
+  try {
+    const raw = localStorage.getItem('spero-decks');
+    if (!raw) {
+      localStorage.setItem(MIGRATED_KEY, '1');
+      return;
+    }
+    const localDecks = JSON.parse(raw) as DeckList[];
+    if (localDecks.length === 0) {
+      localStorage.setItem(MIGRATED_KEY, '1');
+      return;
+    }
+
+    for (const deck of localDecks) {
+      await setDoc(doc(db, 'users', uid, 'decks', deck.id), {
+        name: deck.name,
+        cards: deck.cards,
+        createdAt: deck.createdAt,
+        updatedAt: deck.updatedAt,
+        isStarterDeck: false,
+      });
+    }
+    localStorage.setItem(MIGRATED_KEY, '1');
+  } catch {
+    // Migration failed, will retry next login
   }
 }
 

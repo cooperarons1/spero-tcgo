@@ -18,13 +18,14 @@ export function clearRoomTimer(room: Room): void {
   }
 }
 
-export function createRoom(hostId: string, hostName: string): Room {
+export function createRoom(uid: string, socketId: string, name: string): Room {
   const code = generateCode();
   const room: Room = {
     code,
-    hostId,
+    hostId: uid,
     game: null,
-    players: new Map([[hostId, hostName]]),
+    players: new Map([[uid, name]]),
+    sockets: new Map([[uid, socketId]]),
     timerInterval: null,
     rematchProposedBy: null,
     lastFirstPlayerIndex: null,
@@ -34,12 +35,13 @@ export function createRoom(hostId: string, hostName: string): Room {
   return room;
 }
 
-export function joinRoom(code: string, playerId: string, playerName: string): Room | null {
+export function joinRoom(code: string, uid: string, socketId: string, name: string): Room | null {
   const room = rooms.get(code.toUpperCase());
   if (!room) return null;
-  if (room.game) return null; // can't join mid-game
-  if (room.players.size >= 2) return null; // max 2 players
-  room.players.set(playerId, playerName);
+  if (room.game) return null;
+  if (room.players.size >= 2) return null;
+  room.players.set(uid, name);
+  room.sockets.set(uid, socketId);
   return room;
 }
 
@@ -47,17 +49,18 @@ export function getRoom(code: string): Room | null {
   return rooms.get(code.toUpperCase()) ?? null;
 }
 
-export function getRoomByPlayer(playerId: string): Room | null {
+export function getRoomByPlayer(uid: string): Room | null {
   for (const room of rooms.values()) {
-    if (room.players.has(playerId)) return room;
+    if (room.players.has(uid)) return room;
   }
   return null;
 }
 
-export function removePlayer(playerId: string): Room | null {
-  const room = getRoomByPlayer(playerId);
+export function removePlayer(uid: string): Room | null {
+  const room = getRoomByPlayer(uid);
   if (!room) return null;
-  room.players.delete(playerId);
+  room.players.delete(uid);
+  room.sockets.delete(uid);
   if (room.players.size === 0) {
     rooms.delete(room.code);
   }

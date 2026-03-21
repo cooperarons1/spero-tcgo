@@ -1,17 +1,20 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { socket } from './socket';
 import type { ClientGameState, LobbyState } from '../../shared/types';
+import { useAuth } from './hooks/useAuth';
+import { AuthScreen } from './components/AuthScreen';
 import { Lobby } from './components/Lobby';
 import { GameBoard } from './components/GameBoard';
 import { GameIntro } from './components/GameIntro';
 import { DeckBuilder } from './components/DeckBuilder';
+import { DeckCollection } from './components/DeckCollection';
 import { MatchHistory } from './components/MatchHistory';
-import { saveMatch, type MatchRecord } from './utils/matchHistory';
 
-type View = 'lobby' | 'game' | 'deckbuilder' | 'matchhistory';
+type View = 'lobby' | 'game' | 'deckbuilder' | 'deckcollection' | 'matchhistory';
 type RematchState = 'default' | 'proposed' | 'received' | 'declined';
 
 function App() {
+  const { user, loading, signUp, signIn, signOut } = useAuth();
   const [view, setView] = useState<View>('lobby');
   const [lobby, setLobby] = useState<LobbyState | null>(null);
   const [gameState, setGameState] = useState<ClientGameState | null>(null);
@@ -22,6 +25,17 @@ function App() {
   const [rematchState, setRematchState] = useState<RematchState>('default');
   const introShownRef = useRef(false);
   const matchSavedRef = useRef(false);
+  const [editingDeck, setEditingDeck] = useState<any>(null);
+
+  // Connect socket when auth resolves
+  useEffect(() => {
+    if (user && !socket.connected) {
+      socket.connect();
+    }
+    if (!user && socket.connected) {
+      socket.disconnect();
+    }
+  }, [user]);
 
   useEffect(() => {
     socket.on('lobby-update', (data: LobbyState) => {
@@ -44,31 +58,11 @@ function App() {
         setShowIntro(true);
       }
 
-      // Save match history on game over
+      // Server writes match history now — no client-side saveMatch
       if (state.winner && !matchSavedRef.current) {
         matchSavedRef.current = true;
-        const myStats = state.playerStats[state.myPlayerIndex];
-        const oppIdx = state.myPlayerIndex === 0 ? 1 : 0;
-        const oppStats = state.playerStats[oppIdx];
-        const record: MatchRecord = {
-          id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-          date: Date.now(),
-          myName: state.myPlayerName,
-          opponentName: state.opponent.playerName,
-          isWin: state.winner === state.myPlayerId,
-          winReason: state.winReason,
-          myAP: state.apScores[state.myPlayerIndex],
-          opponentAP: state.apScores[oppIdx],
-          turns: state.turnNumber,
-          myMissions: myStats.missionsLaunched,
-          opponentMissions: oppStats.missionsLaunched,
-          myDamage: myStats.damageDealt,
-          opponentDamage: oppStats.damageDealt,
-        };
-        saveMatch(record);
       }
 
-      // Reset rematch state when new game starts (no winner)
       if (!state.winner) {
         setRematchState('default');
         matchSavedRef.current = false;
@@ -97,6 +91,15 @@ function App() {
       setRematchState('declined');
     });
 
+    socket.on('match-found', () => {
+      // Game state will follow automatically via game-state event
+    });
+
+    socket.on('queue-timeout', () => {
+      setError('Matchmaking timed out. Try again!');
+      setTimeout(() => setError(null), 3000);
+    });
+
     return () => {
       socket.off('lobby-update');
       socket.off('game-state');
@@ -105,6 +108,8 @@ function App() {
       socket.off('opponent-emote');
       socket.off('rematch-proposed');
       socket.off('rematch-declined');
+      socket.off('match-found');
+      socket.off('queue-timeout');
     };
   }, []);
 
@@ -115,6 +120,18 @@ function App() {
         ? gameState.myPlayerName
         : gameState.opponent.playerName)
     : '';
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-gray-400 text-lg">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <AuthScreen onSignIn={signIn} onSignUp={signUp} />;
+  }
 
   return (
     <>
@@ -143,14 +160,27 @@ function App() {
           )}
         </>
       ) : view === 'deckbuilder' ? (
-        <DeckBuilder deck={null} onBack={() => setView('lobby')} />
+        <DeckBuilder
+          deck={editingDeck}
+          uid={user.uid}
+          onBack={() => { setEditingDeck(null); setView('deckcollection'); }}
+        />
+      ) : view === 'deckcollection' ? (
+        <DeckCollection
+          uid={user.uid}
+          onEditDeck={(deck) => { setEditingDeck(deck); setView('deckbuilder'); }}
+          onNewDeck={() => { setEditingDeck(null); setView('deckbuilder'); }}
+          onBack={() => setView('lobby')}
+        />
       ) : view === 'matchhistory' ? (
-        <MatchHistory onBack={() => setView('lobby')} />
+        <MatchHistory uid={user.uid} onBack={() => setView('lobby')} />
       ) : (
         <Lobby
           lobby={lobby}
-          onDeckBuilder={() => setView('deckbuilder')}
+          user={user}
+          onDeckCollection={() => setView('deckcollection')}
           onMatchHistory={() => setView('matchhistory')}
+          onSignOut={signOut}
         />
       )}
     </>
