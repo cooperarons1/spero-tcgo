@@ -6,7 +6,7 @@ function generateCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
   let code: string;
   do {
-    code = Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+    code = Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
   } while (rooms.has(code));
   return code;
 }
@@ -26,6 +26,9 @@ export function createRoom(hostId: string, hostName: string): Room {
     game: null,
     players: new Map([[hostId, hostName]]),
     timerInterval: null,
+    rematchProposedBy: null,
+    lastFirstPlayerIndex: null,
+    selectedDecks: new Map(),
   };
   rooms.set(code, room);
   return room;
@@ -59,4 +62,13 @@ export function removePlayer(playerId: string): Room | null {
     rooms.delete(room.code);
   }
   return room;
+}
+
+export function cleanupStaleRooms(): void {
+  for (const [code, room] of rooms) {
+    if (room.players.size === 0) {
+      clearRoomTimer(room);
+      rooms.delete(code);
+    }
+  }
 }

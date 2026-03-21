@@ -8,7 +8,6 @@ import type {
   Stack,
   CardInstance,
 } from '../shared/types.js';
-import { TURN_TIMEOUT_MS } from './game.js';
 
 /** Convert a CardInstance to a client-visible version */
 function toClientCard(card: CardInstance, isOwner: boolean): ClientCardInstance {
@@ -44,6 +43,7 @@ export function getClientState(game: GameState, playerId: string): ClientGameSta
     stacks: opp.stacks.map((s) => toClientStack(s, false)),
     sideplay: opp.sideplay.map((c) => toClientCard(c, false)),
     discardCount: opp.discardPile.length,
+    discard: opp.discardPile.map((c) => toClientCard(c, true)),
   };
 
   // Combat state sanitization
@@ -67,7 +67,8 @@ export function getClientState(game: GameState, playerId: string): ClientGameSta
     };
   }
 
-  const turnDeadline = game.turnStartedAt && !game.combatState
+  const TURN_TIMEOUT_MS = 60_000;
+  const turnDeadline = game.turnStartedAt && !game.winner
     ? game.turnStartedAt + TURN_TIMEOUT_MS
     : null;
 
@@ -76,10 +77,12 @@ export function getClientState(game: GameState, playerId: string): ClientGameSta
   return {
     myPlayerId: playerId,
     myPlayerIndex: myIdx as 0 | 1,
+    myPlayerName: me.playerName,
     myHand: me.hand.map((c) => toClientCard(c, true)),
     myStacks: me.stacks.map((s) => toClientStack(s, true)),
     mySideplay: me.sideplay.map((c) => toClientCard(c, true)),
     myDiscardCount: me.discardPile.length,
+    myDiscard: me.discardPile.map((c) => toClientCard(c, true)),
     opponent,
     deckCount: game.decks[myIdx].length,
     opponentDeckCount: game.decks[oppIdx].length,

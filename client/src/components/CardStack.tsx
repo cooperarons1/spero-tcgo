@@ -1,4 +1,5 @@
 import type { ClientStack } from '../../../shared/types';
+import type { GameEffect } from '../hooks/useGameAnimations';
 import { Card } from './Card';
 import { clientStackPower, clientStackSmarts, topCharacterName, clientStackColor } from '../utils/stackHelpers';
 
@@ -11,18 +12,30 @@ interface CardStackProps {
   actionLabel?: string;
   isActionPhase?: boolean;
   acted?: boolean;
-  onPowerMission?: (stackId: string) => void;
-  onSmartsMission?: (stackId: string) => void;
-  onDuel?: (stackId: string) => void;
   turnNumber?: number;
+  cardSize?: 'sm' | 'md';
+  activeEffect?: GameEffect | null;
+  animatingBuilds?: Set<string>;
 }
 
-export function CardStack({ stack, isOwner, onCardClick, onStackClick, highlighted, actionLabel, isActionPhase, acted, onPowerMission, onSmartsMission, onDuel, turnNumber }: CardStackProps) {
+export function CardStack({ stack, isOwner, onCardClick, onStackClick, highlighted, actionLabel, isActionPhase, acted, turnNumber, cardSize = 'md', activeEffect, animatingBuilds }: CardStackProps) {
   const power = clientStackPower(stack);
   const smarts = clientStackSmarts(stack);
   const name = topCharacterName(stack);
   const color = clientStackColor(stack);
   const hasSummoningSickness = turnNumber !== undefined && stack.createdOnTurn === turnNumber;
+
+  // Determine VFX class based on active effect
+  let vfxClass = '';
+  if (activeEffect) {
+    if (activeEffect.type === 'stun' && activeEffect.stackId === stack.stackId) {
+      vfxClass = 'animate-damage-shake animate-stun-flip';
+    } else if (activeEffect.type === 'damage' && activeEffect.stackId === stack.stackId) {
+      vfxClass = 'animate-damage-shake animate-red-flash';
+    } else if (activeEffect.type === 'restore' && activeEffect.stackId === stack.stackId) {
+      vfxClass = 'animate-green-glow';
+    }
+  }
 
   const colorAccent: Record<string, string> = {
     red: 'border-spero-red/60',
@@ -33,6 +46,10 @@ export function CardStack({ stack, isOwner, onCardClick, onStackClick, highlight
     none: 'border-gray-500/60',
   };
 
+  const cardOffset = Math.min(32, Math.max(16, 120 / stack.cards.length));
+  const containerWidth = cardSize === 'sm' ? '108px' : '144px';
+  const baseHeight = cardSize === 'sm' ? 60 : 80;
+
   return (
     <div
       className={`
@@ -41,21 +58,22 @@ export function CardStack({ stack, isOwner, onCardClick, onStackClick, highlight
         ${stack.tapped ? 'opacity-60 rotate-6' : ''}
         ${highlighted ? 'ring-2 ring-spero-yellow shadow-lg shadow-spero-yellow/30' : ''}
         ${onStackClick ? 'cursor-pointer hover:bg-white/5' : ''}
+        ${vfxClass}
         transition-all
       `}
       onClick={onStackClick}
     >
-      {/* Fanned cards — no height cap */}
-      <div className="relative" style={{ height: `${80 + stack.cards.length * 32}px`, width: '144px' }}>
+      {/* Fanned cards — dynamic offset */}
+      <div className="relative" style={{ height: `${baseHeight + stack.cards.length * cardOffset}px`, width: containerWidth }}>
         {stack.cards.map((card, i) => (
           <div
             key={card.instanceId}
-            className="absolute left-0 hover:scale-125 hover:z-50 transition-transform duration-200"
-            style={{ top: `${i * 32}px`, zIndex: i }}
+            className={`absolute left-0 hover:scale-125 hover:z-50 transition-transform duration-200 ${animatingBuilds?.has(card.instanceId) ? 'animate-card-deal' : ''}`}
+            style={{ top: `${i * cardOffset}px`, zIndex: i }}
           >
             <Card
               card={card}
-              size="md"
+              size={cardSize}
               onClick={onCardClick ? () => onCardClick(card.instanceId) : undefined}
             />
           </div>
@@ -89,27 +107,6 @@ export function CardStack({ stack, isOwner, onCardClick, onStackClick, highlight
         </span>
       )}
 
-      {/* Inline action buttons during ACTION phase */}
-      {isActionPhase && !stack.tapped && !acted && !hasSummoningSickness && (
-        <div className="flex gap-1 mt-1.5 justify-center animate-action-pop">
-          {power > 0 && (
-            <button onClick={(e) => { e.stopPropagation(); onPowerMission?.(stack.stackId); }}
-              className="bg-spero-red text-white text-[10px] font-bold px-2 py-0.5 rounded-full hover:brightness-125 active:scale-95 transition-all cursor-pointer">
-              PWR
-            </button>
-          )}
-          {smarts > 0 && (
-            <button onClick={(e) => { e.stopPropagation(); onSmartsMission?.(stack.stackId); }}
-              className="bg-spero-blue text-white text-[10px] font-bold px-2 py-0.5 rounded-full hover:brightness-125 active:scale-95 transition-all cursor-pointer">
-              SMT
-            </button>
-          )}
-          <button onClick={(e) => { e.stopPropagation(); onDuel?.(stack.stackId); }}
-            className="bg-gray-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full hover:brightness-125 active:scale-95 transition-all cursor-pointer">
-            DUEL
-          </button>
-        </div>
-      )}
     </div>
   );
 }

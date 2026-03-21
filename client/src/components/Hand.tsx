@@ -11,12 +11,13 @@ interface HandProps {
   highlightFilter?: (card: ClientCardInstance) => boolean;
   onDragStart?: (instanceId: string, e: React.PointerEvent) => void;
   draggingCardId?: string | null;
+  cardSize?: 'sm' | 'md';
 }
 
-export function Hand({ cards, onCardClick, isMyTurn, highlightFilter, onDragStart, draggingCardId }: HandProps) {
+export function Hand({ cards, onCardClick, isMyTurn, highlightFilter, onDragStart, draggingCardId, cardSize = 'md' }: HandProps) {
   const totalCards = cards.length;
-  const cardWidth = 192; // lg card width
-  const maxSpread = 900;
+  const cardWidth = cardSize === 'sm' ? 96 : 144;
+  const maxSpread = cardSize === 'sm' ? 600 : 900;
   const spacing = Math.min(cardWidth + 8, maxSpread / Math.max(totalCards, 1));
 
   const handleMouseEnter = () => {
@@ -44,7 +45,7 @@ export function Hand({ cards, onCardClick, isMyTurn, highlightFilter, onDragStar
         return (
           <div
             key={card.instanceId}
-            className={`relative transition-all duration-200 hover:-translate-y-10 hover:scale-110 hover:!rotate-0 hover:z-50 animate-card-deal ${isDragging ? 'opacity-30' : ''}`}
+            className={`relative transition-all duration-200 hover:-translate-y-6 hover:scale-110 hover:!rotate-0 hover:z-50 animate-card-deal ${isDragging ? 'opacity-10 scale-95' : ''}`}
             style={{
               transform: `translateY(${translateY}px) rotate(${rotation}deg)`,
               transformOrigin: 'bottom center',
@@ -55,7 +56,7 @@ export function Hand({ cards, onCardClick, isMyTurn, highlightFilter, onDragStar
           >
             <Card
               card={card}
-              size="lg"
+              size={cardSize}
               onClick={playable ? () => onCardClick?.(card.instanceId) : undefined}
               disabled={!playable}
               highlighted={!!playable}

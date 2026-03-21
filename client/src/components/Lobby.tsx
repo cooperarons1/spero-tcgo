@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import type { LobbyState } from '../../../shared/types';
 import { socket } from '../socket';
+import { DeckSelector } from './DeckSelector';
 
 interface LobbyProps {
   lobby: LobbyState | null;
+  onDeckBuilder: () => void;
+  onMatchHistory: () => void;
 }
 
-export function Lobby({ lobby }: LobbyProps) {
+export function Lobby({ lobby, onDeckBuilder, onMatchHistory }: LobbyProps) {
   const [name, setName] = useState('');
   const [joinCode, setJoinCode] = useState('');
   const [mode, setMode] = useState<'menu' | 'join'>('menu');
@@ -48,6 +51,10 @@ export function Lobby({ lobby }: LobbyProps) {
                 )}
               </div>
             ))}
+          </div>
+
+          <div className="mb-4">
+            <DeckSelector onSelectDeck={(cards) => socket.emit('select-deck', { deckCards: cards })} />
           </div>
 
           {lobby.isHost ? (
@@ -97,6 +104,20 @@ export function Lobby({ lobby }: LobbyProps) {
             >
               Join Room
             </button>
+            <div className="flex gap-3 mt-4">
+              <button
+                onClick={onDeckBuilder}
+                className="flex-1 bg-board-accent text-gray-300 font-bold py-2.5 px-4 rounded-xl text-sm hover:bg-board-accent/80 active:scale-95 transition-all cursor-pointer"
+              >
+                Deck Builder
+              </button>
+              <button
+                onClick={onMatchHistory}
+                className="flex-1 bg-board-accent text-gray-300 font-bold py-2.5 px-4 rounded-xl text-sm hover:bg-board-accent/80 active:scale-95 transition-all cursor-pointer"
+              >
+                Match History
+              </button>
+            </div>
           </div>
         )}
 
@@ -106,13 +127,13 @@ export function Lobby({ lobby }: LobbyProps) {
               type="text"
               value={joinCode}
               onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-              placeholder="Room code (e.g. ABCD)"
-              maxLength={4}
+              placeholder="Room code (e.g. ABCDEF)"
+              maxLength={6}
               className="w-full bg-board-accent border border-gray-600 rounded-xl py-3 px-4 text-center text-2xl tracking-[0.3em] font-mono text-white placeholder-gray-500 focus:border-spero-yellow focus:outline-none uppercase"
             />
             <button
               onClick={handleJoin}
-              disabled={joinCode.length !== 4}
+              disabled={joinCode.length !== 6}
               className="w-full bg-spero-green text-white font-bold py-3 px-6 rounded-xl text-lg hover:brightness-110 active:scale-95 transition-all shadow-lg disabled:opacity-50 disabled:scale-100 cursor-pointer disabled:cursor-not-allowed"
             >
               Join

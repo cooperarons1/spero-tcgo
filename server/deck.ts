@@ -69,6 +69,11 @@ export function createTwoDecks(): [CardInstance[], CardInstance[]] {
   ];
 }
 
+/** Create a deck from a list of card codes (for custom decks) */
+export function createDeckFromList(cardCodes: string[]): CardInstance[] {
+  return shuffle(cardCodes.map(code => makeInstance(code)));
+}
+
 export function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {

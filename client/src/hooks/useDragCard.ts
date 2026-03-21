@@ -14,6 +14,7 @@ export function useDragCard() {
   const [state, setState] = useState<DragState | null>(null);
 
   const startDrag = useCallback((instanceId: string, e: PointerEvent) => {
+    document.body.style.cursor = 'grabbing';
     setState({
       cardInstanceId: instanceId,
       faceDown: false,
@@ -41,6 +42,7 @@ export function useDragCard() {
   }, []);
 
   const endDrag = useCallback(() => {
+    document.body.style.cursor = '';
     const current = state;
     setState(null);
     if (!current || !current.activated) return null;

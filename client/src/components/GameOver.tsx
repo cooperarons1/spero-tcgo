@@ -1,11 +1,18 @@
+import { useState } from 'react';
 import type { ClientGameState, PlayerStats, CardStats } from '../../../shared/types';
 import { getCardDef } from '../utils/stackHelpers';
+import { ConfettiCanvas } from './ConfettiCanvas';
+
+type RematchState = 'default' | 'proposed' | 'received' | 'declined';
 
 interface GameOverProps {
   winnerName: string;
   isMe: boolean;
   onPlayAgain: () => void;
+  onRequestRematch: () => void;
+  onDeclineRematch: () => void;
   gameState: ClientGameState;
+  rematchState: RematchState;
 }
 
 function StatRow({ label, my, opp }: { label: string; my: number; opp: number }) {
@@ -124,7 +131,7 @@ function APTimeline({ apTimeline, opponentName }: { apTimeline: [number, number]
   );
 }
 
-export function GameOver({ winnerName, isMe, onPlayAgain, gameState }: GameOverProps) {
+export function GameOver({ winnerName, isMe, onPlayAgain, onRequestRematch, onDeclineRematch, gameState, rematchState }: GameOverProps) {
   const myStats: PlayerStats = gameState.playerStats[gameState.myPlayerIndex];
   const oppIdx = gameState.myPlayerIndex === 0 ? 1 : 0;
   const oppStats: PlayerStats = gameState.playerStats[oppIdx];
@@ -138,10 +145,11 @@ export function GameOver({ winnerName, isMe, onPlayAgain, gameState }: GameOverP
     : null;
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-      <div className="bg-board-surface rounded-2xl p-8 shadow-2xl max-w-md w-full mx-4 text-center animate-bounce-in border border-board-accent max-h-[90vh] overflow-y-auto">
+    <div className={`fixed inset-0 bg-black/70 flex items-center justify-center z-50 ${!isMe ? 'animate-vignette-red' : ''}`}>
+      {isMe && <ConfettiCanvas />}
+      <div className={`bg-board-surface rounded-2xl p-8 shadow-2xl max-w-md w-full mx-4 text-center animate-bounce-in border border-board-accent max-h-[90vh] overflow-y-auto ${isMe ? 'ring-2 ring-spero-yellow/40' : ''}`}>
         <div className="text-6xl mb-4">{isMe ? '\u{1F3C6}' : '\u{1F480}'}</div>
-        <h2 className="text-3xl font-bold text-white mb-2">
+        <h2 className={`text-3xl font-bold text-white mb-2 ${isMe ? 'animate-victory-title' : ''}`}>
           {isMe ? 'Victory!' : `${winnerName} Wins!`}
         </h2>
         <p className="text-gray-400 mb-4">
@@ -187,12 +195,40 @@ export function GameOver({ winnerName, isMe, onPlayAgain, gameState }: GameOverP
         {/* AP Timeline */}
         {apTimeline && <APTimeline apTimeline={apTimeline} opponentName={gameState.opponent.playerName} />}
 
-        <button
-          onClick={onPlayAgain}
-          className="mt-6 bg-spero-green text-white font-bold py-3 px-8 rounded-xl text-lg hover:brightness-110 active:scale-95 transition-all shadow-lg cursor-pointer"
-        >
-          Play Again
-        </button>
+        <div className="mt-6 space-y-2">
+          {rematchState === 'default' && (
+            <button
+              onClick={onRequestRematch}
+              className="w-full bg-spero-green text-white font-bold py-3 px-8 rounded-xl text-lg hover:brightness-110 active:scale-95 transition-all shadow-lg cursor-pointer"
+            >
+              Rematch
+            </button>
+          )}
+          {rematchState === 'proposed' && (
+            <div className="text-gray-400 text-sm py-3">
+              Waiting for opponent to accept...
+            </div>
+          )}
+          {rematchState === 'received' && (
+            <div className="flex gap-3">
+              <button
+                onClick={onRequestRematch}
+                className="flex-1 bg-spero-green text-white font-bold py-3 rounded-xl hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+              >
+                Accept Rematch
+              </button>
+              <button
+                onClick={onDeclineRematch}
+                className="flex-1 bg-board-accent text-gray-300 font-bold py-3 rounded-xl hover:bg-board-accent/80 active:scale-95 transition-all cursor-pointer"
+              >
+                Decline
+              </button>
+            </div>
+          )}
+          {rematchState === 'declined' && (
+            <div className="text-gray-500 text-sm py-3">Rematch declined.</div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import type { TurnPhase } from '../../../shared/types';
 
 interface PhaseBarProps {
@@ -7,32 +6,11 @@ interface PhaseBarProps {
   buildsRemaining: number;
   onEndBuild?: () => void;
   onEndAction?: () => void;
-  turnDeadline: number | null;
 }
 
 const phases: TurnPhase[] = ['UNTAP', 'DRAW', 'BUILD', 'ACTION', 'END'];
 
-export function PhaseBar({ currentPhase, isMyTurn, buildsRemaining, onEndBuild, onEndAction, turnDeadline }: PhaseBarProps) {
-  const [remaining, setRemaining] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (!turnDeadline) {
-      setRemaining(null);
-      return;
-    }
-
-    const tick = () => {
-      const r = Math.max(0, Math.ceil((turnDeadline - Date.now()) / 1000));
-      setRemaining(r);
-    };
-    tick();
-    const interval = setInterval(tick, 1000);
-    return () => clearInterval(interval);
-  }, [turnDeadline]);
-
-  const isUrgent = remaining !== null && remaining <= 10;
-  const isTimedOut = remaining === 0;
-
+export function PhaseBar({ currentPhase, isMyTurn, buildsRemaining, onEndBuild, onEndAction }: PhaseBarProps) {
   return (
     <div className="bg-board-surface rounded-xl p-3 border border-board-accent">
       <div className={`text-center text-sm font-bold mb-3 ${isMyTurn ? 'text-spero-yellow' : 'text-gray-500'}`}>
@@ -63,23 +41,6 @@ export function PhaseBar({ currentPhase, isMyTurn, buildsRemaining, onEndBuild, 
           );
         })}
       </div>
-
-      {/* Timer display */}
-      {remaining !== null && (
-        <div className="mt-2 text-center">
-          {isTimedOut ? (
-            <span className="text-lg font-bold text-spero-red animate-timer-urgent">Time!</span>
-          ) : isUrgent ? (
-            <span className="text-2xl font-bold text-spero-red animate-timer-urgent shadow-[0_0_12px_rgba(192,57,43,0.4)] rounded-full inline-block px-2">
-              {remaining}
-            </span>
-          ) : (
-            <span className="text-sm text-gray-500 font-mono">
-              {Math.floor(remaining / 60)}:{(remaining % 60).toString().padStart(2, '0')}
-            </span>
-          )}
-        </div>
-      )}
 
       {/* Phase action button */}
       {isMyTurn && currentPhase === 'BUILD' && (

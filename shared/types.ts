@@ -108,10 +108,29 @@ export interface CombatState {
 
 // ─── Pending Interaction ───
 
+export interface TargetChoice {
+  interactionId: string;
+  effectSource: string;        // cardCode that triggered it
+  prompt: string;              // "Choose a card to stun"
+  targetType: 'card-in-stack' | 'stack' | 'card-in-discard' | 'card-in-deck' | 'sideplay';
+  validTargets: TargetOption[];
+  allowSkip: boolean;
+  context: 'combat-trick' | 'on-play' | 'action' | 'sideplay-trigger';
+}
+
+export interface TargetOption {
+  id: string;
+  label: string;
+  sublabel?: string;
+  stackId?: string;
+  ownerPlayerId?: string;
+}
+
 export interface PendingInteraction {
-  type: 'BLOCK_DECISION' | 'COMBAT_TRICK';
+  type: 'BLOCK_DECISION' | 'COMBAT_TRICK' | 'CHOOSE_TARGET';
   waitingForPlayerId: string;
   timeoutAt: number; // timestamp
+  targetChoice?: TargetChoice;
 }
 
 // ─── Game Log ───
@@ -225,6 +244,7 @@ export interface ClientPlayerInfo {
   stacks: ClientStack[];
   sideplay: ClientCardInstance[];
   discardCount: number;
+  discard: ClientCardInstance[];
 }
 
 export interface ClientCombatState {
@@ -245,10 +265,12 @@ export interface ClientCombatState {
 export interface ClientGameState {
   myPlayerId: string;
   myPlayerIndex: 0 | 1;
+  myPlayerName: string;
   myHand: ClientCardInstance[];
   myStacks: ClientStack[];
   mySideplay: ClientCardInstance[];
   myDiscardCount: number;
+  myDiscard: ClientCardInstance[];
   opponent: ClientPlayerInfo;
   deckCount: number;
   opponentDeckCount: number;
@@ -283,10 +305,24 @@ export interface LobbyState {
 
 // ─── Room ───
 
+export interface DeckList {
+  id: string;
+  name: string;
+  cards: string[];    // cardCodes, length 60, duplicates = multiple copies
+  createdAt: number;
+  updatedAt: number;
+}
+
+export const DECK_SIZE = 60;
+export const MAX_COPIES_PER_CARD = 4;
+
 export interface Room {
   code: string;
   hostId: string;
   game: GameState | null;
   players: Map<string, string>; // socketId -> playerName
   timerInterval: ReturnType<typeof setInterval> | null;
+  rematchProposedBy: string | null;
+  lastFirstPlayerIndex: 0 | 1 | null;
+  selectedDecks: Map<string, string[]>; // socketId -> cardCodes
 }

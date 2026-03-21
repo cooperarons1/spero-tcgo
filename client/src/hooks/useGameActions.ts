@@ -62,9 +62,32 @@ export function useGameActions() {
     socket.emit('concede');
   };
 
+  // Targeting
+  const chooseTarget = (interactionId: string, selectedTargetId: string | null) => {
+    socket.emit('choose-target', { interactionId, selectedTargetId });
+  };
+
+  // Emotes
+  const emitEmote = (emoteId: string) => {
+    socket.emit('emit-emote', { emoteId });
+  };
+
+  // Deck
+  const selectDeck = (deckCards: string[] | null) => {
+    socket.emit('select-deck', { deckCards });
+  };
+
   // Meta
   const playAgain = () => {
     socket.emit('play-again');
+  };
+
+  const requestRematch = () => {
+    socket.emit('request-rematch');
+  };
+
+  const declineRematch = () => {
+    socket.emit('decline-rematch');
   };
 
   return {
@@ -83,5 +106,10 @@ export function useGameActions() {
     dismissCombatResult,
     concede,
     playAgain,
+    chooseTarget,
+    emitEmote,
+    selectDeck,
+    requestRematch,
+    declineRematch,
   };
 }

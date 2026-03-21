@@ -1,5 +1,5 @@
 import type { GameState, CardStats, PlayerZone, TurnPhase } from '../shared/types.js';
-import { createTwoDecks, resetInstanceCounter } from './deck.js';
+import { createTwoDecks, createDeckFromList, resetInstanceCounter } from './deck.js';
 import { resetStackCounter } from './actions.js';
 import { addLog, emptyStats } from './log.js';
 import { processSideplayTriggers, getSideplayExtraBuilds } from './abilities.js';
@@ -15,14 +15,26 @@ export function trackCardPlayed(game: GameState, cardCode: string): void {
 
 /** Create a new game for two players */
 export function createGame(
-  playerEntries: { id: string; name: string }[]
+  playerEntries: { id: string; name: string }[],
+  options?: { deckLists?: [string[] | null, string[] | null]; firstPlayerIndex?: 0 | 1 }
 ): GameState {
   if (playerEntries.length !== 2) throw new Error('Exactly 2 players required');
 
   resetInstanceCounter();
   resetStackCounter();
 
-  const decks = createTwoDecks();
+  let decks: [import('../shared/types.js').CardInstance[], import('../shared/types.js').CardInstance[]];
+  if (options?.deckLists?.[0] && options?.deckLists?.[1]) {
+    decks = [createDeckFromList(options.deckLists[0]), createDeckFromList(options.deckLists[1])];
+  } else if (options?.deckLists?.[0]) {
+    const starters = createTwoDecks();
+    decks = [createDeckFromList(options.deckLists[0]), starters[1]];
+  } else if (options?.deckLists?.[1]) {
+    const starters = createTwoDecks();
+    decks = [starters[0], createDeckFromList(options.deckLists[1])];
+  } else {
+    decks = createTwoDecks();
+  }
 
   const players: [PlayerZone, PlayerZone] = [
     {
@@ -50,7 +62,7 @@ export function createGame(
     }
   }
 
-  const firstPlayer = Math.random() < 0.5 ? 0 : 1;
+  const firstPlayer = options?.firstPlayerIndex ?? (Math.random() < 0.5 ? 0 : 1);
 
   const game: GameState = {
     players,
@@ -76,7 +88,7 @@ export function createGame(
     turnStartedAt: Date.now(),
   };
 
-  addLog(game, null, `Game started! ${players[0].playerName} goes first.`, 'GAME');
+  addLog(game, null, `Game started! ${players[firstPlayer].playerName} goes first.`, 'GAME');
 
   return game;
 }
