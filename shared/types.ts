@@ -316,7 +316,7 @@ export interface DeckList {
 
 export const DECK_SIZE = 60;
 export const MAX_COPIES_PER_CARD = 2;
-export const AP_TO_WIN = 30;
+export const AP_TO_WIN = 15;
 
 export interface UserProfile {
   uid: string;

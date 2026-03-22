@@ -17,9 +17,9 @@ export function EmoteBubble({ text, position }: EmoteBubbleProps) {
 
   return (
     <div
-      className={`absolute ${position === 'top' ? 'top-2' : 'bottom-2'} left-1/2 -translate-x-1/2 z-30
+      className={`absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-30
         bg-spero-yellow text-black font-bold text-sm px-4 py-2 rounded-full shadow-lg
-        animate-emote-float pointer-events-none`}
+        animate-emote-float pointer-events-none whitespace-nowrap`}
     >
       {text}
     </div>

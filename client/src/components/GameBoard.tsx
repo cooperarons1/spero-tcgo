@@ -523,19 +523,21 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
 
         {/* Opponent Hero Portrait */}
         <div className="flex justify-center py-1 shrink-0 -mb-2 z-20 relative">
-          <HeroPortrait
-            playerName={gameState.opponent.playerName}
-            health={AP_TO_WIN - myAP}
-            ap={oppAP}
-            isOpponent={true}
-            effects={effects}
-            playerIndex={gameState.myPlayerIndex === 0 ? 1 : 0}
-          />
+          <div className="relative">
+            <HeroPortrait
+              playerName={gameState.opponent.playerName}
+              health={AP_TO_WIN - myAP}
+              ap={oppAP}
+              isOpponent={true}
+              effects={effects}
+              playerIndex={gameState.myPlayerIndex === 0 ? 1 : 0}
+            />
+            {opponentEmote && <EmoteBubble text={opponentEmote} position="top" />}
+          </div>
         </div>
 
         {/* Opponent hand (fanned arc) — dynamic sizing */}
         <div className={`${layout.oppHandContainer} shrink-0 flex items-start justify-center px-4 overflow-visible relative z-10`}>
-          {opponentEmote && <EmoteBubble text={opponentEmote} position="top" />}
           {gameState.opponent.handCount > 0 ? (
             (() => {
               const total = gameState.opponent.handCount;
@@ -589,7 +591,6 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
 
         {/* My half — pushes content toward center */}
         <div className="flex-1 px-4 py-2 min-h-0 flex flex-col items-center justify-start relative" data-hint-target="stacks" data-hint-target2="action-area" data-drop-zone="my-field">
-          {myEmote && <EmoteBubble text={myEmote} position="bottom" />}
           <Battlefield
             stacks={gameState.myStacks}
             isOwner={true}
@@ -603,6 +604,7 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
             }
             highlightedStackIds={battlefieldHighlightedIds}
             highlightStyle={battlefieldHighlightStyle}
+            dimNonHighlighted={battlefieldHighlightStyle === 'block' && validBlockerIds.length > 0}
             actionLabels={actionLabels}
             showNewStackSlots={uiMode.type === 'select-stack-for-card' || !!drag.state}
             onNewStack={handleNewStack}
@@ -716,6 +718,7 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
         {/* Player Hero Portrait */}
         <div className="flex justify-center py-1 shrink-0 z-20 relative" data-hint-target="player-portrait">
           <div className="relative">
+            {myEmote && <EmoteBubble text={myEmote} position="bottom" />}
             <HeroPortrait
               playerName={gameState.myPlayerName}
               health={AP_TO_WIN - oppAP}

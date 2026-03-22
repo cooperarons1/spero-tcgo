@@ -78,6 +78,8 @@ interface BattlefieldProps {
   onMissionCancel?: () => void;
   // Ready stack glow
   readyStackIds?: string[];
+  // Dim stacks that are not highlighted (e.g. during block phase)
+  dimNonHighlighted?: boolean;
 }
 
 export function Battlefield({
@@ -107,6 +109,7 @@ export function Battlefield({
   onSmartsMission,
   onMissionCancel,
   readyStackIds = [],
+  dimNonHighlighted = false,
 }: BattlefieldProps) {
   const showGaps = showNewStackSlots || isDragActive;
 
@@ -181,6 +184,7 @@ export function Battlefield({
         const isReady = readyStackIds.includes(stack.stackId);
         const isSelected = selectedStackId === stack.stackId;
         const isBlockHighlighted = highlightStyle === 'block' && highlightedStackIds.includes(stack.stackId);
+        const isDimmed = dimNonHighlighted && !highlightedStackIds.includes(stack.stackId);
         const stackMargin = getStackMargin(i);
         return (
           <div key={stack.stackId} className={`flex items-start transition-all duration-200 ${stackMargin}`}>
@@ -190,7 +194,8 @@ export function Battlefield({
                 isDragActive ? 'ring-1 ring-spero-yellow/30 animate-lane-pulse' : ''
               } ${isHovered ? 'ring-2 ring-spero-yellow bg-spero-yellow/10' : ''
               } ${isReady ? 'ring-2 ring-green-500/50 animate-pulse' : ''
-              } ${isBlockHighlighted ? 'ring-2 ring-spero-blue shadow-lg shadow-spero-blue/20' : ''}`}
+              } ${isBlockHighlighted ? 'ring-2 ring-spero-blue animate-pulse shadow-lg shadow-spero-blue/30' : ''
+              } ${isDimmed ? 'opacity-50' : ''}`}
             >
               <CardStack
                 stack={stack}

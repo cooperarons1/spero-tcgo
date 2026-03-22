@@ -51,7 +51,7 @@ export function HeroPortrait({ playerName, health, ap, isOpponent, effects, play
         </div>
 
         {/* AP badge (bottom-left) */}
-        {ap !== undefined && (
+        {ap !== undefined && ap > 0 && (
           <div className="absolute -bottom-2 -left-1 w-7 h-7 md:w-8 md:h-8 rounded-full bg-spero-yellow border-2 border-yellow-600 flex items-center justify-center shadow-lg">
             <span className="text-black font-bold text-sm md:text-base drop-shadow-[0_1px_1px_rgba(255,255,255,0.3)]">{ap}</span>
           </div>

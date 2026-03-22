@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import type { ClientGameState } from '../../../shared/types';
+import { topCharacterName } from '../utils/stackHelpers';
 
 interface CombatModalProps {
   gameState: ClientGameState;
@@ -19,8 +20,19 @@ export function CombatModal({ gameState, onBlock, onCombatTrick, onDismissCombat
 
   if (!combat) return null;
 
+  // RESOLVING phase is transient — don't show anything
+  if (combat.phase === 'RESOLVING') return null;
+
   const pending = gameState.pendingInteraction;
   const isMyAction = pending?.waitingForPlayerId === gameState.myPlayerId;
+
+  // Derive attacker info for richer banner text
+  const attackerStack = gameState.opponent.stacks.find(s => s.stackId === combat.attackerStackId)
+    ?? gameState.myStacks.find(s => s.stackId === combat.attackerStackId);
+  const attackerStackName = attackerStack ? topCharacterName(attackerStack) : 'Unknown';
+  const attackerName = combat.attackerPlayerId === gameState.myPlayerId
+    ? gameState.myPlayerName
+    : gameState.opponent.playerName;
 
   // Block decision phase — top banner
   if (combat.phase === 'AWAITING_BLOCK' && isMyAction) {
@@ -30,7 +42,7 @@ export function CombatModal({ gameState, onBlock, onCombatTrick, onDismissCombat
           <div className="max-w-3xl mx-auto flex items-center justify-between gap-4">
             <div className="flex-1">
               <h3 className="text-base font-bold text-white">
-                Incoming {combat.missionType} Mission!
+                {attackerName}&apos;s {attackerStackName} is on a {combat.missionType} Mission!
               </h3>
               <p className="text-sm text-gray-400">
                 ATK: <span className="font-bold text-spero-yellow">{combat.attackerStat}</span>
@@ -77,8 +89,8 @@ export function CombatModal({ gameState, onBlock, onCombatTrick, onDismissCombat
     );
   }
 
-  // Waiting for opponent — slim top banner instead of full overlay
-  if (!isMyAction && combat.phase !== 'RESOLVING') {
+  // Waiting for opponent — only show if pendingInteraction still exists (not stale)
+  if (!isMyAction && pending) {
     return (
       <div className="fixed top-0 left-0 right-0 z-50">
         <div className="bg-board-surface/90 backdrop-blur-sm border-b border-board-accent px-4 py-3 shadow-xl">

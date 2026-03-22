@@ -81,13 +81,32 @@ export function DeckDiscard({ deckCount, discardCount, discardCards }: DeckDisca
             </div>
           )}
 
-          {/* Expanded discard viewer (click) */}
+          {/* Expanded discard viewer — fixed overlay */}
           {expanded && hasCards && (
-            <div className="mt-2 max-h-[300px] overflow-y-auto border border-board-accent rounded-lg p-2 bg-board-surface/80">
-              <div className="grid grid-cols-2 gap-1.5">
-                {discardCards!.map((card) => (
-                  <Card key={card.instanceId} card={card} size="sm" />
-                ))}
+            <div
+              className="fixed inset-0 z-40 bg-black/60 flex items-center justify-center"
+              onClick={() => setExpanded(false)}
+            >
+              <div
+                className="bg-board-surface rounded-2xl border border-board-accent shadow-2xl max-w-md w-full mx-4 max-h-[70vh] flex flex-col"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between px-4 py-3 border-b border-board-accent shrink-0">
+                  <h3 className="text-white font-bold text-sm">Discard Pile ({discardCount})</h3>
+                  <button
+                    onClick={() => setExpanded(false)}
+                    className="text-gray-400 hover:text-white cursor-pointer text-lg leading-none"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="overflow-y-auto p-3">
+                  <div className="grid grid-cols-3 gap-2">
+                    {discardCards!.map((card) => (
+                      <Card key={card.instanceId} card={card} size="sm" />
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           )}
