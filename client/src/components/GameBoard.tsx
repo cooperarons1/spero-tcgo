@@ -5,13 +5,10 @@ import { useGameActions } from '../hooks/useGameActions';
 import { useGameAnimations, type GameEffect } from '../hooks/useGameAnimations';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 import { useOnboardingHints } from '../hooks/useOnboardingHints';
-import { getCardDef, clientStackPower, clientStackSmarts, topCharacterName } from '../utils/stackHelpers';
-import { PhaseBar } from './PhaseBar';
-
+import { getCardDef } from '../utils/stackHelpers';
 import { OpponentField } from './OpponentField';
 import { Battlefield } from './Battlefield';
 import { Hand } from './Hand';
-import { SideplayZone } from './SideplayZone';
 import { DeckDiscard } from './DeckDiscard';
 import { CombatModal } from './CombatModal';
 import { GameOver } from './GameOver';
@@ -21,12 +18,14 @@ import { EmotePanel, type EmoteId } from './EmotePanel';
 import { EmoteBubble } from './EmoteBubble';
 import { TargetingModal } from './TargetingModal';
 import { HintOverlay } from './HintOverlay';
+import { GameLog } from './GameLog';
 
 import { Settings } from './Settings';
 import { DragOverlay } from './DragOverlay';
 import { useDragCard } from '../hooks/useDragCard';
 import { HeroPortrait } from './HeroPortrait';
 import { Friends } from './Friends';
+import { getCardImagePath } from '../utils/cardImages';
 
 type RematchState = 'default' | 'proposed' | 'received' | 'declined';
 
@@ -84,8 +83,19 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
   const [showTurnBanner, setShowTurnBanner] = useState(false);
   const [turnBannerIsMyTurn, setTurnBannerIsMyTurn] = useState(false);
   const [animatingBuilds, setAnimatingBuilds] = useState<Set<string>>(new Set());
-  const [handHovered, setHandHovered] = useState(false);
+  const [handExpanded, setHandExpanded] = useState(false);
   const [showFriendsPanel, setShowFriendsPanel] = useState(false);
+  const [showGameLog, setShowGameLog] = useState(false);
+  const [inspectedCard, setInspectedCard] = useState<string | null>(null);
+  const [stackDrag, setStackDrag] = useState<{
+    sourceStackId: string;
+    cardInstanceId: string;
+    cursorX: number;
+    cursorY: number;
+    startX: number;
+    startY: number;
+    activated: boolean;
+  } | null>(null);
 
   const layout = useLayoutSize();
   const effects = useGameAnimations(gameState);
@@ -95,6 +105,20 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
   useEffect(() => {
     setUIMode({ type: 'idle' });
   }, [gameState.turnPhase, gameState.currentPlayerIndex]);
+
+  // Global Escape key handler — closes modals in priority order
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key !== 'Escape') return;
+      if (inspectedCard) { setInspectedCard(null); return; }
+      if (showSettings) { setShowSettings(false); return; }
+      if (showFriendsPanel) { setShowFriendsPanel(false); return; }
+      if (handExpanded) { setHandExpanded(false); return; }
+      if (uiMode.type !== 'idle') { setUIMode({ type: 'idle' }); return; }
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [inspectedCard, showSettings, showFriendsPanel, handExpanded, uiMode]);
 
   // Track turn changes for banner
   useEffect(() => {
@@ -170,6 +194,7 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
       if (stackId) {
         setUIMode({ type: 'choose-drag-build-mode', cardInstanceId, targetStackId: stackId });
         setHoveredDropTarget(null);
+        setTimeout(() => setHandExpanded(false), 200);
         return;
       }
       const lane = (el as HTMLElement).dataset?.dropLane;
@@ -180,16 +205,19 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
         }
         setUIMode({ type: 'choose-drag-build-mode', cardInstanceId, targetStackId: undefined });
         setHoveredDropTarget(null);
+        setTimeout(() => setHandExpanded(false), 200);
         return;
       }
       const zone = (el as HTMLElement).dataset?.dropZone;
       if (zone === 'my-field') {
         setUIMode({ type: 'choose-drag-build-mode', cardInstanceId, targetStackId: undefined });
         setHoveredDropTarget(null);
+        setTimeout(() => setHandExpanded(false), 200);
         return;
       }
     }
     setHoveredDropTarget(null);
+    setTimeout(() => setHandExpanded(false), 200);
   };
 
   // Update hovered drop target during drag
@@ -216,6 +244,87 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
     }
     setHoveredDropTarget(null);
   };
+
+  // ─── Stack-drag handlers (split from stack) ───
+  const handleStackDragStart = useCallback((stackId: string, cardInstanceId: string, e: React.PointerEvent) => {
+    document.body.style.cursor = 'grabbing';
+    setStackDrag({
+      sourceStackId: stackId,
+      cardInstanceId,
+      cursorX: e.clientX,
+      cursorY: e.clientY,
+      startX: e.clientX,
+      startY: e.clientY,
+      activated: false,
+    });
+  }, []);
+
+  const handleStackDragMove = useCallback((e: PointerEvent) => {
+    setStackDrag((prev) => {
+      if (!prev) return null;
+      const dx = e.clientX - prev.startX;
+      const dy = e.clientY - prev.startY;
+      const activated = prev.activated || Math.sqrt(dx * dx + dy * dy) > 5;
+      return { ...prev, cursorX: e.clientX, cursorY: e.clientY, activated };
+    });
+    // Update hovered drop target
+    const elements = document.elementsFromPoint(e.clientX, e.clientY);
+    for (const el of elements) {
+      const stackId = (el as HTMLElement).dataset?.dropStack;
+      if (stackId) {
+        setHoveredDropTarget(stackId);
+        return;
+      }
+      const lane = (el as HTMLElement).dataset?.dropLane;
+      if (lane === 'new') {
+        const dropIndex = (el as HTMLElement).dataset?.dropIndex;
+        setHoveredDropTarget(dropIndex !== undefined ? `gap-${dropIndex}` : 'new');
+        return;
+      }
+    }
+    setHoveredDropTarget(null);
+  }, []);
+
+  const handleStackDragEnd = useCallback(() => {
+    document.body.style.cursor = '';
+    const current = stackDrag;
+    setStackDrag(null);
+    setHoveredDropTarget(null);
+    if (!current || !current.activated) return;
+
+    const elements = document.elementsFromPoint(current.cursorX, current.cursorY);
+    for (const el of elements) {
+      // Drop on another own stack → combine
+      const targetStackId = (el as HTMLElement).dataset?.dropStack;
+      if (targetStackId && targetStackId !== current.sourceStackId) {
+        actions.combineStacks(current.sourceStackId, targetStackId);
+        return;
+      }
+      // Drop on empty lane → split
+      const lane = (el as HTMLElement).dataset?.dropLane;
+      if (lane === 'new') {
+        const dropIndex = (el as HTMLElement).dataset?.dropIndex;
+        if (dropIndex !== undefined) {
+          setPendingInsertIndex(parseInt(dropIndex, 10));
+        }
+        actions.splitStack(current.sourceStackId, [current.cardInstanceId]);
+        return;
+      }
+    }
+  }, [stackDrag, actions]);
+
+  // Document-level pointer listeners for stack-drag
+  useEffect(() => {
+    if (!stackDrag) return;
+    const onMove = (e: PointerEvent) => handleStackDragMove(e);
+    const onUp = () => handleStackDragEnd();
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
+    return () => {
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+    };
+  });
 
   // Check if we can drag (build phase, my turn, builds remaining)
   const canDrag = gameState.myPlayerIndex === gameState.currentPlayerIndex
@@ -271,6 +380,11 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
     && (combat.phase === 'AWAITING_DEFENDER_TRICK' || combat.phase === 'AWAITING_ATTACKER_TRICK')
     && gameState.pendingInteraction?.waitingForPlayerId === gameState.myPlayerId;
 
+  // Auto-open hand during combat trick phase
+  useEffect(() => {
+    if (isMyTrickPhase) setHandExpanded(true);
+  }, [isMyTrickPhase]);
+
   // ─── Build Phase: Card Click → Play to Stack ───
 
   const handleHandCardClick = (instanceId: string) => {
@@ -283,18 +397,21 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
       const def = getCardDef(card.cardCode);
       if (def?.typeA === 'COMBAT TRICK') {
         actions.playCombatTrick(instanceId);
+        setTimeout(() => setHandExpanded(false), 200);
         return;
       }
     }
 
     if (gameState.turnPhase === 'BUILD') {
       setUIMode({ type: 'select-stack-for-card', cardInstanceId: instanceId, faceDown: false });
+      setTimeout(() => setHandExpanded(false), 200);
     } else if (gameState.turnPhase === 'ACTION') {
       const card = gameState.myHand.find((c) => c.instanceId === instanceId);
       if (!card?.cardCode) return;
       const def = getCardDef(card.cardCode);
       if (def?.typeA === 'ACTION') {
         setUIMode({ type: 'select-action-stack', cardInstanceId: instanceId });
+        setTimeout(() => setHandExpanded(false), 200);
       }
     }
   };
@@ -390,6 +507,7 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
   }
 
   const isActionPhase = amICurrentPlayer && gameState.turnPhase === 'ACTION' && !gameState.combatState;
+  const hasPlayableCards = amICurrentPlayer && gameState.myHand.some(c => handHighlight(c));
 
   // Determine battlefield highlighted stacks and style
   let battlefieldHighlightedIds: string[] = [];
@@ -405,7 +523,7 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
   const oppAP = gameState.apScores[gameState.myPlayerIndex === 0 ? 1 : 0];
 
   return (
-    <div className="flex flex-col md:flex-row h-screen overflow-hidden">
+    <div className="flex flex-col h-screen overflow-hidden" style={{ background: 'radial-gradient(ellipse at 50% 50%, #1e2240 0%, #1a1a2e 70%)' }}>
       {/* Modals (above everything) */}
       {(gameState.combatState || gameState.combatResult) && (
         <CombatModal
@@ -419,6 +537,7 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
         <TargetingModal
           interaction={gameState.pendingInteraction}
           onChooseTarget={actions.chooseTarget}
+          onInspect={setInspectedCard}
         />
       )}
       {winnerName && (
@@ -450,35 +569,26 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
           cards={gameState.myHand}
         />
       )}
+      {stackDrag?.activated && (() => {
+        const allCards = gameState.myStacks.flatMap(s => s.cards);
+        return (
+          <DragOverlay
+            cardInstanceId={stackDrag.cardInstanceId}
+            faceDown={false}
+            cursorX={stackDrag.cursorX}
+            cursorY={stackDrag.cursorY}
+            cards={allCards}
+            hideLabels
+          />
+        );
+      })()}
 
       {/* MOBILE TOP BAR */}
       <div className="md:hidden flex items-center justify-between gap-2 px-3 py-2 border-b border-board-accent/50 bg-board-surface/30 shrink-0">
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-400 flex items-center gap-1">
-            <span className={`w-1.5 h-1.5 rounded-full ${amICurrentPlayer ? 'bg-spero-yellow' : 'bg-gray-600'}`} />
-            {gameState.turnPhase}
-          </span>
-          {amICurrentPlayer && !gameState.combatState && (
-            <>
-              {gameState.turnPhase === 'BUILD' && (
-                <button
-                  onClick={actions.endBuildPhase}
-                  className="text-[10px] font-bold bg-spero-blue text-white px-2 py-1 rounded-full cursor-pointer"
-                >
-                  End Build
-                </button>
-              )}
-              {gameState.turnPhase === 'ACTION' && (
-                <button
-                  onClick={actions.endActionPhase}
-                  className="text-[10px] font-bold bg-spero-red text-white px-2 py-1 rounded-full cursor-pointer"
-                >
-                  End Turn
-                </button>
-              )}
-            </>
-          )}
-        </div>
+        <span className="text-xs text-gray-400 flex items-center gap-1">
+          <span className={`w-1.5 h-1.5 rounded-full ${amICurrentPlayer ? 'bg-spero-yellow' : 'bg-gray-600'}`} />
+          {gameState.turnPhase}
+        </span>
         <button
           onClick={() => setShowSettings(true)}
           className="text-gray-500 hover:text-gray-300 transition-colors cursor-pointer text-2xl p-2"
@@ -486,12 +596,6 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
         >
           ⚙
         </button>
-      </div>
-
-      {/* LEFT SIDEBAR */}
-      <div className={`hidden md:flex ${layout.sidebarWidth === 'w-40' ? 'md:w-40' : 'md:w-48'} flex-col gap-4 p-3 border-r border-board-accent/50 bg-board-surface/30 shrink-0 overflow-y-auto`}>
-        <DeckDiscard deckCount={gameState.deckCount} discardCount={gameState.myDiscardCount} discardCards={gameState.myDiscard} />
-        <SideplayZone cards={gameState.mySideplay} />
       </div>
 
       {/* MAIN BOARD */}
@@ -503,6 +607,13 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
             <span className="text-sm text-spero-yellow font-bold animate-pulse-glow">Your turn!</span>
           )}
           <div className="absolute right-3 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-2">
+            <button
+              onClick={() => setShowGameLog(!showGameLog)}
+              className={`text-gray-500 hover:text-gray-300 transition-colors cursor-pointer text-lg p-1 ${showGameLog ? 'text-spero-blue' : ''}`}
+              title="Game Log"
+            >
+              📋
+            </button>
             <button
               onClick={() => setShowFriendsPanel(!showFriendsPanel)}
               className="text-gray-500 hover:text-gray-300 transition-colors cursor-pointer text-lg p-1"
@@ -520,6 +631,11 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
           </div>
         </div>
         <TurnTimer deadline={gameState.turnDeadline} isMyTurn={amICurrentPlayer} />
+
+        {/* Opponent info row */}
+        <div className="flex items-center justify-center gap-4 py-1 shrink-0">
+          <DeckDiscard deckCount={gameState.opponentDeckCount} discardCount={gameState.opponent.discardCount} discardCards={gameState.opponent.discard} compact onInspect={setInspectedCard} />
+        </div>
 
         {/* Opponent Hero Portrait */}
         <div className="flex justify-center py-1 shrink-0 -mb-2 z-20 relative">
@@ -573,7 +689,7 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
         </div>
 
         {/* Opponent half — pushes content toward center */}
-        <div className="flex-1 px-4 py-2 min-h-0 flex flex-col items-center justify-end">
+        <div className="flex-1 px-4 py-2 min-h-0 flex flex-col items-center justify-end bg-gradient-to-b from-board-bg to-board-surface/30">
           <OpponentField
             opponent={gameState.opponent}
             onStackClick={uiMode.type === 'select-duel-target' ? handleOpponentStackClick : undefined}
@@ -581,16 +697,41 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
             opponentHovering={opponentHovering}
             cardSize={layout.boardScale}
             getStackEffect={getStackEffect}
+            onInspect={setInspectedCard}
           />
         </div>
 
-        {/* Divider — centered between halves */}
-        <div className="px-6 py-1 shrink-0">
-          <div className="h-px bg-board-accent/40" />
+        {/* Center divider with End Turn button */}
+        <div className="px-6 py-1 shrink-0 flex items-center gap-3">
+          <div className="flex-1 h-px bg-gradient-to-r from-transparent to-board-accent/40" />
+          {amICurrentPlayer && !gameState.combatState ? (
+            gameState.turnPhase === 'BUILD' ? (
+              <button
+                onClick={actions.endBuildPhase}
+                className="min-w-[140px] px-5 py-2 rounded-full bg-spero-blue text-white font-bold text-sm hover:brightness-110 active:scale-95 transition-all cursor-pointer shadow-lg"
+              >
+                End Build ({gameState.buildsRemaining} left)
+              </button>
+            ) : gameState.turnPhase === 'ACTION' ? (
+              <button
+                onClick={actions.endActionPhase}
+                className="min-w-[140px] px-5 py-2 rounded-full bg-amber-600 text-white font-bold text-sm hover:brightness-110 active:scale-95 transition-all cursor-pointer shadow-lg animate-end-turn-glow"
+              >
+                End Turn
+              </button>
+            ) : (
+              <span className="text-[10px] uppercase tracking-widest text-gray-600">{gameState.turnPhase}</span>
+            )
+          ) : (
+            <span className="min-w-[140px] px-5 py-2 rounded-full bg-board-accent text-gray-500 font-bold text-sm text-center cursor-default">
+              Opponent's Turn
+            </span>
+          )}
+          <div className="flex-1 h-px bg-gradient-to-l from-transparent to-board-accent/40" />
         </div>
 
         {/* My half — pushes content toward center */}
-        <div className="flex-1 px-4 py-2 min-h-0 flex flex-col items-center justify-start relative" data-hint-target="stacks" data-hint-target2="action-area" data-drop-zone="my-field">
+        <div className="flex-1 px-4 py-2 min-h-0 flex flex-col items-center justify-start relative bg-gradient-to-t from-board-bg to-board-surface/30" data-hint-target="stacks" data-hint-target2="action-area" data-drop-zone="my-field">
           <Battlefield
             stacks={gameState.myStacks}
             isOwner={true}
@@ -606,12 +747,12 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
             highlightStyle={battlefieldHighlightStyle}
             dimNonHighlighted={battlefieldHighlightStyle === 'block' && validBlockerIds.length > 0}
             actionLabels={actionLabels}
-            showNewStackSlots={uiMode.type === 'select-stack-for-card' || !!drag.state}
+            showNewStackSlots={uiMode.type === 'select-stack-for-card' || !!drag.state || !!stackDrag?.activated}
             onNewStack={handleNewStack}
             onNewStackAtIndex={handleNewStackAtIndex}
             isActionPhase={isActionPhase}
             actedStacks={gameState.actedStacks}
-            isDragActive={!!drag.state}
+            isDragActive={!!drag.state || !!stackDrag?.activated}
             hoveredDropTarget={hoveredDropTarget}
             turnNumber={gameState.turnNumber}
             cardSize={layout.boardScale}
@@ -631,6 +772,9 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
             }}
             onMissionCancel={() => setUIMode({ type: 'idle' })}
             readyStackIds={readyStackIds}
+            onInspect={setInspectedCard}
+            onDragStartFromStack={handleStackDragStart}
+            canSplitDrag={canDrag}
           />
 
           {/* Floating prompts */}
@@ -715,8 +859,19 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
         </div>
 
 
-        {/* Player Hero Portrait */}
-        <div className="flex justify-center py-1 shrink-0 z-20 relative" data-hint-target="player-portrait">
+        {/* Player Hero Portrait + Hand Badge Row */}
+        <div className="flex justify-center items-center gap-4 py-1 shrink-0 z-20 relative" data-hint-target="player-portrait">
+          {/* My info row (left side) */}
+          <div className="flex items-center gap-2">
+            <DeckDiscard deckCount={gameState.deckCount} discardCount={gameState.myDiscardCount} discardCards={gameState.myDiscard} compact onInspect={setInspectedCard} />
+            {gameState.mySideplay.length > 0 && (
+              <>
+                <span className="text-gray-700">|</span>
+                <span className="text-xs text-gray-500">Side: {gameState.mySideplay.length}</span>
+              </>
+            )}
+          </div>
+
           <div className="relative">
             {myEmote && <EmoteBubble text={myEmote} position="bottom" />}
             <HeroPortrait
@@ -742,56 +897,118 @@ export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchS
               </div>
             )}
           </div>
-        </div>
 
-        {/* Hand */}
-        <div
-          data-hint-target="hand"
-          className={`shrink-0 p-2 md:p-4 border-t border-board-accent ${handHovered || drag.isDragging ? 'z-30' : 'z-10'} relative transition-all duration-300 ${layout.handHeight} ${amICurrentPlayer ? 'bg-board-surface/50' : 'bg-board-surface/20'}`}
-          onMouseEnter={() => setHandHovered(true)}
-          onMouseLeave={() => setHandHovered(false)}
-          onPointerMove={drag.state ? (e) => handleDragMove(e) : undefined}
-          onPointerUp={drag.state ? handleDragEnd : undefined}
-        >
-          <div className="text-sm text-gray-500 mb-1 text-center" data-hint-target="builds">
+          {/* Collapsed hand badge */}
+          <button
+            data-hint-target="hand"
+            onClick={() => setHandExpanded(true)}
+            className={`px-3 py-1.5 rounded-full border border-board-accent bg-board-surface text-sm font-bold cursor-pointer transition-all hover:brightness-125 ${
+              hasPlayableCards ? 'text-spero-blue animate-hand-badge-pulse' : 'text-gray-400'
+            }`}
+          >
             Hand ({gameState.myHand.length})
-            {gameState.turnPhase === 'BUILD' && amICurrentPlayer && ` — ${gameState.buildsRemaining} builds left`}
-          </div>
-          <Hand
-            cards={gameState.myHand}
-            onCardClick={handleHandCardClick}
-            isMyTurn={amICurrentPlayer}
-            highlightFilter={handHighlight}
-            onDragStart={amICurrentPlayer ? (id, e) => drag.startDrag(id, e.nativeEvent) : undefined}
-            draggingCardId={drag.state?.cardInstanceId ?? null}
-            cardSize={layout.handCardSize}
+          </button>
+        </div>
+      </div>
+
+      {/* Hand Overlay */}
+      {handExpanded && (
+        <>
+          {/* Scrim — don't close during active drag */}
+          <div
+            className="fixed inset-0 z-30 bg-black/50"
+            onClick={!drag.state ? () => setHandExpanded(false) : undefined}
           />
-        </div>
-      </div>
+          {/* Hand panel */}
+          <div
+            className="fixed bottom-0 left-0 right-0 z-40 bg-board-surface/95 border-t border-board-accent animate-hand-slide-up h-[45vh] md:h-[35vh]"
+            onPointerMove={drag.state ? (e) => handleDragMove(e) : undefined}
+            onPointerUp={drag.state ? handleDragEnd : undefined}
+          >
+            <div className="flex items-center justify-between px-4 py-2 border-b border-board-accent/50">
+              <div className="text-sm text-gray-400" data-hint-target="builds">
+                Hand ({gameState.myHand.length})
+                {gameState.turnPhase === 'BUILD' && amICurrentPlayer && ` — ${gameState.buildsRemaining} builds left`}
+              </div>
+              <button
+                onClick={() => setHandExpanded(false)}
+                className="text-gray-400 hover:text-white cursor-pointer text-lg leading-none px-2"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="h-[calc(100%-40px)] p-2 md:p-4">
+              <Hand
+                cards={gameState.myHand}
+                onCardClick={handleHandCardClick}
+                isMyTurn={amICurrentPlayer}
+                highlightFilter={handHighlight}
+                expanded
+                onDragStart={amICurrentPlayer ? (id, e) => drag.startDrag(id, e.nativeEvent) : undefined}
+                draggingCardId={drag.state?.cardInstanceId ?? null}
+                cardSize={layout.handCardSize}
+                onInspect={setInspectedCard}
+              />
+            </div>
+          </div>
+        </>
+      )}
 
-      {/* RIGHT SIDEBAR */}
-      <div className={`hidden md:flex ${layout.sidebarWidth === 'w-40' ? 'md:w-40' : 'md:w-56'} flex-col gap-3 p-3 border-l border-board-accent/50 bg-board-surface/30 shrink-0`}>
-        <div data-hint-target="phase-bar">
-        <PhaseBar
-          currentPhase={gameState.turnPhase}
-          isMyTurn={amICurrentPlayer}
-          buildsRemaining={gameState.buildsRemaining}
-          onEndBuild={actions.endBuildPhase}
-          onEndAction={actions.endActionPhase}
-        />
-        </div>
+      {/* Card Inspect Modal */}
+      {inspectedCard && (() => {
+        const def = getCardDef(inspectedCard);
+        if (!def) return null;
+        return (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+            onClick={() => setInspectedCard(null)}
+          >
+            <div className="animate-card-inspect-in flex flex-col items-center gap-3 max-w-sm w-full mx-4" onClick={(e) => e.stopPropagation()}>
+              <img
+                src={getCardImagePath(inspectedCard)}
+                alt={def.name}
+                className="w-80 max-h-[70vh] object-contain rounded-xl shadow-2xl"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+              />
+              <div className="bg-board-surface/95 border border-board-accent rounded-lg px-4 py-3 w-full text-center">
+                <div className="text-white font-bold text-lg">{def.name}</div>
+                <div className="text-gray-400 text-xs mt-0.5">{def.typeA}{def.typeB ? ` — ${def.typeB}` : ''} · Cost {def.cost}</div>
+                {(def.power > 0 || def.smarts > 0) && (
+                  <div className="flex justify-center gap-3 mt-1.5">
+                    {def.power > 0 && <span className="text-spero-red font-bold text-sm">Power {def.power}</span>}
+                    {def.smarts > 0 && <span className="text-spero-blue font-bold text-sm">Smarts {def.smarts}</span>}
+                  </div>
+                )}
+                {def.rulesText && <p className="text-gray-300 text-sm mt-2">{def.rulesText}</p>}
+                {def.flavor && <p className="text-gray-500 text-xs italic mt-1">{def.flavor}</p>}
+              </div>
+              <button
+                onClick={() => setInspectedCard(null)}
+                className="text-gray-400 text-sm underline cursor-pointer hover:text-white transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        );
+      })()}
 
-        {/* Opponent deck & discard */}
-        <div>
-          <div className="text-xs uppercase tracking-wider text-gray-600 mb-1 px-1">{gameState.opponent.playerName}</div>
-          <DeckDiscard deckCount={gameState.opponentDeckCount} discardCount={gameState.opponent.discardCount} discardCards={gameState.opponent.discard} />
+      {/* Game Log Sidebar */}
+      {showGameLog && (
+        <div className="fixed right-0 top-0 bottom-0 w-72 z-40 bg-board-surface/95 border-l border-board-accent shadow-2xl flex flex-col">
+          <div className="flex items-center justify-between px-3 py-2 border-b border-board-accent">
+            <span className="text-sm font-bold text-gray-300">Game Log</span>
+            <button onClick={() => setShowGameLog(false)} className="text-gray-400 hover:text-white cursor-pointer text-lg">✕</button>
+          </div>
+          <div className="flex-1 overflow-hidden">
+            <GameLog log={gameState.log} myPlayerIndex={gameState.myPlayerIndex} />
+          </div>
         </div>
-
-      </div>
+      )}
 
       {/* Friends Panel Overlay */}
       {showFriendsPanel && uid && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-board-surface rounded-2xl shadow-2xl border border-board-accent max-w-md w-full mx-4 max-h-[80vh] overflow-hidden flex flex-col">
             <div className="flex items-center justify-between px-4 py-3 border-b border-board-accent">
               <h2 className="text-white font-bold">Friends</h2>

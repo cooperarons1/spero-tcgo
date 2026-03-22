@@ -1,10 +1,16 @@
 // Card-specific ability handlers — combat tricks, sideplay passives, on-play triggers, action effects
 
-import type { GameState, CombatTrickEffect, CardDef, Stack, PlayerZone } from '../shared/types.js';
+import type { GameState, CombatTrickEffect, CardDef, Stack, PlayerZone, TargetOption } from '../shared/types.js';
 import { AP_TO_WIN } from '../shared/types.js';
 import { getCardDef, getAllCardDefs } from './cards.js';
 import { defOf } from './rules.js';
 import { addLog } from './log.js';
+import { requestTargetChoice } from './targeting.js';
+
+const AI_PLAYER_ID_PREFIX = 'ai-bot-';
+function isAI(playerId: string): boolean {
+  return playerId.startsWith(AI_PLAYER_ID_PREFIX);
+}
 
 // ─── Helpers ───
 
@@ -276,7 +282,12 @@ export function applyImmediateTrickEffects(
     for (const c of myStack.cards) {
       if (!c.faceUp) {
         c.faceUp = true;
-        addLog(game, pIdx, `Combat trick restores a card in this stack`, 'COMBAT');
+        const cDef = defOf(c);
+        addLog(game, pIdx, `Combat trick restores ${cDef.name} in this stack`, 'COMBAT');
+        // Re-trigger on-play effect
+        if (cDef.rulesText) {
+          handleOnPlay(game, playerId, cDef, myStack.stackId);
+        }
         break;
       }
     }
@@ -290,7 +301,12 @@ export function applyImmediateTrickEffects(
       for (const c of s.cards) {
         if (!c.faceUp) {
           c.faceUp = true;
-          addLog(game, pIdx, `Combat trick restores a card`, 'COMBAT');
+          const cDef = defOf(c);
+          addLog(game, pIdx, `Combat trick restores ${cDef.name}`, 'COMBAT');
+          // Re-trigger on-play effect
+          if (cDef.rulesText) {
+            handleOnPlay(game, playerId, cDef, s.stackId);
+          }
           restored = true;
           break;
         }
@@ -430,8 +446,10 @@ export function applyPostCombatTrickEffects(
   }
 }
 
-/** Damage helper (same logic as combat.ts applyDamage) */
-function applyDamageToStack(stack: Stack, player: PlayerZone, amount: number): void {
+/** Damage helper (same logic as combat.ts applyDamage). Respects turnFlags.noDamagePlayerIds. */
+function applyDamageToStack(stack: Stack, player: PlayerZone, amount: number, game?: GameState): void {
+  // If player has noDamage turnFlag, skip all damage
+  if (game && game.turnFlags.noDamagePlayerIds.includes(player.playerId)) return;
   for (let i = 0; i < amount && stack.cards.length > 0; i++) {
     const faceDownIdx = stack.cards.findIndex((c) => !c.faceUp);
     if (faceDownIdx >= 0) {
@@ -569,7 +587,7 @@ export function processSideplayTriggers(game: GameState, playerIdx: 0 | 1): void
       // Auto-target first opponent stack with equipment
       for (const s of opponent.stacks) {
         if (stackHasEquipment(s)) {
-          applyDamageToStack(s, opponent, 2);
+          applyDamageToStack(s, opponent, 2, game);
           addLog(game, playerIdx, `${def.name} deals 2 damage to opponent's stack with equipment`, 'COMBAT');
           break;
         }
@@ -646,11 +664,30 @@ export function handleOnPlay(
 
   // "Tap an opponent's Stack"
   if (/When this card is played, Tap an opponent's Stack/i.test(rt)) {
-    for (const s of opponent.stacks) {
-      if (!s.tapped) {
-        s.tapped = true;
+    const untappedStacks = opponent.stacks.filter(s => !s.tapped);
+    if (untappedStacks.length > 0) {
+      if (isAI(playerId) || untappedStacks.length === 1) {
+        // AI or only one target: auto-pick
+        untappedStacks[0].tapped = true;
         addLog(game, pIdx, `${cardDef.name} on-play: taps opponent's stack`, 'BUILD');
-        break;
+      } else {
+        // Human player: request target choice
+        const validTargets: TargetOption[] = untappedStacks.map(s => {
+          const topCard = s.cards.filter(c => c.faceUp).map(c => defOf(c).name).join(', ');
+          return { id: s.stackId, label: topCard || 'Stack', ownerPlayerId: opponent.playerId, stackId: s.stackId };
+        });
+        requestTargetChoice(game, playerId, {
+          effectSource: cardDef.cardCode,
+          prompt: "Choose an opponent's stack to tap",
+          targetType: 'stack',
+          validTargets,
+          allowSkip: true,
+          context: 'on-play',
+        }, {
+          effectType: 'tap-opponent-stack',
+          params: {},
+          sourcePlayerId: playerId,
+        });
       }
     }
   }
@@ -739,18 +776,46 @@ export function handleOnPlay(
 
   // "you may destroy an Equipment"
   if (/you may destroy an Equipment/i.test(rt)) {
+    const equipTargets: TargetOption[] = [];
     for (const s of opponent.stacks) {
-      for (let i = s.cards.length - 1; i >= 0; i--) {
-        const c = s.cards[i];
-        if (c.faceUp) {
-          const cDef = defOf(c);
-          if (cDef.typeA === 'EQUIPMENT') {
-            s.cards.splice(i, 1);
-            opponent.discardPile.push(c);
-            addLog(game, pIdx, `${cardDef.name} on-play: destroys ${cDef.name}`, 'BUILD');
-            return; // done
+      for (const c of s.cards) {
+        if (c.faceUp && defOf(c).typeA === 'EQUIPMENT') {
+          equipTargets.push({
+            id: c.instanceId,
+            label: defOf(c).name,
+            sublabel: `Power +${defOf(c).power}, Smarts +${defOf(c).smarts}`,
+            stackId: s.stackId,
+            ownerPlayerId: opponent.playerId,
+          });
+        }
+      }
+    }
+    if (equipTargets.length > 0) {
+      if (isAI(playerId) || equipTargets.length === 1) {
+        // Auto-pick first equipment
+        const target = equipTargets[0];
+        const s = opponent.stacks.find(st => st.stackId === target.stackId);
+        if (s) {
+          const idx = s.cards.findIndex(c => c.instanceId === target.id);
+          if (idx >= 0) {
+            const removed = s.cards.splice(idx, 1)[0];
+            opponent.discardPile.push(removed);
+            addLog(game, pIdx, `${cardDef.name} on-play: destroys ${defOf(removed).name}`, 'BUILD');
           }
         }
+      } else {
+        requestTargetChoice(game, playerId, {
+          effectSource: cardDef.cardCode,
+          prompt: 'Choose an equipment to destroy',
+          targetType: 'card-in-stack',
+          validTargets: equipTargets,
+          allowSkip: true,
+          context: 'on-play',
+        }, {
+          effectType: 'destroy-equipment',
+          params: {},
+          sourcePlayerId: playerId,
+        });
       }
     }
   }
@@ -838,23 +903,40 @@ export function handleActionEffect(
 
   // "Deal 2 Damage to a Stack" (Oora Drain)
   if (/Deal 2 Damage to a Stack/i.test(rt) && !/each/i.test(rt) && !/two/i.test(rt)) {
-    for (const s of opponent.stacks) {
-      if (s.cards.length > 0) {
-        applyDamageToStack(s, opponent, 2);
+    const damageTargets = opponent.stacks.filter(s => s.cards.length > 0);
+    if (damageTargets.length > 0) {
+      if (isAI(playerId) || damageTargets.length === 1) {
+        applyDamageToStack(damageTargets[0], opponent, 2, game);
         addLog(game, pIdx, `${cardDef.name}: deals 2 damage to opponent's stack`, 'COMBAT');
-        break;
+        opponent.stacks = opponent.stacks.filter((s) => s.cards.length > 0);
+      } else {
+        const validTargets: TargetOption[] = damageTargets.map(s => {
+          const topCard = s.cards.filter(c => c.faceUp).map(c => defOf(c).name).join(', ');
+          return { id: s.stackId, label: topCard || 'Stack', sublabel: `${s.cards.length} cards`, stackId: s.stackId, ownerPlayerId: opponent.playerId };
+        });
+        requestTargetChoice(game, playerId, {
+          effectSource: cardDef.cardCode,
+          prompt: 'Choose a stack to deal 2 damage to',
+          targetType: 'stack',
+          validTargets,
+          allowSkip: false,
+          context: 'action',
+        }, {
+          effectType: 'deal-damage-to-stack',
+          params: { amount: 2 },
+          sourcePlayerId: playerId,
+        });
       }
     }
-    opponent.stacks = opponent.stacks.filter((s) => s.cards.length > 0);
   }
 
   // "Deal 1 Damage to each Stack" (Fireball)
   if (/Deal 1 Damage to each Stack/i.test(rt)) {
     for (const s of player.stacks) {
-      applyDamageToStack(s, player, 1);
+      applyDamageToStack(s, player, 1, game);
     }
     for (const s of opponent.stacks) {
-      applyDamageToStack(s, opponent, 1);
+      applyDamageToStack(s, opponent, 1, game);
     }
     player.stacks = player.stacks.filter((s) => s.cards.length > 0);
     opponent.stacks = opponent.stacks.filter((s) => s.cards.length > 0);
@@ -866,7 +948,7 @@ export function handleActionEffect(
     let count = 0;
     for (const s of opponent.stacks) {
       if (s.cards.length > 0 && count < 2) {
-        applyDamageToStack(s, opponent, 1);
+        applyDamageToStack(s, opponent, 1, game);
         count++;
       }
     }
@@ -1038,9 +1120,9 @@ export function handleActionEffect(
     addLog(game, pIdx, `${cardDef.name}: taps all stacks with AI`, 'BUILD');
   }
 
-  // "Your Stacks do not take damage this turn" (Wall of Ice) — flag not implemented (complex)
-  // For now, log it
+  // "Your Stacks do not take damage this turn" (Wall of Ice)
   if (/Your Stacks do not take damage this turn/i.test(rt)) {
+    game.turnFlags.noDamagePlayerIds.push(playerId);
     addLog(game, pIdx, `${cardDef.name}: your stacks are protected this turn`, 'BUILD');
   }
 
@@ -1085,16 +1167,18 @@ export function handleActionEffect(
   }
 
   // Temporary vicious boost: "All your Stacks get "Vicious: +1" until the end of this turn." (Ruthless)
-  // This is complex (needs turn-end cleanup). Log for now.
   if (/All your Stacks get "Vicious: \+1" until the end of this turn/i.test(rt)) {
+    game.turnFlags.extraVicious.push({ playerId, amount: 1 });
     addLog(game, pIdx, `${cardDef.name}: all stacks get Vicious: +1 this turn`, 'BUILD');
   }
 
   // Temporary strategy boosts
   if (/All your Stacks get "Power Strategy: \+1" until the end of this turn/i.test(rt)) {
+    game.turnFlags.extraPowerStrategy.push({ playerId, amount: 1 });
     addLog(game, pIdx, `${cardDef.name}: all stacks get Power Strategy: +1 this turn`, 'BUILD');
   }
   if (/All your Stacks get "Smarts Strategy: \+1" until the end of this turn/i.test(rt)) {
+    game.turnFlags.extraSmartsStrategy.push({ playerId, amount: 1 });
     addLog(game, pIdx, `${cardDef.name}: all stacks get Smarts Strategy: +1 this turn`, 'BUILD');
   }
 }

@@ -203,6 +203,7 @@ export interface GameState {
   currentPlayerIndex: 0 | 1;
   turnPhase: TurnPhase;
   buildsRemaining: number;
+  colorlessOnlyBuilds: number; // builds that can only be used on colorless cards (Cargo Ship)
   actedStacks: Set<string>; // stackIds that acted this turn
   apScores: [number, number];
   winner: string | null; // playerId
@@ -219,6 +220,12 @@ export interface GameState {
   apTimeline: [number, number][];
   cardStats: Record<string, CardStats>;
   turnStartedAt: number | null;
+  turnFlags: {
+    noDamagePlayerIds: string[];
+    extraVicious: { playerId: string; amount: number }[];
+    extraPowerStrategy: { playerId: string; amount: number }[];
+    extraSmartsStrategy: { playerId: string; amount: number }[];
+  };
 }
 
 // ─── Client State (sanitized per player) ───
@@ -337,6 +344,8 @@ export interface Room {
   rematchProposedBy: string | null;
   lastFirstPlayerIndex: 0 | 1 | null;
   selectedDecks: Map<string, string[]>; // uid -> cardCodes
+  isAIGame?: boolean;
+  aiPlayerId?: string;
 }
 
 // ─── Friends & Chat ───

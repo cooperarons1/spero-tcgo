@@ -12,9 +12,11 @@ interface HandProps {
   onDragStart?: (instanceId: string, e: React.PointerEvent) => void;
   draggingCardId?: string | null;
   cardSize?: 'sm' | 'md';
+  expanded?: boolean;
+  onInspect?: (cardCode: string) => void;
 }
 
-export function Hand({ cards, onCardClick, isMyTurn, highlightFilter, onDragStart, draggingCardId, cardSize = 'md' }: HandProps) {
+export function Hand({ cards, onCardClick, isMyTurn, highlightFilter, onDragStart, draggingCardId, cardSize = 'md', expanded, onInspect }: HandProps) {
   const totalCards = cards.length;
   const cardWidth = cardSize === 'sm' ? 96 : 144;
   const maxSpread = cardSize === 'sm' ? 600 : 900;
@@ -45,7 +47,7 @@ export function Hand({ cards, onCardClick, isMyTurn, highlightFilter, onDragStar
         return (
           <div
             key={card.instanceId}
-            className={`relative transition-all duration-200 hover:-translate-y-6 hover:scale-110 hover:!rotate-0 hover:z-50 animate-card-deal ${isDragging ? 'opacity-10 scale-95' : ''}`}
+            className={`relative transition-all duration-200 ${expanded ? 'hover:-translate-y-10' : 'hover:-translate-y-6'} hover:scale-110 hover:!rotate-0 hover:z-50 animate-card-deal ${isDragging ? 'opacity-10 scale-95' : ''}`}
             style={{
               transform: `translateY(${translateY}px) rotate(${rotation}deg)`,
               transformOrigin: 'bottom center',
@@ -60,6 +62,7 @@ export function Hand({ cards, onCardClick, isMyTurn, highlightFilter, onDragStar
               onClick={playable ? () => onCardClick?.(card.instanceId) : undefined}
               disabled={!playable}
               highlighted={!!playable}
+              onInspect={onInspect}
             />
             {/* Invisible drag overlay — captures pointer without fighting the button */}
             {onDragStart && (

@@ -114,3 +114,7 @@ export const ChallengeResponseSchema = z.object({
   accept: z.boolean(),
   deckCards: z.array(z.string()).length(60).optional(),
 });
+
+export const StartAIGameSchema = z.object({
+  deckCards: z.array(z.string()).length(60),
+});

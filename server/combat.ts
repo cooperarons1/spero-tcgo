@@ -463,25 +463,44 @@ function resolveCombat(game: GameState): { success: boolean; error?: string } {
   const atkKeywords = getStackKeywords(atkStack, atkSpKeywords);
   const defKeywords = getStackKeywords(defStack, defSpKeywords);
 
+  // Add turnFlags bonuses (temporary boosts from action cards like Ruthless)
+  for (const tv of game.turnFlags.extraVicious) {
+    if (tv.playerId === combat.attackerPlayerId) atkKeywords.vicious += tv.amount;
+    if (tv.playerId === combat.defenderPlayerId) defKeywords.vicious += tv.amount;
+  }
+  for (const tp of game.turnFlags.extraPowerStrategy) {
+    if (tp.playerId === combat.attackerPlayerId) atkKeywords.powerStrategy += tp.amount;
+    if (tp.playerId === combat.defenderPlayerId) defKeywords.powerStrategy += tp.amount;
+  }
+  for (const ts of game.turnFlags.extraSmartsStrategy) {
+    if (ts.playerId === combat.attackerPlayerId) atkKeywords.smartsStrategy += ts.amount;
+    if (ts.playerId === combat.defenderPlayerId) defKeywords.smartsStrategy += ts.amount;
+  }
+
   // Add trick-based keyword bonuses
   let atkVicious = atkKeywords.vicious;
   let defVicious = defKeywords.vicious;
   if (combat.atkTrickEffect) atkVicious += calculateTrickViciousBonus(combat.atkTrickEffect, atkStack);
   if (combat.defTrickEffect) defVicious += calculateTrickViciousBonus(combat.defTrickEffect, defStack);
 
-  // Strategy bonuses from tricks
-  if (combat.atkTrickEffect?.powerStrategyBonus && missionType === 'POWER') {
-    // Power Strategy from trick doesn't add stat, it adds bonus AP — but only on unblocked
-    // Since we're in blocked combat, this doesn't do anything extra for AP
+  // Strategy bonuses from tricks — add to keywords for AP calculation
+  if (combat.atkTrickEffect?.powerStrategyBonus) {
+    atkKeywords.powerStrategy += combat.atkTrickEffect.powerStrategyBonus;
   }
-  if (combat.atkTrickEffect?.smartsStrategyBonus && missionType === 'SMARTS') {
-    // Same
+  if (combat.atkTrickEffect?.smartsStrategyBonus) {
+    atkKeywords.smartsStrategy += combat.atkTrickEffect.smartsStrategyBonus;
+  }
+  if (combat.defTrickEffect?.powerStrategyBonus) {
+    defKeywords.powerStrategy += combat.defTrickEffect.powerStrategyBonus;
+  }
+  if (combat.defTrickEffect?.smartsStrategyBonus) {
+    defKeywords.smartsStrategy += combat.defTrickEffect.smartsStrategyBonus;
   }
 
   // Check no-damage flags
   const noDamage = !!(combat.atkTrickEffect?.noDamageThisCombat || combat.defTrickEffect?.noDamageThisCombat);
-  const atkNoDamage = !!(combat.atkTrickEffect?.thisStackNoDamage);
-  const defNoDamage = !!(combat.defTrickEffect?.thisStackNoDamage);
+  const atkNoDamage = !!(combat.atkTrickEffect?.thisStackNoDamage) || game.turnFlags.noDamagePlayerIds.includes(combat.attackerPlayerId);
+  const defNoDamage = !!(combat.defTrickEffect?.thisStackNoDamage) || game.turnFlags.noDamagePlayerIds.includes(combat.defenderPlayerId);
 
   // Determine loser(s)
   const atkLoses = defTotal >= atkTotal; // tie = both lose
@@ -523,10 +542,11 @@ function resolveCombat(game: GameState): { success: boolean; error?: string } {
   // Award AP for winning a blocked combat (non-duel)
   let apAwarded = 0;
   if (outcome === 'ATK_WIN' && !combat.isDuel) {
-    apAwarded = 1;
+    const strategyBonus = missionType === 'POWER' ? atkKeywords.powerStrategy : atkKeywords.smartsStrategy;
+    apAwarded = 1 + strategyBonus;
     game.apScores[atkPlayerIdx] += apAwarded;
     game.playerStats[atkPlayerIdx].apEarned += apAwarded;
-    addLog(game, atkPlayerIdx, `Attacker wins combat — +${apAwarded} AP`, 'AP');
+    addLog(game, atkPlayerIdx, `Attacker wins combat — +${apAwarded} AP${strategyBonus > 0 ? ` (${strategyBonus} from strategy)` : ''}`, 'AP');
     if (game.apScores[atkPlayerIdx] >= AP_TO_WIN) {
       game.winner = combat.attackerPlayerId;
       game.winReason = 'ap';

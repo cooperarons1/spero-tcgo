@@ -32,12 +32,27 @@ export function CardTooltip({ cardDef, anchorRect }: CardTooltipProps) {
       style={style}
       className="bg-board-surface border border-board-accent rounded-lg shadow-2xl max-w-[320px] w-[320px] animate-tooltip-fade pointer-events-none overflow-hidden"
     >
+      {/* Card name header */}
+      <div className="px-3 py-1.5 border-b border-board-accent/50 flex items-center justify-between">
+        <span className="text-white text-sm font-bold truncate">{cardDef.name}</span>
+        <span className="text-gray-400 text-xs ml-2 shrink-0">{cardDef.typeA}</span>
+      </div>
       <img
         src={getCardImagePath(cardDef.cardCode)}
         alt={cardDef.name}
         className="w-full object-contain"
-        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+        onError={(e) => {
+          (e.target as HTMLImageElement).style.display = 'none';
+          // Show the rulesText fallback when image fails
+          const next = (e.target as HTMLImageElement).nextElementSibling;
+          if (next) (next as HTMLElement).style.display = 'block';
+        }}
       />
+      {/* Rules text fallback — visible when image fails to load */}
+      <div className="px-3 py-2 hidden">
+        {cardDef.rulesText && <p className="text-gray-300 text-xs">{cardDef.rulesText}</p>}
+        {cardDef.flavor && <p className="text-gray-500 text-xs italic mt-1">{cardDef.flavor}</p>}
+      </div>
     </div>,
     document.body
   );

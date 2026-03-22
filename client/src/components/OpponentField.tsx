@@ -9,15 +9,16 @@ interface OpponentFieldProps {
   opponentHovering?: boolean;
   cardSize?: 'sm' | 'md';
   getStackEffect?: (stackId: string) => GameEffect | null;
+  onInspect?: (cardCode: string) => void;
 }
 
-export function OpponentField({ opponent, onStackClick, highlightedStackIds, cardSize, getStackEffect }: OpponentFieldProps) {
+export function OpponentField({ opponent, onStackClick, highlightedStackIds, cardSize, getStackEffect, onInspect }: OpponentFieldProps) {
   if (opponent.stacks.length === 0 && opponent.sideplay.length === 0) {
     return null;
   }
 
   return (
-    <div className="bg-board-surface/40 rounded-xl p-3 border border-board-accent/50">
+    <div>
       <Battlefield
         stacks={opponent.stacks}
         isOwner={false}
@@ -25,6 +26,7 @@ export function OpponentField({ opponent, onStackClick, highlightedStackIds, car
         highlightedStackIds={highlightedStackIds}
         cardSize={cardSize}
         getStackEffect={getStackEffect}
+        onInspect={onInspect}
       />
       {opponent.sideplay.length > 0 && (
         <div className="mt-2 text-xs text-gray-500">

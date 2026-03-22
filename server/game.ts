@@ -71,6 +71,7 @@ export function createGame(
     currentPlayerIndex: firstPlayer,
     turnPhase: 'BUILD', // First player skips UNTAP and DRAW, goes straight to BUILD
     buildsRemaining: 2,
+    colorlessOnlyBuilds: 0,
     actedStacks: new Set(),
     apScores: [0, 0],
     winner: null,
@@ -87,6 +88,12 @@ export function createGame(
     apTimeline: [],
     cardStats: {},
     turnStartedAt: Date.now(),
+    turnFlags: {
+      noDamagePlayerIds: [],
+      extraVicious: [],
+      extraPowerStrategy: [],
+      extraSmartsStrategy: [],
+    },
   };
 
   addLog(game, null, `Game started! ${players[firstPlayer].playerName} goes first.`, 'GAME');
@@ -131,6 +138,7 @@ function executePhase(game: GameState): void {
       // Add sideplay extra builds
       const extraBuilds = getSideplayExtraBuilds(game, game.currentPlayerIndex);
       game.buildsRemaining += extraBuilds.extra;
+      game.colorlessOnlyBuilds = extraBuilds.colorlessOnly ? extraBuilds.extra : 0;
       game.turnStartedAt = Date.now();
       // Wait for player input
       break;
@@ -202,6 +210,14 @@ function doDraw(game: GameState): void {
 
 /** END: check win, switch to next player */
 function doEnd(game: GameState): void {
+  // Clear turn-scoped flags
+  game.turnFlags = {
+    noDamagePlayerIds: [],
+    extraVicious: [],
+    extraPowerStrategy: [],
+    extraSmartsStrategy: [],
+  };
+
   // Record turn duration
   if (game.turnStartedAt) {
     game.turnDurations.push(Date.now() - game.turnStartedAt);

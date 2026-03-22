@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import type { ClientCardInstance } from '../../../shared/types';
 import { getCardDef } from '../utils/stackHelpers';
 import { getCardImagePath, getColorClass, getColorBg } from '../utils/cardImages';
@@ -7,6 +7,7 @@ import { CardTooltip } from './CardTooltip';
 interface CardProps {
   card: ClientCardInstance;
   onClick?: () => void;
+  onInspect?: (cardCode: string) => void;
   disabled?: boolean;
   highlighted?: boolean;
   size?: 'sm' | 'md' | 'lg';
@@ -19,14 +20,17 @@ const sizeMap = {
   lg: 'w-48 h-[264px]',
 };
 
-export function Card({ card, onClick, disabled, highlighted, size = 'md' }: CardProps) {
+export function Card({ card, onClick, onInspect, disabled, highlighted, size = 'md' }: CardProps) {
   const btnRef = useRef<HTMLButtonElement>(null);
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const touchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const touchHandledRef = useRef(false);
 
   useEffect(() => {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
+      if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
     };
   }, []);
 
@@ -40,6 +44,7 @@ export function Card({ card, onClick, disabled, highlighted, size = 'md' }: Card
   const colorBorder = getColorClass(def.color);
   const colorBg = getColorBg(def.color);
   const imgSrc = getCardImagePath(card.cardCode);
+  const cardCode = card.cardCode;
 
   const handleMouseEnter = () => {
     timerRef.current = setTimeout(() => {
@@ -53,6 +58,32 @@ export function Card({ card, onClick, disabled, highlighted, size = 'md' }: Card
     setTooltipVisible(false);
   };
 
+  // Touch: long-press (300ms) opens inspect, short tap triggers onClick
+  const handleTouchStart = () => {
+    touchHandledRef.current = false;
+    if (onInspect && cardCode) {
+      touchTimerRef.current = setTimeout(() => {
+        touchHandledRef.current = true;
+        onInspect(cardCode);
+      }, 300);
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
+    touchTimerRef.current = null;
+    if (touchHandledRef.current) {
+      // Long-press was triggered — prevent the click
+      e.preventDefault();
+    }
+  };
+
+  const handleInspectClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (onInspect && cardCode) onInspect(cardCode);
+  };
+
   return (
     <>
       <button
@@ -61,9 +92,12 @@ export function Card({ card, onClick, disabled, highlighted, size = 'md' }: Card
         disabled={disabled}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        onContextMenu={onInspect ? (e) => { e.preventDefault(); onInspect(cardCode); } : undefined}
         className={`
           ${sizeMap[size]} rounded-lg border-2 ${colorBorder} ${colorBg}
-          flex flex-col overflow-hidden relative
+          flex flex-col overflow-hidden relative group/card
           transition-all duration-200
           ${onClick && !disabled ? 'cursor-pointer hover:-translate-y-2 hover:shadow-lg hover:shadow-white/20 active:scale-95' : ''}
           ${disabled ? 'cursor-not-allowed' : ''}
@@ -87,6 +121,20 @@ export function Card({ card, onClick, disabled, highlighted, size = 'md' }: Card
           <span className="text-white text-xs font-bold text-center">{def.name}</span>
           <span className="text-gray-400 text-[10px]">{def.typeA}</span>
         </div>
+
+        {/* Inspect magnifying glass icon */}
+        {onInspect && (
+          <div
+            className="inspect-icon absolute top-1 right-1 z-10 w-6 h-6 rounded-full bg-black/60 flex items-center justify-center opacity-0 group-hover/card:opacity-100 transition-opacity cursor-pointer hover:bg-black/80"
+            onClick={handleInspectClick}
+            title="Inspect card"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </div>
+        )}
 
       </button>
       {tooltipVisible && btnRef.current && (

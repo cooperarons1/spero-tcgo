@@ -53,3 +53,13 @@ export function clientStackColor(stack: ClientStack): string {
   }
   return 'none';
 }
+
+/** Get the stack group from its face-up characters */
+export function clientStackGroup(stack: ClientStack): string {
+  for (const c of stack.cards) {
+    if (!c.faceUp || !c.cardCode) continue;
+    const def = getCardDef(c.cardCode);
+    if (def && def.typeA === 'CHARACTER' && def.stackGroup) return def.stackGroup;
+  }
+  return '';
+}

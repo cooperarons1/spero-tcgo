@@ -116,6 +116,14 @@ function CombatResultOverlay({ result, onDismiss }: { result: NonNullable<Client
     return () => clearTimeout(timer);
   }, [onDismiss]);
 
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') onDismiss();
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onDismiss]);
+
   const outcomeText =
     result.outcome === 'ATK_WIN' ? 'Attacker wins!'
     : result.outcome === 'DEF_WIN' ? 'Defender wins!'
@@ -126,8 +134,8 @@ function CombatResultOverlay({ result, onDismiss }: { result: NonNullable<Client
   if (result.attackerDamage > 0) damageLines.push(`${result.attackerName} takes ${result.attackerDamage} damage`);
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 animate-bounce-in">
-      <div className="bg-board-surface rounded-2xl p-6 shadow-2xl max-w-md w-full mx-4 border border-board-accent">
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 animate-bounce-in" onClick={onDismiss}>
+      <div className="bg-board-surface rounded-2xl p-6 shadow-2xl max-w-md w-full mx-4 border border-board-accent" onClick={e => e.stopPropagation()}>
         <h3 className="text-lg font-bold text-center mb-4 text-white uppercase tracking-wider">
           Combat Resolved
         </h3>

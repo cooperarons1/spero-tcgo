@@ -18,8 +18,15 @@ export function Settings({ onConcede, onClose }: SettingsProps) {
         onClose();
       }
     }
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') onClose();
+    }
     document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, [onClose]);
 
   const handleVolumeChange = (v: number) => {
@@ -62,7 +69,7 @@ export function Settings({ onConcede, onClose }: SettingsProps) {
               {muted ? 'Muted' : 'On'}
             </button>
           </div>
-          <div className="flex items-center gap-3">
+          <div className={`flex items-center gap-3 ${muted ? 'opacity-40' : ''}`}>
             <span className="text-xs text-gray-500">Volume</span>
             <input
               type="range"

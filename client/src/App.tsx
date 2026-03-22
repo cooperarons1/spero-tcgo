@@ -10,9 +10,12 @@ import { DeckBuilder } from './components/DeckBuilder';
 import { DeckCollection } from './components/DeckCollection';
 import { MatchHistory } from './components/MatchHistory';
 import { Friends } from './components/Friends';
+import { PlayAI } from './components/PlayAI';
+import { ReconnectionOverlay } from './components/ReconnectionOverlay';
 
-type View = 'lobby' | 'game' | 'deckbuilder' | 'deckcollection' | 'matchhistory' | 'friends';
+type View = 'lobby' | 'game' | 'deckbuilder' | 'deckcollection' | 'matchhistory' | 'friends' | 'play-ai';
 type RematchState = 'default' | 'proposed' | 'received' | 'declined';
+type ConnectionStatus = 'connected' | 'disconnected' | 'opponent-disconnected';
 
 function App() {
   const { user, loading, signUp, signIn, signOut } = useAuth();
@@ -28,6 +31,7 @@ function App() {
   const matchSavedRef = useRef(false);
   const [editingDeck, setEditingDeck] = useState<any>(null);
   const [incomingChallenge, setIncomingChallenge] = useState<{ challengeId: string; fromUid: string; fromName: string } | null>(null);
+  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('connected');
 
   // Connect socket when auth resolves
   useEffect(() => {
@@ -39,6 +43,49 @@ function App() {
     }
   }, [user]);
 
+  // Socket connection/disconnection listeners for reconnection UI
+  useEffect(() => {
+    const onDisconnect = () => {
+      setConnectionStatus('disconnected');
+    };
+
+    const onConnect = () => {
+      setConnectionStatus('connected');
+      // Auto-rejoin room if we have one stored
+      const savedRoom = sessionStorage.getItem('spero-room-code');
+      if (savedRoom) {
+        socket.emit('rejoin-room', { roomCode: savedRoom });
+      }
+    };
+
+    const onReconnected = (data: { roomCode: string }) => {
+      setConnectionStatus('connected');
+      sessionStorage.setItem('spero-room-code', data.roomCode);
+    };
+
+    const onOpponentDisconnected = () => {
+      setConnectionStatus('opponent-disconnected');
+    };
+
+    const onOpponentReconnected = () => {
+      setConnectionStatus('connected');
+    };
+
+    socket.on('disconnect', onDisconnect);
+    socket.on('connect', onConnect);
+    socket.on('reconnected', onReconnected);
+    socket.on('opponent-disconnected', onOpponentDisconnected);
+    socket.on('opponent-reconnected', onOpponentReconnected);
+
+    return () => {
+      socket.off('disconnect', onDisconnect);
+      socket.off('connect', onConnect);
+      socket.off('reconnected', onReconnected);
+      socket.off('opponent-disconnected', onOpponentDisconnected);
+      socket.off('opponent-reconnected', onOpponentReconnected);
+    };
+  }, []);
+
   useEffect(() => {
     socket.on('lobby-update', (data: LobbyState) => {
       setLobby(data);
@@ -47,6 +94,7 @@ function App() {
       introShownRef.current = false;
       matchSavedRef.current = false;
       setRematchState('default');
+      sessionStorage.setItem('spero-room-code', data.code);
     });
 
     socket.on('game-state', (state: ClientGameState) => {
@@ -143,6 +191,9 @@ function App() {
 
   return (
     <>
+      {connectionStatus !== 'connected' && view === 'game' && (
+        <ReconnectionOverlay status={connectionStatus} />
+      )}
       {error && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-red-600 text-white px-6 py-3 rounded-full shadow-lg animate-bounce-in">
           {error}
@@ -157,7 +208,7 @@ function App() {
             opponentEmote={opponentEmote}
             rematchState={rematchState}
             onRematchStateChange={setRematchState}
-            onLeaveGame={() => { setGameState(null); setView('lobby'); }}
+            onLeaveGame={() => { setGameState(null); setView('lobby'); sessionStorage.removeItem('spero-room-code'); }}
             uid={user.uid}
           />
           {showIntro && (
@@ -186,6 +237,8 @@ function App() {
         <MatchHistory uid={user.uid} onBack={() => setView('lobby')} />
       ) : view === 'friends' ? (
         <Friends uid={user.uid} onBack={() => setView('lobby')} incomingChallenge={incomingChallenge} onChallengeHandled={() => setIncomingChallenge(null)} />
+      ) : view === 'play-ai' ? (
+        <PlayAI uid={user.uid} onBack={() => setView('lobby')} />
       ) : (
         <Lobby
           lobby={lobby}
@@ -193,6 +246,7 @@ function App() {
           onDeckCollection={() => setView('deckcollection')}
           onMatchHistory={() => setView('matchhistory')}
           onFriends={() => setView('friends')}
+          onPlayAI={() => setView('play-ai')}
           onSignOut={signOut}
         />
       )}

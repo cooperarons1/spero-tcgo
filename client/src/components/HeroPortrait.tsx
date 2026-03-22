@@ -38,7 +38,7 @@ export function HeroPortrait({ playerName, health, ap, isOpponent, effects, play
       <div className="relative">
         {/* Portrait circle */}
         <div
-          className={`w-16 h-16 md:w-20 md:h-20 rounded-full border-3 border-board-accent shadow-lg ring-1 ring-white/10 bg-board-surface flex items-center justify-center overflow-hidden ${
+          className={`w-20 h-20 md:w-24 md:h-24 rounded-full border-3 border-board-accent shadow-lg ring-1 ring-white/10 bg-board-surface flex items-center justify-center overflow-hidden ${
             damageFlash ? 'animate-damage-shake' : ''
           } ${onClick ? 'cursor-pointer hover:brightness-125 active:scale-95 transition-all' : ''}`}
           onClick={onClick}

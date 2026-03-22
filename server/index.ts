@@ -7,7 +7,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import type { ZodSchema } from 'zod';
 import { adminAuth, adminDb } from './firebaseAdmin.js';
-import { createRoom, joinRoom, getRoom, getRoomByPlayer, removePlayer, clearRoomTimer, cleanupStaleRooms } from './room.js';
+import { createRoom, joinRoom, getRoom, getRoomByPlayer, removePlayer, clearRoomTimer, cleanupStaleRooms, markDisconnected, tryReconnect, isDisconnected } from './room.js';
 import { createGame, endBuildPhase, endActionPhase, TURN_TIMEOUT_MS } from './game.js';
 import { buildCard, splitStack, combineStacks, restoreCard } from './actions.js';
 import {
@@ -56,8 +56,11 @@ import {
   getFriendsList,
   getChatHistory,
 } from './friends.js';
-import { resolveTargetChoice } from './targeting.js';
+import { resolveTargetChoice, applyPendingEffect } from './targeting.js';
 import { addToQueue, removeFromQueue, isInQueue, processQueue } from './matchmaking.js';
+import { scheduleAITurn, generateAIPlayerId, randomAIName, isAIPlayer } from './ai.js';
+import { STARTER_DECKS } from '../shared/starterDecks.js';
+import { StartAIGameSchema } from './validation.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -220,10 +223,13 @@ function startRoomTimer(room: ReturnType<typeof getRoom>) {
           const waitingId = room.game.pendingInteraction.waitingForPlayerId;
           if (room.game.pendingInteraction.type === 'CHOOSE_TARGET') {
             const choice = room.game.pendingInteraction.targetChoice;
+            let timeoutTargetId: string | null = null;
             if (choice && choice.validTargets.length > 0) {
-              resolveTargetChoice(room.game, waitingId, choice.validTargets[0].id);
-            } else {
-              resolveTargetChoice(room.game, waitingId, null);
+              timeoutTargetId = choice.validTargets[0].id;
+            }
+            const timeoutResult = resolveTargetChoice(room.game, waitingId, timeoutTargetId);
+            if (timeoutResult.valid && timeoutResult.pendingEffect) {
+              applyPendingEffect(room.game, timeoutResult.pendingEffect, timeoutResult.selectedId);
             }
           } else if (room.game.combatState?.phase === 'AWAITING_BLOCK') {
             handleBlockDecision(room.game, waitingId, null);
@@ -246,6 +252,7 @@ function broadcastGameState(roomCode: string) {
   if (!room?.game) return;
 
   for (const [uid, socketId] of room.sockets) {
+    if (socketId === '__ai__') continue; // Skip AI pseudo-socket
     const state = getClientState(room.game, uid);
     io.to(socketId).emit('game-state', state);
   }
@@ -253,6 +260,11 @@ function broadcastGameState(roomCode: string) {
   // Check if game just ended and write match records
   if (room.game.winner) {
     finalizeGame(room);
+  }
+
+  // Trigger AI turn if applicable
+  if (room.isAIGame && room.aiPlayerId && !room.game.winner) {
+    scheduleAITurn(room.game, room.aiPlayerId, () => broadcastGameState(roomCode));
   }
 }
 
@@ -291,6 +303,7 @@ async function finalizeGame(room: ReturnType<typeof getRoom>) {
 
   for (let i = 0; i < 2; i++) {
     const uid = uids[i];
+    if (isAIPlayer(uid)) continue; // Skip match history for AI
     const oppIdx = i === 0 ? 1 : 0;
     const myStats = game.playerStats[i as 0 | 1];
     const oppStats = game.playerStats[oppIdx as 0 | 1];
@@ -343,6 +356,17 @@ io.on('connection', (socket) => {
     { merge: true }
   ).catch(() => {});
 
+  // Check for reconnection to an active game
+  const reconnectedRoom = tryReconnect(uid, socket.id);
+  if (reconnectedRoom) {
+    console.log(`Reconnected: ${uid} to room ${reconnectedRoom.code}`);
+    socket.join(reconnectedRoom.code);
+    socket.emit('reconnected', { roomCode: reconnectedRoom.code });
+    if (reconnectedRoom.game) {
+      broadcastGameState(reconnectedRoom.code);
+    }
+  }
+
   // ── Lobby ──
 
   socket.on('create-room', validated(PlayerNameSchema, (name) => {
@@ -383,6 +407,51 @@ io.on('connection', (socket) => {
     startRoomTimer(room);
     broadcastGameState(room.code);
   });
+
+  // ── Play vs AI ──
+
+  socket.on('start-ai-game', validated(StartAIGameSchema, (data) => {
+    if (!lobbyLimiter.allow(uid)) return;
+    // Block if already in a room
+    if (getRoomByPlayer(uid)) {
+      socket.emit('error', 'Already in a room');
+      return;
+    }
+
+    const aiId = generateAIPlayerId();
+    const aiName = randomAIName();
+
+    // Pick a random starter deck for AI
+    const aiDeck = STARTER_DECKS[Math.floor(Math.random() * STARTER_DECKS.length)];
+
+    // Create room with human player as host
+    const room = createRoom(uid, socket.id, displayName);
+
+    // Manually add AI to room
+    room.players.set(aiId, aiName);
+    room.sockets.set(aiId, '__ai__');
+    room.isAIGame = true;
+    room.aiPlayerId = aiId;
+
+    // Set deck selections
+    room.selectedDecks.set(uid, data.deckCards);
+    room.selectedDecks.set(aiId, aiDeck.cards);
+
+    socket.join(room.code);
+
+    // Create and start game
+    const entries = Array.from(room.players.entries()).map(([id, name]) => ({ id, name }));
+    const uids = Array.from(room.players.keys());
+    const deckLists: [string[] | null, string[] | null] = [
+      room.selectedDecks.get(uids[0]) ?? null,
+      room.selectedDecks.get(uids[1]) ?? null,
+    ];
+    room.game = createGame(entries, { deckLists });
+    room.lastFirstPlayerIndex = room.game.currentPlayerIndex;
+
+    startRoomTimer(room);
+    broadcastGameState(room.code);
+  }));
 
   // ── Build Phase ──
 
@@ -607,6 +676,10 @@ io.on('connection', (socket) => {
     if (!result.valid) {
       socket.emit('error', 'Invalid target choice');
       return;
+    }
+    // Apply the pending effect with the selected target
+    if (result.pendingEffect) {
+      applyPendingEffect(room.game, result.pendingEffect, result.selectedId);
     }
     broadcastGameState(room.code);
   }));
@@ -945,12 +1018,23 @@ io.on('connection', (socket) => {
     const room = getRoomByPlayer(uid);
     if (room) {
       const code = room.code;
-      if (room.players.size <= 1) {
-        clearRoomTimer(room);
-      }
-      removePlayer(uid);
-      if (!room.game) {
-        broadcastLobby(code);
+      if (room.game && !room.game.winner) {
+        // Active game: use grace period for reconnection
+        markDisconnected(uid);
+        // Notify opponent
+        for (const [pUid, sid] of room.sockets) {
+          if (pUid !== uid && sid !== '__ai__') {
+            io.to(sid).emit('opponent-disconnected', { gracePeriodMs: 120000 });
+          }
+        }
+      } else {
+        if (room.players.size <= 1) {
+          clearRoomTimer(room);
+        }
+        removePlayer(uid);
+        if (!room.game) {
+          broadcastLobby(code);
+        }
       }
     }
   });

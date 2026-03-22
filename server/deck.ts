@@ -23,8 +23,8 @@ export function createDeck(): CardInstance[] {
 
 /** Create two color-themed 60-card starter decks using shared definitions */
 export function createTwoDecks(): [CardInstance[], CardInstance[]] {
-  const redDeck = STARTER_DECKS.find(d => d.id === 'starter-red-blaze')!;
-  const greenDeck = STARTER_DECKS.find(d => d.id === 'starter-green-guardian')!;
+  const redDeck = STARTER_DECKS.find(d => d.id === 'starter-jimmys-crew')!;
+  const greenDeck = STARTER_DECKS.find(d => d.id === 'starter-talas-rangers')!;
 
   return [
     shuffle(redDeck.cards.map(code => makeInstance(code))),

@@ -1,7 +1,7 @@
 import type { ClientStack } from '../../../shared/types';
 import type { GameEffect } from '../hooks/useGameAnimations';
 import { Card } from './Card';
-import { clientStackPower, clientStackSmarts, topCharacterName, clientStackColor, getCardDef } from '../utils/stackHelpers';
+import { clientStackPower, clientStackSmarts, topCharacterName, clientStackColor, clientStackGroup, getCardDef } from '../utils/stackHelpers';
 
 interface CardStackProps {
   stack: ClientStack;
@@ -12,15 +12,19 @@ interface CardStackProps {
   actionLabel?: string;
   isActionPhase?: boolean;
   acted?: boolean;
+  isReady?: boolean;
   turnNumber?: number;
   cardSize?: 'sm' | 'md';
   activeEffect?: GameEffect | null;
   animatingBuilds?: Set<string>;
   onRestoreCard?: (stackId: string, cardInstanceId: string) => void;
   canRestore?: boolean;
+  onInspect?: (cardCode: string) => void;
+  onDragStartFromStack?: (stackId: string, cardInstanceId: string, e: React.PointerEvent) => void;
+  canSplitDrag?: boolean;
 }
 
-export function CardStack({ stack, isOwner, onCardClick, onStackClick, highlighted, actionLabel, isActionPhase, acted, turnNumber, cardSize = 'md', activeEffect, animatingBuilds, onRestoreCard, canRestore }: CardStackProps) {
+export function CardStack({ stack, isOwner, onCardClick, onStackClick, highlighted, actionLabel, isActionPhase, acted, isReady, turnNumber, cardSize = 'md', activeEffect, animatingBuilds, onRestoreCard, canRestore, onInspect, onDragStartFromStack, canSplitDrag }: CardStackProps) {
   const power = clientStackPower(stack);
   const smarts = clientStackSmarts(stack);
   const name = topCharacterName(stack);
@@ -57,8 +61,10 @@ export function CardStack({ stack, isOwner, onCardClick, onStackClick, highlight
       className={`
         relative inline-flex flex-col items-center gap-1 p-2 rounded-xl
         border ${colorAccent[color] || colorAccent.none}
-        ${stack.tapped ? 'opacity-60 rotate-6' : ''}
+        ${hasSummoningSickness ? 'border-dashed' : ''}
+        ${stack.tapped ? 'opacity-60 rotate-12 grayscale' : acted ? 'opacity-70' : ''}
         ${highlighted ? 'ring-2 ring-spero-yellow shadow-lg shadow-spero-yellow/30' : ''}
+        ${isReady ? 'ring-2 ring-green-500/50 animate-pulse' : ''}
         ${onStackClick ? 'cursor-pointer hover:bg-white/5' : ''}
         ${vfxClass}
         transition-all
@@ -70,18 +76,37 @@ export function CardStack({ stack, isOwner, onCardClick, onStackClick, highlight
         {stack.cards.map((card, i) => {
           const canFlip = canRestore && !card.faceUp && card.cardCode && (() => {
             const def = getCardDef(card.cardCode!);
-            return def ? def.cost <= stack.cards.length : false;
+            if (!def) return false;
+            if (def.cost > stack.cards.length) return false;
+            // Color check
+            if (def.color !== 'none') {
+              const sCol = clientStackColor(stack);
+              if (sCol !== 'none' && sCol !== def.color) return false;
+            }
+            // Stack group check for characters
+            if (def.typeA === 'CHARACTER' && def.stackGroup) {
+              const existing = clientStackGroup(stack);
+              if (existing && existing !== def.stackGroup) return false;
+            }
+            // Duplicate name check
+            if (stack.cards.some(c => c.faceUp && c.instanceId !== card.instanceId && c.cardCode && getCardDef(c.cardCode)?.name === def.name)) return false;
+            return true;
           })();
           return (
             <div
               key={card.instanceId}
               className={`absolute left-0 group hover:scale-125 hover:z-50 transition-transform duration-200 ${animatingBuilds?.has(card.instanceId) ? 'animate-card-deal' : ''}`}
               style={{ top: `${i * cardOffset}px`, zIndex: i }}
+              onPointerDown={canSplitDrag && stack.cards.length > 1 ? (e) => {
+                e.stopPropagation();
+                onDragStartFromStack?.(stack.stackId, card.instanceId, e);
+              } : undefined}
             >
               <Card
                 card={card}
                 size={cardSize}
                 onClick={onCardClick ? () => onCardClick(card.instanceId) : undefined}
+                onInspect={onInspect}
               />
               {canFlip && (
                 <button
@@ -99,16 +124,29 @@ export function CardStack({ stack, isOwner, onCardClick, onStackClick, highlight
         })}
       </div>
 
-      {/* Stats bar */}
-      <div className="flex gap-2 text-base font-bold">
-        {power > 0 && <span className="text-red-400">P:{power}</span>}
-        {smarts > 0 && <span className="text-blue-400">S:{smarts}</span>}
+      {/* Stats bar — colored circle badges */}
+      <div className="flex gap-1.5 items-center">
+        {power > 0 && (
+          <div className="w-7 h-7 rounded-full bg-spero-red flex items-center justify-center shadow">
+            <span className="text-white font-black text-sm">{power}</span>
+          </div>
+        )}
+        {smarts > 0 && (
+          <div className="w-7 h-7 rounded-full bg-spero-blue flex items-center justify-center shadow">
+            <span className="text-white font-black text-sm">{smarts}</span>
+          </div>
+        )}
       </div>
 
-      {/* Tapped indicator */}
-      {stack.tapped && (
-        <span className="absolute -top-1 -right-1 bg-gray-600 text-[8px] text-white px-1 rounded">
-          TAP
+      {/* Stack name */}
+      {name && (
+        <div className="text-[10px] text-gray-400 truncate max-w-[100px] text-center">{name}</div>
+      )}
+
+      {/* Acted indicator — positioned to avoid conflict with tapped rotation */}
+      {acted && !stack.tapped && (
+        <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-gray-600 flex items-center justify-center text-[10px] text-white">
+          ✓
         </span>
       )}
 
@@ -116,13 +154,6 @@ export function CardStack({ stack, isOwner, onCardClick, onStackClick, highlight
       {actionLabel && (
         <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-spero-yellow text-black text-[8px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
           {actionLabel}
-        </span>
-      )}
-
-      {/* Summoning sickness indicator */}
-      {hasSummoningSickness && (
-        <span className="absolute -top-1 -left-1 bg-yellow-600 text-[8px] text-white px-1 rounded">
-          NEW
         </span>
       )}
 

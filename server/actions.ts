@@ -1,6 +1,6 @@
 import type { GameState, CardInstance, Stack, PlayerZone } from '../shared/types.js';
 import { getCardDef } from './cards.js';
-import { canBuildOnStack, defOf } from './rules.js';
+import { canBuildOnStack, defOf, stackColor, getStackGroup } from './rules.js';
 import { advancePhase, trackCardPlayed } from './game.js';
 import { addLog } from './log.js';
 import { handleOnPlay } from './abilities.js';
@@ -43,6 +43,13 @@ export function buildCard(
 
   const cardDef = getCardDef(card.cardCode);
 
+  // Enforce colorless-only builds (Cargo Ship extra builds)
+  if (game.colorlessOnlyBuilds > 0 && game.buildsRemaining <= game.colorlessOnlyBuilds) {
+    if (cardDef.color !== 'none') {
+      return { success: false, error: 'Remaining builds can only be used on colorless cards' };
+    }
+  }
+
   if (faceDown) {
     // Playing face-down: any card can go face-down on any stack or start a new one
     const removed = removeFromHand(player, cardInstanceId);
@@ -63,6 +70,7 @@ export function buildCard(
     }
 
     game.buildsRemaining--;
+    if (game.colorlessOnlyBuilds > 0) game.colorlessOnlyBuilds--;
     game.lastAction = `${player.playerName} played a card face-down`;
     const pIdx = game.players.indexOf(player) as 0 | 1;
     addLog(game, pIdx, `${player.playerName} played a card face-down`, 'BUILD');
@@ -100,6 +108,7 @@ export function buildCard(
   }
 
   game.buildsRemaining--;
+  if (game.colorlessOnlyBuilds > 0) game.colorlessOnlyBuilds--;
   game.lastAction = `${player.playerName} played ${cardDef.name}`;
   const pIdx2 = game.players.indexOf(player) as 0 | 1;
   addLog(game, pIdx2, `${player.playerName} played ${cardDef.name}`, 'BUILD');
@@ -224,16 +233,46 @@ export function restoreCard(
   const cardDef = getCardDef(card.cardCode);
 
   // Check cost requirement for restore
-  const faceUpCount = stack.cards.filter((c) => c.faceUp).length;
   const totalSize = stack.cards.length;
   if (totalSize < cardDef.cost) {
     return { success: false, error: `Stack size ${totalSize} < card cost ${cardDef.cost}` };
   }
 
+  // Check color compatibility
+  if (cardDef.color !== 'none') {
+    const sColor = stackColor(stack);
+    if (sColor !== 'none' && sColor !== cardDef.color) {
+      return { success: false, error: `Card color doesn't match stack` };
+    }
+  }
+
+  // Check stackGroup for characters
+  if (cardDef.typeA === 'CHARACTER' && cardDef.stackGroup) {
+    const existingGroup = getStackGroup(stack);
+    if (existingGroup && existingGroup !== cardDef.stackGroup) {
+      return { success: false, error: `Character doesn't belong to this stack group` };
+    }
+  }
+
+  // Check duplicate names
+  const hasDupe = stack.cards.some(
+    (c) => c.faceUp && c.instanceId !== cardInstanceId && defOf(c).name === cardDef.name
+  );
+  if (hasDupe) {
+    return { success: false, error: 'Duplicate card name in stack' };
+  }
+
   card.faceUp = true;
   game.buildsRemaining--;
+  const pIdx = game.players.indexOf(player) as 0 | 1;
   game.lastAction = `${player.playerName} restored ${cardDef.name}`;
-  addLog(game, game.players.indexOf(player) as 0 | 1, `${player.playerName} restored ${cardDef.name}`, 'BUILD');
+  addLog(game, pIdx, `${player.playerName} restored ${cardDef.name}`, 'BUILD');
+
+  // Re-trigger on-play effects when restored
+  if (cardDef.rulesText) {
+    handleOnPlay(game, playerId, cardDef, stackId);
+  }
+
   if (game.buildsRemaining <= 0) advancePhase(game);
   return { success: true };
 }

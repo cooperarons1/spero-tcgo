@@ -80,6 +80,11 @@ interface BattlefieldProps {
   readyStackIds?: string[];
   // Dim stacks that are not highlighted (e.g. during block phase)
   dimNonHighlighted?: boolean;
+  // Card inspect callback
+  onInspect?: (cardCode: string) => void;
+  // Split-drag from stack
+  onDragStartFromStack?: (stackId: string, cardInstanceId: string, e: React.PointerEvent) => void;
+  canSplitDrag?: boolean;
 }
 
 export function Battlefield({
@@ -110,6 +115,9 @@ export function Battlefield({
   onMissionCancel,
   readyStackIds = [],
   dimNonHighlighted = false,
+  onInspect,
+  onDragStartFromStack,
+  canSplitDrag,
 }: BattlefieldProps) {
   const showGaps = showNewStackSlots || isDragActive;
 
@@ -193,7 +201,6 @@ export function Battlefield({
               className={`transition-all rounded-xl relative ${
                 isDragActive ? 'ring-1 ring-spero-yellow/30 animate-lane-pulse' : ''
               } ${isHovered ? 'ring-2 ring-spero-yellow bg-spero-yellow/10' : ''
-              } ${isReady ? 'ring-2 ring-green-500/50 animate-pulse' : ''
               } ${isBlockHighlighted ? 'ring-2 ring-spero-blue animate-pulse shadow-lg shadow-spero-blue/30' : ''
               } ${isDimmed ? 'opacity-50' : ''}`}
             >
@@ -210,8 +217,12 @@ export function Battlefield({
                 cardSize={cardSize}
                 activeEffect={getStackEffect?.(stack.stackId) ?? null}
                 animatingBuilds={animatingBuilds}
+                isReady={isReady}
                 onRestoreCard={onRestoreCard}
                 canRestore={canRestore}
+                onInspect={onInspect}
+                onDragStartFromStack={onDragStartFromStack}
+                canSplitDrag={canSplitDrag}
               />
               {/* Mission popover positioned near the stack */}
               {isSelected && onPowerMission && onSmartsMission && onMissionCancel && (

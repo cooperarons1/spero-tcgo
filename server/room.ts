@@ -1,6 +1,9 @@
 import type { Room, GameState } from '../shared/types.js';
 
 const rooms = new Map<string, Room>();
+const disconnectedPlayers = new Map<string, { roomCode: string; timer: ReturnType<typeof setTimeout> }>();
+
+const RECONNECT_GRACE_MS = 120_000; // 2 minutes
 
 function generateCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
@@ -56,11 +59,61 @@ export function getRoomByPlayer(uid: string): Room | null {
   return null;
 }
 
+/** Mark a player as disconnected with a reconnect grace period */
+export function markDisconnected(uid: string): Room | null {
+  const room = getRoomByPlayer(uid);
+  if (!room) return null;
+
+  // If game is in progress, set grace period instead of removing
+  if (room.game && !room.game.winner) {
+    const timer = setTimeout(() => {
+      // Grace period expired — actually remove the player
+      disconnectedPlayers.delete(uid);
+      removePlayer(uid);
+    }, RECONNECT_GRACE_MS);
+    disconnectedPlayers.set(uid, { roomCode: room.code, timer });
+    return room;
+  }
+
+  // No active game — remove immediately
+  return removePlayer(uid);
+}
+
+/** Attempt to reconnect a player — returns the room if successful */
+export function tryReconnect(uid: string, newSocketId: string): Room | null {
+  const dc = disconnectedPlayers.get(uid);
+  if (!dc) return null;
+
+  const room = rooms.get(dc.roomCode);
+  if (!room) {
+    disconnectedPlayers.delete(uid);
+    clearTimeout(dc.timer);
+    return null;
+  }
+
+  // Restore socket mapping
+  room.sockets.set(uid, newSocketId);
+  clearTimeout(dc.timer);
+  disconnectedPlayers.delete(uid);
+  return room;
+}
+
+/** Check if a player is in disconnected grace period */
+export function isDisconnected(uid: string): boolean {
+  return disconnectedPlayers.has(uid);
+}
+
 export function removePlayer(uid: string): Room | null {
   const room = getRoomByPlayer(uid);
   if (!room) return null;
   room.players.delete(uid);
   room.sockets.delete(uid);
+  // Clean up any pending disconnect timer
+  const dc = disconnectedPlayers.get(uid);
+  if (dc) {
+    clearTimeout(dc.timer);
+    disconnectedPlayers.delete(uid);
+  }
   if (room.players.size === 0) {
     rooms.delete(room.code);
   }

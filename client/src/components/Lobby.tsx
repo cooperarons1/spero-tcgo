@@ -10,10 +10,11 @@ interface LobbyProps {
   onDeckCollection: () => void;
   onMatchHistory: () => void;
   onFriends: () => void;
+  onPlayAI: () => void;
   onSignOut: () => void;
 }
 
-export function Lobby({ lobby, user, onDeckCollection, onMatchHistory, onFriends, onSignOut }: LobbyProps) {
+export function Lobby({ lobby, user, onDeckCollection, onMatchHistory, onFriends, onPlayAI, onSignOut }: LobbyProps) {
   const [joinCode, setJoinCode] = useState('');
   const [mode, setMode] = useState<'menu' | 'join'>('menu');
   const [matchmaking, setMatchmaking] = useState<'idle' | 'searching'>('idle');
@@ -177,6 +178,13 @@ export function Lobby({ lobby, user, onDeckCollection, onMatchHistory, onFriends
             >
               Join Room
             </button>
+            <button
+              onClick={onPlayAI}
+              className="w-full bg-spero-green text-white font-bold py-3 px-6 rounded-xl text-lg hover:brightness-110 active:scale-95 transition-all shadow-lg cursor-pointer"
+            >
+              Play vs AI
+            </button>
+            <div className="text-xs text-gray-600 -mt-2">Practice against a computer</div>
             <button
               onClick={onFriends}
               className="w-full bg-spero-green/20 border border-spero-green/40 text-spero-green font-bold py-2.5 px-6 rounded-xl text-sm hover:bg-spero-green/30 active:scale-95 transition-all cursor-pointer mt-2"

@@ -83,21 +83,21 @@ const TALAS_RANGERS: string[] = [
   'U019',            // Crafty Snowball
   'U010',            // Hoot the Snow Owl
   'GR031',           // Kingley
-  // Equipment
+  // Equipment (added extra copies of key equipment)
   'GR022', 'GR022',  // Healing Hedron
   'U025', 'U025',    // Ice Armor
   'GR021',           // Flora Orb
   'U021',            // Spear of Balance
   'U024',            // Multi-Tool
   'GR032',           // Escape Hatch
-  // Actions
+  // Actions (added 2x Grand Trickery for more combat trick tutoring)
   'GR004', 'GR004',  // Double Remedy
-  'GR002',           // Grand Trickery
+  'GR002', 'GR002',  // Grand Trickery (2x for more trick access)
   'GR029',           // From the Vault
   'GR033',           // Recharge
   'U002',            // Blizzard
   'U004',            // Team Up
-  // Combat Tricks
+  // Combat Tricks (boosted key tricks)
   'GR027', 'GR027',  // Reinforcements
   'U026', 'U026',    // Truce
   'GR024',           // Calming Force
@@ -105,7 +105,7 @@ const TALAS_RANGERS: string[] = [
   'GR028',           // Refresh
   'U030',            // Freeze
   'U031',            // Deflection
-  // Colorless fill
+  // Colorless fill (trimmed one filler to make room for extra Grand Trickery)
   'LESS006', 'LESS006', // Xolo
   'LESS033', 'LESS033', // Rosie
   'LESS007',         // Fearless Xolo
@@ -121,7 +121,6 @@ const TALAS_RANGERS: string[] = [
   'LESS023',         // Fuel Cell Box
   'LESS009',         // Rolo
   'LESS040',         // Daisy
-  'LESS022',         // Aster Key
 ];
 
 // Deck 3: "Derek's Arsenal" — Yellow + Green
@@ -241,11 +240,11 @@ const ANDERS_PACK: string[] = [
 // Deck 5: "Shadow Command" — Black
 // Des (BL011-BL013), Venus (BL016-BL017), Dawson (BL028-BL030), Lucas+Jax (BL019-BL021), Jack (BL031-BL032)
 const SHADOW_COMMAND: string[] = [
-  // Characters — core 2x
+  // Characters — core 2x (reduced some to 1x for balance)
   'BL011', 'BL011', // Des Aster
-  'BL012', 'BL012', // Commander Des
+  'BL012',           // Commander Des (reduced from 2x → 1x)
   'BL019', 'BL019', // Lucas
-  'BL020', 'BL020', // Speedy Lucas
+  'BL020',           // Speedy Lucas (reduced from 2x → 1x)
   'BL017', 'BL017', // Venus
   'BL016', 'BL016', // Princess Venus
   'BL030', 'BL030', // Dawson
@@ -263,9 +262,9 @@ const SHADOW_COMMAND: string[] = [
   'BL022',           // Collar
   'BL023',           // Black Aster Egg
   'LESS025',         // Dampening Orb
-  // Actions
+  // Actions (reduced Oora Drain from 2x → 1x)
   'BL003', 'BL003',  // Night Lightning
-  'BL006', 'BL006',  // Oora Drain
+  'BL006',            // Oora Drain (reduced from 2x → 1x)
   'BL002',           // Battle of Wits
   'BL004',           // Demolish
   'BL001',           // Cargo Ship
@@ -276,7 +275,7 @@ const SHADOW_COMMAND: string[] = [
   'BL027', 'BL027',  // Perfect Plan
   'BL026',           // Clever Deterrence
   'LESS035',         // Rampage
-  // Colorless fill (Vicious-synergy wild animals)
+  // Colorless fill (Vicious-synergy wild animals + extra fillers for balance)
   'LESS028', 'LESS028', // Benjie (Vicious +1)
   'LESS009', 'LESS009', // Rolo (Vicious)
   'LESS011',         // Rolo Pack Leader
@@ -292,6 +291,9 @@ const SHADOW_COMMAND: string[] = [
   'LESS031',         // Reggie
   'LESS033',         // Rosie
   'LESS037',         // Savannah
+  'LESS040',         // Daisy (added filler to replace removed copies)
+  'LESS032',         // Buster (added filler)
+  'LESS039',         // Nala (added filler)
 ];
 
 // Validate at module load: each deck must be exactly 60 cards, no card > 2 copies

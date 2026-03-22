@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from './Card';
 import type { ClientCardInstance } from '../../../shared/types';
 
@@ -6,14 +6,71 @@ interface DeckDiscardProps {
   deckCount: number;
   discardCount: number;
   discardCards?: ClientCardInstance[];
+  compact?: boolean;
+  onInspect?: (cardCode: string) => void;
 }
 
-export function DeckDiscard({ deckCount, discardCount, discardCards }: DeckDiscardProps) {
+export function DeckDiscard({ deckCount, discardCount, discardCards, compact, onInspect }: DeckDiscardProps) {
   const [expanded, setExpanded] = useState(false);
   const [deckHover, setDeckHover] = useState(false);
   const [discardHover, setDiscardHover] = useState(false);
   const hasCards = discardCards && discardCards.length > 0;
   const topCard = hasCards ? discardCards[discardCards.length - 1] : null;
+
+  useEffect(() => {
+    if (!expanded) return;
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') setExpanded(false);
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [expanded]);
+
+  if (compact) {
+    return (
+      <>
+        <button className="text-xs text-gray-500 hover:text-gray-300 transition-colors cursor-pointer">
+          Deck: {deckCount}
+        </button>
+        <span className="text-gray-700">|</span>
+        <button
+          className="text-xs text-gray-500 hover:text-gray-300 transition-colors cursor-pointer"
+          onClick={hasCards ? () => setExpanded(!expanded) : undefined}
+        >
+          Discard: {discardCount}
+        </button>
+        {/* Expanded discard viewer — fixed overlay */}
+        {expanded && hasCards && (
+          <div
+            className="fixed inset-0 z-40 bg-black/60 flex items-center justify-center"
+            onClick={() => setExpanded(false)}
+          >
+            <div
+              className="bg-board-surface rounded-2xl border border-board-accent shadow-2xl max-w-md w-full mx-4 max-h-[70vh] flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between px-4 py-3 border-b border-board-accent shrink-0">
+                <h3 className="text-white font-bold text-sm">Discard Pile ({discardCount})</h3>
+                <button
+                  onClick={() => setExpanded(false)}
+                  className="text-gray-400 hover:text-white cursor-pointer text-lg leading-none"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="overflow-y-auto p-3">
+                <div className="grid grid-cols-3 gap-2">
+                  {discardCards!.map((card) => (
+                    <Card key={card.instanceId} card={card} size="sm" onInspect={onInspect} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </>
+    );
+  }
 
   return (
     <div className="bg-board-surface rounded-xl p-3 border border-board-accent">

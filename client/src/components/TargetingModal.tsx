@@ -5,9 +5,10 @@ import { Card } from './Card';
 interface TargetingModalProps {
   interaction: PendingInteraction;
   onChooseTarget: (interactionId: string, selectedId: string | null) => void;
+  onInspect?: (cardCode: string) => void;
 }
 
-export function TargetingModal({ interaction, onChooseTarget }: TargetingModalProps) {
+export function TargetingModal({ interaction, onChooseTarget, onInspect }: TargetingModalProps) {
   const choice = interaction.targetChoice;
   if (!choice) return null;
 
@@ -45,6 +46,7 @@ export function TargetingModal({ interaction, onChooseTarget }: TargetingModalPr
                   <Card
                     card={{ instanceId: target.id, cardCode: target.id.split(':')[0] || target.id, faceUp: true }}
                     size="sm"
+                    onInspect={onInspect}
                   />
                   <span className="text-xs text-white font-medium truncate w-full text-center">{target.label}</span>
                   {target.sublabel && <span className="text-[10px] text-gray-500">{target.sublabel}</span>}
