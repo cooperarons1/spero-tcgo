@@ -69,6 +69,91 @@ const andersGradients = (
   </>
 );
 
+const desGradients = (
+  <>
+    <linearGradient id="darkOrraGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stopColor="#9933ff" />
+      <stop offset="100%" stopColor="#4a0080" />
+    </linearGradient>
+    <linearGradient id="shadowGrad2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stopColor="#6622aa" />
+      <stop offset="100%" stopColor="#330066" />
+    </linearGradient>
+    <linearGradient id="voidGrad" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stopColor="#220044" />
+      <stop offset="100%" stopColor="#7733cc" />
+    </linearGradient>
+  </>
+);
+
+const astridGradients = (
+  <>
+    <linearGradient id="shieldGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stopColor="#ffe066" />
+      <stop offset="100%" stopColor="#cc9900" />
+    </linearGradient>
+    <linearGradient id="holyLightGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stopColor="#ffffff" />
+      <stop offset="100%" stopColor="#ffdd88" />
+    </linearGradient>
+    <linearGradient id="guardGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stopColor="#ffd700" />
+      <stop offset="100%" stopColor="#b8860b" />
+    </linearGradient>
+  </>
+);
+
+const avaGradients = (
+  <>
+    <linearGradient id="gadgetGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stopColor="#ff69b4" />
+      <stop offset="100%" stopColor="#cc3388" />
+    </linearGradient>
+    <linearGradient id="techPinkGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stopColor="#ff99cc" />
+      <stop offset="100%" stopColor="#cc6699" />
+    </linearGradient>
+    <linearGradient id="circuitGrad" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stopColor="#ff3399" />
+      <stop offset="100%" stopColor="#ff88bb" />
+    </linearGradient>
+  </>
+);
+
+const lucasGradients = (
+  <>
+    <linearGradient id="tealGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stopColor="#2dd4bf" />
+      <stop offset="100%" stopColor="#0d9488" />
+    </linearGradient>
+    <linearGradient id="coyoteGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stopColor="#b8860b" />
+      <stop offset="100%" stopColor="#8b6914" />
+    </linearGradient>
+    <linearGradient id="trickGrad" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stopColor="#14b8a6" />
+      <stop offset="100%" stopColor="#5eead4" />
+    </linearGradient>
+  </>
+);
+
+const izzyGradients = (
+  <>
+    <linearGradient id="sparkleGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stopColor="#ff9933" />
+      <stop offset="100%" stopColor="#cc6600" />
+    </linearGradient>
+    <linearGradient id="orangeGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stopColor="#ff8800" />
+      <stop offset="100%" stopColor="#cc5500" />
+    </linearGradient>
+    <linearGradient id="navGrad" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stopColor="#ff6600" />
+      <stop offset="100%" stopColor="#ffaa44" />
+    </linearGradient>
+  </>
+);
+
 const neutralGradients = (
   <>
     <linearGradient id="grayGrad" x1="0" y1="0" x2="0" y2="1">
@@ -116,6 +201,11 @@ const natureBg = <rect x="0" y="0" width="100" height="80" fill="#0a1a05" />;
 const techBg = <rect x="0" y="0" width="100" height="80" fill="#1a1500" />;
 const iceBg = <rect x="0" y="0" width="100" height="80" fill="#051020" />;
 const neutralBg = <rect x="0" y="0" width="100" height="80" fill="#111111" />;
+const desBg = <rect x="0" y="0" width="100" height="80" fill="#150020" />;
+const astridBg = <rect x="0" y="0" width="100" height="80" fill="#1a1500" />;
+const avaBg = <rect x="0" y="0" width="100" height="80" fill="#1a0515" />;
+const lucasBg = <rect x="0" y="0" width="100" height="80" fill="#051a15" />;
+const izzyBg = <rect x="0" y="0" width="100" height="80" fill="#1a0f00" />;
 
 // Helper: flame shape at position
 function flames(x: number, y: number, scale = 1) {
@@ -1217,6 +1307,980 @@ const cardArtMap: Record<string, () => React.ReactNode> = {
       {iceCrystal(44, 18, '#aaeeff', 0.35)}
       <line x1="42" y1="20" x2="42" y2="48" stroke="#aaeeff" strokeWidth="0.5" opacity="0.3" />
       <circle cx="48" cy="52" r="2" fill="#aaeeff" opacity="0.3" />
+    </>
+  ),
+
+  // ==================== DES (dark purple/void) ====================
+  DES001: () => (
+    <>
+      <defs>{desGradients}</defs>
+      {desBg}
+      {humanoid(50, 48, '#6622aa', 0.8)}
+      <circle cx="50" cy="20" r="4" fill="#9933ff" opacity="0.4" />
+    </>
+  ),
+  DES002: () => (
+    <>
+      <defs>{desGradients}</defs>
+      {desBg}
+      {humanoid(50, 48, '#7733cc', 0.8)}
+      <rect x="55" y="38" width="12" height="3" rx="1" fill="#9933ff" />
+      <circle cx="70" cy="40" r="3" fill="#ff3366" opacity="0.6" />
+    </>
+  ),
+  DES003: () => (
+    <>
+      <defs>{desGradients}</defs>
+      {desBg}
+      <circle cx="50" cy="35" r="16" fill="url(#darkOrraGrad)" opacity="0.7" />
+      <circle cx="50" cy="35" r="10" fill="url(#voidGrad)" opacity="0.5" />
+      <line x1="34" y1="35" x2="66" y2="35" stroke="#9933ff" strokeWidth="1" opacity="0.6" />
+      <line x1="50" y1="19" x2="50" y2="51" stroke="#9933ff" strokeWidth="1" opacity="0.6" />
+    </>
+  ),
+  DES004: () => (
+    <>
+      <defs>{desGradients}</defs>
+      {desBg}
+      {knight(50, 48, '#551188', 0.9)}
+      <rect x="44" y="22" width="12" height="2" rx="1" fill="#9933ff" opacity="0.5" />
+    </>
+  ),
+  DES005: () => (
+    <>
+      <defs>{desGradients}</defs>
+      {desBg}
+      <circle cx="50" cy="30" r="18" fill="none" stroke="#9933ff" strokeWidth="2" opacity="0.5" />
+      <circle cx="50" cy="30" r="10" fill="url(#shadowGrad2)" opacity="0.6" />
+      <path d="M35,30 Q50,10 65,30 Q50,50 35,30" fill="none" stroke="#cc66ff" strokeWidth="1" opacity="0.7" />
+    </>
+  ),
+  DES006: () => (
+    <>
+      <defs>{desGradients}</defs>
+      {desBg}
+      {humanoid(50, 48, '#7733cc', 1)}
+      <circle cx="50" cy="20" r="12" fill="url(#voidGrad)" opacity="0.3" />
+      <circle cx="35" cy="55" r="3" fill="#9933ff" opacity="0.4" />
+      <circle cx="65" cy="55" r="3" fill="#9933ff" opacity="0.4" />
+    </>
+  ),
+  DES007: () => (
+    <>
+      <defs>{desGradients}</defs>
+      {desBg}
+      {humanoid(50, 48, '#6622aa', 0.9)}
+      <rect x="58" y="32" width="8" height="10" rx="2" fill="#551188" />
+      <circle cx="62" cy="28" r="4" fill="#9933ff" opacity="0.5" />
+    </>
+  ),
+  DES008: () => (
+    <>
+      <defs>{desGradients}</defs>
+      {desBg}
+      <ellipse cx="50" cy="38" rx="18" ry="8" fill="url(#shadowGrad2)" />
+      <rect x="42" y="30" width="16" height="6" rx="3" fill="#9933ff" />
+      <circle cx="42" cy="33" r="3" fill="#cc66ff" opacity="0.6" />
+      <circle cx="58" cy="33" r="3" fill="#cc66ff" opacity="0.6" />
+    </>
+  ),
+  DES009: () => (
+    <>
+      <defs>{desGradients}</defs>
+      {desBg}
+      {humanoid(50, 48, '#330066', 1)}
+      <ellipse cx="50" cy="40" rx="20" ry="10" fill="#220044" opacity="0.4" />
+      <circle cx="46" cy="28" r="2" fill="#cc66ff" />
+      <circle cx="54" cy="28" r="2" fill="#cc66ff" />
+    </>
+  ),
+  DES010: () => (
+    <>
+      <defs>{desGradients}</defs>
+      {desBg}
+      {knight(50, 48, '#551188', 1.1)}
+      <rect x="38" y="20" width="24" height="4" rx="2" fill="#9933ff" opacity="0.4" />
+    </>
+  ),
+  DES011: () => (
+    <>
+      <defs>{desGradients}</defs>
+      {desBg}
+      <circle cx="50" cy="35" r="20" fill="url(#voidGrad)" opacity="0.4" />
+      <path d="M30,35 Q50,15 70,35 Q50,55 30,35" fill="none" stroke="#9933ff" strokeWidth="2" opacity="0.6" />
+      <circle cx="50" cy="35" r="6" fill="#cc66ff" opacity="0.5" />
+    </>
+  ),
+  DES012: () => (
+    <>
+      <defs>{desGradients}</defs>
+      {desBg}
+      {golem(50, 42, '#551188', 0.8)}
+      <rect x="40" y="18" width="20" height="3" rx="1" fill="#9933ff" />
+      <circle cx="46" cy="26" r="2" fill="#ff3366" />
+      <circle cx="54" cy="26" r="2" fill="#ff3366" />
+    </>
+  ),
+  DES013: () => (
+    <>
+      <defs>{desGradients}</defs>
+      {desBg}
+      <circle cx="50" cy="35" r="22" fill="url(#darkOrraGrad)" opacity="0.3" />
+      <line x1="28" y1="35" x2="72" y2="35" stroke="#cc66ff" strokeWidth="3" />
+      <line x1="50" y1="13" x2="50" y2="57" stroke="#cc66ff" strokeWidth="3" />
+      <circle cx="50" cy="35" r="8" fill="#9933ff" opacity="0.7" />
+    </>
+  ),
+  DES014: () => (
+    <>
+      <defs>{desGradients}</defs>
+      {desBg}
+      {golem(50, 42, '#6622aa', 1)}
+      <circle cx="30" cy="55" r="4" fill="#9933ff" opacity="0.4" />
+      <circle cx="70" cy="55" r="4" fill="#9933ff" opacity="0.4" />
+    </>
+  ),
+  DES015: () => (
+    <>
+      <defs>{desGradients}</defs>
+      {desBg}
+      {knight(50, 48, '#7733cc', 1)}
+      <circle cx="50" cy="15" r="8" fill="url(#voidGrad)" opacity="0.5" />
+      <line x1="42" y1="15" x2="58" y2="15" stroke="#cc66ff" strokeWidth="1" />
+    </>
+  ),
+  DES016: () => (
+    <>
+      <defs>{desGradients}</defs>
+      {desBg}
+      {knight(50, 48, '#551188', 1.2)}
+      <rect x="30" y="15" width="40" height="3" rx="1" fill="#9933ff" opacity="0.3" />
+    </>
+  ),
+  DES017: () => (
+    <>
+      <defs>{desGradients}</defs>
+      {desBg}
+      <ellipse cx="50" cy="40" rx="35" ry="20" fill="url(#voidGrad)" opacity="0.3" />
+      <path d="M15,40 Q50,5 85,40" fill="none" stroke="#9933ff" strokeWidth="3" opacity="0.7" />
+      <path d="M15,40 Q50,75 85,40" fill="none" stroke="#cc66ff" strokeWidth="2" opacity="0.5" />
+      <circle cx="50" cy="40" r="5" fill="#cc66ff" opacity="0.8" />
+    </>
+  ),
+  DES018: () => (
+    <>
+      <defs>{desGradients}</defs>
+      {desBg}
+      {golem(50, 42, '#7733cc', 1.2)}
+      <circle cx="50" cy="10" r="6" fill="#9933ff" opacity="0.5" />
+      <line x1="50" y1="16" x2="50" y2="26" stroke="#cc66ff" strokeWidth="2" />
+    </>
+  ),
+  DES019: () => (
+    <>
+      <defs>{desGradients}</defs>
+      {desBg}
+      {golem(50, 42, '#551188', 1.3)}
+      <circle cx="46" cy="22" r="3" fill="#cc66ff" />
+      <circle cx="54" cy="22" r="3" fill="#cc66ff" />
+    </>
+  ),
+  DES020: () => (
+    <>
+      <defs>{desGradients}</defs>
+      {desBg}
+      {humanoid(50, 46, '#9933ff', 1.2)}
+      <circle cx="50" cy="10" r="10" fill="url(#darkOrraGrad)" opacity="0.6" />
+      <circle cx="50" cy="10" r="5" fill="#cc66ff" opacity="0.8" />
+      <circle cx="30" cy="55" r="5" fill="#9933ff" opacity="0.3" />
+      <circle cx="70" cy="55" r="5" fill="#9933ff" opacity="0.3" />
+      <line x1="40" y1="10" x2="30" y2="55" stroke="#9933ff" strokeWidth="1" opacity="0.3" />
+      <line x1="60" y1="10" x2="70" y2="55" stroke="#9933ff" strokeWidth="1" opacity="0.3" />
+    </>
+  ),
+
+  // ==================== ASTRID (gold/white) ====================
+  AST001: () => (
+    <>
+      <defs>{astridGradients}</defs>
+      {astridBg}
+      {humanoid(50, 48, '#cc9900', 0.8)}
+      {shield(50, 30, 'url(#shieldGrad)', 0.6)}
+    </>
+  ),
+  AST002: () => (
+    <>
+      <defs>{astridGradients}</defs>
+      {astridBg}
+      {humanoid(50, 48, '#b8860b', 0.8)}
+      <circle cx="65" cy="35" r="5" fill="#ffe066" opacity="0.6" />
+      <polygon points="65,28 63,35 67,35" fill="#ffe066" />
+    </>
+  ),
+  AST003: () => (
+    <>
+      <defs>{astridGradients}</defs>
+      {astridBg}
+      <ellipse cx="50" cy="35" rx="20" ry="18" fill="url(#holyLightGrad)" opacity="0.3" />
+      {shield(50, 35, 'url(#shieldGrad)', 1)}
+      <circle cx="50" cy="35" r="5" fill="#ffffff" opacity="0.4" />
+    </>
+  ),
+  AST004: () => (
+    <>
+      <defs>{astridGradients}</defs>
+      {astridBg}
+      {knight(50, 48, '#b8860b', 0.9)}
+      {shield(38, 40, 'url(#guardGrad)', 0.5)}
+    </>
+  ),
+  AST005: () => (
+    <>
+      <defs>{astridGradients}</defs>
+      {astridBg}
+      {shield(50, 32, 'url(#shieldGrad)', 1.2)}
+      <circle cx="50" cy="32" r="6" fill="#ffffff" opacity="0.5" />
+      <circle cx="50" cy="15" r="3" fill="#ffe066" opacity="0.6" />
+    </>
+  ),
+  AST006: () => (
+    <>
+      <defs>{astridGradients}</defs>
+      {astridBg}
+      {knight(50, 48, '#cc9900', 0.9)}
+      <rect x="35" y="60" width="30" height="3" rx="1" fill="#b8860b" opacity="0.5" />
+    </>
+  ),
+  AST007: () => (
+    <>
+      <defs>{astridGradients}</defs>
+      {astridBg}
+      {wolf(48, 42, '#b8860b', 0.9)}
+      <circle cx="48" cy="28" r="4" fill="#ffe066" opacity="0.4" />
+    </>
+  ),
+  AST008: () => (
+    <>
+      <defs>{astridGradients}</defs>
+      {astridBg}
+      {knight(50, 48, '#ffd700', 0.9)}
+      {shield(38, 40, 'url(#shieldGrad)', 0.5)}
+      <circle cx="50" cy="20" r="5" fill="#ffffff" opacity="0.3" />
+    </>
+  ),
+  AST009: () => (
+    <>
+      <defs>{astridGradients}</defs>
+      {astridBg}
+      <ellipse cx="50" cy="35" rx="28" ry="18" fill="url(#holyLightGrad)" opacity="0.2" />
+      <circle cx="50" cy="35" r="12" fill="url(#shieldGrad)" opacity="0.4" />
+      <circle cx="50" cy="35" r="5" fill="#ffffff" opacity="0.6" />
+    </>
+  ),
+  AST010: () => (
+    <>
+      <defs>{astridGradients}</defs>
+      {astridBg}
+      {knight(50, 48, '#cc9900', 1)}
+      {shield(38, 42, 'url(#guardGrad)', 0.6)}
+    </>
+  ),
+  AST011: () => (
+    <>
+      <defs>{astridGradients}</defs>
+      {astridBg}
+      {iceCrystal(50, 30, '#ffd700', 1)}
+      {shield(50, 48, 'url(#shieldGrad)', 0.7)}
+      <circle cx="50" cy="30" r="4" fill="#ffffff" opacity="0.5" />
+    </>
+  ),
+  AST012: () => (
+    <>
+      <defs>{astridGradients}</defs>
+      {astridBg}
+      {knight(50, 48, '#b8860b', 1.1)}
+      <rect x="35" y="15" width="30" height="3" rx="1" fill="#ffe066" opacity="0.3" />
+    </>
+  ),
+  AST013: () => (
+    <>
+      <defs>{astridGradients}</defs>
+      {astridBg}
+      <ellipse cx="50" cy="35" rx="30" ry="22" fill="url(#holyLightGrad)" opacity="0.2" />
+      <circle cx="50" cy="35" r="15" fill="none" stroke="#ffd700" strokeWidth="2" opacity="0.5" />
+      <circle cx="50" cy="35" r="8" fill="#ffffff" opacity="0.3" />
+      {shield(50, 35, 'url(#shieldGrad)', 0.5)}
+    </>
+  ),
+  AST014: () => (
+    <>
+      <defs>{astridGradients}</defs>
+      {astridBg}
+      {shield(50, 32, 'url(#shieldGrad)', 1.4)}
+      {sword(58, 40, '#ffd700', '#b8860b', 0.8, -20)}
+    </>
+  ),
+  AST015: () => (
+    <>
+      <defs>{astridGradients}</defs>
+      {astridBg}
+      {knight(50, 48, '#ffd700', 1.1)}
+      {shield(36, 42, 'url(#shieldGrad)', 0.6)}
+      <circle cx="50" cy="15" r="6" fill="#ffffff" opacity="0.3" />
+    </>
+  ),
+  AST016: () => (
+    <>
+      <defs>{astridGradients}</defs>
+      {astridBg}
+      {knight(50, 48, '#cc9900', 1.1)}
+      {sword(64, 42, '#ffd700', '#b8860b', 0.7)}
+    </>
+  ),
+  AST017: () => (
+    <>
+      <defs>{astridGradients}</defs>
+      {astridBg}
+      <rect x="25" y="15" width="50" height="50" rx="5" fill="url(#guardGrad)" opacity="0.3" />
+      <rect x="30" y="20" width="40" height="40" rx="3" fill="none" stroke="#ffd700" strokeWidth="2" opacity="0.5" />
+      {shield(50, 35, 'url(#shieldGrad)', 0.8)}
+    </>
+  ),
+  AST018: () => (
+    <>
+      <defs>{astridGradients}</defs>
+      {astridBg}
+      {wolf(48, 42, '#ffd700', 1.1)}
+      <circle cx="48" cy="25" r="8" fill="#ffffff" opacity="0.2" />
+      <circle cx="48" cy="25" r="4" fill="#ffe066" opacity="0.5" />
+    </>
+  ),
+  AST019: () => (
+    <>
+      <defs>{astridGradients}</defs>
+      {astridBg}
+      {golem(50, 42, '#cc9900', 1.1)}
+      <circle cx="46" cy="22" r="3" fill="#ffe066" />
+      <circle cx="54" cy="22" r="3" fill="#ffe066" />
+    </>
+  ),
+  AST020: () => (
+    <>
+      <defs>{astridGradients}</defs>
+      {astridBg}
+      {humanoid(50, 46, '#ffd700', 1.2)}
+      {shield(36, 40, 'url(#shieldGrad)', 0.7)}
+      <circle cx="50" cy="10" r="10" fill="url(#holyLightGrad)" opacity="0.3" />
+      <circle cx="50" cy="10" r="5" fill="#ffffff" opacity="0.5" />
+      <line x1="40" y1="10" x2="30" y2="55" stroke="#ffd700" strokeWidth="1" opacity="0.3" />
+      <line x1="60" y1="10" x2="70" y2="55" stroke="#ffd700" strokeWidth="1" opacity="0.3" />
+    </>
+  ),
+
+  // ==================== AVA (pink/magenta tech) ====================
+  AVA001: () => (
+    <>
+      <defs>{avaGradients}</defs>
+      {avaBg}
+      {humanoid(42, 48, '#cc3388', 0.8)}
+      <rect x="60" y="35" width="8" height="5" rx="2" fill="#ff69b4" />
+      <circle cx="64" cy="32" r="3" fill="#ff99cc" opacity="0.6" />
+    </>
+  ),
+  AVA002: () => (
+    <>
+      <defs>{avaGradients}</defs>
+      {avaBg}
+      <ellipse cx="50" cy="38" rx="12" ry="6" fill="#cc3388" />
+      <path d="M38,36 Q25,20 42,34" fill="#ff69b4" opacity="0.7" />
+      <path d="M62,36 Q75,20 58,34" fill="#ff69b4" opacity="0.7" />
+      <circle cx="48" cy="36" r="2" fill="#ffffff" />
+    </>
+  ),
+  AVA003: () => (
+    <>
+      <defs>{avaGradients}</defs>
+      {avaBg}
+      <rect x="30" y="25" width="10" height="6" rx="2" fill="#ff69b4" />
+      <circle cx="35" cy="22" r="3" fill="#ff99cc" opacity="0.6" />
+      <rect x="55" y="35" width="10" height="6" rx="2" fill="#ff69b4" />
+      <circle cx="60" cy="32" r="3" fill="#ff99cc" opacity="0.6" />
+      <line x1="40" y1="28" x2="55" y2="38" stroke="#ff3399" strokeWidth="1" opacity="0.4" />
+    </>
+  ),
+  AVA004: () => (
+    <>
+      <defs>{avaGradients}</defs>
+      {avaBg}
+      <rect x="35" y="25" width="30" height="25" rx="4" fill="url(#gadgetGrad)" opacity="0.5" />
+      <circle cx="50" cy="37" r="8" fill="#ff99cc" opacity="0.4" />
+      <rect x="42" y="33" width="16" height="8" rx="2" fill="#cc3388" />
+      <circle cx="50" cy="37" r="3" fill="#ffffff" opacity="0.5" />
+    </>
+  ),
+  AVA005: () => (
+    <>
+      <defs>{avaGradients}</defs>
+      {avaBg}
+      {humanoid(42, 48, '#cc3388', 0.8)}
+      <rect x="58" y="38" width="8" height="5" rx="2" fill="#ff69b4" />
+      <circle cx="62" cy="35" r="3" fill="#ff99cc" opacity="0.5" />
+    </>
+  ),
+  AVA006: () => (
+    <>
+      <defs>{avaGradients}</defs>
+      {avaBg}
+      <rect x="35" y="22" width="30" height="18" rx="5" fill="url(#techPinkGrad)" opacity="0.4" />
+      <circle cx="50" cy="31" r="8" fill="#ff99cc" opacity="0.5" />
+      <path d="M42,31 Q50,20 58,31" fill="none" stroke="#ff69b4" strokeWidth="2" />
+    </>
+  ),
+  AVA007: () => (
+    <>
+      <defs>{avaGradients}</defs>
+      {avaBg}
+      <rect x="38" y="30" width="24" height="12" rx="4" fill="#cc3388" />
+      <circle cx="50" cy="27" r="5" fill="#ff69b4" opacity="0.5" />
+      <ellipse cx="50" cy="45" rx="16" ry="6" fill="#330022" opacity="0.3" />
+      <circle cx="48" cy="34" r="2" fill="#ffffff" />
+    </>
+  ),
+  AVA008: () => (
+    <>
+      <defs>{avaGradients}</defs>
+      {avaBg}
+      {humanoid(50, 48, '#cc3388', 0.9)}
+      {gear(68, 28, '#ff69b4', 0.5)}
+      <line x1="58" y1="38" x2="68" y2="28" stroke="#ff99cc" strokeWidth="1" opacity="0.4" />
+    </>
+  ),
+  AVA009: () => (
+    <>
+      <defs>{avaGradients}</defs>
+      {avaBg}
+      {humanoid(50, 48, '#cc3388', 0.9)}
+      <rect x="58" y="30" width="14" height="8" rx="2" fill="#ff69b4" opacity="0.6" />
+      <circle cx="65" cy="28" r="3" fill="#ff3399" opacity="0.5" />
+    </>
+  ),
+  AVA010: () => (
+    <>
+      <defs>{avaGradients}</defs>
+      {avaBg}
+      <rect x="42" y="20" width="6" height="30" rx="2" fill="#ff69b4" />
+      <rect x="38" y="35" width="14" height="5" rx="2" fill="#cc3388" />
+      {gear(50, 48, '#ff99cc', 0.4)}
+    </>
+  ),
+  AVA011: () => (
+    <>
+      <defs>{avaGradients}</defs>
+      {avaBg}
+      <rect x="30" y="25" width="40" height="25" rx="5" fill="url(#gadgetGrad)" opacity="0.3" />
+      {humanoid(40, 48, '#cc3388', 0.7)}
+      <rect x="62" y="32" width="8" height="5" rx="2" fill="#ff69b4" />
+      <circle cx="66" cy="29" r="3" fill="#ff99cc" opacity="0.5" />
+    </>
+  ),
+  AVA012: () => (
+    <>
+      <defs>{avaGradients}</defs>
+      {avaBg}
+      <circle cx="50" cy="35" r="18" fill="url(#circuitGrad)" opacity="0.3" />
+      <circle cx="50" cy="35" r="10" fill="#ff3399" opacity="0.4" />
+      <line x1="32" y1="35" x2="68" y2="35" stroke="#ff69b4" strokeWidth="2" opacity="0.6" />
+      <line x1="50" y1="17" x2="50" y2="53" stroke="#ff69b4" strokeWidth="2" opacity="0.6" />
+    </>
+  ),
+  AVA013: () => (
+    <>
+      <defs>{avaGradients}</defs>
+      {avaBg}
+      <ellipse cx="50" cy="38" rx="18" ry="10" fill="#cc3388" />
+      <path d="M32,36 Q20,18 38,32" fill="#ff69b4" opacity="0.7" />
+      <path d="M68,36 Q80,18 62,32" fill="#ff69b4" opacity="0.7" />
+      <rect x="60" y="42" width="8" height="5" rx="2" fill="#ff99cc" />
+      <circle cx="48" cy="36" r="2" fill="#ffffff" />
+    </>
+  ),
+  AVA014: () => (
+    <>
+      <defs>{avaGradients}</defs>
+      {avaBg}
+      <rect x="22" y="25" width="8" height="5" rx="2" fill="#ff69b4" />
+      <rect x="35" y="18" width="8" height="5" rx="2" fill="#ff69b4" />
+      <rect x="50" y="30" width="8" height="5" rx="2" fill="#ff69b4" />
+      <rect x="65" y="22" width="8" height="5" rx="2" fill="#ff69b4" />
+      <circle cx="26" cy="22" r="2" fill="#ff99cc" opacity="0.6" />
+      <circle cx="39" cy="15" r="2" fill="#ff99cc" opacity="0.6" />
+      <circle cx="54" cy="27" r="2" fill="#ff99cc" opacity="0.6" />
+      <circle cx="69" cy="19" r="2" fill="#ff99cc" opacity="0.6" />
+    </>
+  ),
+  AVA015: () => (
+    <>
+      <defs>{avaGradients}</defs>
+      {avaBg}
+      <rect x="25" y="25" width="50" height="25" rx="6" fill="url(#gadgetGrad)" opacity="0.4" />
+      <rect x="30" y="30" width="40" height="15" rx="3" fill="#cc3388" />
+      <circle cx="40" cy="37" r="4" fill="#ff99cc" opacity="0.5" />
+      <circle cx="60" cy="37" r="4" fill="#ff99cc" opacity="0.5" />
+    </>
+  ),
+  AVA016: () => (
+    <>
+      <defs>{avaGradients}</defs>
+      {avaBg}
+      <rect x="35" y="20" width="30" height="18" rx="5" fill="#cc3388" />
+      <circle cx="50" cy="17" r="6" fill="#ff69b4" opacity="0.5" />
+      <rect x="60" y="42" width="8" height="5" rx="2" fill="#ff69b4" />
+      <rect x="32" y="42" width="8" height="5" rx="2" fill="#ff69b4" />
+      <circle cx="64" cy="39" r="2" fill="#ff99cc" />
+      <circle cx="36" cy="39" r="2" fill="#ff99cc" />
+    </>
+  ),
+  AVA017: () => (
+    <>
+      <defs>{avaGradients}</defs>
+      {avaBg}
+      <rect x="30" y="15" width="40" height="45" rx="5" fill="url(#techPinkGrad)" opacity="0.2" />
+      {gear(50, 35, '#ff69b4', 0.8)}
+      <line x1="50" y1="15" x2="50" y2="60" stroke="#ff3399" strokeWidth="1" opacity="0.3" />
+    </>
+  ),
+  AVA018: () => (
+    <>
+      <defs>{avaGradients}</defs>
+      {avaBg}
+      {iceCrystal(50, 32, '#ff69b4', 1.2)}
+      <circle cx="50" cy="32" r="6" fill="#ff99cc" opacity="0.5" />
+      <circle cx="50" cy="55" r="4" fill="#cc3388" opacity="0.4" />
+    </>
+  ),
+  AVA019: () => (
+    <>
+      <defs>{avaGradients}</defs>
+      {avaBg}
+      <rect x="25" y="15" width="50" height="50" rx="6" fill="url(#gadgetGrad)" opacity="0.2" />
+      {gear(38, 35, '#ff69b4', 0.7)}
+      {gear(62, 35, '#cc3388', 0.7)}
+      <rect x="45" y="30" width="10" height="10" rx="2" fill="#ff3399" opacity="0.5" />
+    </>
+  ),
+  AVA020: () => (
+    <>
+      <defs>{avaGradients}</defs>
+      {avaBg}
+      {humanoid(50, 46, '#ff69b4', 1.1)}
+      {gear(30, 22, '#cc3388', 0.5)}
+      {gear(70, 22, '#cc3388', 0.5)}
+      <circle cx="50" cy="10" r="8" fill="url(#circuitGrad)" opacity="0.4" />
+      <rect x="62" y="50" width="8" height="5" rx="2" fill="#ff99cc" />
+      <rect x="30" y="50" width="8" height="5" rx="2" fill="#ff99cc" />
+      <circle cx="66" cy="47" r="2" fill="#ff3399" />
+      <circle cx="34" cy="47" r="2" fill="#ff3399" />
+    </>
+  ),
+
+  // ==================== LUCAS (teal/brown) ====================
+  LUC001: () => (
+    <>
+      <defs>{lucasGradients}</defs>
+      {lucasBg}
+      {wolf(50, 45, '#b8860b', 0.6)}
+      <circle cx="62" cy="38" r="2" fill="#2dd4bf" />
+    </>
+  ),
+  LUC002: () => (
+    <>
+      <defs>{lucasGradients}</defs>
+      {lucasBg}
+      <rect x="35" y="20" width="30" height="40" rx="3" fill="#0d9488" opacity="0.2" />
+      <circle cx="50" cy="30" r="6" fill="url(#tealGrad)" opacity="0.5" />
+      <path d="M44,38 Q50,28 56,38" fill="none" stroke="#2dd4bf" strokeWidth="2" />
+    </>
+  ),
+  LUC003: () => (
+    <>
+      <defs>{lucasGradients}</defs>
+      {lucasBg}
+      {humanoid(50, 48, '#0d9488', 0.8)}
+      <ellipse cx="50" cy="45" rx="16" ry="8" fill="#051a15" opacity="0.4" />
+    </>
+  ),
+  LUC004: () => (
+    <>
+      <defs>{lucasGradients}</defs>
+      {lucasBg}
+      <ellipse cx="50" cy="35" rx="16" ry="16" fill="url(#trickGrad)" opacity="0.2" />
+      <path d="M40,25 Q50,45 60,25" fill="none" stroke="#2dd4bf" strokeWidth="2" opacity="0.7" />
+      <circle cx="50" cy="35" r="5" fill="#14b8a6" opacity="0.5" />
+    </>
+  ),
+  LUC005: () => (
+    <>
+      <defs>{lucasGradients}</defs>
+      {lucasBg}
+      {wolf(48, 42, '#b8860b', 0.9)}
+      <circle cx="62" cy="35" r="2" fill="#2dd4bf" />
+      <circle cx="48" cy="28" r="4" fill="#14b8a6" opacity="0.3" />
+    </>
+  ),
+  LUC006: () => (
+    <>
+      <defs>{lucasGradients}</defs>
+      {lucasBg}
+      <circle cx="50" cy="35" r="16" fill="url(#trickGrad)" opacity="0.2" />
+      <path d="M34,35 Q50,15 66,35 Q50,55 34,35" fill="none" stroke="#2dd4bf" strokeWidth="2" opacity="0.6" />
+      <circle cx="50" cy="35" r="4" fill="#5eead4" opacity="0.5" />
+    </>
+  ),
+  LUC007: () => (
+    <>
+      <defs>{lucasGradients}</defs>
+      {lucasBg}
+      {humanoid(50, 48, '#8b6914', 0.9)}
+      {sword(62, 40, '#2dd4bf', '#8b6914', 0.7)}
+    </>
+  ),
+  LUC008: () => (
+    <>
+      <defs>{lucasGradients}</defs>
+      {lucasBg}
+      {wolf(48, 42, '#b8860b', 1)}
+      <circle cx="62" cy="35" r="2" fill="#2dd4bf" />
+      <circle cx="30" cy="50" r="2" fill="#b8860b" opacity="0.4" />
+    </>
+  ),
+  LUC009: () => (
+    <>
+      <defs>{lucasGradients}</defs>
+      {lucasBg}
+      {humanoid(50, 48, '#0d9488', 0.9)}
+      <ellipse cx="50" cy="45" rx="18" ry="8" fill="#051a15" opacity="0.3" />
+      <circle cx="46" cy="28" r="2" fill="#5eead4" />
+      <circle cx="54" cy="28" r="2" fill="#5eead4" />
+    </>
+  ),
+  LUC010: () => (
+    <>
+      <defs>{lucasGradients}</defs>
+      {lucasBg}
+      {sword(50, 38, '#2dd4bf', '#b8860b', 1.2, -25)}
+      <polygon points="50,12 48,18 52,18" fill="#b8860b" />
+    </>
+  ),
+  LUC011: () => (
+    <>
+      <defs>{lucasGradients}</defs>
+      {lucasBg}
+      <path d="M30,40 Q50,20 70,40 Q50,60 30,40" fill="url(#trickGrad)" opacity="0.3" />
+      <circle cx="50" cy="35" r="6" fill="#2dd4bf" opacity="0.5" />
+      <path d="M44,35 L56,35" stroke="#5eead4" strokeWidth="2" />
+    </>
+  ),
+  LUC012: () => (
+    <>
+      <defs>{lucasGradients}</defs>
+      {lucasBg}
+      {humanoid(50, 48, '#0d9488', 1)}
+      <ellipse cx="50" cy="42" rx="20" ry="10" fill="#051a15" opacity="0.3" />
+    </>
+  ),
+  LUC013: () => (
+    <>
+      <defs>{lucasGradients}</defs>
+      {lucasBg}
+      {humanoid(50, 48, '#14b8a6', 0.9)}
+      <circle cx="62" cy="32" r="5" fill="url(#tealGrad)" opacity="0.4" />
+      <circle cx="62" cy="32" r="2" fill="#5eead4" opacity="0.6" />
+    </>
+  ),
+  LUC014: () => (
+    <>
+      <defs>{lucasGradients}</defs>
+      {lucasBg}
+      <ellipse cx="50" cy="35" rx="25" ry="18" fill="url(#coyoteGrad)" opacity="0.2" />
+      <line x1="25" y1="35" x2="75" y2="35" stroke="#2dd4bf" strokeWidth="2" opacity="0.5" />
+      <circle cx="50" cy="35" r="6" fill="#14b8a6" opacity="0.5" />
+      <circle cx="38" cy="28" r="2" fill="#b8860b" opacity="0.4" />
+      <circle cx="62" cy="28" r="2" fill="#b8860b" opacity="0.4" />
+    </>
+  ),
+  LUC015: () => (
+    <>
+      <defs>{lucasGradients}</defs>
+      {lucasBg}
+      {wolf(48, 35, '#b8860b', 0.8)}
+      <path d="M48,20 Q40,5 35,15" fill="none" stroke="#2dd4bf" strokeWidth="2" opacity="0.6" />
+      <path d="M48,20 Q56,5 60,15" fill="none" stroke="#2dd4bf" strokeWidth="2" opacity="0.6" />
+      <circle cx="48" cy="20" r="3" fill="#5eead4" opacity="0.5" />
+    </>
+  ),
+  LUC016: () => (
+    <>
+      <defs>{lucasGradients}</defs>
+      {lucasBg}
+      {humanoid(50, 48, '#0d9488', 1)}
+      <ellipse cx="50" cy="42" rx="22" ry="10" fill="#051a15" opacity="0.4" />
+      <circle cx="46" cy="28" r="2" fill="#5eead4" />
+    </>
+  ),
+  LUC017: () => (
+    <>
+      <defs>{lucasGradients}</defs>
+      {lucasBg}
+      {humanoid(50, 48, '#14b8a6', 1)}
+      {sword(64, 40, '#2dd4bf', '#0d9488', 0.8)}
+      <ellipse cx="50" cy="42" rx="18" ry="8" fill="#051a15" opacity="0.3" />
+    </>
+  ),
+  LUC018: () => (
+    <>
+      <defs>{lucasGradients}</defs>
+      {lucasBg}
+      {wolf(48, 42, '#b8860b', 1.1)}
+      <circle cx="62" cy="35" r="3" fill="#2dd4bf" />
+      <ellipse cx="48" cy="55" rx="20" ry="8" fill="#051a15" opacity="0.3" />
+    </>
+  ),
+  LUC019: () => (
+    <>
+      <defs>{lucasGradients}</defs>
+      {lucasBg}
+      {knight(50, 48, '#8b6914', 1.2)}
+      {sword(66, 38, '#2dd4bf', '#b8860b', 0.9)}
+    </>
+  ),
+  LUC020: () => (
+    <>
+      <defs>{lucasGradients}</defs>
+      {lucasBg}
+      {humanoid(50, 46, '#14b8a6', 1.2)}
+      {wolf(28, 55, '#b8860b', 0.5)}
+      <ellipse cx="50" cy="42" rx="25" ry="10" fill="#051a15" opacity="0.3" />
+      <circle cx="46" cy="24" r="2" fill="#5eead4" />
+      <circle cx="54" cy="24" r="2" fill="#5eead4" />
+      <line x1="50" y1="10" x2="50" y2="20" stroke="#2dd4bf" strokeWidth="1" opacity="0.5" />
+    </>
+  ),
+
+  // ==================== IZZY (orange/sparkle) ====================
+  IZZ001: () => (
+    <>
+      <defs>{izzyGradients}</defs>
+      {izzyBg}
+      {humanoid(50, 48, '#cc6600', 0.8)}
+      <polygon points="50,18 48,22 52,22" fill="#ff9933" />
+      <circle cx="50" cy="18" r="3" fill="#ffaa44" opacity="0.5" />
+    </>
+  ),
+  IZZ002: () => (
+    <>
+      <defs>{izzyGradients}</defs>
+      {izzyBg}
+      <ellipse cx="50" cy="38" rx="10" ry="8" fill="#cc6600" />
+      <circle cx="50" cy="30" r="6" fill="#ff8800" />
+      <polygon points="47,26 50,20 53,26" fill="#ff9933" />
+      <circle cx="48" cy="29" r="1.5" fill="#ffffff" />
+      <rect x="44" y="46" width="4" height="6" rx="1" fill="#cc5500" />
+      <rect x="52" y="46" width="4" height="6" rx="1" fill="#cc5500" />
+    </>
+  ),
+  IZZ003: () => (
+    <>
+      <defs>{izzyGradients}</defs>
+      {izzyBg}
+      <circle cx="50" cy="35" r="16" fill="url(#sparkleGrad)" opacity="0.3" />
+      <polygon points="50,18 53,28 63,28 55,34 58,44 50,38 42,44 45,34 37,28 47,28" fill="#ff9933" opacity="0.6" />
+    </>
+  ),
+  IZZ004: () => (
+    <>
+      <defs>{izzyGradients}</defs>
+      {izzyBg}
+      {humanoid(50, 48, '#cc6600', 0.85)}
+      <polygon points="50,20 48,24 52,24" fill="#ff9933" opacity="0.5" />
+      <circle cx="62" cy="35" r="3" fill="#ffaa44" opacity="0.4" />
+    </>
+  ),
+  IZZ005: () => (
+    <>
+      <defs>{izzyGradients}</defs>
+      {izzyBg}
+      <ellipse cx="50" cy="38" rx="12" ry="8" fill="#cc6600" />
+      <circle cx="50" cy="30" r="7" fill="#ff8800" />
+      <polygon points="47,26 50,18 53,26" fill="#ff9933" />
+      <circle cx="48" cy="29" r="1.5" fill="#ffffff" />
+      <rect x="43" y="46" width="4" height="7" rx="1" fill="#cc5500" />
+      <rect x="53" y="46" width="4" height="7" rx="1" fill="#cc5500" />
+      <circle cx="50" cy="15" r="3" fill="#ffaa44" opacity="0.4" />
+    </>
+  ),
+  IZZ006: () => (
+    <>
+      <defs>{izzyGradients}</defs>
+      {izzyBg}
+      {shield(50, 35, 'url(#sparkleGrad)', 1.2)}
+      <circle cx="50" cy="35" r="6" fill="#ffaa44" opacity="0.4" />
+    </>
+  ),
+  IZZ007: () => (
+    <>
+      <defs>{izzyGradients}</defs>
+      {izzyBg}
+      {humanoid(50, 48, '#cc6600', 0.9)}
+      <circle cx="50" cy="20" r="6" fill="#ff9933" opacity="0.4" />
+      <polygon points="50,14 48,18 52,18" fill="#ffaa44" opacity="0.6" />
+    </>
+  ),
+  IZZ008: () => (
+    <>
+      <defs>{izzyGradients}</defs>
+      {izzyBg}
+      <circle cx="50" cy="35" r="20" fill="url(#orangeGrad)" opacity="0.2" />
+      <path d="M30,35 Q50,15 70,35 Q50,55 30,35" fill="none" stroke="#ff9933" strokeWidth="2" opacity="0.5" />
+      <circle cx="50" cy="35" r="5" fill="#ffaa44" opacity="0.5" />
+    </>
+  ),
+  IZZ009: () => (
+    <>
+      <defs>{izzyGradients}</defs>
+      {izzyBg}
+      {knight(50, 48, '#cc6600', 0.9)}
+      {iceCrystal(50, 20, '#ff9933', 0.5)}
+      <circle cx="50" cy="20" r="3" fill="#ffaa44" opacity="0.4" />
+    </>
+  ),
+  IZZ010: () => (
+    <>
+      <defs>{izzyGradients}</defs>
+      {izzyBg}
+      {golem(50, 42, '#cc6600', 0.9)}
+      <polygon points="46,18 44,24 48,24" fill="#ff9933" opacity="0.5" />
+      <polygon points="54,18 52,24 56,24" fill="#ff9933" opacity="0.5" />
+    </>
+  ),
+  IZZ011: () => (
+    <>
+      <defs>{izzyGradients}</defs>
+      {izzyBg}
+      <circle cx="50" cy="35" r="12" fill="url(#navGrad)" opacity="0.3" />
+      <line x1="50" y1="23" x2="50" y2="47" stroke="#ff9933" strokeWidth="2" />
+      <line x1="38" y1="35" x2="62" y2="35" stroke="#ff9933" strokeWidth="2" />
+      <circle cx="50" cy="35" r="3" fill="#ffaa44" />
+      <polygon points="50,20 48,25 52,25" fill="#ff6600" />
+    </>
+  ),
+  IZZ012: () => (
+    <>
+      <defs>{izzyGradients}</defs>
+      {izzyBg}
+      <circle cx="50" cy="35" r="18" fill="url(#sparkleGrad)" opacity="0.2" />
+      <circle cx="50" cy="35" r="10" fill="url(#orangeGrad)" opacity="0.3" />
+      <polygon points="50,22 48,30 52,30" fill="#ff9933" opacity="0.6" />
+      <circle cx="50" cy="35" r="4" fill="#ffaa44" opacity="0.6" />
+    </>
+  ),
+  IZZ013: () => (
+    <>
+      <defs>{izzyGradients}</defs>
+      {izzyBg}
+      {knight(50, 48, '#cc6600', 1)}
+      {sword(64, 40, '#ff9933', '#cc5500', 0.7)}
+    </>
+  ),
+  IZZ014: () => (
+    <>
+      <defs>{izzyGradients}</defs>
+      {izzyBg}
+      {golem(50, 42, '#ff8800', 1)}
+      <polygon points="46,18 44,24 48,24" fill="#ff9933" />
+      <polygon points="54,18 52,24 56,24" fill="#ff9933" />
+      <circle cx="50" cy="10" r="4" fill="#ffaa44" opacity="0.4" />
+    </>
+  ),
+  IZZ015: () => (
+    <>
+      <defs>{izzyGradients}</defs>
+      {izzyBg}
+      {knight(50, 48, '#cc6600', 1.1)}
+      <circle cx="50" cy="15" r="8" fill="url(#sparkleGrad)" opacity="0.3" />
+      <polygon points="50,7 48,13 52,13" fill="#ffaa44" opacity="0.6" />
+    </>
+  ),
+  IZZ016: () => (
+    <>
+      <defs>{izzyGradients}</defs>
+      {izzyBg}
+      {humanoid(50, 48, '#cc6600', 1)}
+      <circle cx="50" cy="18" r="5" fill="url(#navGrad)" opacity="0.4" />
+      <line x1="50" y1="13" x2="50" y2="23" stroke="#ff9933" strokeWidth="1" />
+      <line x1="45" y1="18" x2="55" y2="18" stroke="#ff9933" strokeWidth="1" />
+    </>
+  ),
+  IZZ017: () => (
+    <>
+      <defs>{izzyGradients}</defs>
+      {izzyBg}
+      {golem(50, 42, '#ff8800', 1.1)}
+      <polygon points="46,16 44,22 48,22" fill="#ff9933" />
+      <polygon points="54,16 52,22 56,22" fill="#ff9933" />
+      {iceCrystal(50, 8, '#ffaa44', 0.4)}
+    </>
+  ),
+  IZZ018: () => (
+    <>
+      <defs>{izzyGradients}</defs>
+      {izzyBg}
+      <rect x="25" y="15" width="50" height="50" rx="5" fill="url(#orangeGrad)" opacity="0.2" />
+      {knight(50, 48, '#cc6600', 1.1)}
+      {shield(38, 42, 'url(#sparkleGrad)', 0.5)}
+    </>
+  ),
+  IZZ019: () => (
+    <>
+      <defs>{izzyGradients}</defs>
+      {izzyBg}
+      <ellipse cx="50" cy="35" rx="16" ry="12" fill="#ff8800" />
+      <circle cx="50" cy="25" r="9" fill="#cc6600" />
+      <polygon points="47,20 50,12 53,20" fill="#ff9933" />
+      <circle cx="48" cy="24" r="2" fill="#ffffff" />
+      <rect x="42" y="47" width="5" height="10" rx="2" fill="#cc5500" />
+      <rect x="53" y="47" width="5" height="10" rx="2" fill="#cc5500" />
+      <circle cx="50" cy="8" r="5" fill="#ffaa44" opacity="0.4" />
+    </>
+  ),
+  IZZ020: () => (
+    <>
+      <defs>{izzyGradients}</defs>
+      {izzyBg}
+      {humanoid(50, 46, '#ff8800', 1.2)}
+      <circle cx="50" cy="10" r="10" fill="url(#sparkleGrad)" opacity="0.4" />
+      <polygon points="50,0 47,8 53,8" fill="#ffaa44" opacity="0.7" />
+      <circle cx="30" cy="55" r="4" fill="#ff9933" opacity="0.3" />
+      <circle cx="70" cy="55" r="4" fill="#ff9933" opacity="0.3" />
+      <line x1="40" y1="10" x2="30" y2="55" stroke="#ff9933" strokeWidth="1" opacity="0.3" />
+      <line x1="60" y1="10" x2="70" y2="55" stroke="#ff9933" strokeWidth="1" opacity="0.3" />
+    </>
+  ),
+
+  // ==================== TOKENS ====================
+  AVA_TOKEN_01: () => (
+    <>
+      <defs>{avaGradients}</defs>
+      {avaBg}
+      <rect x="44" y="34" width="12" height="7" rx="3" fill="#ff69b4" />
+      <circle cx="50" cy="31" r="4" fill="#ff99cc" opacity="0.6" />
+    </>
+  ),
+  IZZ_TOKEN_01: () => (
+    <>
+      <defs>{izzyGradients}</defs>
+      {izzyBg}
+      {iceCrystal(50, 38, '#ff9933', 0.6)}
+      <circle cx="50" cy="38" r="3" fill="#ffaa44" opacity="0.5" />
     </>
   ),
 

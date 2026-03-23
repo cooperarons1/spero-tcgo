@@ -16,6 +16,11 @@ const HERO_CLASSES: { id: HeroClass; label: string; color: string; border: strin
   { id: 'TALA', label: 'Tala', color: 'bg-green-600', border: 'border-green-500' },
   { id: 'DEREK', label: 'Derek', color: 'bg-yellow-500', border: 'border-yellow-400' },
   { id: 'ANDERS', label: 'Anders', color: 'bg-blue-600', border: 'border-blue-500' },
+  { id: 'DES', label: 'Des', color: 'bg-purple-600', border: 'border-purple-500' },
+  { id: 'ASTRID', label: 'Astrid', color: 'bg-yellow-500', border: 'border-yellow-400' },
+  { id: 'AVA', label: 'Ava', color: 'bg-pink-600', border: 'border-pink-500' },
+  { id: 'LUCAS', label: 'Lucas', color: 'bg-teal-600', border: 'border-teal-500' },
+  { id: 'IZZY', label: 'Izzy', color: 'bg-orange-600', border: 'border-orange-500' },
 ];
 
 const HERO_COLOR_MAP: Record<string, string> = {
@@ -23,6 +28,11 @@ const HERO_COLOR_MAP: Record<string, string> = {
   TALA: 'border-l-green-500',
   DEREK: 'border-l-yellow-400',
   ANDERS: 'border-l-blue-500',
+  DES: 'border-l-purple-500',
+  ASTRID: 'border-l-yellow-400',
+  AVA: 'border-l-pink-500',
+  LUCAS: 'border-l-teal-500',
+  IZZY: 'border-l-orange-500',
   NEUTRAL: 'border-l-gray-500',
 };
 
@@ -31,6 +41,11 @@ const HERO_BG_MAP: Record<string, string> = {
   TALA: 'bg-green-500/10',
   DEREK: 'bg-yellow-500/10',
   ANDERS: 'bg-blue-500/10',
+  DES: 'bg-purple-500/10',
+  ASTRID: 'bg-yellow-500/10',
+  AVA: 'bg-pink-500/10',
+  LUCAS: 'bg-teal-500/10',
+  IZZY: 'bg-orange-500/10',
 };
 
 const allCards = cardData as CardDef[];

@@ -20,10 +20,16 @@ const HERO_COLORS: Record<string, { bg: string; border: string; text: string }> 
   TALA: { bg: 'bg-green-600/20', border: 'border-green-500', text: 'text-green-400' },
   DEREK: { bg: 'bg-yellow-500/20', border: 'border-yellow-400', text: 'text-yellow-400' },
   ANDERS: { bg: 'bg-blue-600/20', border: 'border-blue-500', text: 'text-blue-400' },
+  DES: { bg: 'bg-purple-600/20', border: 'border-purple-500', text: 'text-purple-400' },
+  ASTRID: { bg: 'bg-yellow-500/20', border: 'border-yellow-400', text: 'text-yellow-300' },
+  AVA: { bg: 'bg-pink-600/20', border: 'border-pink-500', text: 'text-pink-400' },
+  LUCAS: { bg: 'bg-teal-600/20', border: 'border-teal-500', text: 'text-teal-400' },
+  IZZY: { bg: 'bg-orange-600/20', border: 'border-orange-500', text: 'text-orange-400' },
 };
 
 const HERO_LABELS: Record<string, string> = {
   JIMMY: 'Jimmy', TALA: 'Tala', DEREK: 'Derek', ANDERS: 'Anders',
+  DES: 'Des', ASTRID: 'Astrid', AVA: 'Ava', LUCAS: 'Lucas', IZZY: 'Izzy',
 };
 
 const MANA_BUCKETS = [0, 1, 2, 3, 4, 5, 6, 7] as const;

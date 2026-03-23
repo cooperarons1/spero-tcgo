@@ -225,6 +225,69 @@ export function useHeroPower(
       addLog(game, pIdx as 0 | 1, `${player.playerName} uses Frost Bolt`, 'PLAY');
       break;
     }
+    case 'DES': {
+      // Dark Command: Deal 2 damage to a random enemy (no target needed)
+      player.mana -= HERO_POWER_COST;
+      player.heroPowerUsed = true;
+      game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
+      game.playerStats[pIdx as 0 | 1].heroPowerUses++;
+      executeEffect(game, pIdx as 0 | 1, { type: 'DEAL_DAMAGE_RANDOM_ENEMY', target: 'RANDOM_ENEMY', value: 2 });
+      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Dark Command`, 'PLAY');
+      break;
+    }
+    case 'ASTRID': {
+      // Mighty Guard: Give a friendly minion Divine Shield
+      const friendlyMinions = game.players[pIdx].board.filter(m => !m.hasDivineShield);
+      if (!targetId) {
+        if (friendlyMinions.length === 0) return { success: false, error: 'No valid friendly minions' };
+        return { success: false, needsTarget: true, validTargets: friendlyMinions.map(m => m.instanceId) };
+      }
+      // Validate target is a friendly minion
+      const isMyMinion = game.players[pIdx].board.some(m => m.instanceId === targetId);
+      if (!isMyMinion) return { success: false, error: 'Must target a friendly minion' };
+      player.mana -= HERO_POWER_COST;
+      player.heroPowerUsed = true;
+      game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
+      game.playerStats[pIdx as 0 | 1].heroPowerUses++;
+      executeEffect(game, pIdx as 0 | 1, { type: 'GRANT_KEYWORD', target: 'TARGET_FRIENDLY_MINION', grantKeyword: 'DIVINE_SHIELD' }, targetId);
+      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Mighty Guard`, 'PLAY');
+      break;
+    }
+    case 'AVA': {
+      // Deploy Drone: Summon a 1/1 Gadget Drone (no target needed)
+      if (player.board.length >= MAX_BOARD_SIZE) return { success: false, error: 'Board is full' };
+      player.mana -= HERO_POWER_COST;
+      player.heroPowerUsed = true;
+      game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
+      game.playerStats[pIdx as 0 | 1].heroPowerUses++;
+      executeEffect(game, pIdx as 0 | 1, { type: 'SUMMON_MINION', target: 'NONE', summonCardCode: 'AVA_TOKEN_01' });
+      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Deploy Drone`, 'PLAY');
+      break;
+    }
+    case 'LUCAS': {
+      // Coyote Trick: Return a random enemy minion to its owner's hand
+      const oppBoard = game.players[oppIdx].board;
+      if (oppBoard.length === 0) return { success: false, error: 'No enemy minions to bounce' };
+      player.mana -= HERO_POWER_COST;
+      player.heroPowerUsed = true;
+      game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
+      game.playerStats[pIdx as 0 | 1].heroPowerUses++;
+      // Pick a random enemy minion and bounce it
+      const randomMinion = oppBoard[Math.floor(Math.random() * oppBoard.length)];
+      executeEffect(game, pIdx as 0 | 1, { type: 'RETURN_TO_HAND', target: 'TARGET_ENEMY_MINION' }, randomMinion.instanceId);
+      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Coyote Trick`, 'PLAY');
+      break;
+    }
+    case 'IZZY': {
+      // Chart Course: Gain 2 Armor (no target needed)
+      player.mana -= HERO_POWER_COST;
+      player.heroPowerUsed = true;
+      game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
+      game.playerStats[pIdx as 0 | 1].heroPowerUses++;
+      executeEffect(game, pIdx as 0 | 1, { type: 'GAIN_ARMOR', target: 'NONE', value: 2 });
+      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Chart Course`, 'PLAY');
+      break;
+    }
     default:
       return { success: false, error: 'Unknown hero class' };
   }

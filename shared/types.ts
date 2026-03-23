@@ -2,7 +2,7 @@
 
 export type CardType = 'MINION' | 'SPELL' | 'WEAPON';
 export type CardRarity = 'COMMON' | 'RARE' | 'EPIC' | 'LEGENDARY';
-export type HeroClass = 'DEREK' | 'TALA' | 'JIMMY' | 'ANDERS' | 'NEUTRAL';
+export type HeroClass = 'DEREK' | 'TALA' | 'JIMMY' | 'ANDERS' | 'DES' | 'ASTRID' | 'AVA' | 'LUCAS' | 'IZZY' | 'NEUTRAL';
 
 export type Keyword =
   | 'TAUNT'

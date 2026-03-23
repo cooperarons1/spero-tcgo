@@ -1,4 +1,4 @@
-import type { GameState, BoardMinion, PlayerState, CardDef } from '../shared/types.js';
+import type { GameState, BoardMinion, PlayerState, CardDef, HeroClass } from '../shared/types.js';
 import { getCardDef } from './cards.js';
 import { playCard, useHeroPower } from './actions.js';
 import { attack } from './combat.js';
@@ -174,9 +174,46 @@ function executeAITurn(
           hpTarget = pickBiggestMinion(opp.board);
         }
         break;
+      case 'DES':
+        // Dark Command: random 2 damage (no target needed)
+        hpTarget = null;
+        break;
+      case 'ASTRID':
+        // Mighty Guard: give Divine Shield to biggest friendly minion without it
+        {
+          const candidates = me.board.filter(m => !m.hasDivineShield);
+          if (candidates.length > 0) {
+            hpTarget = pickBiggestMinion(candidates);
+          }
+        }
+        break;
+      case 'AVA':
+        // Deploy Drone: summon 1/1 (no target needed, only if board not full)
+        if (me.board.length < 7) {
+          hpTarget = null;
+        } else {
+          hpTarget = undefined as any; // skip
+        }
+        break;
+      case 'LUCAS':
+        // Coyote Trick: random bounce (no target, only use if enemy has minions)
+        if (opp.board.length > 0) {
+          hpTarget = null;
+        }
+        break;
+      case 'IZZY':
+        // Chart Course: gain 2 armor (no target needed)
+        hpTarget = null;
+        break;
     }
 
-    useHeroPower(game, aiPlayerId, hpTarget);
+    // Use hero power if we have a target or class doesn't need one
+    const noTargetNeeded = ['DEREK', 'DES', 'IZZY'].includes(me.heroClass) ||
+      (me.heroClass === 'AVA' && me.board.length < 7) ||
+      (me.heroClass === 'LUCAS' && opp.board.length > 0);
+    if (hpTarget || noTargetNeeded) {
+      useHeroPower(game, aiPlayerId, hpTarget);
+    }
     broadcast();
   }
 

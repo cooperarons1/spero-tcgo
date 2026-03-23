@@ -48,6 +48,11 @@ function inferHeroClass(cards: string[]): HeroClass {
     if (code.startsWith('TAL')) return 'TALA';
     if (code.startsWith('DRK')) return 'DEREK';
     if (code.startsWith('AND')) return 'ANDERS';
+    if (code.startsWith('DES')) return 'DES';
+    if (code.startsWith('AST')) return 'ASTRID';
+    if (code.startsWith('AVA')) return 'AVA';
+    if (code.startsWith('LUC')) return 'LUCAS';
+    if (code.startsWith('IZZ')) return 'IZZY';
   }
   return 'JIMMY'; // fallback
 }

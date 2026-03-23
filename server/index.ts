@@ -376,7 +376,7 @@ io.on('connection', (socket) => {
 
     const entries = [
       { id: uids[0], name: room.players.get(uids[0])!, heroClass: (d0?.heroClass ?? 'JIMMY') as HeroClass },
-      { id: uids[1], name: room.players.get(uids[1])!, heroClass: (d1?.heroClass ?? 'TALA') as HeroClass },
+      { id: uids[1], name: room.players.get(uids[1])!, heroClass: (d1?.heroClass ?? 'JIMMY') as HeroClass },
     ];
 
     room.game = createGame(entries, {
@@ -657,7 +657,7 @@ io.on('connection', (socket) => {
     const d1 = room.selectedDecks.get(uids[1]);
     const entries = [
       { id: uids[0], name: room.players.get(uids[0])!, heroClass: (d0?.heroClass ?? 'JIMMY') as HeroClass },
-      { id: uids[1], name: room.players.get(uids[1])!, heroClass: (d1?.heroClass ?? 'TALA') as HeroClass },
+      { id: uids[1], name: room.players.get(uids[1])!, heroClass: (d1?.heroClass ?? 'JIMMY') as HeroClass },
     ];
 
     room.game = createGame(entries, { deckLists: [d0?.cards ?? null, d1?.cards ?? null] });

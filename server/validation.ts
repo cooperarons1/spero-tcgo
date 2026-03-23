@@ -35,26 +35,26 @@ export const EmoteSchema = z.object({
 });
 
 export const SelectDeckSchema = z.object({
-  heroClass: z.enum(['DEREK', 'TALA', 'JIMMY', 'ANDERS']),
+  heroClass: z.enum(['DEREK', 'TALA', 'JIMMY', 'ANDERS', 'DES', 'ASTRID', 'AVA', 'LUCAS', 'IZZY']),
   deckCards: z.array(z.string()).nullable(),
 });
 
 export const DeckListSchema = z.object({
   id: z.string(),
   name: z.string().max(30),
-  heroClass: z.enum(['DEREK', 'TALA', 'JIMMY', 'ANDERS']),
+  heroClass: z.enum(['DEREK', 'TALA', 'JIMMY', 'ANDERS', 'DES', 'ASTRID', 'AVA', 'LUCAS', 'IZZY']),
   cards: z.array(z.string()),
   createdAt: z.number(),
   updatedAt: z.number(),
 });
 
 export const JoinQueueSchema = z.object({
-  heroClass: z.enum(['DEREK', 'TALA', 'JIMMY', 'ANDERS']),
+  heroClass: z.enum(['DEREK', 'TALA', 'JIMMY', 'ANDERS', 'DES', 'ASTRID', 'AVA', 'LUCAS', 'IZZY']),
   deckCards: z.array(z.string()).length(30),
 });
 
 export const StartAIGameSchema = z.object({
-  heroClass: z.enum(['DEREK', 'TALA', 'JIMMY', 'ANDERS']),
+  heroClass: z.enum(['DEREK', 'TALA', 'JIMMY', 'ANDERS', 'DES', 'ASTRID', 'AVA', 'LUCAS', 'IZZY']),
   deckCards: z.array(z.string()).length(30),
 });
 
@@ -92,13 +92,13 @@ export const SendChatSchema = z.object({
 
 export const ChallengeFriendSchema = z.object({
   friendUid: z.string().min(1).max(128),
-  heroClass: z.enum(['DEREK', 'TALA', 'JIMMY', 'ANDERS']),
+  heroClass: z.enum(['DEREK', 'TALA', 'JIMMY', 'ANDERS', 'DES', 'ASTRID', 'AVA', 'LUCAS', 'IZZY']),
   deckCards: z.array(z.string()).length(30),
 });
 
 export const ChallengeResponseSchema = z.object({
   challengeId: z.string().min(1).max(128),
   accept: z.boolean(),
-  heroClass: z.enum(['DEREK', 'TALA', 'JIMMY', 'ANDERS']).optional(),
+  heroClass: z.enum(['DEREK', 'TALA', 'JIMMY', 'ANDERS', 'DES', 'ASTRID', 'AVA', 'LUCAS', 'IZZY']).optional(),
   deckCards: z.array(z.string()).length(30).optional(),
 });

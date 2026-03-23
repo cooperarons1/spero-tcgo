@@ -29,6 +29,11 @@ const CLASS_COLORS: Record<HeroClass, string> = {
   TALA: '#22c55e',
   DEREK: '#eab308',
   ANDERS: '#3b82f6',
+  DES: '#a855f7',
+  ASTRID: '#f5c842',
+  AVA: '#ec4899',
+  LUCAS: '#14b8a6',
+  IZZY: '#f97316',
   NEUTRAL: '#9ca3af',
 };
 const CLASS_BORDER: Record<HeroClass, string> = {
@@ -36,6 +41,11 @@ const CLASS_BORDER: Record<HeroClass, string> = {
   TALA: 'border-green-500',
   DEREK: 'border-yellow-500',
   ANDERS: 'border-blue-500',
+  DES: 'border-purple-500',
+  ASTRID: 'border-yellow-400',
+  AVA: 'border-pink-500',
+  LUCAS: 'border-teal-500',
+  IZZY: 'border-orange-500',
   NEUTRAL: 'border-gray-400',
 };
 const CLASS_BG: Record<HeroClass, string> = {
@@ -43,6 +53,11 @@ const CLASS_BG: Record<HeroClass, string> = {
   TALA: 'bg-green-900/40',
   DEREK: 'bg-yellow-900/40',
   ANDERS: 'bg-blue-900/40',
+  DES: 'bg-purple-900/40',
+  ASTRID: 'bg-yellow-900/40',
+  AVA: 'bg-pink-900/40',
+  LUCAS: 'bg-teal-900/40',
+  IZZY: 'bg-orange-900/40',
   NEUTRAL: 'bg-gray-700/40',
 };
 

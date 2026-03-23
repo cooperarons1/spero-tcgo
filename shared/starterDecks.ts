@@ -92,6 +92,111 @@ const ANDERS_STARTER: string[] = [
   'NEU002', 'NEU002', // Squire 1 mana 1/2
 ];
 
+// Des — Dark Orra Aggro/Control (30 cards)
+const DES_STARTER: string[] = [
+  // Class cards (12)
+  'DES001', 'DES001', // 1 mana
+  'DES003', 'DES003', // 2 mana
+  'DES005', 'DES005', // 3 mana
+  'DES007', 'DES007', // 4 mana
+  'DES009', 'DES009', // 5 mana
+  'DES011', 'DES011', // 6 mana
+  // Neutral filler (18)
+  'NEU003', 'NEU003', // Scrappy Brawler 1 mana 2/1
+  'NEU005', 'NEU005', // Razor Raptor 2 mana 3/2
+  'NEU041', 'NEU041', // Treasure Scavenger 2 mana 2/1 DR draw
+  'NEU012', 'NEU012', // Shadowpaw Stalker 3 mana 4/2 Stealth
+  'NEU015', 'NEU015', // Summit Brute 4 mana 4/5
+  'NEU023', 'NEU023', // Duskfang Assassin 5 mana 4/4 BC 3 dmg hero
+  'NEU029', 'NEU029', // Reckless Rocketeer 6 mana 5/2 Charge
+  'NEU026', 'NEU026', // Stonefist Ogre 6 mana 6/7
+  'NEU043', 'NEU043', // Volatile Wretch 2 mana 1/3 Taunt DR 1 dmg all
+];
+
+// Astrid — Protector (30 cards)
+const ASTRID_STARTER: string[] = [
+  // Class cards (12)
+  'AST001', 'AST001', // 1 mana
+  'AST003', 'AST003', // 2 mana
+  'AST005', 'AST005', // 3 mana
+  'AST007', 'AST007', // 4 mana
+  'AST009', 'AST009', // 5 mana
+  'AST011', 'AST011', // 6 mana
+  // Neutral filler (18)
+  'NEU002', 'NEU002', // Eager Apprentice 1 mana 1/2
+  'NEU006', 'NEU006', // Blessed Recruit 2 mana 2/2 Divine Shield
+  'NEU010', 'NEU010', // Fernwood Protector 3 mana 2/4 Taunt
+  'NEU013', 'NEU013', // Gilded Templar 3 mana 3/1 Divine Shield
+  'NEU019', 'NEU019', // Prism Drake 4 mana 4/4 Divine Shield
+  'NEU021', 'NEU021', // Mirewalker Brute 5 mana 3/6 Taunt
+  'NEU027', 'NEU027', // Lightsworn Guardian 6 mana 4/5 Taunt DS
+  'NEU046', 'NEU046', // Wellspring Soothsayer 3 mana 3/3 BC heal
+  'NEU016', 'NEU016', // Shellback Tortoise 4 mana 2/7
+];
+
+// Ava — Tech Inventor (30 cards)
+const AVA_STARTER: string[] = [
+  // Class cards (12)
+  'AVA001', 'AVA001', // 1 mana
+  'AVA003', 'AVA003', // 2 mana
+  'AVA005', 'AVA005', // 3 mana
+  'AVA007', 'AVA007', // 4 mana
+  'AVA009', 'AVA009', // 5 mana
+  'AVA011', 'AVA011', // 6 mana
+  // Neutral filler (18)
+  'NEU003', 'NEU003', // Scrappy Brawler 1 mana 2/1
+  'NEU007', 'NEU007', // Novice Cartographer 2 mana 1/1 BC draw
+  'NEU011', 'NEU011', // Patchwork Golem 3 mana 2/3 DR summon 2/1
+  'NEU014', 'NEU014', // Tuskwood Handler 3 mana 2/3 BC summon 1/1
+  'NEU012', 'NEU012', // Shadowpaw Stalker 3 mana 4/2 Stealth
+  'NEU022', 'NEU022', // Gloomveil Predator 5 mana 5/5 Stealth
+  'NEU024', 'NEU024', // Cerulean Wyrm 5 mana 4/4 BC draw
+  'NEU015', 'NEU015', // Summit Brute 4 mana 4/5
+  'NEU047', 'NEU047', // Sworn Cavalier 5 mana 4/4 BC summon 2/2
+];
+
+// Lucas — Trickster (30 cards)
+const LUCAS_STARTER: string[] = [
+  // Class cards (12)
+  'LUC001', 'LUC001', // 1 mana
+  'LUC003', 'LUC003', // 2 mana
+  'LUC005', 'LUC005', // 3 mana
+  'LUC007', 'LUC007', // 4 mana
+  'LUC009', 'LUC009', // 5 mana
+  'LUC011', 'LUC011', // 6 mana
+  // Neutral filler (18)
+  'NEU003', 'NEU003', // Scrappy Brawler 1 mana 2/1
+  'NEU041', 'NEU041', // Treasure Scavenger 2 mana 2/1 DR draw
+  'NEU005', 'NEU005', // Razor Raptor 2 mana 3/2
+  'NEU012', 'NEU012', // Shadowpaw Stalker 3 mana 4/2 Stealth
+  'NEU009', 'NEU009', // Ironhide Patroller 3 mana 3/4
+  'NEU017', 'NEU017', // Frontline Charger 4 mana 2/5 Charge
+  'NEU022', 'NEU022', // Gloomveil Predator 5 mana 5/5 Stealth
+  'NEU029', 'NEU029', // Reckless Rocketeer 6 mana 5/2 Charge
+  'NEU026', 'NEU026', // Stonefist Ogre 6 mana 6/7
+];
+
+// Izzy — Navigator (30 cards)
+const IZZY_STARTER: string[] = [
+  // Class cards (12)
+  'IZZ001', 'IZZ001', // 1 mana
+  'IZZ003', 'IZZ003', // 2 mana
+  'IZZ005', 'IZZ005', // 3 mana
+  'IZZ007', 'IZZ007', // 4 mana
+  'IZZ009', 'IZZ009', // 5 mana
+  'IZZ011', 'IZZ011', // 6 mana
+  // Neutral filler (18)
+  'NEU002', 'NEU002', // Eager Apprentice 1 mana 1/2
+  'NEU004', 'NEU004', // Marsh Lurker 2 mana 2/3
+  'NEU011', 'NEU011', // Patchwork Golem 3 mana 2/3 DR summon 2/1
+  'NEU045', 'NEU045', // Bristleback Bear 3 mana 3/3 Taunt
+  'NEU015', 'NEU015', // Summit Brute 4 mana 4/5
+  'NEU021', 'NEU021', // Mirewalker Brute 5 mana 3/6 Taunt
+  'NEU026', 'NEU026', // Stonefist Ogre 6 mana 6/7
+  'NEU035', 'NEU035', // Ironclad Behemoth 8 mana 8/8
+  'NEU046', 'NEU046', // Wellspring Soothsayer 3 mana 3/3 BC heal
+];
+
 function validateStarterDeck(name: string, cards: string[]): string[] {
   if (cards.length !== 30) {
     throw new Error(`Starter deck "${name}" has ${cards.length} cards, expected 30`);
@@ -132,5 +237,35 @@ export const STARTER_DECKS: StarterDeckDef[] = [
     name: "Anders' Glacier",
     heroClass: 'ANDERS',
     cards: validateStarterDeck("Anders' Glacier", ANDERS_STARTER),
+  },
+  {
+    id: 'starter-des',
+    name: "Des' Shadow",
+    heroClass: 'DES',
+    cards: validateStarterDeck("Des' Shadow", DES_STARTER),
+  },
+  {
+    id: 'starter-astrid',
+    name: "Astrid's Bastion",
+    heroClass: 'ASTRID',
+    cards: validateStarterDeck("Astrid's Bastion", ASTRID_STARTER),
+  },
+  {
+    id: 'starter-ava',
+    name: "Ava's Laboratory",
+    heroClass: 'AVA',
+    cards: validateStarterDeck("Ava's Laboratory", AVA_STARTER),
+  },
+  {
+    id: 'starter-lucas',
+    name: "Lucas' Gambit",
+    heroClass: 'LUCAS',
+    cards: validateStarterDeck("Lucas' Gambit", LUCAS_STARTER),
+  },
+  {
+    id: 'starter-izzy',
+    name: "Izzy's Expedition",
+    heroClass: 'IZZY',
+    cards: validateStarterDeck("Izzy's Expedition", IZZY_STARTER),
   },
 ];

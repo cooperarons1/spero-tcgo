@@ -6,7 +6,7 @@ interface CardDef {
   name: string;
   manaCost: number;
   type: 'MINION' | 'SPELL' | 'WEAPON';
-  heroClass: 'DEREK' | 'TALA' | 'JIMMY' | 'ANDERS' | 'NEUTRAL';
+  heroClass: 'DEREK' | 'TALA' | 'JIMMY' | 'ANDERS' | 'DES' | 'ASTRID' | 'AVA' | 'LUCAS' | 'IZZY' | 'NEUTRAL';
   rarity: 'COMMON' | 'RARE' | 'EPIC' | 'LEGENDARY';
   attack: number;
   health: number;
@@ -113,6 +113,11 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
     TALA: 'bg-green-900/40',
     DEREK: 'bg-yellow-900/40',
     ANDERS: 'bg-blue-900/40',
+    DES: 'bg-purple-900/40',
+    ASTRID: 'bg-yellow-900/40',
+    AVA: 'bg-pink-900/40',
+    LUCAS: 'bg-teal-900/40',
+    IZZY: 'bg-orange-900/40',
     NEUTRAL: 'bg-gray-800/60',
   };
   const textBg = classTextBg[def.heroClass] || 'bg-gray-800/60';

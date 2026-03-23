@@ -118,15 +118,40 @@ for (let g = 0; g < gameCount; g++) {
       // Hero power
       if (!me.heroPowerUsed && me.mana >= 2) {
         let hpTarget: string | null = null;
-        if (me.heroClass === 'JIMMY') {
-          hpTarget = opp.board.length > 0 ? opp.board[0].instanceId : `hero-${oppIdx}`;
-        } else if (me.heroClass === 'TALA') {
-          hpTarget = me.health < me.maxHealth ? `hero-${pIdx}` : `hero-${pIdx}`;
-        } else if (me.heroClass === 'ANDERS') {
-          hpTarget = opp.board.length > 0 ? opp.board[0].instanceId : null;
+        let shouldUse = true;
+        switch (me.heroClass) {
+          case 'JIMMY':
+            hpTarget = opp.board.length > 0 ? opp.board[0].instanceId : `hero-${oppIdx}`;
+            break;
+          case 'TALA':
+            hpTarget = `hero-${pIdx}`;
+            break;
+          case 'DEREK':
+          case 'DES':
+          case 'IZZY':
+            hpTarget = null; // no target needed
+            break;
+          case 'ANDERS':
+            if (opp.board.length > 0) hpTarget = opp.board[0].instanceId;
+            else shouldUse = false;
+            break;
+          case 'ASTRID':
+            {
+              const candidates = me.board.filter(m => !m.hasDivineShield);
+              if (candidates.length > 0) hpTarget = candidates[0].instanceId;
+              else shouldUse = false;
+            }
+            break;
+          case 'AVA':
+            if (me.board.length < 7) hpTarget = null;
+            else shouldUse = false;
+            break;
+          case 'LUCAS':
+            if (opp.board.length > 0) hpTarget = null;
+            else shouldUse = false;
+            break;
         }
-        // Derek has no target needed
-        if (me.heroClass === 'DEREK' || hpTarget) {
+        if (shouldUse) {
           useHeroPower(game, me.playerId, hpTarget);
         }
       }
