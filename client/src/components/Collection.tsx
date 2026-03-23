@@ -366,8 +366,8 @@ export function Collection({ uid, onBack }: CollectionProps) {
           </div>
 
           {/* Card grid */}
-          <div className="flex-1 overflow-y-auto p-3">
-            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+          <div className="flex-1 overflow-y-auto p-2 bg-gradient-to-b from-board-bg via-board-surface/40 to-board-bg">
+            <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-1">
               {filteredCards.map(c => {
                 const count = editingCounts.get(c.cardCode) || 0;
                 const max = c.rarity === 'LEGENDARY' ? MAX_COPIES_LEGENDARY : MAX_COPIES_PER_CARD;

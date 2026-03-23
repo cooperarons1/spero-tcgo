@@ -136,12 +136,9 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
         ${className ?? ''}
       `}
     >
-      {/* Type-based frame accent at top */}
-      <div className={`absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b ${frameAccent} pointer-events-none`} />
-
       {/* Mana cost gem — top-left */}
       <div className={`
-        absolute ${small ? 'top-0.5 left-0.5 w-5 h-5 text-[10px]' : 'top-1 left-1 w-7 h-7 text-xs'}
+        absolute ${small ? 'top-0.5 left-0.5 w-5 h-5 text-[10px]' : 'top-0.5 left-0.5 w-7 h-7 text-xs'}
         rounded-full bg-gradient-to-br from-blue-400 to-blue-700
         border border-blue-300 shadow-md shadow-blue-500/50
         flex items-center justify-center font-extrabold text-white z-10
@@ -149,34 +146,40 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
         {def.manaCost}
       </div>
 
-      {/* Card art area */}
-      <div className={`${small ? 'h-[55px] mt-4' : 'h-[88px] mt-5'} mx-1 rounded overflow-hidden flex items-center justify-center shrink-0`}>
+      {/* Card art area — contained with border */}
+      <div className={`
+        ${small ? 'h-[58px] mt-2 mx-0.5' : 'h-[90px] mt-3 mx-1'}
+        rounded border border-gray-600/50 overflow-hidden
+        bg-gray-900/60 flex items-center justify-center shrink-0
+      `}>
         <CardArt cardCode={cardCode} className="w-full h-full" />
       </div>
 
-      {/* Card name */}
+      {/* Card name banner — distinct background */}
       <div className={`
-        ${small ? 'mx-0.5 px-0.5' : 'mx-1 px-1'}
-        text-center z-10 shrink-0 w-full overflow-hidden
+        ${small ? 'mx-0.5 px-1 py-px mt-0.5' : 'mx-1 px-1.5 py-0.5 mt-0.5'}
+        ${textBg} rounded-sm border-y border-gray-600/30
+        text-center z-10 shrink-0 overflow-hidden
       `}>
         <span className={`
           text-white font-bold leading-tight block truncate
-          ${small ? 'text-[6px]' : 'text-[8px]'}
+          ${small ? 'text-[6px]' : 'text-[9px]'}
           drop-shadow-md
         `}>
           {def.name}
         </span>
       </div>
 
-      {/* Card text */}
+      {/* Card text — separate boxed area */}
       {def.text ? (
         <div className={`
-          flex-1 ${small ? 'mx-0.5 px-0.5' : 'mx-1 mt-px px-1'}
+          flex-1 ${small ? 'mx-0.5 mt-0.5 px-0.5 py-px' : 'mx-1 mt-0.5 px-1 py-0.5'}
+          bg-black/25 rounded-sm
           flex items-start justify-center overflow-hidden min-h-0
         `}>
           <p className={`
             text-gray-300 text-center leading-tight
-            ${small ? 'text-[5px] line-clamp-2' : 'text-[6px] line-clamp-2'}
+            ${small ? 'text-[5px] line-clamp-2' : 'text-[6.5px] line-clamp-3'}
           `}>
             {def.text}
           </p>
@@ -189,7 +192,7 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
       {hasStats && (
         <div className={`
           flex justify-between items-end shrink-0
-          ${small ? 'px-0.5 pb-0.5' : 'px-1 pb-1'}
+          ${small ? 'px-0.5 pb-0.5 pt-0.5' : 'px-1 pb-1 pt-0.5'}
           z-10
         `}>
           {/* Attack */}
@@ -219,7 +222,7 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
       )}
 
       {/* Spell bottom spacer (no stats) */}
-      {isSpell && <div className={small ? 'h-2' : 'h-3'} />}
+      {isSpell && <div className={small ? 'h-1' : 'h-2'} />}
 
       {/* Selected glow overlay */}
       {selected && (
