@@ -2,20 +2,18 @@ import { useEffect, useRef } from 'react';
 import type { LogEntry, LogCategory } from '../../../shared/types';
 
 const categoryColors: Record<LogCategory, string> = {
-  BUILD: 'border-spero-green',
-  MISSION: 'border-spero-yellow',
+  PLAY: 'border-spero-green',
   COMBAT: 'border-spero-red',
-  AP: 'border-amber-400',
-  PHASE: 'border-spero-blue',
+  EFFECT: 'border-amber-400',
+  TURN: 'border-spero-blue',
   GAME: 'border-purple-400',
 };
 
 const categoryLabels: Record<LogCategory, string> = {
-  BUILD: 'BLD',
-  MISSION: 'MSN',
+  PLAY: 'PLY',
   COMBAT: 'CMB',
-  AP: 'AP',
-  PHASE: 'PHS',
+  EFFECT: 'EFF',
+  TURN: 'TRN',
   GAME: 'GM',
 };
 

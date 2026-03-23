@@ -9,47 +9,53 @@ export const JoinRoomSchema = z.object({
   name: z.string().min(1).max(15).regex(/^[a-zA-Z0-9 ]+$/),
 });
 
-export const BuildCardSchema = z.object({
+// ── Game Actions ──
+
+export const MulliganConfirmSchema = z.object({
+  replacements: z.array(z.boolean()),
+});
+
+export const PlayCardSchema = z.object({
   cardInstanceId: z.string(),
-  targetStackId: z.string().optional(),
-  faceDown: z.boolean().optional(),
+  position: z.number().int().min(0).max(6).optional(),
+  targetId: z.string().optional().nullable(),
 });
 
-export const SplitStackSchema = z.object({
-  stackId: z.string(),
-  cardInstanceIds: z.array(z.string()),
+export const AttackSchema = z.object({
+  attackerInstanceId: z.string(),
+  targetId: z.string(),
 });
 
-export const CombineStacksSchema = z.object({
-  stackId1: z.string(),
-  stackId2: z.string(),
+export const HeroPowerSchema = z.object({
+  targetId: z.string().optional().nullable(),
 });
 
-export const RestoreCardSchema = z.object({
-  stackId: z.string(),
-  cardInstanceId: z.string(),
+export const EmoteSchema = z.object({
+  emoteId: z.string().max(20),
 });
 
-export const StackTargetSchema = z.object({
-  stackId: z.string(),
+export const SelectDeckSchema = z.object({
+  heroClass: z.enum(['DEREK', 'TALA', 'JIMMY', 'ANDERS']),
+  deckCards: z.array(z.string()).nullable(),
 });
 
-export const PlayActionCardSchema = z.object({
-  cardInstanceId: z.string(),
-  stackId: z.string(),
+export const DeckListSchema = z.object({
+  id: z.string(),
+  name: z.string().max(30),
+  heroClass: z.enum(['DEREK', 'TALA', 'JIMMY', 'ANDERS']),
+  cards: z.array(z.string()),
+  createdAt: z.number(),
+  updatedAt: z.number(),
 });
 
-export const DuelSchema = z.object({
-  attackerStackId: z.string(),
-  targetStackId: z.string(),
+export const JoinQueueSchema = z.object({
+  heroClass: z.enum(['DEREK', 'TALA', 'JIMMY', 'ANDERS']),
+  deckCards: z.array(z.string()).length(30),
 });
 
-export const BlockDecisionSchema = z.object({
-  blockingStackId: z.string().nullable(),
-});
-
-export const PlayCombatTrickSchema = z.object({
-  cardInstanceId: z.string().nullable(),
+export const StartAIGameSchema = z.object({
+  heroClass: z.enum(['DEREK', 'TALA', 'JIMMY', 'ANDERS']),
+  deckCards: z.array(z.string()).length(30),
 });
 
 export const HoverHandSchema = z.object({
@@ -59,26 +65,6 @@ export const HoverHandSchema = z.object({
 export const ChooseTargetSchema = z.object({
   interactionId: z.string(),
   selectedTargetId: z.string().nullable(),
-});
-
-export const EmoteSchema = z.object({
-  emoteId: z.string().max(20),
-});
-
-export const SelectDeckSchema = z.object({
-  deckCards: z.array(z.string()).nullable(),
-});
-
-export const DeckListSchema = z.object({
-  id: z.string(),
-  name: z.string().max(30),
-  cards: z.array(z.string()),
-  createdAt: z.number(),
-  updatedAt: z.number(),
-});
-
-export const JoinQueueSchema = z.object({
-  deckCards: z.array(z.string()).length(60),
 });
 
 // ── Friends & Chat ──
@@ -106,15 +92,13 @@ export const SendChatSchema = z.object({
 
 export const ChallengeFriendSchema = z.object({
   friendUid: z.string().min(1).max(128),
-  deckCards: z.array(z.string()).length(60),
+  heroClass: z.enum(['DEREK', 'TALA', 'JIMMY', 'ANDERS']),
+  deckCards: z.array(z.string()).length(30),
 });
 
 export const ChallengeResponseSchema = z.object({
   challengeId: z.string().min(1).max(128),
   accept: z.boolean(),
-  deckCards: z.array(z.string()).length(60).optional(),
-});
-
-export const StartAIGameSchema = z.object({
-  deckCards: z.array(z.string()).length(60),
+  heroClass: z.enum(['DEREK', 'TALA', 'JIMMY', 'ANDERS']).optional(),
+  deckCards: z.array(z.string()).length(30).optional(),
 });

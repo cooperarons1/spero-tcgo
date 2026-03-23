@@ -1,278 +1,237 @@
-import type { GameState, CardInstance, Stack, PlayerZone } from '../shared/types.js';
+import type { GameState, PlayerState, BoardMinion, Weapon, EffectDef } from '../shared/types.js';
+import { MAX_BOARD_SIZE, MAX_HAND_SIZE, HERO_POWER_COST } from '../shared/types.js';
 import { getCardDef } from './cards.js';
-import { canBuildOnStack, defOf, stackColor, getStackGroup } from './rules.js';
-import { advancePhase, trackCardPlayed } from './game.js';
 import { addLog } from './log.js';
-import { handleOnPlay } from './abilities.js';
+import { createBoardMinion, checkDeaths } from './combat.js';
+import {
+  executeEffect,
+  executeEffects,
+  effectNeedsTarget,
+  effectsNeedTarget,
+  getEffectsTargetType,
+  getValidTargets,
+  checkHeroDeath,
+  drawCard,
+} from './effects.js';
+import { minionHasKeyword } from './keywords.js';
 
-let nextStackId = 1;
-
-export function resetStackCounter(): void {
-  nextStackId = 1;
-}
-
-function findPlayer(game: GameState, playerId: string): PlayerZone {
-  const p = game.players.find((z) => z.playerId === playerId);
-  if (!p) throw new Error(`Player ${playerId} not found`);
-  return p;
-}
-
-function removeFromHand(player: PlayerZone, instanceId: string): CardInstance {
-  const idx = player.hand.findIndex((c) => c.instanceId === instanceId);
-  if (idx === -1) throw new Error(`Card ${instanceId} not in hand`);
-  return player.hand.splice(idx, 1)[0];
-}
-
-/** Play a card from hand to a stack (or create new stack). Uses 1 build. */
-export function buildCard(
+/** Play a card from hand */
+export function playCard(
   game: GameState,
   playerId: string,
   cardInstanceId: string,
-  targetStackId: string | null,
-  faceDown: boolean
-): { success: boolean; error?: string } {
-  if (game.turnPhase !== 'BUILD') return { success: false, error: 'Not in build phase' };
-  if (game.buildsRemaining <= 0) return { success: false, error: 'No builds remaining' };
-  if (game.players[game.currentPlayerIndex].playerId !== playerId) {
-    return { success: false, error: 'Not your turn' };
-  }
+  position?: number,
+  targetId?: string | null
+): { success: boolean; error?: string; needsTarget?: boolean; validTargets?: string[] } {
+  if (game.phase !== 'PLAYING') return { success: false, error: 'Game not in playing phase' };
+  if (game.winner) return { success: false, error: 'Game is over' };
 
-  const player = findPlayer(game, playerId);
-  const card = player.hand.find((c) => c.instanceId === cardInstanceId);
-  if (!card) return { success: false, error: 'Card not in hand' };
+  const pIdx = game.players.findIndex(p => p.playerId === playerId);
+  if (pIdx === -1) return { success: false, error: 'Player not in game' };
+  if (pIdx !== game.currentPlayerIndex) return { success: false, error: 'Not your turn' };
 
-  const cardDef = getCardDef(card.cardCode);
+  const player = game.players[pIdx] as PlayerState;
+  const cardIdx = player.hand.findIndex(c => c.instanceId === cardInstanceId);
+  if (cardIdx === -1) return { success: false, error: 'Card not in hand' };
 
-  // Enforce colorless-only builds (Cargo Ship extra builds)
-  if (game.colorlessOnlyBuilds > 0 && game.buildsRemaining <= game.colorlessOnlyBuilds) {
-    if (cardDef.color !== 'none') {
-      return { success: false, error: 'Remaining builds can only be used on colorless cards' };
-    }
-  }
+  const cardInst = player.hand[cardIdx];
+  const def = getCardDef(cardInst.cardCode);
 
-  if (faceDown) {
-    // Playing face-down: any card can go face-down on any stack or start a new one
-    const removed = removeFromHand(player, cardInstanceId);
-    removed.faceUp = false;
+  // Check mana
+  if (def.manaCost > player.mana) return { success: false, error: 'Not enough mana' };
 
-    if (targetStackId) {
-      const stack = player.stacks.find((s) => s.stackId === targetStackId);
-      if (!stack) return { success: false, error: 'Stack not found' };
-      stack.cards.push(removed);
-    } else {
-      player.stacks.push({
-        stackId: `stack-${nextStackId++}`,
-        cards: [removed],
-        tapped: false,
-        ownerId: playerId,
-        createdOnTurn: game.turnNumber,
-      });
+  // Type-specific logic
+  if (def.type === 'MINION') {
+    if (player.board.length >= MAX_BOARD_SIZE) return { success: false, error: 'Board is full (max 7)' };
+
+    // Check if battlecry needs a target (plural effects take priority)
+    const bcEffects = def.battlecryEffects ?? (def.battlecryEffect ? [def.battlecryEffect] : []);
+    if (def.keywords.includes('BATTLECRY') && bcEffects.length > 0 && effectsNeedTarget(bcEffects)) {
+      const targetType = getEffectsTargetType(bcEffects);
+      const targets = getValidTargets(game, pIdx as 0 | 1, targetType);
+      if (targets.length > 0 && !targetId) {
+        return { success: false, needsTarget: true, validTargets: targets };
+      }
     }
 
-    game.buildsRemaining--;
-    if (game.colorlessOnlyBuilds > 0) game.colorlessOnlyBuilds--;
-    game.lastAction = `${player.playerName} played a card face-down`;
-    const pIdx = game.players.indexOf(player) as 0 | 1;
-    addLog(game, pIdx, `${player.playerName} played a card face-down`, 'BUILD');
-    game.playerStats[pIdx].cardsPlayed++;
-    game.playerStats[pIdx].buildsUsed++;
-    game.playerStats[pIdx].buildsFaceDown++;
-    trackCardPlayed(game, removed.cardCode);
-    if (game.buildsRemaining <= 0) advancePhase(game);
-    return { success: true };
+    // Deduct mana
+    player.mana -= def.manaCost;
+    game.playerStats[pIdx as 0 | 1].manaSpent += def.manaCost;
+
+    // Remove from hand
+    player.hand.splice(cardIdx, 1);
+
+    // Create minion and place on board
+    const minion = createBoardMinion(cardInst.cardCode);
+    const pos = position ?? player.board.length;
+    player.board.splice(Math.min(pos, player.board.length), 0, minion);
+
+    addLog(game, pIdx as 0 | 1, `${player.playerName} plays ${def.name}`, 'PLAY');
+    game.playerStats[pIdx as 0 | 1].minionsPlayed++;
+
+    // Trigger Battlecry (plural effects take priority)
+    if (def.keywords.includes('BATTLECRY') && bcEffects.length > 0) {
+      addLog(game, pIdx as 0 | 1, `${def.name}'s Battlecry!`, 'EFFECT');
+      executeEffects(game, pIdx as 0 | 1, bcEffects, targetId);
+    }
+
+  } else if (def.type === 'SPELL') {
+    // Check if spell needs a target (plural effects take priority)
+    const spEffects = def.spellEffects ?? (def.spellEffect ? [def.spellEffect] : []);
+    if (spEffects.length > 0 && effectsNeedTarget(spEffects)) {
+      const targetType = getEffectsTargetType(spEffects);
+      const targets = getValidTargets(game, pIdx as 0 | 1, targetType);
+      if (targets.length > 0 && !targetId) {
+        return { success: false, needsTarget: true, validTargets: targets };
+      }
+      if (targets.length === 0) {
+        return { success: false, error: 'No valid targets for this spell' };
+      }
+    }
+
+    // Deduct mana
+    player.mana -= def.manaCost;
+    game.playerStats[pIdx as 0 | 1].manaSpent += def.manaCost;
+
+    // Remove from hand
+    player.hand.splice(cardIdx, 1);
+
+    addLog(game, pIdx as 0 | 1, `${player.playerName} casts ${def.name}`, 'PLAY');
+    game.playerStats[pIdx as 0 | 1].spellsCast++;
+
+    // Execute spell effects (plural takes priority)
+    if (spEffects.length > 0) {
+      executeEffects(game, pIdx as 0 | 1, spEffects, targetId);
+    }
+
+    // Spell goes to graveyard
+    player.graveyard.push(cardInst);
+
+  } else if (def.type === 'WEAPON') {
+    // Deduct mana
+    player.mana -= def.manaCost;
+    game.playerStats[pIdx as 0 | 1].manaSpent += def.manaCost;
+
+    // Remove from hand
+    player.hand.splice(cardIdx, 1);
+
+    // Destroy existing weapon
+    if (player.weapon) {
+      addLog(game, pIdx as 0 | 1, `${player.playerName}'s old weapon is destroyed`, 'PLAY');
+    }
+
+    // Equip new weapon
+    player.weapon = {
+      cardCode: cardInst.cardCode,
+      currentAttack: def.attack,
+      durability: def.health,
+    };
+
+    addLog(game, pIdx as 0 | 1, `${player.playerName} equips ${def.name}`, 'PLAY');
+    game.playerStats[pIdx as 0 | 1].weaponsEquipped++;
   }
 
-  // Face-up play: validate
-  let targetStack: Stack | null = null;
-  if (targetStackId) {
-    targetStack = player.stacks.find((s) => s.stackId === targetStackId) ?? null;
-    if (!targetStack) return { success: false, error: 'Stack not found' };
-  }
+  game.lastAction = `${player.playerName} plays ${def.name}.`;
 
-  const check = canBuildOnStack(cardDef, targetStack, player);
-  if (!check.ok) return { success: false, error: check.reason };
+  checkDeaths(game);
+  checkHeroDeath(game);
 
-  const removed = removeFromHand(player, cardInstanceId);
-  removed.faceUp = true;
-
-  if (targetStack) {
-    targetStack.cards.push(removed);
-  } else {
-    player.stacks.push({
-      stackId: `stack-${nextStackId++}`,
-      cards: [removed],
-      tapped: false,
-      ownerId: playerId,
-      createdOnTurn: game.turnNumber,
-    });
-  }
-
-  game.buildsRemaining--;
-  if (game.colorlessOnlyBuilds > 0) game.colorlessOnlyBuilds--;
-  game.lastAction = `${player.playerName} played ${cardDef.name}`;
-  const pIdx2 = game.players.indexOf(player) as 0 | 1;
-  addLog(game, pIdx2, `${player.playerName} played ${cardDef.name}`, 'BUILD');
-  game.playerStats[pIdx2].cardsPlayed++;
-  game.playerStats[pIdx2].buildsUsed++;
-  trackCardPlayed(game, removed.cardCode);
-
-  // Handle on-play triggers for face-up cards
-  if (cardDef.rulesText) {
-    const stackId = targetStack ? targetStack.stackId : player.stacks[player.stacks.length - 1].stackId;
-    handleOnPlay(game, playerId, cardDef, stackId);
-  }
-
-  if (game.buildsRemaining <= 0) advancePhase(game);
   return { success: true };
 }
 
-/** Split cards from a stack into a new stack. Costs 1 build. */
-export function splitStack(
+/** Use hero power */
+export function useHeroPower(
   game: GameState,
   playerId: string,
-  stackId: string,
-  cardInstanceIds: string[]
-): { success: boolean; error?: string } {
-  if (game.turnPhase !== 'BUILD') return { success: false, error: 'Not in build phase' };
-  if (game.buildsRemaining <= 0) return { success: false, error: 'No builds remaining' };
+  targetId?: string | null
+): { success: boolean; error?: string; needsTarget?: boolean; validTargets?: string[] } {
+  if (game.phase !== 'PLAYING') return { success: false, error: 'Game not in playing phase' };
+  if (game.winner) return { success: false, error: 'Game is over' };
 
-  const player = findPlayer(game, playerId);
-  const stack = player.stacks.find((s) => s.stackId === stackId);
-  if (!stack) return { success: false, error: 'Stack not found' };
+  const pIdx = game.players.findIndex(p => p.playerId === playerId);
+  if (pIdx === -1) return { success: false, error: 'Player not in game' };
+  if (pIdx !== game.currentPlayerIndex) return { success: false, error: 'Not your turn' };
 
-  if (cardInstanceIds.length === 0 || cardInstanceIds.length >= stack.cards.length) {
-    return { success: false, error: 'Must split into two non-empty stacks' };
-  }
+  const player = game.players[pIdx] as PlayerState;
+  if (player.heroPowerUsed) return { success: false, error: 'Hero power already used this turn' };
+  if (player.mana < HERO_POWER_COST) return { success: false, error: 'Not enough mana' };
 
-  const splitCards: CardInstance[] = [];
-  const remainCards: CardInstance[] = [];
+  const oppIdx = (pIdx === 0 ? 1 : 0) as 0 | 1;
 
-  for (const c of stack.cards) {
-    if (cardInstanceIds.includes(c.instanceId)) {
-      splitCards.push(c);
-    } else {
-      remainCards.push(c);
+  switch (player.heroClass) {
+    case 'JIMMY': {
+      // Fireblast: Deal 2 damage to any target
+      if (!targetId) {
+        const targets = [
+          ...game.players[0].board.filter(m => !m.hasStealthUntilAttack).map(m => m.instanceId),
+          ...game.players[1].board.filter(m => !m.hasStealthUntilAttack).map(m => m.instanceId),
+          'hero-0', 'hero-1',
+        ];
+        return { success: false, needsTarget: true, validTargets: targets };
+      }
+      player.mana -= HERO_POWER_COST;
+      player.heroPowerUsed = true;
+      game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
+      game.playerStats[pIdx as 0 | 1].heroPowerUses++;
+      executeEffect(game, pIdx as 0 | 1, { type: 'DEAL_DAMAGE', target: 'TARGET_ANY', value: 2 }, targetId);
+      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Fireblast`, 'PLAY');
+      break;
     }
-  }
-
-  if (splitCards.length !== cardInstanceIds.length) {
-    return { success: false, error: 'Some cards not found in stack' };
-  }
-
-  stack.cards = remainCards;
-  player.stacks.push({
-    stackId: `stack-${nextStackId++}`,
-    cards: splitCards,
-    tapped: stack.tapped, // inherits tapped state
-    ownerId: playerId,
-    createdOnTurn: game.turnNumber,
-  });
-
-  game.buildsRemaining--;
-  game.lastAction = `${player.playerName} split a stack`;
-  addLog(game, game.players.indexOf(player) as 0 | 1, `${player.playerName} split a stack`, 'BUILD');
-  if (game.buildsRemaining <= 0) advancePhase(game);
-  return { success: true };
-}
-
-/** Combine two stacks. Costs 1 build. */
-export function combineStacks(
-  game: GameState,
-  playerId: string,
-  stackId1: string,
-  stackId2: string
-): { success: boolean; error?: string } {
-  if (game.turnPhase !== 'BUILD') return { success: false, error: 'Not in build phase' };
-  if (game.buildsRemaining <= 0) return { success: false, error: 'No builds remaining' };
-
-  const player = findPlayer(game, playerId);
-  const s1 = player.stacks.find((s) => s.stackId === stackId1);
-  const s2 = player.stacks.find((s) => s.stackId === stackId2);
-  if (!s1 || !s2) return { success: false, error: 'Stack not found' };
-  if (s1 === s2) return { success: false, error: 'Cannot combine a stack with itself' };
-
-  // Check no duplicate names
-  const names1 = s1.cards.filter((c) => c.faceUp).map((c) => defOf(c).name);
-  const names2 = s2.cards.filter((c) => c.faceUp).map((c) => defOf(c).name);
-  for (const n of names2) {
-    if (names1.includes(n)) {
-      return { success: false, error: `Duplicate card name: ${n}` };
+    case 'TALA': {
+      // Nature's Touch: Restore 2 health to any target
+      if (!targetId) {
+        const targets = [
+          ...game.players[0].board.map(m => m.instanceId),
+          ...game.players[1].board.map(m => m.instanceId),
+          'hero-0', 'hero-1',
+        ];
+        return { success: false, needsTarget: true, validTargets: targets };
+      }
+      player.mana -= HERO_POWER_COST;
+      player.heroPowerUsed = true;
+      game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
+      game.playerStats[pIdx as 0 | 1].heroPowerUses++;
+      executeEffect(game, pIdx as 0 | 1, { type: 'RESTORE_HEALTH', target: 'TARGET_ANY', value: 2 }, targetId);
+      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Nature's Touch`, 'PLAY');
+      break;
     }
-  }
-
-  // Merge s2 into s1
-  s1.cards.push(...s2.cards);
-  if (s1.tapped || s2.tapped) s1.tapped = true;
-  player.stacks = player.stacks.filter((s) => s.stackId !== stackId2);
-
-  game.buildsRemaining--;
-  game.lastAction = `${player.playerName} combined stacks`;
-  addLog(game, game.players.indexOf(player) as 0 | 1, `${player.playerName} combined stacks`, 'BUILD');
-  if (game.buildsRemaining <= 0) advancePhase(game);
-  return { success: true };
-}
-
-/** Restore: flip a face-down card face-up. Costs 1 build. */
-export function restoreCard(
-  game: GameState,
-  playerId: string,
-  stackId: string,
-  cardInstanceId: string
-): { success: boolean; error?: string } {
-  if (game.turnPhase !== 'BUILD') return { success: false, error: 'Not in build phase' };
-  if (game.buildsRemaining <= 0) return { success: false, error: 'No builds remaining' };
-
-  const player = findPlayer(game, playerId);
-  const stack = player.stacks.find((s) => s.stackId === stackId);
-  if (!stack) return { success: false, error: 'Stack not found' };
-
-  const card = stack.cards.find((c) => c.instanceId === cardInstanceId);
-  if (!card) return { success: false, error: 'Card not found in stack' };
-  if (card.faceUp) return { success: false, error: 'Card is already face-up' };
-
-  const cardDef = getCardDef(card.cardCode);
-
-  // Check cost requirement for restore
-  const totalSize = stack.cards.length;
-  if (totalSize < cardDef.cost) {
-    return { success: false, error: `Stack size ${totalSize} < card cost ${cardDef.cost}` };
-  }
-
-  // Check color compatibility
-  if (cardDef.color !== 'none') {
-    const sColor = stackColor(stack);
-    if (sColor !== 'none' && sColor !== cardDef.color) {
-      return { success: false, error: `Card color doesn't match stack` };
+    case 'DEREK': {
+      // Tinker: Draw a card (no target needed)
+      player.mana -= HERO_POWER_COST;
+      player.heroPowerUsed = true;
+      game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
+      game.playerStats[pIdx as 0 | 1].heroPowerUses++;
+      drawCard(game, pIdx as 0 | 1);
+      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Tinker — draws a card`, 'PLAY');
+      break;
     }
-  }
-
-  // Check stackGroup for characters
-  if (cardDef.typeA === 'CHARACTER' && cardDef.stackGroup) {
-    const existingGroup = getStackGroup(stack);
-    if (existingGroup && existingGroup !== cardDef.stackGroup) {
-      return { success: false, error: `Character doesn't belong to this stack group` };
+    case 'ANDERS': {
+      // Frost Bolt: Deal 1 damage to a minion and Freeze it
+      const allMinions = [
+        ...game.players[0].board.filter(m => !m.hasStealthUntilAttack).map(m => m.instanceId),
+        ...game.players[1].board.filter(m => !m.hasStealthUntilAttack).map(m => m.instanceId),
+      ];
+      if (!targetId) {
+        if (allMinions.length === 0) return { success: false, error: 'No minions to target' };
+        return { success: false, needsTarget: true, validTargets: allMinions };
+      }
+      if (targetId.startsWith('hero-')) return { success: false, error: 'Must target a minion' };
+      player.mana -= HERO_POWER_COST;
+      player.heroPowerUsed = true;
+      game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
+      game.playerStats[pIdx as 0 | 1].heroPowerUses++;
+      executeEffect(game, pIdx as 0 | 1, { type: 'DEAL_DAMAGE', target: 'TARGET_MINION', value: 1 }, targetId);
+      executeEffect(game, pIdx as 0 | 1, { type: 'FREEZE_TARGET', target: 'TARGET_MINION' }, targetId);
+      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Frost Bolt`, 'PLAY');
+      break;
     }
+    default:
+      return { success: false, error: 'Unknown hero class' };
   }
 
-  // Check duplicate names
-  const hasDupe = stack.cards.some(
-    (c) => c.faceUp && c.instanceId !== cardInstanceId && defOf(c).name === cardDef.name
-  );
-  if (hasDupe) {
-    return { success: false, error: 'Duplicate card name in stack' };
-  }
+  game.lastAction = `${player.playerName} uses hero power.`;
+  checkDeaths(game);
+  checkHeroDeath(game);
 
-  card.faceUp = true;
-  game.buildsRemaining--;
-  const pIdx = game.players.indexOf(player) as 0 | 1;
-  game.lastAction = `${player.playerName} restored ${cardDef.name}`;
-  addLog(game, pIdx, `${player.playerName} restored ${cardDef.name}`, 'BUILD');
-
-  // Re-trigger on-play effects when restored
-  if (cardDef.rulesText) {
-    handleOnPlay(game, playerId, cardDef, stackId);
-  }
-
-  if (game.buildsRemaining <= 0) advancePhase(game);
   return { success: true };
 }

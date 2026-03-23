@@ -4,16 +4,15 @@ import type { ClientGameState, LobbyState } from '../../shared/types';
 import { useAuth } from './hooks/useAuth';
 import { AuthScreen } from './components/AuthScreen';
 import { Lobby } from './components/Lobby';
-import { GameBoard } from './components/GameBoard';
+import GameBoard from './components/GameBoard';
 import { GameIntro } from './components/GameIntro';
-import { DeckBuilder } from './components/DeckBuilder';
-import { DeckCollection } from './components/DeckCollection';
+import { Collection } from './components/Collection';
+import { DeckPicker } from './components/DeckPicker';
 import { MatchHistory } from './components/MatchHistory';
 import { Friends } from './components/Friends';
-import { PlayAI } from './components/PlayAI';
 import { ReconnectionOverlay } from './components/ReconnectionOverlay';
 
-type View = 'lobby' | 'game' | 'deckbuilder' | 'deckcollection' | 'matchhistory' | 'friends' | 'play-ai';
+type View = 'lobby' | 'game' | 'collection' | 'deckpicker' | 'deckpicker-ai' | 'matchhistory' | 'friends';
 type RematchState = 'default' | 'proposed' | 'received' | 'declined';
 type ConnectionStatus = 'connected' | 'disconnected' | 'opponent-disconnected';
 
@@ -29,7 +28,6 @@ function App() {
   const [rematchState, setRematchState] = useState<RematchState>('default');
   const introShownRef = useRef(false);
   const matchSavedRef = useRef(false);
-  const [editingDeck, setEditingDeck] = useState<any>(null);
   const [incomingChallenge, setIncomingChallenge] = useState<{ challengeId: string; fromUid: string; fromName: string } | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('connected');
 
@@ -51,7 +49,6 @@ function App() {
 
     const onConnect = () => {
       setConnectionStatus('connected');
-      // Auto-rejoin room if we have one stored
       const savedRoom = sessionStorage.getItem('spero-room-code');
       if (savedRoom) {
         socket.emit('rejoin-room', { roomCode: savedRoom });
@@ -108,7 +105,6 @@ function App() {
         setShowIntro(true);
       }
 
-      // Server writes match history now — no client-side saveMatch
       if (state.winner && !matchSavedRef.current) {
         matchSavedRef.current = true;
       }
@@ -207,7 +203,7 @@ function App() {
             opponentHovering={opponentHovering}
             opponentEmote={opponentEmote}
             rematchState={rematchState}
-            onRematchStateChange={setRematchState}
+            onRematchStateChange={(s: string) => setRematchState(s as RematchState)}
             onLeaveGame={() => { setGameState(null); setView('lobby'); sessionStorage.removeItem('spero-room-code'); }}
             uid={user.uid}
           />
@@ -220,33 +216,36 @@ function App() {
             />
           )}
         </>
-      ) : view === 'deckbuilder' ? (
-        <DeckBuilder
-          deck={editingDeck}
+      ) : view === 'collection' ? (
+        <Collection
           uid={user.uid}
-          onBack={() => { setEditingDeck(null); setView('deckcollection'); }}
+          onBack={() => setView('lobby')}
         />
-      ) : view === 'deckcollection' ? (
-        <DeckCollection
+      ) : view === 'deckpicker' ? (
+        <DeckPicker
+          mode="online"
           uid={user.uid}
-          onEditDeck={(deck) => { setEditingDeck(deck); setView('deckbuilder'); }}
-          onNewDeck={() => { setEditingDeck(null); setView('deckbuilder'); }}
+          onBack={() => setView('lobby')}
+        />
+      ) : view === 'deckpicker-ai' ? (
+        <DeckPicker
+          mode="ai"
+          uid={user.uid}
           onBack={() => setView('lobby')}
         />
       ) : view === 'matchhistory' ? (
         <MatchHistory uid={user.uid} onBack={() => setView('lobby')} />
       ) : view === 'friends' ? (
         <Friends uid={user.uid} onBack={() => setView('lobby')} incomingChallenge={incomingChallenge} onChallengeHandled={() => setIncomingChallenge(null)} />
-      ) : view === 'play-ai' ? (
-        <PlayAI uid={user.uid} onBack={() => setView('lobby')} />
       ) : (
         <Lobby
           lobby={lobby}
           user={user}
-          onDeckCollection={() => setView('deckcollection')}
+          onCollection={() => setView('collection')}
           onMatchHistory={() => setView('matchhistory')}
           onFriends={() => setView('friends')}
-          onPlayAI={() => setView('play-ai')}
+          onPlayOnline={() => setView('deckpicker')}
+          onPlayAI={() => setView('deckpicker-ai')}
           onSignOut={signOut}
         />
       )}

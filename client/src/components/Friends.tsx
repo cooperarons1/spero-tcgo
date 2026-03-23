@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { socket } from '../socket';
 import type { FriendRecord, FriendRequest, ChatMessage } from '../../../shared/types';
-import { DeckSelector } from './DeckSelector';
+import { loadDecks, type DeckList } from '../utils/deckStorage';
+import { DECK_SIZE } from '../../../shared/deckRules';
+import type { HeroClass } from '../../../shared/types';
 
 interface FriendsProps {
   uid: string;
@@ -27,7 +29,8 @@ export function Friends({ uid, onBack, incomingChallenge, onChallengeHandled }: 
   const [chatWith, setChatWith] = useState<FriendRecord | null>(null);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState('');
-  const [challengeDeck, setChallengeDeck] = useState<string[] | null>(null);
+  const [challengeDeck, setChallengeDeck] = useState<{ heroClass: HeroClass; cards: string[] } | null>(null);
+  const [challengeDecks, setChallengeDecks] = useState<DeckList[]>([]);
   const [challengeTarget, setChallengeTarget] = useState<string | null>(null);
   const [pendingChallenge, setPendingChallenge] = useState<{ challengeId: string; fromUid: string; fromName: string } | null>(null);
   const [sentChallenge, setSentChallenge] = useState<string | null>(null);
@@ -149,35 +152,43 @@ export function Friends({ uid, onBack, incomingChallenge, onChallengeHandled }: 
 
   const handleChallenge = (friendUid: string) => {
     setChallengeTarget(friendUid);
+    loadDecks(uid).then(d => setChallengeDecks(d.filter(dk => dk.cards.length === DECK_SIZE)));
+  };
+
+  const handleSelectChallengeDeck = (deck: DeckList) => {
+    setChallengeDeck({ heroClass: deck.heroClass, cards: deck.cards });
   };
 
   const handleConfirmChallenge = () => {
-    if (!challengeTarget || !challengeDeck || challengeDeck.length !== 60) return;
-    socket.emit('challenge-friend', { friendUid: challengeTarget, deckCards: challengeDeck });
+    if (!challengeTarget || !challengeDeck) return;
+    socket.emit('challenge-friend', { friendUid: challengeTarget, heroClass: challengeDeck.heroClass, deckCards: challengeDeck.cards });
     setSentChallenge(challengeTarget);
     setChallengeTarget(null);
   };
 
   const handleRespondChallenge = (accept: boolean) => {
     if (!pendingChallenge) return;
-    if (accept && (!challengeDeck || challengeDeck.length !== 60)) {
+    if (accept && !challengeDeck) {
       setChallengeTarget('responding');
+      loadDecks(uid).then(d => setChallengeDecks(d.filter(dk => dk.cards.length === DECK_SIZE)));
       return;
     }
     socket.emit('respond-challenge', {
       challengeId: pendingChallenge.challengeId,
       accept,
-      deckCards: accept ? challengeDeck : undefined,
+      heroClass: accept ? challengeDeck?.heroClass : undefined,
+      deckCards: accept ? challengeDeck?.cards : undefined,
     });
     if (!accept) setPendingChallenge(null);
   };
 
   const handleConfirmResponseChallenge = () => {
-    if (!pendingChallenge || !challengeDeck || challengeDeck.length !== 60) return;
+    if (!pendingChallenge || !challengeDeck) return;
     socket.emit('respond-challenge', {
       challengeId: pendingChallenge.challengeId,
       accept: true,
-      deckCards: challengeDeck,
+      heroClass: challengeDeck.heroClass,
+      deckCards: challengeDeck.cards,
     });
     setPendingChallenge(null);
     setChallengeTarget(null);
@@ -272,14 +283,30 @@ export function Friends({ uid, onBack, incomingChallenge, onChallengeHandled }: 
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
         <div className="bg-board-surface rounded-2xl p-8 shadow-xl max-w-md w-full text-center border border-board-accent">
           <h2 className="text-xl font-bold text-white mb-4">Select Your Deck</h2>
-          <p className="text-gray-400 text-sm mb-4">Choose a 60-card deck for the duel</p>
-          <div className="mb-4">
-            <DeckSelector uid={uid} onSelectDeck={setChallengeDeck} />
+          <p className="text-gray-400 text-sm mb-4">Choose a deck for the duel</p>
+          <div className="mb-4 space-y-2">
+            {challengeDecks.map(d => (
+              <button
+                key={d.id}
+                onClick={() => handleSelectChallengeDeck(d)}
+                className={`w-full text-left px-3 py-2 rounded-lg text-sm cursor-pointer transition-all ${
+                  challengeDeck?.cards === d.cards
+                    ? 'bg-spero-green/20 border border-spero-green text-white font-bold'
+                    : 'bg-board-accent text-gray-400 hover:bg-board-accent/80'
+                }`}
+              >
+                <div className="flex justify-between items-center">
+                  <span className="truncate">{d.isStarterDeck && <span className="text-spero-yellow text-xs mr-1">&#9733;</span>}{d.name}</span>
+                  <span className="text-[10px] text-gray-500">{d.cards.length}/{DECK_SIZE}</span>
+                </div>
+              </button>
+            ))}
+            {challengeDecks.length === 0 && <p className="text-[10px] text-gray-600">No valid decks. Build one in Collection!</p>}
           </div>
           <div className="space-y-3">
             <button
               onClick={challengeTarget === 'responding' ? handleConfirmResponseChallenge : handleConfirmChallenge}
-              disabled={!challengeDeck || challengeDeck.length !== 60}
+              disabled={!challengeDeck}
               className="w-full bg-spero-green text-white font-bold py-3 px-6 rounded-xl text-lg hover:brightness-110 active:scale-95 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {challengeTarget === 'responding' ? 'Accept & Play' : 'Send Challenge'}

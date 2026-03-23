@@ -1,21 +1,24 @@
-export const DECK_SIZE = 60;
+import type { CardDef, HeroClass } from './types.js';
+
+export const DECK_SIZE = 30;
 export const MAX_COPIES_PER_CARD = 2;
+export const MAX_COPIES_LEGENDARY = 1;
 
 export interface DeckValidationResult {
   valid: boolean;
   errors: string[];
   cardCount: number;
-  colorBreakdown: Record<string, number>;
+  manaCurve: Record<number, number>;
 }
 
 export function validateDeck(
   cardCodes: string[],
-  getCardDef: (code: string) => { typeA: string; color: string; name: string } | undefined
+  heroClass: HeroClass,
+  getCardDef: (code: string) => CardDef | undefined
 ): DeckValidationResult {
   const errors: string[] = [];
-  const colorBreakdown: Record<string, number> = {};
+  const manaCurve: Record<number, number> = {};
   const codeCounts = new Map<string, number>();
-  let hasCharacter = false;
 
   for (const code of cardCodes) {
     codeCounts.set(code, (codeCounts.get(code) || 0) + 1);
@@ -24,8 +27,12 @@ export function validateDeck(
       errors.push(`Unknown card code: ${code}`);
       continue;
     }
-    colorBreakdown[def.color] = (colorBreakdown[def.color] || 0) + 1;
-    if (def.typeA === 'CHARACTER') hasCharacter = true;
+    // Class restriction: can only include cards from your class or NEUTRAL
+    if (def.heroClass !== 'NEUTRAL' && def.heroClass !== heroClass) {
+      errors.push(`${def.name} is a ${def.heroClass} card, not usable by ${heroClass}`);
+    }
+    const bucket = Math.min(def.manaCost, 10);
+    manaCurve[bucket] = (manaCurve[bucket] || 0) + 1;
   }
 
   if (cardCodes.length !== DECK_SIZE) {
@@ -33,20 +40,22 @@ export function validateDeck(
   }
 
   for (const [code, count] of codeCounts) {
-    if (count > MAX_COPIES_PER_CARD) {
-      const def = getCardDef(code);
-      errors.push(`${def?.name ?? code}: max ${MAX_COPIES_PER_CARD} copies (has ${count})`);
+    const def = getCardDef(code);
+    const maxCopies = def?.rarity === 'LEGENDARY' ? MAX_COPIES_LEGENDARY : MAX_COPIES_PER_CARD;
+    if (count > maxCopies) {
+      errors.push(`${def?.name ?? code}: max ${maxCopies} copies (has ${count})`);
     }
   }
 
-  if (!hasCharacter) {
-    errors.push('Deck must contain at least 1 CHARACTER card');
+  // No Coin in constructed decks
+  if (codeCounts.has('COIN')) {
+    errors.push('The Coin cannot be included in a deck');
   }
 
   return {
     valid: errors.length === 0,
     errors,
     cardCount: cardCodes.length,
-    colorBreakdown,
+    manaCurve,
   };
 }

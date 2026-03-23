@@ -35,7 +35,7 @@ export function CardTooltip({ cardDef, anchorRect }: CardTooltipProps) {
       {/* Card name header */}
       <div className="px-3 py-1.5 border-b border-board-accent/50 flex items-center justify-between">
         <span className="text-white text-sm font-bold truncate">{cardDef.name}</span>
-        <span className="text-gray-400 text-xs ml-2 shrink-0">{cardDef.typeA}</span>
+        <span className="text-gray-400 text-xs ml-2 shrink-0">{cardDef.type}</span>
       </div>
       <img
         src={getCardImagePath(cardDef.cardCode)}
@@ -50,7 +50,7 @@ export function CardTooltip({ cardDef, anchorRect }: CardTooltipProps) {
       />
       {/* Rules text fallback — visible when image fails to load */}
       <div className="px-3 py-2 hidden">
-        {cardDef.rulesText && <p className="text-gray-300 text-xs">{cardDef.rulesText}</p>}
+        {cardDef.text && <p className="text-gray-300 text-xs">{cardDef.text}</p>}
         {cardDef.flavor && <p className="text-gray-500 text-xs italic mt-1">{cardDef.flavor}</p>}
       </div>
     </div>,

@@ -1,1025 +1,1105 @@
-import { useState, useEffect, useCallback } from 'react';
-import type { ClientGameState, ClientCardInstance } from '../../../shared/types';
-import { AP_TO_WIN } from '../../../shared/types';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import type {
+  ClientGameState,
+  ClientCardInstance,
+  BoardMinion,
+  Weapon,
+  CardDef,
+  HeroClass,
+  PendingInteraction,
+  TargetOption,
+} from '../../../shared/types';
+import { HERO_POWER_COST, MAX_BOARD_SIZE } from '../../../shared/types';
 import { useGameActions } from '../hooks/useGameActions';
-import { useGameAnimations, type GameEffect } from '../hooks/useGameAnimations';
-import { useSoundEffects } from '../hooks/useSoundEffects';
-import { useOnboardingHints } from '../hooks/useOnboardingHints';
-import { getCardDef } from '../utils/stackHelpers';
-import { OpponentField } from './OpponentField';
-import { Battlefield } from './Battlefield';
-import { Hand } from './Hand';
-import { DeckDiscard } from './DeckDiscard';
-import { CombatModal } from './CombatModal';
-import { GameOver } from './GameOver';
-import { TurnTimer } from './TurnTimer';
-import { TurnBanner } from './TurnBanner';
-import { EmotePanel, type EmoteId } from './EmotePanel';
-import { EmoteBubble } from './EmoteBubble';
-import { TargetingModal } from './TargetingModal';
-import { HintOverlay } from './HintOverlay';
-import { GameLog } from './GameLog';
+import cardsJson from '../../../data/cards.json';
 
-import { Settings } from './Settings';
-import { DragOverlay } from './DragOverlay';
-import { useDragCard } from '../hooks/useDragCard';
-import { HeroPortrait } from './HeroPortrait';
-import { Friends } from './Friends';
-import { getCardImagePath } from '../utils/cardImages';
+// ─── Card lookup ───
+const CARD_MAP = new Map<string, CardDef>();
+for (const c of cardsJson as CardDef[]) {
+  CARD_MAP.set(c.cardCode, c);
+}
+function getCard(code: string | null): CardDef | undefined {
+  return code ? CARD_MAP.get(code) : undefined;
+}
 
-type RematchState = 'default' | 'proposed' | 'received' | 'declined';
+// ─── Hero class colors ───
+const CLASS_COLORS: Record<HeroClass, string> = {
+  JIMMY: '#ef4444',
+  TALA: '#22c55e',
+  DEREK: '#eab308',
+  ANDERS: '#3b82f6',
+  NEUTRAL: '#9ca3af',
+};
+const CLASS_BORDER: Record<HeroClass, string> = {
+  JIMMY: 'border-red-500',
+  TALA: 'border-green-500',
+  DEREK: 'border-yellow-500',
+  ANDERS: 'border-blue-500',
+  NEUTRAL: 'border-gray-400',
+};
+const CLASS_BG: Record<HeroClass, string> = {
+  JIMMY: 'bg-red-900/40',
+  TALA: 'bg-green-900/40',
+  DEREK: 'bg-yellow-900/40',
+  ANDERS: 'bg-blue-900/40',
+  NEUTRAL: 'bg-gray-700/40',
+};
 
+// ─── Props ───
 interface GameBoardProps {
   gameState: ClientGameState;
-  opponentHovering?: boolean;
-  opponentEmote?: string | null;
-  rematchState: RematchState;
-  onRematchStateChange: (state: RematchState) => void;
-  onLeaveGame?: () => void;
-  uid?: string;
+  opponentHovering: boolean;
+  opponentEmote: string | null;
+  rematchState: string;
+  onRematchStateChange: (s: string) => void;
+  onLeaveGame: () => void;
+  uid: string;
 }
 
-type UIMode =
-  | { type: 'idle' }
-  | { type: 'choose-drag-build-mode'; cardInstanceId: string; targetStackId: string | undefined }
-  | { type: 'select-stack-for-card'; cardInstanceId: string; faceDown: boolean }
-  | { type: 'select-duel-target'; attackerStackId: string }
-  | { type: 'select-action-stack'; cardInstanceId: string }
-  | { type: 'select-mission-type'; stackId: string };
+// ─── Targeting modes ───
+type TargetingMode =
+  | { type: 'none' }
+  | { type: 'play-card'; cardInstanceId: string; cardDef: CardDef; position: number }
+  | { type: 'attack'; attackerInstanceId: string }
+  | { type: 'hero-power' }
+  | { type: 'interaction'; interactionId: string };
 
-// ─── Responsive sizing hook ───
-function useLayoutSize() {
-  const [size, setSize] = useState(() => computeSize());
+// ─── Mulligan Screen ───
+function MulliganScreen({
+  hand,
+  onConfirm,
+  confirmed,
+}: {
+  hand: ClientCardInstance[];
+  onConfirm: (replacements: boolean[]) => void;
+  confirmed: boolean;
+}) {
+  const [replacing, setReplacing] = useState<boolean[]>(hand.map(() => false));
 
-  function computeSize() {
-    const w = typeof window !== 'undefined' ? window.innerWidth : 1920;
-    const h = typeof window !== 'undefined' ? window.innerHeight : 1080;
-    if (w < 1024) {
-      return { boardScale: 'sm' as const, handCardSize: 'sm' as const, sidebarWidth: 'w-40', handHeight: 'h-[150px]', oppHandBase: { w: 56, h: 77 }, oppHandContainer: 'h-20' };
-    }
-    if (w <= 1440 || h < 900) {
-      return { boardScale: 'sm' as const, handCardSize: 'md' as const, sidebarWidth: 'w-40', handHeight: 'h-[160px]', oppHandBase: { w: 64, h: 88 }, oppHandContainer: 'h-20 md:h-24' };
-    }
-    return { boardScale: 'md' as const, handCardSize: 'md' as const, sidebarWidth: 'w-48', handHeight: 'h-[220px]', oppHandBase: { w: 72, h: 100 }, oppHandContainer: 'h-24' };
-  }
-
-  useEffect(() => {
-    const onResize = () => setSize(computeSize());
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, []);
-
-  return size;
-}
-
-export function GameBoard({ gameState, opponentHovering, opponentEmote, rematchState, onRematchStateChange, onLeaveGame, uid }: GameBoardProps) {
-  const [uiMode, setUIMode] = useState<UIMode>({ type: 'idle' });
-  const [showSettings, setShowSettings] = useState(false);
-  const [hoveredDropTarget, setHoveredDropTarget] = useState<string | null>(null);
-  const [stackOrder, setStackOrder] = useState<string[]>([]);
-  const [pendingInsertIndex, setPendingInsertIndex] = useState<number | null>(null);
-  const [showEmotePanel, setShowEmotePanel] = useState(false);
-  const [myEmote, setMyEmote] = useState<string | null>(null);
-  const [showTurnBanner, setShowTurnBanner] = useState(false);
-  const [turnBannerIsMyTurn, setTurnBannerIsMyTurn] = useState(false);
-  const [animatingBuilds, setAnimatingBuilds] = useState<Set<string>>(new Set());
-  const [handExpanded, setHandExpanded] = useState(false);
-  const [showFriendsPanel, setShowFriendsPanel] = useState(false);
-  const [showGameLog, setShowGameLog] = useState(false);
-  const [inspectedCard, setInspectedCard] = useState<string | null>(null);
-  const [stackDrag, setStackDrag] = useState<{
-    sourceStackId: string;
-    cardInstanceId: string;
-    cursorX: number;
-    cursorY: number;
-    startX: number;
-    startY: number;
-    activated: boolean;
-  } | null>(null);
-
-  const layout = useLayoutSize();
-  const effects = useGameAnimations(gameState);
-  useSoundEffects(effects);
-  const { activeHint, dismissHint } = useOnboardingHints(gameState);
-
-  useEffect(() => {
-    setUIMode({ type: 'idle' });
-  }, [gameState.turnPhase, gameState.currentPlayerIndex]);
-
-  // Global Escape key handler — closes modals in priority order
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      if (e.key !== 'Escape') return;
-      if (inspectedCard) { setInspectedCard(null); return; }
-      if (showSettings) { setShowSettings(false); return; }
-      if (showFriendsPanel) { setShowFriendsPanel(false); return; }
-      if (handExpanded) { setHandExpanded(false); return; }
-      if (uiMode.type !== 'idle') { setUIMode({ type: 'idle' }); return; }
-    }
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [inspectedCard, showSettings, showFriendsPanel, handExpanded, uiMode]);
-
-  // Track turn changes for banner
-  useEffect(() => {
-    for (const e of effects) {
-      if (e.type === 'turn-start') {
-        setShowTurnBanner(true);
-        setTurnBannerIsMyTurn(e.isMyTurn);
-        setTimeout(() => setShowTurnBanner(false), 1500);
-      }
-      if (e.type === 'card-built') {
-        setAnimatingBuilds(prev => new Set([...prev, e.cardInstanceId]));
-        setTimeout(() => {
-          setAnimatingBuilds(prev => {
-            const next = new Set(prev);
-            next.delete(e.cardInstanceId);
-            return next;
-          });
-        }, 400);
-      }
-    }
-  }, [effects]);
-
-  const actions = useGameActions();
-
-  // Get active effect for a given stack
-  const getStackEffect = (stackId: string): GameEffect | null => {
-    for (const e of effects) {
-      if ('stackId' in e && (e as any).stackId === stackId) return e;
-    }
-    return null;
-  };
-
-  // Sync stackOrder when stacks change — append new stacks, remove deleted ones
-  useEffect(() => {
-    setStackOrder(prev => {
-      const currentIds = new Set(gameState.myStacks.map(s => s.stackId));
-      // Remove stacks that no longer exist
-      const filtered = prev.filter(id => currentIds.has(id));
-      // Find new stacks not in order
-      const existingIds = new Set(filtered);
-      const newIds = gameState.myStacks
-        .map(s => s.stackId)
-        .filter(id => !existingIds.has(id));
-
-      if (newIds.length === 0 && filtered.length === prev.length) {
-        return prev; // No changes
-      }
-
-      // Insert new stacks at pending index or append
-      if (newIds.length > 0 && pendingInsertIndex !== null) {
-        const result = [...filtered];
-        result.splice(pendingInsertIndex, 0, ...newIds);
-        setPendingInsertIndex(null);
-        return result;
-      }
-
-      return [...filtered, ...newIds];
+  const toggle = (i: number) => {
+    if (confirmed) return;
+    setReplacing((prev) => {
+      const next = [...prev];
+      next[i] = !next[i];
+      return next;
     });
-  }, [gameState.myStacks, pendingInsertIndex]);
-
-  const drag = useDragCard();
-
-  // Handle drag end — show face-up/down modal when dropped on a valid target
-  const handleDragEnd = () => {
-    const result = drag.endDrag();
-    if (!result) return;
-
-    const { cardInstanceId } = result;
-    const elements = document.elementsFromPoint(result.cursorX, result.cursorY);
-
-    for (const el of elements) {
-      const stackId = (el as HTMLElement).dataset?.dropStack;
-      if (stackId) {
-        setUIMode({ type: 'choose-drag-build-mode', cardInstanceId, targetStackId: stackId });
-        setHoveredDropTarget(null);
-        setTimeout(() => setHandExpanded(false), 200);
-        return;
-      }
-      const lane = (el as HTMLElement).dataset?.dropLane;
-      if (lane === 'new') {
-        const dropIndex = (el as HTMLElement).dataset?.dropIndex;
-        if (dropIndex !== undefined) {
-          setPendingInsertIndex(parseInt(dropIndex, 10));
-        }
-        setUIMode({ type: 'choose-drag-build-mode', cardInstanceId, targetStackId: undefined });
-        setHoveredDropTarget(null);
-        setTimeout(() => setHandExpanded(false), 200);
-        return;
-      }
-      const zone = (el as HTMLElement).dataset?.dropZone;
-      if (zone === 'my-field') {
-        setUIMode({ type: 'choose-drag-build-mode', cardInstanceId, targetStackId: undefined });
-        setHoveredDropTarget(null);
-        setTimeout(() => setHandExpanded(false), 200);
-        return;
-      }
-    }
-    setHoveredDropTarget(null);
-    setTimeout(() => setHandExpanded(false), 200);
   };
-
-  // Update hovered drop target during drag
-  const handleDragMove = (e: React.PointerEvent | PointerEvent) => {
-    drag.updateDrag(e as PointerEvent);
-    const elements = document.elementsFromPoint(e.clientX, e.clientY);
-    for (const el of elements) {
-      const stackId = (el as HTMLElement).dataset?.dropStack;
-      if (stackId) {
-        setHoveredDropTarget(stackId);
-        return;
-      }
-      const lane = (el as HTMLElement).dataset?.dropLane;
-      if (lane === 'new') {
-        const dropIndex = (el as HTMLElement).dataset?.dropIndex;
-        setHoveredDropTarget(dropIndex !== undefined ? `gap-${dropIndex}` : 'new');
-        return;
-      }
-      const zone = (el as HTMLElement).dataset?.dropZone;
-      if (zone === 'my-field') {
-        setHoveredDropTarget('my-field');
-        return;
-      }
-    }
-    setHoveredDropTarget(null);
-  };
-
-  // ─── Stack-drag handlers (split from stack) ───
-  const handleStackDragStart = useCallback((stackId: string, cardInstanceId: string, e: React.PointerEvent) => {
-    document.body.style.cursor = 'grabbing';
-    setStackDrag({
-      sourceStackId: stackId,
-      cardInstanceId,
-      cursorX: e.clientX,
-      cursorY: e.clientY,
-      startX: e.clientX,
-      startY: e.clientY,
-      activated: false,
-    });
-  }, []);
-
-  const handleStackDragMove = useCallback((e: PointerEvent) => {
-    setStackDrag((prev) => {
-      if (!prev) return null;
-      const dx = e.clientX - prev.startX;
-      const dy = e.clientY - prev.startY;
-      const activated = prev.activated || Math.sqrt(dx * dx + dy * dy) > 5;
-      return { ...prev, cursorX: e.clientX, cursorY: e.clientY, activated };
-    });
-    // Update hovered drop target
-    const elements = document.elementsFromPoint(e.clientX, e.clientY);
-    for (const el of elements) {
-      const stackId = (el as HTMLElement).dataset?.dropStack;
-      if (stackId) {
-        setHoveredDropTarget(stackId);
-        return;
-      }
-      const lane = (el as HTMLElement).dataset?.dropLane;
-      if (lane === 'new') {
-        const dropIndex = (el as HTMLElement).dataset?.dropIndex;
-        setHoveredDropTarget(dropIndex !== undefined ? `gap-${dropIndex}` : 'new');
-        return;
-      }
-    }
-    setHoveredDropTarget(null);
-  }, []);
-
-  const handleStackDragEnd = useCallback(() => {
-    document.body.style.cursor = '';
-    const current = stackDrag;
-    setStackDrag(null);
-    setHoveredDropTarget(null);
-    if (!current || !current.activated) return;
-
-    const elements = document.elementsFromPoint(current.cursorX, current.cursorY);
-    for (const el of elements) {
-      // Drop on another own stack → combine
-      const targetStackId = (el as HTMLElement).dataset?.dropStack;
-      if (targetStackId && targetStackId !== current.sourceStackId) {
-        actions.combineStacks(current.sourceStackId, targetStackId);
-        return;
-      }
-      // Drop on empty lane → split
-      const lane = (el as HTMLElement).dataset?.dropLane;
-      if (lane === 'new') {
-        const dropIndex = (el as HTMLElement).dataset?.dropIndex;
-        if (dropIndex !== undefined) {
-          setPendingInsertIndex(parseInt(dropIndex, 10));
-        }
-        actions.splitStack(current.sourceStackId, [current.cardInstanceId]);
-        return;
-      }
-    }
-  }, [stackDrag, actions]);
-
-  // Document-level pointer listeners for stack-drag
-  useEffect(() => {
-    if (!stackDrag) return;
-    const onMove = (e: PointerEvent) => handleStackDragMove(e);
-    const onUp = () => handleStackDragEnd();
-    document.addEventListener('pointermove', onMove);
-    document.addEventListener('pointerup', onUp);
-    return () => {
-      document.removeEventListener('pointermove', onMove);
-      document.removeEventListener('pointerup', onUp);
-    };
-  });
-
-  // Check if we can drag (build phase, my turn, builds remaining)
-  const canDrag = gameState.myPlayerIndex === gameState.currentPlayerIndex
-    && gameState.turnPhase === 'BUILD'
-    && gameState.buildsRemaining > 0;
-
-  // Document-level pointer listeners for drag
-  useEffect(() => {
-    if (!drag.isDragging) return;
-
-    const onMove = (e: PointerEvent) => handleDragMove(e);
-    const onUp = () => handleDragEnd();
-
-    document.addEventListener('pointermove', onMove);
-    document.addEventListener('pointerup', onUp);
-    return () => {
-      document.removeEventListener('pointermove', onMove);
-      document.removeEventListener('pointerup', onUp);
-    };
-  });
-
-  const amICurrentPlayer = gameState.myPlayerIndex === gameState.currentPlayerIndex;
-  const combat = gameState.combatState;
-
-  const winnerName = gameState.winner
-    ? (gameState.winner === gameState.myPlayerId ? 'You' : gameState.opponent.playerName)
-    : null;
-
-  // ─── Combat: compute valid blocker IDs ───
-  const validBlockerIds: string[] = [];
-  if (combat?.phase === 'AWAITING_BLOCK' && gameState.pendingInteraction?.waitingForPlayerId === gameState.myPlayerId) {
-    for (const s of gameState.myStacks) {
-      if (s.tapped) continue;
-      const stat = combat.missionType === 'POWER'
-        ? s.cards.reduce((sum, c) => {
-            if (!c.faceUp || !c.cardCode) return sum;
-            const def = getCardDef(c.cardCode);
-            return sum + (def && (def.typeA === 'CHARACTER' || def.typeA === 'EQUIPMENT') ? def.power : 0);
-          }, 0)
-        : s.cards.reduce((sum, c) => {
-            if (!c.faceUp || !c.cardCode) return sum;
-            const def = getCardDef(c.cardCode);
-            return sum + (def && (def.typeA === 'CHARACTER' || def.typeA === 'EQUIPMENT') ? def.smarts : 0);
-          }, 0);
-      if (stat >= Math.ceil(combat.attackerStat / 2)) {
-        validBlockerIds.push(s.stackId);
-      }
-    }
-  }
-
-  // ─── Combat: check if in trick phase ───
-  const isMyTrickPhase = combat
-    && (combat.phase === 'AWAITING_DEFENDER_TRICK' || combat.phase === 'AWAITING_ATTACKER_TRICK')
-    && gameState.pendingInteraction?.waitingForPlayerId === gameState.myPlayerId;
-
-  // Auto-open hand during combat trick phase
-  useEffect(() => {
-    if (isMyTrickPhase) setHandExpanded(true);
-  }, [isMyTrickPhase]);
-
-  // ─── Build Phase: Card Click → Play to Stack ───
-
-  const handleHandCardClick = (instanceId: string) => {
-    if (!amICurrentPlayer) return;
-
-    // Combat trick: click a highlighted combat trick card in hand
-    if (isMyTrickPhase) {
-      const card = gameState.myHand.find((c) => c.instanceId === instanceId);
-      if (!card?.cardCode) return;
-      const def = getCardDef(card.cardCode);
-      if (def?.typeA === 'COMBAT TRICK') {
-        actions.playCombatTrick(instanceId);
-        setTimeout(() => setHandExpanded(false), 200);
-        return;
-      }
-    }
-
-    if (gameState.turnPhase === 'BUILD') {
-      setUIMode({ type: 'select-stack-for-card', cardInstanceId: instanceId, faceDown: false });
-      setTimeout(() => setHandExpanded(false), 200);
-    } else if (gameState.turnPhase === 'ACTION') {
-      const card = gameState.myHand.find((c) => c.instanceId === instanceId);
-      if (!card?.cardCode) return;
-      const def = getCardDef(card.cardCode);
-      if (def?.typeA === 'ACTION') {
-        setUIMode({ type: 'select-action-stack', cardInstanceId: instanceId });
-        setTimeout(() => setHandExpanded(false), 200);
-      }
-    }
-  };
-
-  const handleMyStackClick = (stackId: string) => {
-    // Block phase: click a valid blocker stack
-    if (validBlockerIds.length > 0 && validBlockerIds.includes(stackId)) {
-      actions.blockDecision(stackId);
-      return;
-    }
-
-    if (uiMode.type === 'select-stack-for-card') {
-      actions.buildCard(uiMode.cardInstanceId, stackId, uiMode.faceDown);
-      setUIMode({ type: 'idle' });
-      return;
-    }
-    if (uiMode.type === 'select-action-stack') {
-      actions.playActionCard(uiMode.cardInstanceId, stackId);
-      setUIMode({ type: 'idle' });
-      return;
-    }
-    // Action phase: click a ready stack → open mission type chooser popover
-    if (isActionPhase && uiMode.type === 'idle') {
-      const stack = gameState.myStacks.find(s => s.stackId === stackId);
-      if (stack && !stack.tapped && !gameState.actedStacks.includes(stackId)) {
-        const hasSummoningSickness = stack.createdOnTurn === gameState.turnNumber;
-        if (!hasSummoningSickness) {
-          setUIMode({ type: 'select-mission-type', stackId });
-        }
-      }
-      return;
-    }
-  };
-
-  const handleNewStack = () => {
-    if (uiMode.type === 'select-stack-for-card') {
-      actions.buildCard(uiMode.cardInstanceId, undefined, uiMode.faceDown);
-      setUIMode({ type: 'idle' });
-    }
-  };
-
-  const handleNewStackAtIndex = useCallback((index: number) => {
-    if (uiMode.type === 'select-stack-for-card') {
-      setPendingInsertIndex(index);
-      actions.buildCard(uiMode.cardInstanceId, undefined, uiMode.faceDown);
-      setUIMode({ type: 'idle' });
-    }
-  }, [uiMode, actions]);
-
-  const handleOpponentStackClick = (stackId: string) => {
-    if (uiMode.type === 'select-duel-target') {
-      actions.duel(uiMode.attackerStackId, stackId);
-      setUIMode({ type: 'idle' });
-    }
-  };
-
-  // ─── Hand highlight filter ───
-
-  const handHighlight = (card: ClientCardInstance): boolean => {
-    if (!amICurrentPlayer) return false;
-    if (!card.cardCode) return false;
-    const def = getCardDef(card.cardCode);
-    if (!def) return false;
-
-    // Highlight combat trick cards during trick phases
-    if (isMyTrickPhase && def.typeA === 'COMBAT TRICK') {
-      return true;
-    }
-
-    if (gameState.turnPhase === 'BUILD' && gameState.buildsRemaining > 0) {
-      return true;
-    }
-    if (gameState.turnPhase === 'ACTION') {
-      return def.typeA === 'ACTION';
-    }
-    return false;
-  };
-
-  // ─── Action labels for stacks ───
-
-  const actionLabels: Record<string, string> = {};
-  const readyStackIds: string[] = [];
-  if (amICurrentPlayer && gameState.turnPhase === 'ACTION' && !gameState.combatState) {
-    for (const s of gameState.myStacks) {
-      if (!s.tapped && !gameState.actedStacks.includes(s.stackId)) {
-        const hasSummoningSickness = s.createdOnTurn === gameState.turnNumber;
-        if (!hasSummoningSickness) {
-          actionLabels[s.stackId] = 'Ready';
-          readyStackIds.push(s.stackId);
-        }
-      }
-    }
-  }
-
-  const isActionPhase = amICurrentPlayer && gameState.turnPhase === 'ACTION' && !gameState.combatState;
-  const hasPlayableCards = amICurrentPlayer && gameState.myHand.some(c => handHighlight(c));
-
-  // Determine battlefield highlighted stacks and style
-  let battlefieldHighlightedIds: string[] = [];
-  let battlefieldHighlightStyle: 'default' | 'block' = 'default';
-  if (validBlockerIds.length > 0) {
-    battlefieldHighlightedIds = validBlockerIds;
-    battlefieldHighlightStyle = 'block';
-  } else if (uiMode.type === 'select-stack-for-card' || uiMode.type === 'select-action-stack') {
-    battlefieldHighlightedIds = gameState.myStacks.map((s) => s.stackId);
-  }
-
-  const myAP = gameState.apScores[gameState.myPlayerIndex];
-  const oppAP = gameState.apScores[gameState.myPlayerIndex === 0 ? 1 : 0];
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden" style={{ background: 'radial-gradient(ellipse at 50% 50%, #1e2240 0%, #1a1a2e 70%)' }}>
-      {/* Modals (above everything) */}
-      {(gameState.combatState || gameState.combatResult) && (
-        <CombatModal
-          gameState={gameState}
-          onBlock={actions.blockDecision}
-          onCombatTrick={actions.playCombatTrick}
-          onDismissCombatResult={actions.dismissCombatResult}
-        />
-      )}
-      {gameState.pendingInteraction?.type === 'CHOOSE_TARGET' && (
-        <TargetingModal
-          interaction={gameState.pendingInteraction}
-          onChooseTarget={actions.chooseTarget}
-          onInspect={setInspectedCard}
-        />
-      )}
-      {winnerName && (
-        <GameOver
-          winnerName={winnerName}
-          isMe={gameState.winner === gameState.myPlayerId}
-          onPlayAgain={actions.playAgain}
-          onRequestRematch={() => { actions.requestRematch(); onRematchStateChange('proposed'); }}
-          onDeclineRematch={() => { actions.declineRematch(); onRematchStateChange('declined'); }}
-          gameState={gameState}
-          rematchState={rematchState}
-          onLeaveGame={onLeaveGame}
-        />
-      )}
-      {showSettings && (
-        <Settings
-          onConcede={() => { actions.concede(); setShowSettings(false); }}
-          onClose={() => setShowSettings(false)}
-        />
-      )}
-      {showTurnBanner && <TurnBanner isMyTurn={turnBannerIsMyTurn} />}
-      {activeHint && <HintOverlay hint={activeHint} onDismiss={dismissHint} />}
-      {drag.state && (
-        <DragOverlay
-          cardInstanceId={drag.state.cardInstanceId}
-          faceDown={drag.state.faceDown}
-          cursorX={drag.state.cursorX}
-          cursorY={drag.state.cursorY}
-          cards={gameState.myHand}
-        />
-      )}
-      {stackDrag?.activated && (() => {
-        const allCards = gameState.myStacks.flatMap(s => s.cards);
-        return (
-          <DragOverlay
-            cardInstanceId={stackDrag.cardInstanceId}
-            faceDown={false}
-            cursorX={stackDrag.cursorX}
-            cursorY={stackDrag.cursorY}
-            cards={allCards}
-            hideLabels
-          />
-        );
-      })()}
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm">
+      <h2 className="mb-2 text-3xl font-bold text-amber-400">Mulligan Phase</h2>
+      <p className="mb-8 text-gray-300">Click cards to replace them, then confirm.</p>
+      <div className="flex gap-4">
+        {hand.map((c, i) => {
+          const def = getCard(c.cardCode);
+          return (
+            <button
+              key={c.instanceId}
+              onClick={() => toggle(i)}
+              className={`relative flex h-52 w-36 flex-col items-center justify-between rounded-lg border-2 p-3 transition-all
+                ${replacing[i]
+                  ? 'border-red-500 bg-gray-800/60 opacity-50 grayscale'
+                  : 'border-amber-500 bg-gray-800 hover:border-amber-300 hover:scale-105'}
+              `}
+            >
+              {/* Mana */}
+              <div className="absolute -left-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white">
+                {def?.manaCost ?? '?'}
+              </div>
+              <span className="mt-4 text-center text-sm font-semibold text-white">
+                {def?.name ?? 'Unknown'}
+              </span>
+              <span className="text-xs text-gray-400 text-center px-1">{def?.text}</span>
+              {def?.type === 'MINION' && (
+                <div className="flex w-full justify-between px-1 text-sm">
+                  <span className="font-bold text-amber-400">{def.attack}</span>
+                  <span className="font-bold text-red-400">{def.health}</span>
+                </div>
+              )}
+              {replacing[i] && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-4xl text-red-400">✕</span>
+                </div>
+              )}
+            </button>
+          );
+        })}
+      </div>
+      <button
+        disabled={confirmed}
+        onClick={() => onConfirm(replacing)}
+        className={`mt-8 rounded-lg px-8 py-3 text-lg font-bold transition-all
+          ${confirmed
+            ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+            : 'bg-amber-500 text-black hover:bg-amber-400 hover:scale-105'}
+        `}
+      >
+        {confirmed ? 'Waiting for opponent...' : 'Confirm Mulligan'}
+      </button>
+    </div>
+  );
+}
 
-      {/* MOBILE TOP BAR */}
-      <div className="md:hidden flex items-center justify-between gap-2 px-3 py-2 border-b border-board-accent/50 bg-board-surface/30 shrink-0">
-        <span className="text-xs text-gray-400 flex items-center gap-1">
-          <span className={`w-1.5 h-1.5 rounded-full ${amICurrentPlayer ? 'bg-spero-yellow' : 'bg-gray-600'}`} />
-          {gameState.turnPhase}
+// ─── Minion Card on Board ───
+function BoardMinionCard({
+  minion,
+  isMyMinion,
+  canAct,
+  isValidTarget,
+  isSelected,
+  onClick,
+}: {
+  minion: BoardMinion;
+  isMyMinion: boolean;
+  canAct: boolean;
+  isValidTarget: boolean;
+  isSelected: boolean;
+  onClick: () => void;
+}) {
+  const def = getCard(minion.cardCode);
+  const isDamaged = minion.currentHealth < minion.maxHealth;
+  const hasTaunt = !minion.isSilenced && def?.keywords.includes('TAUNT');
+  const hasDivine = minion.hasDivineShield;
+  const isFrozen = minion.isFrozen;
+  const isStealth = minion.hasStealthUntilAttack;
+
+  return (
+    <button
+      onClick={onClick}
+      className={`relative flex h-24 w-20 flex-col items-center justify-between rounded-lg border-2 p-1 transition-all select-none
+        ${hasTaunt ? 'border-4 border-amber-700' : 'border-gray-600'}
+        ${hasDivine ? 'ring-2 ring-amber-300 ring-offset-1 ring-offset-transparent' : ''}
+        ${isFrozen ? 'bg-blue-900/60' : 'bg-gray-800'}
+        ${isStealth ? 'opacity-50' : ''}
+        ${canAct && isMyMinion ? 'shadow-[0_0_12px_2px_rgba(34,197,94,0.5)] cursor-pointer hover:scale-110' : ''}
+        ${isValidTarget ? 'shadow-[0_0_12px_2px_rgba(34,197,94,0.7)] cursor-crosshair' : ''}
+        ${isSelected ? 'ring-2 ring-green-400' : ''}
+      `}
+    >
+      <span className="text-[10px] font-medium text-gray-200 text-center leading-tight truncate w-full">
+        {def?.name ?? '??'}
+      </span>
+      {def?.text && (
+        <span className="text-[8px] text-gray-400 text-center leading-tight line-clamp-2 px-0.5">
+          {def.text}
         </span>
-        <button
-          onClick={() => setShowSettings(true)}
-          className="text-gray-500 hover:text-gray-300 transition-colors cursor-pointer text-2xl p-2"
-          title="Settings"
+      )}
+      <div className="flex w-full justify-between px-0.5">
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-700 text-xs font-bold text-white">
+          {minion.currentAttack}
+        </span>
+        <span
+          className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold text-white
+            ${isDamaged ? 'bg-red-600' : 'bg-red-800'}
+          `}
         >
-          ⚙
+          {minion.currentHealth}
+        </span>
+      </div>
+    </button>
+  );
+}
+
+// ─── Hero Portrait ───
+function HeroPortrait({
+  heroClass,
+  health,
+  maxHealth,
+  armor,
+  weapon,
+  heroPowerUsed,
+  isMyHero,
+  isMyTurn,
+  mana,
+  maxMana,
+  canUseHeroPower,
+  isValidTarget,
+  onHeroPowerClick,
+  onHeroClick,
+}: {
+  heroClass: HeroClass;
+  health: number;
+  maxHealth: number;
+  armor: number;
+  weapon: Weapon | null;
+  heroPowerUsed: boolean;
+  isMyHero: boolean;
+  isMyTurn: boolean;
+  mana: number;
+  maxMana: number;
+  canUseHeroPower: boolean;
+  isValidTarget: boolean;
+  onHeroPowerClick: () => void;
+  onHeroClick: () => void;
+}) {
+  const borderClass = CLASS_BORDER[heroClass];
+  const bgClass = CLASS_BG[heroClass];
+  const isDamaged = health < maxHealth;
+
+  return (
+    <div className="flex items-center gap-3">
+      {/* Weapon (left side) */}
+      {weapon && (
+        <div className="flex h-16 w-16 flex-col items-center justify-center rounded-lg border-2 border-gray-500 bg-gray-800">
+          <span className="text-xs text-gray-400">Weapon</span>
+          <div className="flex gap-2 text-sm">
+            <span className="font-bold text-amber-400">{weapon.currentAttack}</span>
+            <span className="font-bold text-gray-300">{weapon.durability}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Hero circle */}
+      <button
+        onClick={onHeroClick}
+        className={`relative flex h-20 w-20 flex-col items-center justify-center rounded-full border-4 ${borderClass} ${bgClass} transition-all
+          ${isValidTarget ? 'shadow-[0_0_16px_4px_rgba(34,197,94,0.6)] cursor-crosshair' : ''}
+          ${!isValidTarget && !isMyHero ? 'cursor-default' : ''}
+        `}
+      >
+        <span className="text-[10px] font-medium text-gray-300 uppercase tracking-wide">
+          {heroClass}
+        </span>
+        <span className={`text-2xl font-bold ${isDamaged ? 'text-red-400' : 'text-white'}`}>
+          {health}
+        </span>
+        {armor > 0 && (
+          <div className="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full bg-gray-500 text-xs font-bold text-white">
+            {armor}
+          </div>
+        )}
+      </button>
+
+      {/* Hero Power */}
+      <button
+        onClick={onHeroPowerClick}
+        disabled={!canUseHeroPower}
+        className={`flex h-14 w-14 flex-col items-center justify-center rounded-lg border-2 transition-all
+          ${canUseHeroPower
+            ? 'border-amber-500 bg-amber-900/40 hover:bg-amber-800/60 hover:scale-110 cursor-pointer'
+            : 'border-gray-600 bg-gray-800 opacity-40 cursor-not-allowed'}
+        `}
+      >
+        <span className="text-[9px] text-gray-300">Power</span>
+        <span className="text-sm font-bold text-blue-400">{HERO_POWER_COST}</span>
+      </button>
+    </div>
+  );
+}
+
+// ─── Hand Card ───
+function HandCard({
+  card,
+  canPlay,
+  isSelected,
+  onClick,
+}: {
+  card: ClientCardInstance;
+  canPlay: boolean;
+  isSelected: boolean;
+  onClick: () => void;
+}) {
+  const def = getCard(card.cardCode);
+  if (!def) return null;
+
+  return (
+    <button
+      onClick={onClick}
+      className={`group relative flex h-44 w-28 flex-shrink-0 flex-col items-center justify-between rounded-lg border-2 p-2 transition-all
+        ${isSelected
+          ? 'border-green-400 bg-gray-700 -translate-y-6 scale-110 z-20 shadow-[0_0_20px_4px_rgba(34,197,94,0.5)]'
+          : canPlay
+            ? 'border-amber-500/70 bg-gray-800 hover:-translate-y-4 hover:scale-105 hover:z-10 cursor-pointer'
+            : 'border-gray-600 bg-gray-800/60 opacity-60 cursor-not-allowed'}
+      `}
+    >
+      {/* Mana cost */}
+      <div className="absolute -left-2 -top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white shadow">
+        {def.manaCost}
+      </div>
+      {/* Name */}
+      <span className="mt-3 text-center text-[11px] font-semibold text-white leading-tight">
+        {def.name}
+      </span>
+      {/* Text */}
+      <span className="text-[9px] text-gray-400 text-center leading-tight line-clamp-3 px-0.5">
+        {def.text}
+      </span>
+      {/* Type badge */}
+      <span className="text-[8px] uppercase tracking-wider text-gray-500">{def.type}</span>
+      {/* Stats */}
+      {def.type === 'MINION' && (
+        <div className="flex w-full justify-between px-0.5">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-700 text-xs font-bold text-white">
+            {def.attack}
+          </span>
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-800 text-xs font-bold text-white">
+            {def.health}
+          </span>
+        </div>
+      )}
+      {def.type === 'WEAPON' && (
+        <div className="flex w-full justify-between px-0.5">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-700 text-xs font-bold text-white">
+            {def.attack}
+          </span>
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-500 text-xs font-bold text-white">
+            {def.health}
+          </span>
+        </div>
+      )}
+    </button>
+  );
+}
+
+// ─── Card Backs (opponent hand) ───
+function OpponentHand({ count }: { count: number }) {
+  return (
+    <div className="flex items-center justify-center gap-1">
+      {Array.from({ length: count }).map((_, i) => (
+        <div
+          key={i}
+          className="h-16 w-11 rounded border border-gray-600 bg-gradient-to-b from-indigo-900 to-indigo-950 shadow-inner"
+        />
+      ))}
+    </div>
+  );
+}
+
+// ─── Mana Crystals ───
+function ManaCrystals({ current, max }: { current: number; max: number }) {
+  return (
+    <div className="flex items-center gap-1">
+      {Array.from({ length: max }).map((_, i) => (
+        <div
+          key={i}
+          className={`h-4 w-4 rounded-full border transition-colors
+            ${i < current
+              ? 'border-blue-400 bg-blue-500 shadow-[0_0_6px_1px_rgba(59,130,246,0.5)]'
+              : 'border-gray-600 bg-gray-800'}
+          `}
+        />
+      ))}
+      <span className="ml-2 text-sm font-bold text-blue-400">
+        {current}/{max}
+      </span>
+    </div>
+  );
+}
+
+// ─── Deck Pile + Graveyard (Hearthstone-style) ───
+function DeckPile({ count, graveyardCount }: { count: number; graveyardCount: number }) {
+  const [showGraveyard, setShowGraveyard] = useState(false);
+  return (
+    <div className="flex flex-col items-center gap-1.5">
+      {/* Deck */}
+      <div
+        className="relative w-12 h-16 rounded-lg border-2 border-gray-600 bg-gradient-to-br from-indigo-950 via-slate-900 to-indigo-950 flex items-center justify-center cursor-default group"
+        title={`${count} cards remaining`}
+      >
+        {/* Stacked card visual */}
+        {count > 0 && (
+          <>
+            <div className="absolute inset-0.5 rounded-md border border-gray-700 opacity-30" />
+            {count > 5 && <div className="absolute -top-0.5 -left-0.5 w-12 h-16 rounded-lg border border-gray-700 opacity-20" />}
+            {count > 15 && <div className="absolute -top-1 -left-1 w-12 h-16 rounded-lg border border-gray-700 opacity-10" />}
+          </>
+        )}
+        <span className={`text-sm font-bold z-10 ${count > 0 ? 'text-gray-300' : 'text-gray-700'}`}>
+          {count}
+        </span>
+        {/* Hover tooltip */}
+        <div className="absolute bottom-full mb-1 hidden group-hover:block bg-gray-900 text-gray-300 text-[10px] px-2 py-1 rounded whitespace-nowrap z-50 border border-gray-700">
+          {count} cards in deck
+        </div>
+      </div>
+      {/* Graveyard */}
+      {graveyardCount > 0 && (
+        <button
+          onClick={() => setShowGraveyard(!showGraveyard)}
+          className="relative w-10 h-5 rounded border border-gray-700 bg-gray-900/80 flex items-center justify-center cursor-pointer hover:border-gray-500 transition-colors group"
+          title={`${graveyardCount} cards in graveyard`}
+        >
+          <span className="text-[9px] text-gray-500 font-medium">{graveyardCount}</span>
+          <div className="absolute bottom-full mb-1 hidden group-hover:block bg-gray-900 text-gray-300 text-[10px] px-2 py-1 rounded whitespace-nowrap z-50 border border-gray-700">
+            {graveyardCount} cards discarded
+          </div>
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ─── Attack Arrow Overlay ───
+function AttackArrow({ from, to }: { from: { x: number; y: number }; to: { x: number; y: number } }) {
+  return (
+    <svg className="pointer-events-none fixed inset-0 z-40" style={{ width: '100vw', height: '100vh' }}>
+      <defs>
+        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#ef4444" />
+        </marker>
+      </defs>
+      <line
+        x1={from.x}
+        y1={from.y}
+        x2={to.x}
+        y2={to.y}
+        stroke="#ef4444"
+        strokeWidth="3"
+        strokeDasharray="8 4"
+        markerEnd="url(#arrowhead)"
+      />
+    </svg>
+  );
+}
+
+// ─── Action Log Sidebar (Hearthstone-style) ───
+function ActionLogSidebar({
+  log,
+  myPlayerIndex,
+  isOpen,
+  onToggle,
+}: {
+  log: { id: number; turnNumber: number; playerIndex: 0 | 1 | null; message: string; category: string }[];
+  myPlayerIndex: 0 | 1;
+  isOpen: boolean;
+  onToggle: () => void;
+}) {
+  const logEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isOpen) logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [log.length, isOpen]);
+
+  // Show last 8 actions in collapsed mode
+  const recentActions = log.slice(-8);
+
+  const categoryIcon: Record<string, string> = {
+    PLAY: '▶',
+    COMBAT: '⚔',
+    EFFECT: '✦',
+    TURN: '↻',
+    GAME: '★',
+  };
+
+  return (
+    <>
+      {/* Toggle button — left side */}
+      <button
+        onClick={onToggle}
+        className="fixed left-0 top-1/2 -translate-y-1/2 z-20 bg-gray-800/90 hover:bg-gray-700 text-gray-400 hover:text-white px-1.5 py-6 rounded-r-lg transition-all border-r border-t border-b border-gray-700"
+        title="Action History"
+      >
+        <span className="text-[10px] font-bold writing-vertical" style={{ writingMode: 'vertical-rl' }}>
+          {isOpen ? '◀ LOG' : 'LOG ▶'}
+        </span>
+      </button>
+
+      {/* Sidebar panel */}
+      <div
+        className={`fixed left-0 top-0 h-full z-20 bg-gray-900/95 border-r border-gray-700 transition-all duration-200 flex flex-col ${
+          isOpen ? 'w-64 translate-x-0' : 'w-0 -translate-x-full'
+        }`}
+      >
+        {isOpen && (
+          <>
+            <div className="flex items-center justify-between px-3 py-2 border-b border-gray-800">
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Action History</span>
+              <button onClick={onToggle} className="text-gray-600 hover:text-gray-300 text-sm cursor-pointer">✕</button>
+            </div>
+            <div className="flex-1 overflow-y-auto px-2 py-1">
+              {log.map((entry) => {
+                const isMe = entry.playerIndex === myPlayerIndex;
+                const isSystem = entry.playerIndex === null;
+                return (
+                  <div
+                    key={entry.id}
+                    className={`flex items-start gap-1.5 py-1 border-b border-gray-800/50 ${
+                      isSystem ? 'opacity-60' : ''
+                    }`}
+                  >
+                    <span className="text-[9px] text-gray-600 mt-0.5 shrink-0 w-3">
+                      {categoryIcon[entry.category] || '·'}
+                    </span>
+                    <span className={`text-[11px] leading-tight ${
+                      isSystem ? 'text-gray-500 italic' : isMe ? 'text-blue-300' : 'text-red-300'
+                    }`}>
+                      {entry.message}
+                    </span>
+                  </div>
+                );
+              })}
+              <div ref={logEndRef} />
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Mini action feed — always visible collapsed on left side (latest actions) */}
+      {!isOpen && (
+        <div className="fixed left-6 top-1/2 -translate-y-1/2 z-10 pointer-events-none max-h-[300px] overflow-hidden">
+          <div className="flex flex-col gap-0.5">
+            {recentActions.map((entry, i) => {
+              const isMe = entry.playerIndex === myPlayerIndex;
+              const isSystem = entry.playerIndex === null;
+              const opacity = 0.3 + (i / recentActions.length) * 0.7;
+              return (
+                <div
+                  key={entry.id}
+                  className="animate-action-slide"
+                  style={{ opacity }}
+                >
+                  <span className={`text-[10px] ${
+                    isSystem ? 'text-gray-600' : isMe ? 'text-blue-400/70' : 'text-red-400/70'
+                  }`}>
+                    {entry.message.length > 35 ? entry.message.substring(0, 35) + '...' : entry.message}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+// ═══════════════════════════════════════════
+// ─── Main GameBoard Component ───
+// ═══════════════════════════════════════════
+
+export default function GameBoard({
+  gameState: gs,
+  opponentHovering,
+  opponentEmote,
+  rematchState,
+  onRematchStateChange,
+  onLeaveGame,
+  uid,
+}: GameBoardProps) {
+  const actions = useGameActions();
+
+  // ─── State ───
+  const [targeting, setTargeting] = useState<TargetingMode>({ type: 'none' });
+  const [selectedHandCard, setSelectedHandCard] = useState<string | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [logOpen, setLogOpen] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [attackerPos, setAttackerPos] = useState<{ x: number; y: number } | null>(null);
+  const boardRef = useRef<HTMLDivElement>(null);
+
+  const isMyTurn = gs.currentPlayerIndex === gs.myPlayerIndex;
+  const isPlaying = gs.phase === 'PLAYING';
+  const isGameOver = gs.winner !== null;
+  const myBoard = gs.myBoard;
+  const opBoard = gs.opponent.board;
+
+  // Track mouse for attack arrows
+  useEffect(() => {
+    if (targeting.type !== 'attack') return;
+    const handler = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY });
+    window.addEventListener('mousemove', handler);
+    return () => window.removeEventListener('mousemove', handler);
+  }, [targeting.type]);
+
+  // ─── Pending interaction (server-side targeting) ───
+  const pendingTarget = gs.pendingInteraction?.type === 'CHOOSE_TARGET'
+    && gs.pendingInteraction.waitingForPlayerId === gs.myPlayerId
+    ? gs.pendingInteraction.targetChoice
+    : null;
+
+  // Auto-enter targeting mode from pending interactions
+  useEffect(() => {
+    if (pendingTarget) {
+      setTargeting({ type: 'interaction', interactionId: pendingTarget.interactionId });
+      setSelectedHandCard(null);
+    }
+  }, [pendingTarget?.interactionId]);
+
+  // ─── Valid targets computation ───
+  const validTargetIds = useMemo<Set<string>>(() => {
+    if (pendingTarget) {
+      return new Set(pendingTarget.validTargets.map((t) => t.id));
+    }
+    if (targeting.type === 'attack') {
+      // Can attack enemy minions (taunt check) and enemy hero
+      const enemyHasTaunt = opBoard.some(
+        (m) => !m.isSilenced && getCard(m.cardCode)?.keywords.includes('TAUNT')
+      );
+      const ids = new Set<string>();
+      for (const m of opBoard) {
+        if (m.hasStealthUntilAttack) continue;
+        if (enemyHasTaunt) {
+          const def = getCard(m.cardCode);
+          if (!m.isSilenced && def?.keywords.includes('TAUNT')) {
+            ids.add(m.instanceId);
+          }
+        } else {
+          ids.add(m.instanceId);
+        }
+      }
+      if (!enemyHasTaunt) {
+        ids.add(`hero-${1 - gs.myPlayerIndex}`);
+      }
+      return ids;
+    }
+    return new Set();
+  }, [targeting, pendingTarget, opBoard, gs.myPlayerIndex]);
+
+  // ─── Cancel targeting ───
+  const cancelTargeting = useCallback(() => {
+    setTargeting({ type: 'none' });
+    setSelectedHandCard(null);
+    setAttackerPos(null);
+  }, []);
+
+  // Right click / Escape to cancel
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') cancelTargeting();
+    };
+    const onContext = (e: MouseEvent) => {
+      if (targeting.type !== 'none') {
+        e.preventDefault();
+        cancelTargeting();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    window.addEventListener('contextmenu', onContext);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      window.removeEventListener('contextmenu', onContext);
+    };
+  }, [targeting.type, cancelTargeting]);
+
+  // ─── Handle hand card click ───
+  const handleHandCardClick = useCallback(
+    (card: ClientCardInstance) => {
+      if (!isMyTurn || !isPlaying || isGameOver) return;
+      const def = getCard(card.cardCode);
+      if (!def || def.manaCost > gs.myMana) return;
+
+      if (selectedHandCard === card.instanceId) {
+        // Deselect
+        cancelTargeting();
+        return;
+      }
+
+      // If it's a minion without a targeted battlecry, or a non-targeted spell:
+      const needsTarget =
+        (def.type === 'MINION' && def.battlecryEffect?.target &&
+          !['NONE', 'SELF', 'ALL_ENEMY_MINIONS', 'ALL_FRIENDLY_MINIONS', 'ALL_MINIONS', 'RANDOM_ENEMY', 'RANDOM_ENEMY_MINION'].includes(def.battlecryEffect.target)) ||
+        (def.type === 'SPELL' && def.spellEffect?.target &&
+          !['NONE', 'ALL_ENEMY_MINIONS', 'ALL_FRIENDLY_MINIONS', 'ALL_MINIONS', 'RANDOM_ENEMY', 'RANDOM_ENEMY_MINION'].includes(def.spellEffect.target));
+
+      if (def.type === 'MINION' && myBoard.length >= MAX_BOARD_SIZE) return;
+
+      setSelectedHandCard(card.instanceId);
+
+      if (!needsTarget) {
+        // Play immediately (minion goes to rightmost position)
+        const pos = def.type === 'MINION' ? myBoard.length : undefined;
+        actions.playCard(card.instanceId, pos);
+        cancelTargeting();
+      } else {
+        // Enter targeting mode - server will send pendingInteraction
+        const pos = def.type === 'MINION' ? myBoard.length : undefined;
+        actions.playCard(card.instanceId, pos);
+        setSelectedHandCard(null);
+        // Server will respond with pendingInteraction if target needed
+      }
+    },
+    [isMyTurn, isPlaying, isGameOver, gs.myMana, selectedHandCard, myBoard.length, actions, cancelTargeting]
+  );
+
+  // ─── Handle board minion click ───
+  const handleMyMinionClick = useCallback(
+    (minion: BoardMinion, e: React.MouseEvent) => {
+      if (!isMyTurn || !isPlaying || isGameOver) return;
+
+      // If in targeting mode from interaction, select this as target
+      if (pendingTarget && validTargetIds.has(minion.instanceId)) {
+        actions.playCard('__resolve_target__', undefined, minion.instanceId);
+        cancelTargeting();
+        return;
+      }
+
+      if (targeting.type === 'attack') {
+        // Can't attack own minion
+        cancelTargeting();
+        return;
+      }
+
+      if (minion.canAttack && minion.attacksRemaining > 0 && minion.currentAttack > 0) {
+        const rect = (e.target as HTMLElement).getBoundingClientRect();
+        setAttackerPos({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+        setTargeting({ type: 'attack', attackerInstanceId: minion.instanceId });
+      }
+    },
+    [isMyTurn, isPlaying, isGameOver, targeting, pendingTarget, validTargetIds, actions, cancelTargeting]
+  );
+
+  // ─── Handle enemy target click ───
+  const handleEnemyTargetClick = useCallback(
+    (targetId: string) => {
+      if (pendingTarget && validTargetIds.has(targetId)) {
+        // Resolve server-side interaction
+        const socket = (actions as any); // We emit via socket
+        // Use the socket directly for target resolution
+        import('../socket').then(({ socket }) => {
+          socket.emit('resolve-target', {
+            interactionId: pendingTarget.interactionId,
+            targetId,
+          });
+        });
+        cancelTargeting();
+        return;
+      }
+
+      if (targeting.type === 'attack' && validTargetIds.has(targetId)) {
+        actions.attackTarget(targeting.attackerInstanceId, targetId);
+        cancelTargeting();
+      }
+    },
+    [targeting, pendingTarget, validTargetIds, actions, cancelTargeting]
+  );
+
+  // ─── Hero Power ───
+  const handleHeroPower = useCallback(() => {
+    if (!isMyTurn || !isPlaying || gs.myHeroPowerUsed || gs.myMana < HERO_POWER_COST) return;
+    actions.heroPower();
+    // Server may respond with pendingInteraction if it needs a target
+  }, [isMyTurn, isPlaying, gs.myHeroPowerUsed, gs.myMana, actions]);
+
+  // ─── End Turn ───
+  const handleEndTurn = useCallback(() => {
+    if (!isMyTurn || !isPlaying) return;
+    cancelTargeting();
+    actions.endTurn();
+  }, [isMyTurn, isPlaying, actions, cancelTargeting]);
+
+  // ─── Concede ───
+  const handleConcede = useCallback(() => {
+    actions.concede();
+    setMenuOpen(false);
+  }, [actions]);
+
+  // ─── Mulligan ───
+  if (gs.phase === 'MULLIGAN') {
+    const alreadyConfirmed = gs.mulliganConfirmed[gs.myPlayerIndex];
+    return (
+      <div className="relative h-screen w-screen bg-gray-950">
+        <MulliganScreen
+          hand={gs.myHand}
+          confirmed={alreadyConfirmed}
+          onConfirm={(replacements) => {
+            actions.confirmMulligan(replacements);
+          }}
+        />
+      </div>
+    );
+  }
+
+  // ─── Game Over overlay ───
+  const GameOverOverlay = isGameOver ? (
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/70 backdrop-blur-sm">
+      <h1
+        className={`mb-4 text-5xl font-bold ${gs.winner === gs.myPlayerId ? 'text-amber-400' : 'text-red-500'}`}
+      >
+        {gs.winner === gs.myPlayerId ? 'VICTORY' : 'DEFEAT'}
+      </h1>
+      <p className="mb-2 text-gray-300">
+        {gs.winReason === 'concede'
+          ? 'Opponent conceded'
+          : gs.winReason === 'fatigue'
+            ? 'Death by fatigue'
+            : 'Hero destroyed'}
+      </p>
+      <div className="mt-6 flex gap-4">
+        <button
+          onClick={() => {
+            actions.requestRematch();
+            onRematchStateChange('requested');
+          }}
+          disabled={rematchState === 'requested'}
+          className={`rounded-lg px-6 py-3 font-bold transition-all
+            ${rematchState === 'requested'
+              ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+              : 'bg-amber-500 text-black hover:bg-amber-400'}
+          `}
+        >
+          {rematchState === 'requested' ? 'Rematch Requested...' : 'Rematch'}
+        </button>
+        <button
+          onClick={onLeaveGame}
+          className="rounded-lg border border-gray-500 px-6 py-3 font-bold text-gray-300 hover:bg-gray-700"
+        >
+          Leave
+        </button>
+      </div>
+    </div>
+  ) : null;
+
+  // ─── Interaction overlay (pending target) ───
+  const InteractionOverlay = pendingTarget ? (
+    <div className="fixed left-1/2 top-4 z-40 -translate-x-1/2 rounded-lg bg-amber-900/90 px-6 py-3 text-center shadow-lg">
+      <p className="text-lg font-bold text-amber-300">{pendingTarget.prompt}</p>
+      <p className="text-sm text-amber-200/70">Click a valid target (glowing green)</p>
+      {pendingTarget.allowSkip && (
+        <button
+          onClick={() => {
+            import('../socket').then(({ socket }) => {
+              socket.emit('resolve-target', {
+                interactionId: pendingTarget.interactionId,
+                targetId: null,
+              });
+            });
+            cancelTargeting();
+          }}
+          className="mt-2 rounded bg-gray-600 px-4 py-1 text-sm text-white hover:bg-gray-500"
+        >
+          Skip
+        </button>
+      )}
+    </div>
+  ) : null;
+
+  return (
+    <div
+      ref={boardRef}
+      className="relative flex h-screen w-screen flex-col overflow-hidden bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950"
+    >
+      {GameOverOverlay}
+      {InteractionOverlay}
+
+      {/* Attack arrow */}
+      {targeting.type === 'attack' && attackerPos && (
+        <AttackArrow from={attackerPos} to={mousePos} />
+      )}
+
+      {/* ═══ Opponent Emote ═══ */}
+      {opponentEmote && (
+        <div className="fixed right-8 top-24 z-30 animate-bounce rounded-lg bg-gray-800 px-4 py-2 text-2xl shadow-lg">
+          {opponentEmote}
+        </div>
+      )}
+
+      {/* ═══ Menu dropdown ═══ */}
+      <div className="absolute right-4 top-4 z-30">
+        <button
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="rounded-lg bg-gray-800 px-3 py-2 text-sm text-gray-300 hover:bg-gray-700"
+        >
+          Menu
+        </button>
+        {menuOpen && (
+          <div className="absolute right-0 mt-1 w-40 rounded-lg border border-gray-700 bg-gray-800 py-1 shadow-xl">
+            <button
+              onClick={handleConcede}
+              className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-gray-700"
+            >
+              Concede
+            </button>
+            <button
+              onClick={onLeaveGame}
+              className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-gray-700"
+            >
+              Leave Game
+            </button>
+            <button
+              onClick={() => setMenuOpen(false)}
+              className="w-full px-4 py-2 text-left text-sm text-gray-400 hover:bg-gray-700"
+            >
+              Close
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* ═══════════════════════════════════════════ */}
+      {/* OPPONENT AREA */}
+      {/* ═══════════════════════════════════════════ */}
+      <div className="flex flex-col items-center gap-2 px-4 pt-3">
+        {/* Opponent hand */}
+        <OpponentHand count={gs.opponent.handCount} />
+
+        {/* Opponent hero row */}
+        <div className="flex items-center gap-6">
+          <DeckPile count={gs.opponentDeckCount} graveyardCount={gs.opponent.graveyardCount} />
+          <HeroPortrait
+            heroClass={gs.opponent.heroClass}
+            health={gs.opponent.health}
+            maxHealth={gs.opponent.maxHealth}
+            armor={gs.opponent.armor}
+            weapon={gs.opponent.weapon}
+            heroPowerUsed={gs.opponent.heroPowerUsed}
+            isMyHero={false}
+            isMyTurn={!isMyTurn}
+            mana={gs.opponent.mana}
+            maxMana={gs.opponent.maxMana}
+            canUseHeroPower={false}
+            isValidTarget={validTargetIds.has(`hero-${1 - gs.myPlayerIndex}`)}
+            onHeroPowerClick={() => {}}
+            onHeroClick={() => handleEnemyTargetClick(`hero-${1 - gs.myPlayerIndex}`)}
+          />
+          <ManaCrystals current={gs.opponent.mana} max={gs.opponent.maxMana} />
+        </div>
+
+        {/* Opponent board */}
+        <div className="flex min-h-[6.5rem] items-center justify-center gap-2">
+          {opBoard.length === 0 ? (
+            <div className="text-sm text-gray-700">No minions</div>
+          ) : (
+            opBoard.map((m) => (
+              <BoardMinionCard
+                key={m.instanceId}
+                minion={m}
+                isMyMinion={false}
+                canAct={false}
+                isValidTarget={validTargetIds.has(m.instanceId)}
+                isSelected={false}
+                onClick={() => handleEnemyTargetClick(m.instanceId)}
+              />
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* ═══════════════════════════════════════════ */}
+      {/* CENTER DIVIDER */}
+      {/* ═══════════════════════════════════════════ */}
+      <div className="flex items-center justify-center gap-6 py-3">
+        {/* Turn info */}
+        <div className="text-sm text-gray-500">
+          Turn {gs.turnNumber}
+        </div>
+
+        {/* End Turn button */}
+        <button
+          onClick={handleEndTurn}
+          disabled={!isMyTurn || !isPlaying}
+          className={`rounded-lg px-8 py-3 text-lg font-bold tracking-wide transition-all
+            ${isMyTurn && isPlaying
+              ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-black shadow-[0_0_20px_4px_rgba(234,179,8,0.4)] hover:from-amber-400 hover:to-yellow-400 hover:scale-105 active:scale-95'
+              : 'bg-gray-700 text-gray-500 cursor-not-allowed'}
+          `}
+        >
+          {isMyTurn ? 'End Turn' : "Opponent's Turn"}
+        </button>
+
+        {/* Game log toggle */}
+        <button
+          onClick={() => setLogOpen(!logOpen)}
+          className="rounded bg-gray-800 px-3 py-1 text-xs text-gray-400 hover:bg-gray-700"
+        >
+          Log
         </button>
       </div>
 
-      {/* MAIN BOARD */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Status bar */}
-        <div className="h-10 flex items-center justify-center gap-2 border-b border-board-accent/30 relative">
-          {gameState.lastAction && <span className="text-sm text-gray-400">{gameState.lastAction}</span>}
-          {amICurrentPlayer && !gameState.combatState && (
-            <span className="text-sm text-spero-yellow font-bold animate-pulse-glow">Your turn!</span>
-          )}
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-2">
-            <button
-              onClick={() => setShowGameLog(!showGameLog)}
-              className={`text-gray-500 hover:text-gray-300 transition-colors cursor-pointer text-lg p-1 ${showGameLog ? 'text-spero-blue' : ''}`}
-              title="Game Log"
-            >
-              📋
-            </button>
-            <button
-              onClick={() => setShowFriendsPanel(!showFriendsPanel)}
-              className="text-gray-500 hover:text-gray-300 transition-colors cursor-pointer text-lg p-1"
-              title="Friends"
-            >
-              👥
-            </button>
-            <button
-              onClick={() => setShowSettings(true)}
-              className="text-gray-500 hover:text-gray-300 transition-colors cursor-pointer text-2xl p-2"
-              title="Settings"
-            >
-              ⚙
-            </button>
+      {/* Last action text */}
+      {gs.lastAction && (
+        <div className="mx-auto mb-1 max-w-md text-center text-xs text-gray-500 italic">
+          {gs.lastAction}
+        </div>
+      )}
+
+      {/* Collapsible game log */}
+      {logOpen && (
+        <div className="absolute left-4 top-1/2 z-30 max-h-60 w-72 -translate-y-1/2 overflow-y-auto rounded-lg border border-gray-700 bg-gray-900/95 p-3 shadow-xl">
+          <h3 className="mb-2 text-sm font-bold text-gray-300">Game Log</h3>
+          <div className="space-y-1">
+            {gs.log
+              .slice(-20)
+              .reverse()
+              .map((entry) => (
+                <div key={entry.id} className="text-[11px] text-gray-400">
+                  <span className="text-gray-600">T{entry.turnNumber}</span>{' '}
+                  {entry.message}
+                </div>
+              ))}
           </div>
         </div>
-        <TurnTimer deadline={gameState.turnDeadline} isMyTurn={amICurrentPlayer} />
+      )}
 
-        {/* Opponent info row */}
-        <div className="flex items-center justify-center gap-4 py-1 shrink-0">
-          <DeckDiscard deckCount={gameState.opponentDeckCount} discardCount={gameState.opponent.discardCount} discardCards={gameState.opponent.discard} compact onInspect={setInspectedCard} />
-        </div>
-
-        {/* Opponent Hero Portrait */}
-        <div className="flex justify-center py-1 shrink-0 -mb-2 z-20 relative">
-          <div className="relative">
-            <HeroPortrait
-              playerName={gameState.opponent.playerName}
-              health={AP_TO_WIN - myAP}
-              ap={oppAP}
-              isOpponent={true}
-              effects={effects}
-              playerIndex={gameState.myPlayerIndex === 0 ? 1 : 0}
-            />
-            {opponentEmote && <EmoteBubble text={opponentEmote} position="top" />}
-          </div>
-        </div>
-
-        {/* Opponent hand (fanned arc) — dynamic sizing */}
-        <div className={`${layout.oppHandContainer} shrink-0 flex items-start justify-center px-4 overflow-visible relative z-10`}>
-          {gameState.opponent.handCount > 0 ? (
-            (() => {
-              const total = gameState.opponent.handCount;
-              const fanAngle = Math.min(3, 18 / total);
-              const scale = Math.min(1, 7 / total);
-              const cardW = Math.round(layout.oppHandBase.w * scale);
-              const cardH = Math.round(layout.oppHandBase.h * scale);
-              return Array.from({ length: total }).map((_, i) => {
-                const offset = i - (total - 1) / 2;
-                const rotation = offset * fanAngle;
-                const translateY = Math.abs(offset) * 2;
-                return (
-                  <div
-                    key={i}
-                    className="rounded-lg border border-gray-600 bg-gradient-to-b from-board-accent via-board-surface to-board-accent flex items-center justify-center shrink-0 hover:scale-125 hover:translate-y-2 hover:z-50 transition-all duration-200 cursor-default shadow-md"
-                    style={{
-                      width: cardW,
-                      height: cardH,
-                      transform: `translateY(${translateY}px) rotate(${rotation}deg)`,
-                      transformOrigin: 'top center',
-                      marginLeft: i === 0 ? 0 : '-8px',
-                    }}
-                  >
-                    <span className="text-gray-500 text-[10px] font-bold tracking-widest select-none">SPERO</span>
-                  </div>
-                );
-              });
-            })()
+      {/* ═══════════════════════════════════════════ */}
+      {/* MY AREA */}
+      {/* ═══════════════════════════════════════════ */}
+      <div className="flex flex-1 flex-col items-center justify-end gap-2 px-4 pb-3">
+        {/* My board */}
+        <div className="flex min-h-[6.5rem] items-center justify-center gap-2">
+          {myBoard.length === 0 ? (
+            <div className="text-sm text-gray-700">
+              {isMyTurn ? 'Play minions here' : 'No minions'}
+            </div>
           ) : (
-            <span className="text-xs text-gray-600">No cards in hand</span>
+            myBoard.map((m) => (
+              <BoardMinionCard
+                key={m.instanceId}
+                minion={m}
+                isMyMinion={true}
+                canAct={isMyTurn && m.canAttack && m.attacksRemaining > 0 && m.currentAttack > 0}
+                isValidTarget={validTargetIds.has(m.instanceId)}
+                isSelected={targeting.type === 'attack' && targeting.attackerInstanceId === m.instanceId}
+                onClick={(e?: any) => handleMyMinionClick(m, e)}
+              />
+            ))
           )}
-          {opponentHovering && <span className="ml-1 animate-pulse text-sm">👀</span>}
         </div>
 
-        {/* Opponent half — pushes content toward center */}
-        <div className="flex-1 px-4 py-2 min-h-0 flex flex-col items-center justify-end bg-gradient-to-b from-board-bg to-board-surface/30">
-          <OpponentField
-            opponent={gameState.opponent}
-            onStackClick={uiMode.type === 'select-duel-target' ? handleOpponentStackClick : undefined}
-            highlightedStackIds={uiMode.type === 'select-duel-target' ? gameState.opponent.stacks.map((s) => s.stackId) : []}
-            opponentHovering={opponentHovering}
-            cardSize={layout.boardScale}
-            getStackEffect={getStackEffect}
-            onInspect={setInspectedCard}
-          />
-        </div>
-
-        {/* Center divider with End Turn button */}
-        <div className="px-6 py-1 shrink-0 flex items-center gap-3">
-          <div className="flex-1 h-px bg-gradient-to-r from-transparent to-board-accent/40" />
-          {amICurrentPlayer && !gameState.combatState ? (
-            gameState.turnPhase === 'BUILD' ? (
-              <button
-                onClick={actions.endBuildPhase}
-                className="min-w-[140px] px-5 py-2 rounded-full bg-spero-blue text-white font-bold text-sm hover:brightness-110 active:scale-95 transition-all cursor-pointer shadow-lg"
-              >
-                End Build ({gameState.buildsRemaining} left)
-              </button>
-            ) : gameState.turnPhase === 'ACTION' ? (
-              <button
-                onClick={actions.endActionPhase}
-                className="min-w-[140px] px-5 py-2 rounded-full bg-amber-600 text-white font-bold text-sm hover:brightness-110 active:scale-95 transition-all cursor-pointer shadow-lg animate-end-turn-glow"
-              >
-                End Turn
-              </button>
-            ) : (
-              <span className="text-[10px] uppercase tracking-widest text-gray-600">{gameState.turnPhase}</span>
-            )
-          ) : (
-            <span className="min-w-[140px] px-5 py-2 rounded-full bg-board-accent text-gray-500 font-bold text-sm text-center cursor-default">
-              Opponent's Turn
-            </span>
-          )}
-          <div className="flex-1 h-px bg-gradient-to-l from-transparent to-board-accent/40" />
-        </div>
-
-        {/* My half — pushes content toward center */}
-        <div className="flex-1 px-4 py-2 min-h-0 flex flex-col items-center justify-start relative bg-gradient-to-t from-board-bg to-board-surface/30" data-hint-target="stacks" data-hint-target2="action-area" data-drop-zone="my-field">
-          <Battlefield
-            stacks={gameState.myStacks}
-            isOwner={true}
-            onStackClick={
-              validBlockerIds.length > 0
-                || uiMode.type === 'select-stack-for-card'
-                || uiMode.type === 'select-action-stack'
-                || (isActionPhase && uiMode.type === 'idle')
-                ? handleMyStackClick
-                : undefined
-            }
-            highlightedStackIds={battlefieldHighlightedIds}
-            highlightStyle={battlefieldHighlightStyle}
-            dimNonHighlighted={battlefieldHighlightStyle === 'block' && validBlockerIds.length > 0}
-            actionLabels={actionLabels}
-            showNewStackSlots={uiMode.type === 'select-stack-for-card' || !!drag.state || !!stackDrag?.activated}
-            onNewStack={handleNewStack}
-            onNewStackAtIndex={handleNewStackAtIndex}
-            isActionPhase={isActionPhase}
-            actedStacks={gameState.actedStacks}
-            isDragActive={!!drag.state || !!stackDrag?.activated}
-            hoveredDropTarget={hoveredDropTarget}
-            turnNumber={gameState.turnNumber}
-            cardSize={layout.boardScale}
-            stackOrder={stackOrder}
-            getStackEffect={getStackEffect}
-            animatingBuilds={animatingBuilds}
-            onRestoreCard={actions.restoreCard}
-            canRestore={canDrag}
-            selectedStackId={uiMode.type === 'select-mission-type' ? uiMode.stackId : undefined}
-            onPowerMission={(stackId) => {
-              actions.powerMission(stackId);
-              setUIMode({ type: 'idle' });
+        {/* My hero row */}
+        <div className="flex items-center gap-6">
+          <ManaCrystals current={gs.myMana} max={gs.myMaxMana} />
+          <HeroPortrait
+            heroClass={gs.myHeroClass}
+            health={gs.myHealth}
+            maxHealth={gs.myMaxHealth}
+            armor={gs.myArmor}
+            weapon={gs.myWeapon}
+            heroPowerUsed={gs.myHeroPowerUsed}
+            isMyHero={true}
+            isMyTurn={isMyTurn}
+            mana={gs.myMana}
+            maxMana={gs.myMaxMana}
+            canUseHeroPower={isMyTurn && !gs.myHeroPowerUsed && gs.myMana >= HERO_POWER_COST}
+            isValidTarget={validTargetIds.has(`hero-${gs.myPlayerIndex}`)}
+            onHeroPowerClick={handleHeroPower}
+            onHeroClick={() => {
+              if (validTargetIds.has(`hero-${gs.myPlayerIndex}`)) {
+                handleEnemyTargetClick(`hero-${gs.myPlayerIndex}`);
+              }
             }}
-            onSmartsMission={(stackId) => {
-              actions.smartsMission(stackId);
-              setUIMode({ type: 'idle' });
-            }}
-            onMissionCancel={() => setUIMode({ type: 'idle' })}
-            readyStackIds={readyStackIds}
-            onInspect={setInspectedCard}
-            onDragStartFromStack={handleStackDragStart}
-            canSplitDrag={canDrag}
           />
-
-          {/* Floating prompts */}
-          {uiMode.type === 'select-stack-for-card' && uiMode.faceDown && (
-            <div className="mt-2 flex justify-center">
-              <span className="text-xs text-spero-yellow font-bold">Placing face-down — select a stack or empty lane</span>
-              <button
-                onClick={() => setUIMode({ type: 'idle' })}
-                className="ml-2 text-gray-400 text-xs underline cursor-pointer"
-              >
-                Cancel
-              </button>
-            </div>
-          )}
-          {uiMode.type === 'select-stack-for-card' && !uiMode.faceDown && (
-            <div className="mt-2 flex justify-center">
-              <span className="text-xs text-spero-blue font-bold">Select a stack or empty lane</span>
-              <button
-                onClick={() => setUIMode({ type: 'idle' })}
-                className="ml-2 text-gray-400 text-xs underline cursor-pointer"
-              >
-                Cancel
-              </button>
-            </div>
-          )}
-
-          {uiMode.type === 'select-duel-target' && (
-            <div className="mt-2 flex justify-center">
-              <span className="text-sm text-spero-yellow">Select an opponent stack to duel...</span>
-              <button
-                onClick={() => setUIMode({ type: 'idle' })}
-                className="ml-2 text-gray-400 text-sm underline cursor-pointer"
-              >
-                Cancel
-              </button>
-            </div>
-          )}
-
-          {uiMode.type === 'select-action-stack' && (
-            <div className="mt-2 flex justify-center">
-              <span className="text-sm text-spero-blue">Select a stack to play the action with...</span>
-              <button
-                onClick={() => setUIMode({ type: 'idle' })}
-                className="ml-2 text-gray-400 text-sm underline cursor-pointer"
-              >
-                Cancel
-              </button>
-            </div>
-          )}
-
-          {/* Floating build modal */}
-          {uiMode.type === 'choose-drag-build-mode' && (
-            <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 rounded-xl">
-              <div className="flex gap-3">
-                <button
-                  onClick={() => {
-                    actions.buildCard(uiMode.cardInstanceId, uiMode.targetStackId, false);
-                    setUIMode({ type: 'idle' });
-                  }}
-                  className="bg-spero-blue text-white text-base font-bold px-6 py-3 rounded-xl hover:brightness-110 active:scale-95 transition-all cursor-pointer"
-                >
-                  Build Face-Up
-                </button>
-                <button
-                  onClick={() => {
-                    actions.buildCard(uiMode.cardInstanceId, uiMode.targetStackId, true);
-                    setUIMode({ type: 'idle' });
-                  }}
-                  className="bg-board-accent border border-spero-yellow text-spero-yellow text-base font-bold px-6 py-3 rounded-xl hover:bg-spero-yellow/10 active:scale-95 transition-all cursor-pointer"
-                >
-                  Build Face-Down
-                </button>
-                <button
-                  onClick={() => setUIMode({ type: 'idle' })}
-                  className="bg-board-accent text-gray-400 text-base px-6 py-3 rounded-xl hover:bg-board-accent/80 transition-all cursor-pointer"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
+          <DeckPile count={gs.deckCount} graveyardCount={gs.myGraveyardCount} />
         </div>
 
-
-        {/* Player Hero Portrait + Hand Badge Row */}
-        <div className="flex justify-center items-center gap-4 py-1 shrink-0 z-20 relative" data-hint-target="player-portrait">
-          {/* My info row (left side) */}
-          <div className="flex items-center gap-2">
-            <DeckDiscard deckCount={gameState.deckCount} discardCount={gameState.myDiscardCount} discardCards={gameState.myDiscard} compact onInspect={setInspectedCard} />
-            {gameState.mySideplay.length > 0 && (
-              <>
-                <span className="text-gray-700">|</span>
-                <span className="text-xs text-gray-500">Side: {gameState.mySideplay.length}</span>
-              </>
-            )}
-          </div>
-
-          <div className="relative">
-            {myEmote && <EmoteBubble text={myEmote} position="bottom" />}
-            <HeroPortrait
-              playerName={gameState.myPlayerName}
-              health={AP_TO_WIN - oppAP}
-              ap={myAP}
-              isOpponent={false}
-              effects={effects}
-              playerIndex={gameState.myPlayerIndex}
-              onClick={() => setShowEmotePanel(!showEmotePanel)}
-            />
-            {showEmotePanel && (
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-30">
-                <EmotePanel
-                  onEmote={(e: EmoteId) => {
-                    actions.emitEmote(e);
-                    setMyEmote(e);
-                    setTimeout(() => setMyEmote(null), 3000);
-                    setShowEmotePanel(false);
-                  }}
-                  onClose={() => setShowEmotePanel(false)}
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Collapsed hand badge */}
-          <button
-            data-hint-target="hand"
-            onClick={() => setHandExpanded(true)}
-            className={`px-3 py-1.5 rounded-full border border-board-accent bg-board-surface text-sm font-bold cursor-pointer transition-all hover:brightness-125 ${
-              hasPlayableCards ? 'text-spero-blue animate-hand-badge-pulse' : 'text-gray-400'
-            }`}
-          >
-            Hand ({gameState.myHand.length})
-          </button>
+        {/* My hand */}
+        <div className="flex items-end justify-center gap-1 pb-1">
+          {gs.myHand.map((card) => {
+            const def = getCard(card.cardCode);
+            const canPlay = isMyTurn && isPlaying && !isGameOver && (def?.manaCost ?? 99) <= gs.myMana
+              && (def?.type !== 'MINION' || myBoard.length < MAX_BOARD_SIZE);
+            return (
+              <HandCard
+                key={card.instanceId}
+                card={card}
+                canPlay={canPlay}
+                isSelected={selectedHandCard === card.instanceId}
+                onClick={() => handleHandCardClick(card)}
+              />
+            );
+          })}
         </div>
       </div>
 
-      {/* Hand Overlay */}
-      {handExpanded && (
-        <>
-          {/* Scrim — don't close during active drag */}
-          <div
-            className="fixed inset-0 z-30 bg-black/50"
-            onClick={!drag.state ? () => setHandExpanded(false) : undefined}
-          />
-          {/* Hand panel */}
-          <div
-            className="fixed bottom-0 left-0 right-0 z-40 bg-board-surface/95 border-t border-board-accent animate-hand-slide-up h-[45vh] md:h-[35vh]"
-            onPointerMove={drag.state ? (e) => handleDragMove(e) : undefined}
-            onPointerUp={drag.state ? handleDragEnd : undefined}
-          >
-            <div className="flex items-center justify-between px-4 py-2 border-b border-board-accent/50">
-              <div className="text-sm text-gray-400" data-hint-target="builds">
-                Hand ({gameState.myHand.length})
-                {gameState.turnPhase === 'BUILD' && amICurrentPlayer && ` — ${gameState.buildsRemaining} builds left`}
-              </div>
-              <button
-                onClick={() => setHandExpanded(false)}
-                className="text-gray-400 hover:text-white cursor-pointer text-lg leading-none px-2"
-              >
-                ✕
-              </button>
-            </div>
-            <div className="h-[calc(100%-40px)] p-2 md:p-4">
-              <Hand
-                cards={gameState.myHand}
-                onCardClick={handleHandCardClick}
-                isMyTurn={amICurrentPlayer}
-                highlightFilter={handHighlight}
-                expanded
-                onDragStart={amICurrentPlayer ? (id, e) => drag.startDrag(id, e.nativeEvent) : undefined}
-                draggingCardId={drag.state?.cardInstanceId ?? null}
-                cardSize={layout.handCardSize}
-                onInspect={setInspectedCard}
-              />
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* Card Inspect Modal */}
-      {inspectedCard && (() => {
-        const def = getCardDef(inspectedCard);
-        if (!def) return null;
-        return (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
-            onClick={() => setInspectedCard(null)}
-          >
-            <div className="animate-card-inspect-in flex flex-col items-center gap-3 max-w-sm w-full mx-4" onClick={(e) => e.stopPropagation()}>
-              <img
-                src={getCardImagePath(inspectedCard)}
-                alt={def.name}
-                className="w-80 max-h-[70vh] object-contain rounded-xl shadow-2xl"
-                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-              />
-              <div className="bg-board-surface/95 border border-board-accent rounded-lg px-4 py-3 w-full text-center">
-                <div className="text-white font-bold text-lg">{def.name}</div>
-                <div className="text-gray-400 text-xs mt-0.5">{def.typeA}{def.typeB ? ` — ${def.typeB}` : ''} · Cost {def.cost}</div>
-                {(def.power > 0 || def.smarts > 0) && (
-                  <div className="flex justify-center gap-3 mt-1.5">
-                    {def.power > 0 && <span className="text-spero-red font-bold text-sm">Power {def.power}</span>}
-                    {def.smarts > 0 && <span className="text-spero-blue font-bold text-sm">Smarts {def.smarts}</span>}
-                  </div>
-                )}
-                {def.rulesText && <p className="text-gray-300 text-sm mt-2">{def.rulesText}</p>}
-                {def.flavor && <p className="text-gray-500 text-xs italic mt-1">{def.flavor}</p>}
-              </div>
-              <button
-                onClick={() => setInspectedCard(null)}
-                className="text-gray-400 text-sm underline cursor-pointer hover:text-white transition-colors"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        );
-      })()}
-
-      {/* Game Log Sidebar */}
-      {showGameLog && (
-        <div className="fixed right-0 top-0 bottom-0 w-72 z-40 bg-board-surface/95 border-l border-board-accent shadow-2xl flex flex-col">
-          <div className="flex items-center justify-between px-3 py-2 border-b border-board-accent">
-            <span className="text-sm font-bold text-gray-300">Game Log</span>
-            <button onClick={() => setShowGameLog(false)} className="text-gray-400 hover:text-white cursor-pointer text-lg">✕</button>
-          </div>
-          <div className="flex-1 overflow-hidden">
-            <GameLog log={gameState.log} myPlayerIndex={gameState.myPlayerIndex} />
-          </div>
+      {/* Opponent hovering indicator */}
+      {opponentHovering && (
+        <div className="fixed left-4 bottom-4 z-20 rounded bg-gray-800/80 px-3 py-1 text-xs text-gray-400">
+          Opponent is thinking...
         </div>
       )}
 
-      {/* Friends Panel Overlay */}
-      {showFriendsPanel && uid && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-board-surface rounded-2xl shadow-2xl border border-board-accent max-w-md w-full mx-4 max-h-[80vh] overflow-hidden flex flex-col">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-board-accent">
-              <h2 className="text-white font-bold">Friends</h2>
-              <button onClick={() => setShowFriendsPanel(false)} className="text-gray-400 hover:text-white cursor-pointer text-lg">✕</button>
-            </div>
-            <div className="flex-1 overflow-y-auto">
-              <Friends uid={uid} onBack={() => setShowFriendsPanel(false)} />
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ═══ Action Log Sidebar (Hearthstone-style left panel) ═══ */}
+      <ActionLogSidebar log={gs.log} myPlayerIndex={gs.myPlayerIndex} isOpen={logOpen} onToggle={() => setLogOpen(!logOpen)} />
     </div>
   );
 }

@@ -9,10 +9,12 @@ import {
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import { STARTER_DECKS } from '../../../shared/starterDecks';
+import type { HeroClass } from '../../../shared/types';
 
 export interface DeckList {
   id: string;
   name: string;
+  heroClass: HeroClass;
   cards: string[];
   createdAt: number;
   updatedAt: number;
@@ -25,7 +27,29 @@ const SELECTED_KEY = 'spero-selected-deck';
 export async function loadDecks(uid: string): Promise<DeckList[]> {
   const q = query(collection(db, 'users', uid, 'decks'), orderBy('createdAt', 'asc'));
   const snap = await getDocs(q);
-  return snap.docs.map(d => ({ id: d.id, ...d.data() } as DeckList));
+  return snap.docs.map(d => {
+    const data = d.data();
+    return {
+      id: d.id,
+      name: data.name,
+      heroClass: data.heroClass ?? inferHeroClass(data.cards ?? []),
+      cards: data.cards ?? [],
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
+      isStarterDeck: data.isStarterDeck,
+    } as DeckList;
+  });
+}
+
+/** Infer heroClass from card codes for legacy decks missing the field */
+function inferHeroClass(cards: string[]): HeroClass {
+  for (const code of cards) {
+    if (code.startsWith('JIM')) return 'JIMMY';
+    if (code.startsWith('TAL')) return 'TALA';
+    if (code.startsWith('DRK')) return 'DEREK';
+    if (code.startsWith('AND')) return 'ANDERS';
+  }
+  return 'JIMMY'; // fallback
 }
 
 export async function saveDeck(uid: string, deck: DeckList): Promise<void> {
@@ -36,6 +60,7 @@ export async function saveDeck(uid: string, deck: DeckList): Promise<void> {
   }
   await setDoc(doc(db, 'users', uid, 'decks', deck.id), {
     name: deck.name,
+    heroClass: deck.heroClass,
     cards: deck.cards,
     createdAt: deck.createdAt,
     updatedAt: deck.updatedAt,
@@ -57,12 +82,13 @@ export async function deleteDeck(uid: string, id: string): Promise<void> {
 
 export async function seedStarterDecks(uid: string): Promise<void> {
   const existing = await loadDecks(uid);
-  if (existing.length > 0) return; // Already has decks
+  if (existing.length > 0) return;
 
   const now = Date.now();
   for (const starter of STARTER_DECKS) {
     await setDoc(doc(db, 'users', uid, 'decks', starter.id), {
       name: starter.name,
+      heroClass: starter.heroClass,
       cards: starter.cards,
       createdAt: now,
       updatedAt: now,
@@ -90,6 +116,7 @@ export async function migrateLocalStorageDecks(uid: string): Promise<void> {
     for (const deck of localDecks) {
       await setDoc(doc(db, 'users', uid, 'decks', deck.id), {
         name: deck.name,
+        heroClass: deck.heroClass ?? inferHeroClass(deck.cards),
         cards: deck.cards,
         createdAt: deck.createdAt,
         updatedAt: deck.updatedAt,
