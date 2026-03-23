@@ -39,7 +39,7 @@ function App() {
 
   useEffect(() => { displayedRef.current = displayedState; }, [displayedState]);
 
-  const processQueueRef = useRef<() => void>();
+  const processQueueRef = useRef<(() => void) | undefined>(undefined);
   processQueueRef.current = () => {
     if (processingRef.current || stateQueueRef.current.length === 0) return;
     processingRef.current = true;
