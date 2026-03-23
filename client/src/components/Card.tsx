@@ -57,17 +57,17 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
         onClick={onClick}
         className={`
           ${small ? 'w-[100px] h-[143px]' : 'w-[140px] h-[200px]'}
-          rounded-xl border-2 border-gray-600 flex-shrink-0
-          bg-gradient-to-br from-indigo-950 via-slate-900 to-indigo-950
+          rounded-xl border-2 border-amber-700 flex-shrink-0
+          bg-gradient-to-br from-amber-950 via-stone-900 to-amber-950
           flex items-center justify-center relative overflow-hidden
           ${onClick ? 'cursor-pointer hover:brightness-110 active:scale-95' : ''}
           ${className ?? ''}
         `}
       >
         {/* Diamond pattern for card back */}
-        <div className="absolute inset-2 border border-gray-600 rounded-lg opacity-40" />
-        <div className="absolute inset-4 border border-gray-700 rounded-md opacity-25 rotate-45 scale-75" />
-        <div className="text-gray-500 font-extrabold text-sm tracking-widest select-none">SPERO</div>
+        <div className="absolute inset-2 border border-amber-600 rounded-lg opacity-40" />
+        <div className="absolute inset-4 border border-amber-700 rounded-md opacity-25 rotate-45 scale-75" />
+        <div className="text-amber-600 font-extrabold text-sm tracking-widest select-none">SPERO</div>
       </button>
     );
   }
@@ -98,7 +98,7 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
     ? 'bg-gradient-to-b from-indigo-900 via-violet-950 to-indigo-900'
     : isWeapon
       ? 'bg-gradient-to-b from-stone-800 via-stone-900 to-stone-800'
-      : 'bg-gradient-to-b from-slate-800 via-slate-900 to-slate-800';
+      : 'bg-gradient-to-b from-stone-700 via-stone-800 to-stone-700';
 
   // Top accent based on type (frame style)
   const frameAccent = isSpell
@@ -150,7 +150,7 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
       <div className={`
         ${small ? 'h-[58px] mt-2 mx-0.5' : 'h-[90px] mt-3 mx-1'}
         rounded border border-gray-600/50 overflow-hidden
-        bg-gray-900/60 flex items-center justify-center shrink-0
+        bg-stone-900/60 flex items-center justify-center shrink-0
       `}>
         <CardArt cardCode={cardCode} className="w-full h-full" />
       </div>
@@ -243,16 +243,16 @@ export function CardBack({ size = 'md', onClick, disabled }: { size?: 'sm' | 'md
       onClick={onClick}
       disabled={disabled}
       className={`
-        ${sizeMap[size]} rounded-xl border-2 border-gray-600
-        bg-gradient-to-br from-indigo-950 via-slate-900 to-indigo-950
+        ${sizeMap[size]} rounded-xl border-2 border-amber-700
+        bg-gradient-to-br from-amber-950 via-stone-900 to-amber-950
         flex items-center justify-center relative overflow-hidden
         ${onClick && !disabled ? 'cursor-pointer hover:brightness-110' : ''}
         ${disabled ? 'cursor-not-allowed' : ''}
       `}
     >
-      <div className="absolute inset-2 border border-gray-600 rounded-lg opacity-40" />
-      <div className="absolute inset-4 border border-gray-700 rounded-md opacity-25 rotate-45 scale-75" />
-      <div className="text-gray-500 font-extrabold text-sm tracking-widest select-none">SPERO</div>
+      <div className="absolute inset-2 border border-amber-600 rounded-lg opacity-40" />
+      <div className="absolute inset-4 border border-amber-700 rounded-md opacity-25 rotate-45 scale-75" />
+      <div className="text-amber-600 font-extrabold text-sm tracking-widest select-none">SPERO</div>
     </button>
   );
 }

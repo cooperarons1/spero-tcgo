@@ -281,7 +281,7 @@ function MulliganScreen({
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm">
       <h2 className="mb-2 text-3xl font-bold text-amber-400">Mulligan Phase</h2>
-      <p className="mb-8 text-gray-300">Click cards to replace them, then confirm.</p>
+      <p className="mb-8 text-stone-300">Click cards to replace them, then confirm.</p>
       <div className="flex gap-4">
         {hand.map((c, i) => {
           const def = getCard(c.cardCode);
@@ -291,8 +291,8 @@ function MulliganScreen({
               onClick={() => toggle(i)}
               className={`relative flex h-52 w-36 flex-col items-center justify-between rounded-lg border-2 p-3 transition-all
                 ${replacing[i]
-                  ? 'border-red-500 bg-gray-800/60 opacity-50 grayscale'
-                  : 'border-amber-500 bg-gray-800 hover:border-amber-300 hover:scale-105'}
+                  ? 'border-red-500 bg-stone-800/60 opacity-50 grayscale'
+                  : 'border-amber-500 bg-stone-800 hover:border-amber-300 hover:scale-105'}
               `}
             >
               {/* Mana */}
@@ -302,7 +302,7 @@ function MulliganScreen({
               <span className="mt-4 text-center text-sm font-semibold text-white">
                 {def?.name ?? 'Unknown'}
               </span>
-              <span className="text-xs text-gray-400 text-center px-1">{def?.text}</span>
+              <span className="text-xs text-stone-400 text-center px-1">{def?.text}</span>
               {def?.type === 'MINION' && (
                 <div className="flex w-full justify-between px-1 text-sm">
                   <span className="font-bold text-amber-400">{def.attack}</span>
@@ -323,7 +323,7 @@ function MulliganScreen({
         onClick={() => onConfirm(replacing)}
         className={`mt-8 rounded-lg px-8 py-3 text-lg font-bold transition-all
           ${confirmed
-            ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+            ? 'bg-stone-600 text-stone-400 cursor-not-allowed'
             : 'bg-amber-500 text-black hover:bg-amber-400 hover:scale-105'}
         `}
       >
@@ -358,75 +358,45 @@ function BoardMinionCard({
   const hasDivine = minion.hasDivineShield;
   const isFrozen = minion.isFrozen;
   const isStealth = minion.hasStealthUntilAttack;
-  const hasDeathrattle = !isSilenced && def?.keywords.includes('DEATHRATTLE');
-  const hasWindfury = !isSilenced && def?.keywords.includes('WINDFURY');
 
   return (
     <button
       onClick={onClick}
-      className={`relative flex h-28 w-22 flex-col items-center rounded-lg border-2 p-1 transition-all select-none overflow-hidden
-        ${hasTaunt ? 'border-[3px] border-amber-600 rounded-xl shadow-[inset_0_0_6px_rgba(217,119,6,0.4)]' : 'border-gray-600'}
+      className={`relative w-[4.5rem] h-[5.5rem] select-none overflow-hidden transition-all
+        ${hasTaunt ? 'minion-oval-taunt' : 'minion-oval'}
         ${hasDivine && !isSilenced ? 'ring-2 ring-yellow-300 animate-pulse ring-offset-1 ring-offset-transparent' : ''}
-        ${isFrozen ? 'bg-blue-900/70' : 'bg-gray-800'}
-        ${isStealth ? 'opacity-40 shadow-[0_0_8px_2px_rgba(0,0,0,0.8)]' : ''}
+        ${isFrozen ? 'brightness-75 saturate-50' : ''}
+        ${isStealth ? 'opacity-40' : ''}
         ${canAct && isMyMinion ? 'shadow-[0_0_12px_2px_rgba(34,197,94,0.5)] cursor-pointer hover:scale-110' : ''}
         ${isValidTarget ? 'shadow-[0_0_12px_2px_rgba(34,197,94,0.7)] cursor-crosshair' : ''}
         ${isSelected ? 'ring-2 ring-green-400' : ''}
         ${animationClass ?? ''}
       `}
     >
-      {/* Frozen overlay */}
-      {isFrozen && (
-        <div className="absolute inset-0 bg-blue-400/20 pointer-events-none z-10 flex items-start justify-center">
-          <span className="text-[10px] mt-0.5 opacity-80">{'\u2744'}</span>
-        </div>
-      )}
-
-      {/* Silenced overlay */}
-      {isSilenced && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
-          <span className="text-red-500 text-2xl font-black opacity-60 leading-none">{'\u2715'}</span>
-        </div>
-      )}
-
-      {/* Windfury indicator */}
-      {hasWindfury && (
-        <span className="absolute top-0.5 right-0.5 text-[10px] z-10 opacity-80" title="Windfury">{'\u2248'}</span>
-      )}
-
-      {/* Card art area */}
-      <div className="w-full h-10 rounded overflow-hidden bg-gray-700/50 flex-shrink-0">
-        {minion.cardCode && (
-          <CardArt cardCode={minion.cardCode} className="w-full h-full" />
-        )}
+      {/* Art fills entire oval */}
+      <div className="absolute inset-0">
+        {minion.cardCode && <CardArt cardCode={minion.cardCode} className="w-full h-full" />}
       </div>
 
-      {/* Minion name */}
-      <span className={`text-[9px] font-bold text-center leading-tight truncate w-full mt-0.5 ${isSilenced ? 'text-gray-500' : 'text-gray-200'}`}>
-        {def?.name ?? '??'}
-      </span>
+      {/* Frozen overlay */}
+      {isFrozen && <div className="absolute inset-0 bg-blue-400/30 z-10" />}
 
-      {/* Spacer to push stats to bottom */}
-      <div className="flex-1" />
+      {/* Silenced X */}
+      {isSilenced && (
+        <div className="absolute inset-0 flex items-center justify-center z-20">
+          <span className="text-red-500 text-2xl font-black opacity-60">{'\u2715'}</span>
+        </div>
+      )}
 
-      {/* Attack / Health stat circles */}
-      <div className="flex w-full justify-between px-0.5 pb-0.5">
-        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-700 text-xs font-bold text-white shadow-md">
-          {minion.currentAttack}
-        </span>
-
-        {/* Deathrattle indicator (bottom center) */}
-        {hasDeathrattle && (
-          <span className="flex items-end text-[10px] opacity-80" title="Deathrattle">{'\u2620'}</span>
-        )}
-
-        <span
-          className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold text-white shadow-md
-            ${isDamaged ? 'bg-red-600' : 'bg-red-800'}
-          `}
-        >
-          {minion.currentHealth}
-        </span>
+      {/* Attack circle — bottom-left */}
+      <div className="absolute -bottom-1 -left-1 flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-yellow-500 to-yellow-700 border border-yellow-400 text-xs font-bold text-white shadow-md z-10">
+        {minion.currentAttack}
+      </div>
+      {/* Health circle — bottom-right */}
+      <div className={`absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold text-white shadow-md z-10 border
+        ${isDamaged ? 'bg-gradient-to-br from-red-500 to-red-700 border-red-400' : 'bg-gradient-to-br from-red-700 to-red-900 border-red-500'}
+      `}>
+        {minion.currentHealth}
       </div>
     </button>
   );
@@ -474,11 +444,11 @@ function HeroPortrait({
     <div className="flex items-center gap-3">
       {/* Weapon (left side) */}
       {weapon && (
-        <div className="flex h-16 w-16 flex-col items-center justify-center rounded-lg border-2 border-gray-500 bg-gray-800">
-          <span className="text-xs text-gray-400">Weapon</span>
+        <div className="flex h-16 w-16 flex-col items-center justify-center rounded-lg border-2 border-stone-600 bg-stone-800">
+          <span className="text-xs text-stone-400">Weapon</span>
           <div className="flex gap-2 text-sm">
             <span className="font-bold text-amber-400">{weapon.currentAttack}</span>
-            <span className="font-bold text-gray-300">{weapon.durability}</span>
+            <span className="font-bold text-stone-300">{weapon.durability}</span>
           </div>
         </div>
       )}
@@ -486,7 +456,7 @@ function HeroPortrait({
       {/* Hero circle with character portrait */}
       <button
         onClick={onHeroClick}
-        className={`relative flex h-20 w-20 items-center justify-center rounded-full border-4 ${borderClass} ${bgClass} transition-all overflow-hidden
+        className={`relative flex h-24 w-24 items-center justify-center rounded-full border-4 ${borderClass} ${bgClass} transition-all overflow-hidden
           ${isValidTarget ? 'shadow-[0_0_16px_4px_rgba(34,197,94,0.6)] cursor-crosshair' : ''}
           ${!isValidTarget && !isMyHero ? 'cursor-default' : ''}
           ${heroDamage ? 'animate-hero-damage animate-damage-shake' : ''}
@@ -501,7 +471,7 @@ function HeroPortrait({
           {health}
         </span>
         {armor > 0 && (
-          <div className="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full bg-gray-500 text-xs font-bold text-white z-10">
+          <div className="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full bg-stone-500 text-xs font-bold text-white z-10">
             {armor}
           </div>
         )}
@@ -514,11 +484,11 @@ function HeroPortrait({
         className={`relative flex h-14 w-14 items-center justify-center rounded-lg border-2 transition-all
           ${canUseHeroPower
             ? 'border-amber-500 bg-amber-900/40 hover:bg-amber-800/60 hover:scale-110 cursor-pointer'
-            : 'border-gray-600 bg-gray-800 opacity-40 cursor-not-allowed'}
+            : 'border-stone-600 bg-stone-800 opacity-40 cursor-not-allowed'}
         `}
         title="Hero Power"
       >
-        <span className={`pointer-events-none ${canUseHeroPower ? 'text-amber-300' : 'text-gray-500'}`}>
+        <span className={`pointer-events-none ${canUseHeroPower ? 'text-amber-300' : 'text-stone-500'}`}>
           {HERO_POWER_SVG[heroClass]}
         </span>
         <span className="pointer-events-none absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white shadow">
@@ -558,10 +528,10 @@ function HandCard({
       onDragEnd={onDragEnd}
       className={`group relative flex h-44 w-28 flex-shrink-0 flex-col items-center rounded-lg border-2 p-1 transition-all overflow-hidden
         ${isSelected
-          ? 'border-green-400 bg-gray-700 -translate-y-6 scale-110 z-20 shadow-[0_0_20px_4px_rgba(34,197,94,0.5)]'
+          ? 'border-green-400 bg-stone-700 -translate-y-6 scale-110 z-20 shadow-[0_0_20px_4px_rgba(34,197,94,0.5)]'
           : canPlay
-            ? 'border-amber-500/70 bg-gray-800 hover:-translate-y-4 hover:scale-105 hover:z-10 cursor-pointer'
-            : 'border-gray-600 bg-gray-800/60 opacity-60 cursor-not-allowed'}
+            ? 'border-amber-500/70 bg-stone-800 hover:-translate-y-4 hover:scale-105 hover:z-10 cursor-pointer'
+            : 'border-stone-600 bg-stone-800/60 opacity-60 cursor-not-allowed'}
         ${isDragging ? 'dragging-card' : ''}
       `}
     >
@@ -570,7 +540,7 @@ function HandCard({
         {def.manaCost}
       </div>
       {/* Card Art */}
-      <div className="w-full h-16 mt-4 rounded overflow-hidden bg-gray-700/50 flex-shrink-0">
+      <div className="w-full h-16 mt-4 rounded overflow-hidden bg-stone-700/50 flex-shrink-0">
         <CardArt cardCode={card.cardCode!} className="w-full h-full" />
       </div>
       {/* Name */}
@@ -578,7 +548,7 @@ function HandCard({
         {def.name}
       </span>
       {/* Text */}
-      <span className="text-[7px] text-gray-400 text-center leading-tight line-clamp-2 px-0.5 flex-1 min-h-0 overflow-hidden">
+      <span className="text-[7px] text-stone-400 text-center leading-tight line-clamp-2 px-0.5 flex-1 min-h-0 overflow-hidden">
         {def.text}
       </span>
       {/* Stats */}
@@ -613,7 +583,7 @@ function OpponentHand({ count }: { count: number }) {
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="h-16 w-11 rounded border border-gray-600 bg-gradient-to-b from-indigo-900 to-indigo-950 shadow-inner"
+          className="h-16 w-11 rounded border border-amber-700 bg-gradient-to-b from-amber-900 to-amber-950 shadow-inner"
         />
       ))}
     </div>
@@ -630,7 +600,7 @@ function ManaCrystals({ current, max }: { current: number; max: number }) {
           className={`h-4 w-4 rounded-full border transition-colors
             ${i < current
               ? 'border-blue-400 bg-blue-500 shadow-[0_0_6px_1px_rgba(59,130,246,0.5)]'
-              : 'border-gray-600 bg-gray-800'}
+              : 'border-stone-600 bg-stone-800'}
           `}
         />
       ))}
@@ -648,22 +618,22 @@ function DeckPile({ count, graveyardCount }: { count: number; graveyardCount: nu
     <div className="flex flex-col items-center gap-1.5">
       {/* Deck */}
       <div
-        className="relative w-12 h-16 rounded-lg border-2 border-gray-600 bg-gradient-to-br from-indigo-950 via-slate-900 to-indigo-950 flex items-center justify-center cursor-default group"
+        className="relative w-12 h-16 rounded-lg border-2 border-amber-700 bg-gradient-to-br from-amber-950 via-stone-900 to-amber-950 flex items-center justify-center cursor-default group"
         title={`${count} cards remaining`}
       >
         {/* Stacked card visual */}
         {count > 0 && (
           <>
-            <div className="absolute inset-0.5 rounded-md border border-gray-700 opacity-30" />
-            {count > 5 && <div className="absolute -top-0.5 -left-0.5 w-12 h-16 rounded-lg border border-gray-700 opacity-20" />}
-            {count > 15 && <div className="absolute -top-1 -left-1 w-12 h-16 rounded-lg border border-gray-700 opacity-10" />}
+            <div className="absolute inset-0.5 rounded-md border border-stone-700 opacity-30" />
+            {count > 5 && <div className="absolute -top-0.5 -left-0.5 w-12 h-16 rounded-lg border border-stone-700 opacity-20" />}
+            {count > 15 && <div className="absolute -top-1 -left-1 w-12 h-16 rounded-lg border border-stone-700 opacity-10" />}
           </>
         )}
-        <span className={`text-sm font-bold z-10 ${count > 0 ? 'text-gray-300' : 'text-gray-700'}`}>
+        <span className={`text-sm font-bold z-10 ${count > 0 ? 'text-stone-300' : 'text-stone-700'}`}>
           {count}
         </span>
         {/* Hover tooltip */}
-        <div className="absolute bottom-full mb-1 hidden group-hover:block bg-gray-900 text-gray-300 text-[10px] px-2 py-1 rounded whitespace-nowrap z-50 border border-gray-700">
+        <div className="absolute bottom-full mb-1 hidden group-hover:block bg-stone-900 text-stone-300 text-[10px] px-2 py-1 rounded whitespace-nowrap z-50 border border-stone-700">
           {count} cards in deck
         </div>
       </div>
@@ -671,11 +641,11 @@ function DeckPile({ count, graveyardCount }: { count: number; graveyardCount: nu
       {graveyardCount > 0 && (
         <button
           onClick={() => setShowGraveyard(!showGraveyard)}
-          className="relative w-10 h-5 rounded border border-gray-700 bg-gray-900/80 flex items-center justify-center cursor-pointer hover:border-gray-500 transition-colors group"
+          className="relative w-10 h-5 rounded border border-stone-700 bg-stone-900/80 flex items-center justify-center cursor-pointer hover:border-stone-500 transition-colors group"
           title={`${graveyardCount} cards in graveyard`}
         >
-          <span className="text-[9px] text-gray-500 font-medium">{graveyardCount}</span>
-          <div className="absolute bottom-full mb-1 hidden group-hover:block bg-gray-900 text-gray-300 text-[10px] px-2 py-1 rounded whitespace-nowrap z-50 border border-gray-700">
+          <span className="text-[9px] text-stone-500 font-medium">{graveyardCount}</span>
+          <div className="absolute bottom-full mb-1 hidden group-hover:block bg-stone-900 text-stone-300 text-[10px] px-2 py-1 rounded whitespace-nowrap z-50 border border-stone-700">
             {graveyardCount} cards discarded
           </div>
         </button>
@@ -1083,7 +1053,7 @@ export default function GameBoard({
   if (gs.phase === 'MULLIGAN') {
     const alreadyConfirmed = gs.mulliganConfirmed[gs.myPlayerIndex];
     return (
-      <div className="relative h-screen w-screen bg-gray-950">
+      <div className="relative h-screen w-screen bg-stone-950">
         <MulliganScreen
           hand={gs.myHand}
           confirmed={alreadyConfirmed}
@@ -1103,7 +1073,7 @@ export default function GameBoard({
       >
         {gs.winner === gs.myPlayerId ? 'VICTORY' : 'DEFEAT'}
       </h1>
-      <p className="mb-2 text-gray-300">
+      <p className="mb-2 text-stone-300">
         {gs.winReason === 'concede'
           ? 'Opponent conceded'
           : gs.winReason === 'fatigue'
@@ -1137,7 +1107,7 @@ export default function GameBoard({
             });
             cancelTargeting();
           }}
-          className="mt-2 rounded bg-gray-600 px-4 py-1 text-sm text-white hover:bg-gray-500"
+          className="mt-2 rounded bg-stone-600 px-4 py-1 text-sm text-white hover:bg-stone-500"
         >
           Skip
         </button>
@@ -1153,7 +1123,8 @@ export default function GameBoard({
   return (
     <div
       ref={boardRef}
-      className="relative flex h-screen w-screen flex-col overflow-hidden bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950"
+      className="relative flex h-screen w-screen flex-col overflow-hidden"
+      style={{ background: 'linear-gradient(to bottom, #5c3d1a, #a07d3a 12%, #c9ad6e 30%, #d4b87a 50%, #c9ad6e 70%, #a07d3a 88%, #5c3d1a)' }}
     >
       {GameOverOverlay}
       {InteractionOverlay}
@@ -1165,7 +1136,7 @@ export default function GameBoard({
 
       {/* Opponent Emote */}
       {opponentEmote && (
-        <div className="fixed right-8 top-24 z-30 animate-bounce rounded-lg bg-gray-800 px-4 py-2 text-2xl shadow-lg">
+        <div className="fixed right-8 top-24 z-30 animate-bounce rounded-lg bg-stone-800 px-4 py-2 text-2xl shadow-lg">
           {opponentEmote}
         </div>
       )}
@@ -1174,7 +1145,7 @@ export default function GameBoard({
       <div className="absolute right-4 top-4 z-30 flex items-center gap-2">
         <button
           onClick={() => setMuted(!muted)}
-          className="rounded-lg bg-gray-800 px-3 py-2 text-sm text-gray-300 hover:bg-gray-700"
+          className="rounded-lg bg-stone-800 px-3 py-2 text-sm text-stone-300 hover:bg-stone-700"
           title={muted ? 'Unmute' : 'Mute'}
         >
           {muted ? '\uD83D\uDD07' : '\uD83D\uDD0A'}
@@ -1182,21 +1153,21 @@ export default function GameBoard({
         <div className="relative">
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="rounded-lg bg-gray-800 px-3 py-2 text-sm text-gray-300 hover:bg-gray-700"
+            className="rounded-lg bg-stone-800 px-3 py-2 text-sm text-stone-300 hover:bg-stone-700"
           >
             Menu
           </button>
           {menuOpen && (
-            <div className="absolute right-0 mt-1 w-40 rounded-lg border border-gray-700 bg-gray-800 py-1 shadow-xl">
+            <div className="absolute right-0 mt-1 w-40 rounded-lg border border-stone-700 bg-stone-800 py-1 shadow-xl">
               <button
                 onClick={handleConcede}
-                className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-gray-700"
+                className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-stone-700"
               >
                 Concede
               </button>
               <button
                 onClick={() => setMenuOpen(false)}
-                className="w-full px-4 py-2 text-left text-sm text-gray-400 hover:bg-gray-700"
+                className="w-full px-4 py-2 text-left text-sm text-stone-400 hover:bg-stone-700"
               >
                 Close
               </button>
@@ -1236,7 +1207,7 @@ export default function GameBoard({
         </div>
 
         {/* Opponent board — dynamic scaling */}
-        <div className="flex min-h-[7rem] items-center justify-center">
+        <div className="flex min-h-[7rem] items-center justify-center board-field">
           <div
             className="flex items-center justify-center gap-1 max-w-[38rem]"
             style={opBoardScale < 1 ? { transform: `scale(${opBoardScale})`, transformOrigin: 'center center' } : undefined}
@@ -1269,10 +1240,10 @@ export default function GameBoard({
         <button
           onClick={handleEndTurn}
           disabled={!isMyTurn || !isPlaying}
-          className={`flex-shrink-0 w-16 h-20 rounded-l-2xl font-bold text-[11px] leading-tight text-center transition-all
+          className={`flex-shrink-0 w-20 h-24 rounded-l-2xl font-bold text-[11px] leading-tight text-center transition-all
             ${isMyTurn && isPlaying
               ? 'bg-gradient-to-b from-amber-500 to-yellow-600 text-black shadow-[0_0_20px_rgba(234,179,8,0.4)] hover:from-amber-400 hover:to-yellow-500 active:scale-95 animate-end-turn-glow'
-              : 'bg-gray-700 text-gray-500 cursor-not-allowed'}
+              : 'bg-stone-700 text-stone-500 cursor-not-allowed'}
           `}
         >
           {isMyTurn ? <>END{'\n'}TURN</> : <>ENEMY{'\n'}TURN</>}
@@ -1281,7 +1252,7 @@ export default function GameBoard({
 
       {/* Timer bar (below divider) */}
       {isMyTurn && timeLeft !== null && timeLeft <= 20 && (
-        <div className="mx-auto w-32 h-1.5 rounded-full bg-gray-700 overflow-hidden mt-0.5">
+        <div className="mx-auto w-32 h-1.5 rounded-full bg-stone-700 overflow-hidden mt-0.5">
           <div
             className={`h-full rounded-full transition-all duration-200 ${
               timeLeft <= 5 ? 'bg-red-500 animate-pulse' : timeLeft <= 10 ? 'bg-orange-500' : 'bg-yellow-500'
@@ -1297,7 +1268,7 @@ export default function GameBoard({
       <div className="flex flex-1 flex-col items-center justify-end gap-2 px-4 pb-3">
         {/* My board (drop zone with position indicators) */}
         <div
-          className={`flex min-h-[7rem] items-center justify-center rounded-lg transition-all ${dropZoneActive ? 'drop-zone-active border-2 border-dashed border-green-500/40' : 'border-2 border-transparent'}`}
+          className={`flex min-h-[7rem] items-center justify-center rounded-lg transition-all board-field ${dropZoneActive ? 'drop-zone-active border-2 border-dashed border-green-500/40' : 'border-2 border-transparent'}`}
           onDragOver={handleBoardDragOver}
           onDragLeave={handleBoardDragLeave}
           onDrop={handleBoardDrop}
@@ -1377,7 +1348,7 @@ export default function GameBoard({
 
       {/* Opponent hovering indicator */}
       {opponentHovering && (
-        <div className="fixed left-4 bottom-4 z-20 rounded bg-gray-800/80 px-3 py-1 text-xs text-gray-400">
+        <div className="fixed left-4 bottom-4 z-20 rounded bg-stone-800/80 px-3 py-1 text-xs text-stone-400">
           Opponent is thinking...
         </div>
       )}
