@@ -1,4 +1,5 @@
 import cardsData from '../../../data/cards.json';
+import { CardArt } from '../utils/cardArt';
 
 interface CardDef {
   cardCode: string;
@@ -121,20 +122,7 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
       `}
     >
       {/* Type-based frame accent at top */}
-      <div className={`absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b ${frameAccent} pointer-events-none`} />
-
-      {/* Spell swirl decoration */}
-      {isSpell && (
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-20 h-20 rounded-full border border-violet-500/20 animate-spin" style={{ animationDuration: '8s' }} />
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full border border-violet-400/15 animate-spin" style={{ animationDuration: '6s', animationDirection: 'reverse' }} />
-        </div>
-      )}
-
-      {/* Weapon pointed frame accent */}
-      {isWeapon && (
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[30px] border-r-[30px] border-b-[12px] border-l-transparent border-r-transparent border-b-amber-700/30 pointer-events-none" />
-      )}
+      <div className={`absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b ${frameAccent} pointer-events-none`} />
 
       {/* Mana cost gem — top-left */}
       <div className={`
@@ -146,15 +134,20 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
         {def.manaCost}
       </div>
 
+      {/* Card art area */}
+      <div className={`${small ? 'h-[50px]' : 'h-[75px]'} mx-1 mt-6 rounded overflow-hidden flex items-center justify-center`}>
+        <CardArt cardCode={cardCode} className="w-full h-full" />
+      </div>
+
       {/* Card name banner */}
       <div className={`
-        ${small ? 'mt-6 mx-1 px-1 py-0.5' : 'mt-8 mx-2 px-2 py-1'}
+        ${small ? 'mx-1 px-1 py-0.5' : 'mx-2 px-2 py-0.5'}
         ${rarityBannerBg[def.rarity]} rounded-sm
         text-center z-10
       `}>
         <span className={`
           text-white font-bold leading-tight
-          ${small ? 'text-[8px]' : 'text-[10px]'}
+          ${small ? 'text-[7px]' : 'text-[9px]'}
           drop-shadow-sm
         `}>
           {def.name}
@@ -163,12 +156,12 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
 
       {/* Card text / description area */}
       <div className={`
-        flex-1 ${small ? 'mx-1 mt-1 px-1' : 'mx-2 mt-1.5 px-2'}
+        flex-1 ${small ? 'mx-1 mt-0.5 px-1' : 'mx-2 mt-0.5 px-2'}
         flex items-start justify-center overflow-hidden
       `}>
         <p className={`
           text-gray-300 text-center leading-tight
-          ${small ? 'text-[6px]' : 'text-[8px]'}
+          ${small ? 'text-[5px]' : 'text-[7px]'}
         `}>
           {def.text}
         </p>

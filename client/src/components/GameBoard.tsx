@@ -11,6 +11,7 @@ import type {
 } from '../../../shared/types';
 import { HERO_POWER_COST, MAX_BOARD_SIZE } from '../../../shared/types';
 import { useGameActions } from '../hooks/useGameActions';
+import { CardArt } from '../utils/cardArt';
 import cardsJson from '../../../data/cards.json';
 
 // ─── Card lookup ───
@@ -158,38 +159,74 @@ function BoardMinionCard({
 }) {
   const def = getCard(minion.cardCode);
   const isDamaged = minion.currentHealth < minion.maxHealth;
-  const hasTaunt = !minion.isSilenced && def?.keywords.includes('TAUNT');
+  const isSilenced = minion.isSilenced;
+  const hasTaunt = !isSilenced && def?.keywords.includes('TAUNT');
   const hasDivine = minion.hasDivineShield;
   const isFrozen = minion.isFrozen;
   const isStealth = minion.hasStealthUntilAttack;
+  const hasDeathrattle = !isSilenced && def?.keywords.includes('DEATHRATTLE');
+  const hasWindfury = !isSilenced && def?.keywords.includes('WINDFURY');
 
   return (
     <button
       onClick={onClick}
-      className={`relative flex h-24 w-20 flex-col items-center justify-between rounded-lg border-2 p-1 transition-all select-none
-        ${hasTaunt ? 'border-4 border-amber-700' : 'border-gray-600'}
-        ${hasDivine ? 'ring-2 ring-amber-300 ring-offset-1 ring-offset-transparent' : ''}
-        ${isFrozen ? 'bg-blue-900/60' : 'bg-gray-800'}
-        ${isStealth ? 'opacity-50' : ''}
+      className={`relative flex h-28 w-22 flex-col items-center rounded-lg border-2 p-1 transition-all select-none overflow-hidden
+        ${hasTaunt ? 'border-[3px] border-amber-600 rounded-xl shadow-[inset_0_0_6px_rgba(217,119,6,0.4)]' : 'border-gray-600'}
+        ${hasDivine && !isSilenced ? 'ring-2 ring-yellow-300 animate-pulse ring-offset-1 ring-offset-transparent' : ''}
+        ${isFrozen ? 'bg-blue-900/70' : 'bg-gray-800'}
+        ${isStealth ? 'opacity-40 shadow-[0_0_8px_2px_rgba(0,0,0,0.8)]' : ''}
         ${canAct && isMyMinion ? 'shadow-[0_0_12px_2px_rgba(34,197,94,0.5)] cursor-pointer hover:scale-110' : ''}
         ${isValidTarget ? 'shadow-[0_0_12px_2px_rgba(34,197,94,0.7)] cursor-crosshair' : ''}
         ${isSelected ? 'ring-2 ring-green-400' : ''}
       `}
     >
-      <span className="text-[10px] font-medium text-gray-200 text-center leading-tight truncate w-full">
+      {/* Frozen overlay */}
+      {isFrozen && (
+        <div className="absolute inset-0 bg-blue-400/20 pointer-events-none z-10 flex items-start justify-center">
+          <span className="text-[10px] mt-0.5 opacity-80">❄</span>
+        </div>
+      )}
+
+      {/* Silenced overlay */}
+      {isSilenced && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+          <span className="text-red-500 text-2xl font-black opacity-60 leading-none">✕</span>
+        </div>
+      )}
+
+      {/* Windfury indicator */}
+      {hasWindfury && (
+        <span className="absolute top-0.5 right-0.5 text-[10px] z-10 opacity-80" title="Windfury">≈</span>
+      )}
+
+      {/* Card art area */}
+      <div className="w-full h-10 rounded overflow-hidden bg-gray-700/50 flex-shrink-0">
+        {minion.cardCode && (
+          <CardArt cardCode={minion.cardCode} className="w-full h-full" />
+        )}
+      </div>
+
+      {/* Minion name */}
+      <span className={`text-[9px] font-bold text-center leading-tight truncate w-full mt-0.5 ${isSilenced ? 'text-gray-500' : 'text-gray-200'}`}>
         {def?.name ?? '??'}
       </span>
-      {def?.text && (
-        <span className="text-[8px] text-gray-400 text-center leading-tight line-clamp-2 px-0.5">
-          {def.text}
-        </span>
-      )}
-      <div className="flex w-full justify-between px-0.5">
-        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-700 text-xs font-bold text-white">
+
+      {/* Spacer to push stats to bottom */}
+      <div className="flex-1" />
+
+      {/* Attack / Health stat circles */}
+      <div className="flex w-full justify-between px-0.5 pb-0.5">
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-700 text-xs font-bold text-white shadow-md">
           {minion.currentAttack}
         </span>
+
+        {/* Deathrattle indicator (bottom center) */}
+        {hasDeathrattle && (
+          <span className="flex items-end text-[10px] opacity-80" title="Deathrattle">☠</span>
+        )}
+
         <span
-          className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold text-white
+          className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold text-white shadow-md
             ${isDamaged ? 'bg-red-600' : 'bg-red-800'}
           `}
         >
