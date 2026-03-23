@@ -69,11 +69,6 @@ export async function saveDeck(uid: string, deck: DeckList): Promise<void> {
 }
 
 export async function deleteDeck(uid: string, id: string): Promise<void> {
-  const decks = await loadDecks(uid);
-  const deck = decks.find(d => d.id === id);
-  if (deck?.isStarterDeck) {
-    throw new Error('Cannot delete starter decks');
-  }
   await deleteDoc(doc(db, 'users', uid, 'decks', id));
   if (getSelectedDeckId() === id) {
     localStorage.removeItem(SELECTED_KEY);
@@ -82,7 +77,14 @@ export async function deleteDeck(uid: string, id: string): Promise<void> {
 
 export async function seedStarterDecks(uid: string): Promise<void> {
   const existing = await loadDecks(uid);
-  if (existing.length > 0) return;
+
+  // Check if starter decks need re-seeding (old 60-card starters or missing heroClass)
+  const starterIds = STARTER_DECKS.map(s => s.id);
+  const oldStarters = existing.filter(d => starterIds.includes(d.id) && (d.cards.length !== 30 || !d.heroClass || d.heroClass === 'JIMMY' as any));
+  const hasStarters = existing.some(d => starterIds.includes(d.id));
+
+  if (existing.length > 0 && !hasStarters) return; // Has custom decks, no starters to fix
+  if (hasStarters && oldStarters.length === 0) return; // Starters are already correct
 
   const now = Date.now();
   for (const starter of STARTER_DECKS) {

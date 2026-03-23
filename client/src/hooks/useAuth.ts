@@ -20,6 +20,7 @@ export function useAuth() {
       setLoading(false);
       if (u) {
         await migrateLocalStorageDecks(u.uid);
+        await seedStarterDecks(u.uid);
       }
     });
     return unsub;
