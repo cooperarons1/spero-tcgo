@@ -17,20 +17,16 @@ export function addLog(
 
 export function emptyStats(): PlayerStats {
   return {
-    apEarned: 0,
-    missionsLaunched: 0,
-    missionsUnblocked: 0,
-    cardsPlayed: 0,
-    combatTricksUsed: 0,
-    damageDealt: 0,
-    duelsInitiated: 0,
-    blocksAttempted: 0,
-    blocksSucceeded: 0,
-    buildsFaceDown: 0,
-    actionsPlayed: 0,
-    stacksLost: 0,
+    minionsPlayed: 0,
+    spellsCast: 0,
+    weaponsEquipped: 0,
+    heroPowerUses: 0,
+    minionsKilled: 0,
+    damageDealtToHeroes: 0,
+    damageDealtToMinions: 0,
+    healingDone: 0,
+    cardsDrawn: 0,
     turnsPlayed: 0,
-    buildsUsed: 0,
-    missionsBlocked: 0,
+    manaSpent: 0,
   };
 }

@@ -1,279 +1,230 @@
-import type { GameState, CardStats, PlayerZone, TurnPhase } from '../shared/types.js';
-import { AP_TO_WIN } from '../shared/types.js';
-import { createTwoDecks, createDeckFromList, resetInstanceCounter } from './deck.js';
-import { resetStackCounter } from './actions.js';
+import type { GameState, PlayerState, HeroClass, CardInstance } from '../shared/types.js';
+import { STARTING_HEALTH, MAX_MANA, TURN_TIMEOUT_MS } from '../shared/types.js';
+import { createDeckFromList, createTwoDecks, resetInstanceCounter, makeInstance, shuffle } from './deck.js';
 import { addLog, emptyStats } from './log.js';
-import { processSideplayTriggers, getSideplayExtraBuilds } from './abilities.js';
+import { drawCard, checkHeroDeath } from './effects.js';
+import { minionHasKeyword } from './keywords.js';
 
-export const TURN_TIMEOUT_MS = 60_000;
+export { TURN_TIMEOUT_MS };
 
-export function trackCardPlayed(game: GameState, cardCode: string): void {
-  if (!game.cardStats[cardCode]) {
-    game.cardStats[cardCode] = { timesPlayed: 0, combatWins: 0, combatLosses: 0, trickUses: 0 };
-  }
-  game.cardStats[cardCode].timesPlayed++;
+function makePlayerState(id: string, name: string, heroClass: HeroClass): PlayerState {
+  return {
+    playerId: id,
+    playerName: name,
+    heroClass,
+    health: STARTING_HEALTH,
+    maxHealth: STARTING_HEALTH,
+    armor: 0,
+    mana: 0,
+    maxMana: 0,
+    hand: [],
+    board: [],
+    weapon: null,
+    heroPowerUsed: false,
+    fatigueDamage: 0,
+    graveyard: [],
+  };
 }
 
 /** Create a new game for two players */
 export function createGame(
-  playerEntries: { id: string; name: string }[],
-  options?: { deckLists?: [string[] | null, string[] | null]; firstPlayerIndex?: 0 | 1 }
+  playerEntries: { id: string; name: string; heroClass: HeroClass }[],
+  options?: {
+    deckLists?: [string[] | null, string[] | null];
+    firstPlayerIndex?: 0 | 1;
+  }
 ): GameState {
   if (playerEntries.length !== 2) throw new Error('Exactly 2 players required');
 
   resetInstanceCounter();
-  resetStackCounter();
 
-  let decks: [import('../shared/types.js').CardInstance[], import('../shared/types.js').CardInstance[]];
+  let decks: [CardInstance[], CardInstance[]];
   if (options?.deckLists?.[0] && options?.deckLists?.[1]) {
     decks = [createDeckFromList(options.deckLists[0]), createDeckFromList(options.deckLists[1])];
-  } else if (options?.deckLists?.[0]) {
-    const starters = createTwoDecks();
-    decks = [createDeckFromList(options.deckLists[0]), starters[1]];
-  } else if (options?.deckLists?.[1]) {
-    const starters = createTwoDecks();
-    decks = [starters[0], createDeckFromList(options.deckLists[1])];
   } else {
     decks = createTwoDecks();
   }
 
-  const players: [PlayerZone, PlayerZone] = [
-    {
-      playerId: playerEntries[0].id,
-      playerName: playerEntries[0].name,
-      hand: [],
-      stacks: [],
-      sideplay: [],
-      discardPile: [],
-    },
-    {
-      playerId: playerEntries[1].id,
-      playerName: playerEntries[1].name,
-      hand: [],
-      stacks: [],
-      sideplay: [],
-      discardPile: [],
-    },
+  const players: [PlayerState, PlayerState] = [
+    makePlayerState(playerEntries[0].id, playerEntries[0].name, playerEntries[0].heroClass),
+    makePlayerState(playerEntries[1].id, playerEntries[1].name, playerEntries[1].heroClass),
   ];
 
-  // Deal 7 cards each from their own deck
-  for (let i = 0; i < 7; i++) {
-    for (let p = 0; p < 2; p++) {
-      players[p].hand.push(decks[p].pop()!);
-    }
+  const firstPlayer = options?.firstPlayerIndex ?? (Math.random() < 0.5 ? 0 : 1);
+  const secondPlayer = firstPlayer === 0 ? 1 : 0;
+
+  // Deal starting hands: 3 cards for first player, 4 cards for second player
+  for (let i = 0; i < 3; i++) {
+    players[firstPlayer].hand.push(decks[firstPlayer].pop()!);
+  }
+  for (let i = 0; i < 4; i++) {
+    players[secondPlayer].hand.push(decks[secondPlayer].pop()!);
   }
 
-  const firstPlayer = options?.firstPlayerIndex ?? (Math.random() < 0.5 ? 0 : 1);
+  // Give The Coin to second player
+  players[secondPlayer].hand.push(makeInstance('COIN'));
 
   const game: GameState = {
     players,
     decks,
     currentPlayerIndex: firstPlayer,
-    turnPhase: 'BUILD', // First player skips UNTAP and DRAW, goes straight to BUILD
-    buildsRemaining: 2,
-    colorlessOnlyBuilds: 0,
-    actedStacks: new Set(),
-    apScores: [0, 0],
+    turnNumber: 1,
+    phase: 'MULLIGAN',
+    mulliganChoices: [null, null],
+    mulliganConfirmed: [false, false],
     winner: null,
     winReason: null,
-    turnNumber: 1,
-    isFirstTurn: true, // First player's first turn: no draw, no actions
-    combatState: null,
-    pendingInteraction: null,
-    lastAction: `Game started! ${players[firstPlayer].playerName} goes first.`,
+    lastAction: `Mulligan phase — choose cards to replace.`,
     log: [],
-    playerStats: [emptyStats(), emptyStats()],
-    combatResult: null,
-    turnDurations: [],
-    apTimeline: [],
-    cardStats: {},
     turnStartedAt: Date.now(),
-    turnFlags: {
-      noDamagePlayerIds: [],
-      extraVicious: [],
-      extraPowerStrategy: [],
-      extraSmartsStrategy: [],
-    },
+    playerStats: [emptyStats(), emptyStats()],
+    pendingInteraction: null,
   };
 
   addLog(game, null, `Game started! ${players[firstPlayer].playerName} goes first.`, 'GAME');
+  addLog(game, null, `Mulligan phase — choose cards to replace.`, 'GAME');
 
   return game;
 }
 
-/** Advance to the next phase */
-export function advancePhase(game: GameState): void {
-  const phases: TurnPhase[] = ['UNTAP', 'DRAW', 'BUILD', 'ACTION', 'END'];
-  const currentIdx = phases.indexOf(game.turnPhase);
+/** Handle a player's mulligan choice */
+export function confirmMulligan(
+  game: GameState,
+  playerId: string,
+  replacements: boolean[]
+): { success: boolean; error?: string } {
+  if (game.phase !== 'MULLIGAN') return { success: false, error: 'Not in mulligan phase' };
 
-  if (currentIdx === -1) return;
+  const pIdx = game.players.findIndex(p => p.playerId === playerId);
+  if (pIdx === -1) return { success: false, error: 'Player not in game' };
+  if (game.mulliganConfirmed[pIdx as 0 | 1]) return { success: false, error: 'Already confirmed mulligan' };
 
-  // Move to next phase, executing automatic phases
-  let nextIdx = currentIdx + 1;
-  if (nextIdx >= phases.length) {
-    nextIdx = 0; // wrap to UNTAP
+  const player = game.players[pIdx];
+  if (replacements.length !== player.hand.length) {
+    return { success: false, error: `Expected ${player.hand.length} replacement flags` };
   }
 
-  game.turnPhase = phases[nextIdx];
-  executePhase(game);
-}
+  // Don't replace The Coin — filter it out of replacements
+  const coinIdx = player.hand.findIndex(c => c.cardCode === 'COIN');
 
-/** Execute automatic actions for current phase */
-function executePhase(game: GameState): void {
-  switch (game.turnPhase) {
-    case 'UNTAP':
-      doUntap(game);
-      // Auto-advance
-      advancePhase(game);
-      break;
+  game.mulliganChoices[pIdx as 0 | 1] = replacements;
+  game.mulliganConfirmed[pIdx as 0 | 1] = true;
 
-    case 'DRAW':
-      doDraw(game);
-      // Auto-advance
-      advancePhase(game);
-      break;
+  // Perform the replacement
+  const deck = game.decks[pIdx as 0 | 1];
+  const toReplace: number[] = [];
 
-    case 'BUILD': {
-      game.buildsRemaining = 2;
-      // Add sideplay extra builds
-      const extraBuilds = getSideplayExtraBuilds(game, game.currentPlayerIndex);
-      game.buildsRemaining += extraBuilds.extra;
-      game.colorlessOnlyBuilds = extraBuilds.colorlessOnly ? extraBuilds.extra : 0;
-      game.turnStartedAt = Date.now();
-      // Wait for player input
-      break;
-    }
-
-    case 'ACTION':
-      game.turnStartedAt = Date.now();
-      if (game.isFirstTurn) {
-        // First player's first turn: skip actions
-        game.lastAction = `${currentPlayerName(game)}'s first turn — no actions allowed.`;
-        addLog(game, game.currentPlayerIndex, 'First turn — no actions', 'PHASE');
-        advancePhase(game);
-      }
-      // Otherwise wait for player input
-      break;
-
-    case 'END':
-      doEnd(game);
-      break;
-  }
-}
-
-function currentPlayerName(game: GameState): string {
-  return game.players[game.currentPlayerIndex].playerName;
-}
-
-/** UNTAP: untap all current player's stacks */
-function doUntap(game: GameState): void {
-  const player = game.players[game.currentPlayerIndex];
-  for (const stack of player.stacks) {
-    if (stack.skipNextUntap) {
-      stack.skipNextUntap = false;
-      // Don't untap this stack
-    } else {
-      stack.tapped = false;
-    }
-  }
-  game.actedStacks = new Set();
-
-  // Process sideplay turn-start triggers
-  processSideplayTriggers(game, game.currentPlayerIndex);
-}
-
-/** DRAW: draw 1 card */
-function doDraw(game: GameState): void {
-  if (game.isFirstTurn) {
-    // First player's first turn: skip draw
-    game.lastAction = `${currentPlayerName(game)} skips draw on first turn.`;
-    return;
-  }
-
-  const player = game.players[game.currentPlayerIndex];
-  const playerDeck = game.decks[game.currentPlayerIndex];
-
-  if (playerDeck.length === 0) {
-    // Deck-out = lose
-    const winnerId = game.currentPlayerIndex === 0 ? 1 : 0;
-    game.winner = game.players[winnerId].playerId;
-    game.winReason = 'deckout';
-    game.lastAction = `${player.playerName} cannot draw — deck out! ${game.players[winnerId].playerName} wins!`;
-    addLog(game, game.currentPlayerIndex, `${player.playerName} decked out!`, 'GAME');
-    return;
-  }
-
-  player.hand.push(playerDeck.pop()!);
-  game.lastAction = `${player.playerName} draws a card.`;
-  addLog(game, game.currentPlayerIndex, `${player.playerName} draws a card`, 'PHASE');
-}
-
-/** END: check win, switch to next player */
-function doEnd(game: GameState): void {
-  // Clear turn-scoped flags
-  game.turnFlags = {
-    noDamagePlayerIds: [],
-    extraVicious: [],
-    extraPowerStrategy: [],
-    extraSmartsStrategy: [],
-  };
-
-  // Record turn duration
-  if (game.turnStartedAt) {
-    game.turnDurations.push(Date.now() - game.turnStartedAt);
-  }
-  game.turnStartedAt = null;
-
-  // Snapshot AP
-  game.apTimeline.push([game.apScores[0], game.apScores[1]]);
-
-  // Increment turnsPlayed for current player
-  game.playerStats[game.currentPlayerIndex].turnsPlayed++;
-
-  // Check AP win
-  for (let i = 0; i < 2; i++) {
-    if (game.apScores[i as 0 | 1] >= AP_TO_WIN) {
-      game.winner = game.players[i].playerId;
-      game.winReason = 'ap';
-      game.lastAction = `${game.players[i].playerName} wins with ${game.apScores[i as 0 | 1]} AP!`;
-      addLog(game, i as 0 | 1, `${game.players[i].playerName} wins with ${game.apScores[i as 0 | 1]} AP!`, 'GAME');
-      return;
+  for (let i = 0; i < replacements.length; i++) {
+    if (replacements[i] && i !== coinIdx) {
+      toReplace.push(i);
     }
   }
 
-  // Switch player
-  game.currentPlayerIndex = game.currentPlayerIndex === 0 ? 1 : 0;
-  game.turnNumber++;
-
-  if (game.isFirstTurn) {
-    game.isFirstTurn = false;
+  // Shuffle replaced cards back into deck, then draw new ones
+  const replaced: CardInstance[] = [];
+  for (const idx of toReplace) {
+    replaced.push(player.hand[idx]);
   }
 
-  game.lastAction = `${currentPlayerName(game)}'s turn begins.`;
-  addLog(game, game.currentPlayerIndex, `${currentPlayerName(game)}'s turn begins`, 'PHASE');
-
-  // Start next turn from UNTAP
-  game.turnPhase = 'UNTAP';
-  executePhase(game);
-}
-
-/** End the build phase early (player chooses to stop building) */
-export function endBuildPhase(game: GameState, playerId: string): { success: boolean; error?: string } {
-  if (game.turnPhase !== 'BUILD') return { success: false, error: 'Not in build phase' };
-  if (game.players[game.currentPlayerIndex].playerId !== playerId) {
-    return { success: false, error: 'Not your turn' };
+  // Draw new cards first
+  const newCards: CardInstance[] = [];
+  for (let i = 0; i < toReplace.length; i++) {
+    if (deck.length > 0) {
+      newCards.push(deck.pop()!);
+    }
   }
-  advancePhase(game);
+
+  // Replace the cards in hand
+  let newIdx = 0;
+  for (const idx of toReplace) {
+    if (newIdx < newCards.length) {
+      player.hand[idx] = newCards[newIdx++];
+    }
+  }
+
+  // Shuffle replaced cards back into deck
+  for (const card of replaced) {
+    deck.push(card);
+  }
+  // Re-shuffle the deck
+  const shuffled = shuffle(deck);
+  deck.length = 0;
+  deck.push(...shuffled);
+
+  const replacedCount = toReplace.length;
+  addLog(game, pIdx as 0 | 1, `${player.playerName} replaces ${replacedCount} card${replacedCount !== 1 ? 's' : ''}`, 'GAME');
+
+  // Check if both confirmed
+  if (game.mulliganConfirmed[0] && game.mulliganConfirmed[1]) {
+    startPlaying(game);
+  }
+
   return { success: true };
 }
 
-/** End the action phase early */
-export function endActionPhase(game: GameState, playerId: string): { success: boolean; error?: string } {
-  if (game.turnPhase !== 'ACTION') return { success: false, error: 'Not in action phase' };
-  if (game.players[game.currentPlayerIndex].playerId !== playerId) {
-    return { success: false, error: 'Not your turn' };
+/** Transition from MULLIGAN to PLAYING and start the first turn */
+function startPlaying(game: GameState): void {
+  game.phase = 'PLAYING';
+  addLog(game, null, `Mulligan complete! Game begins.`, 'GAME');
+  startTurn(game);
+}
+
+/** Start a new turn for the current player */
+export function startTurn(game: GameState): void {
+  const pIdx = game.currentPlayerIndex;
+  const player = game.players[pIdx];
+
+  // Increment maxMana (cap at 10)
+  if (player.maxMana < MAX_MANA) {
+    player.maxMana++;
   }
-  if (game.combatState) return { success: false, error: 'Combat in progress' };
-  advancePhase(game);
+  // Refill mana
+  player.mana = player.maxMana;
+
+  // Draw 1 card (fatigue if empty)
+  drawCard(game, pIdx);
+
+  // Reset hero power
+  player.heroPowerUsed = false;
+
+  // Unfreeze minions that were frozen last turn, enable attacks
+  for (const minion of player.board) {
+    if (minion.isFrozen) {
+      minion.isFrozen = false;
+    } else {
+      minion.canAttack = true;
+    }
+    // Reset attacks remaining
+    minion.attacksRemaining = minionHasKeyword(minion, 'WINDFURY') ? 2 : 1;
+  }
+
+  game.turnStartedAt = Date.now();
+  game.lastAction = `${player.playerName}'s turn (Turn ${game.turnNumber}).`;
+  addLog(game, pIdx, `${player.playerName}'s turn begins (${player.maxMana} mana)`, 'TURN');
+}
+
+/** End the current turn */
+export function endTurn(
+  game: GameState,
+  playerId: string
+): { success: boolean; error?: string } {
+  if (game.phase !== 'PLAYING') return { success: false, error: 'Game not in playing phase' };
+  if (game.winner) return { success: false, error: 'Game is over' };
+
+  const pIdx = game.players.findIndex(p => p.playerId === playerId);
+  if (pIdx !== game.currentPlayerIndex) return { success: false, error: 'Not your turn' };
+
+  const player = game.players[pIdx];
+  game.playerStats[pIdx as 0 | 1].turnsPlayed++;
+
+  addLog(game, pIdx as 0 | 1, `${player.playerName} ends their turn`, 'TURN');
+
+  // Switch to other player
+  game.currentPlayerIndex = game.currentPlayerIndex === 0 ? 1 : 0;
+  game.turnNumber++;
+
+  // Start the next turn
+  startTurn(game);
+
   return { success: true };
 }

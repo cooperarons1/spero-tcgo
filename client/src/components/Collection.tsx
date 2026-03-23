@@ -232,13 +232,18 @@ export function Collection({ uid, onBack }: CollectionProps) {
                 {decks.map(deck => {
                   const isEditing = editingDeck?.id === deck.id;
                   const isComplete = deck.cards.length === DECK_SIZE;
+                  const deckBg = HERO_BG_MAP[deck.heroClass] || 'bg-gray-500/10';
+                  const deckBorder = HERO_COLOR_MAP[deck.heroClass] || 'border-l-gray-600';
                   return (
                     <div key={deck.id} className="relative">
                       <button
                         onClick={() => editingDeck ? undefined : startEditing(deck)}
-                        className={`w-full text-left px-2.5 py-2 rounded-lg text-xs cursor-pointer transition-all border-l-3
-                          ${HERO_COLOR_MAP[deck.heroClass] || 'border-l-gray-600'}
-                          ${isEditing ? 'bg-white/10 border border-white/20 text-white font-bold' : 'bg-board-accent/50 text-gray-400 hover:bg-board-accent/80'}
+                        className={`w-full text-left px-2.5 py-2 rounded-lg text-xs cursor-pointer transition-all border-l-[3px]
+                          ${deckBorder}
+                          ${isEditing
+                            ? `${deckBg} border border-white/30 text-white font-bold`
+                            : `${deckBg} text-gray-300 hover:brightness-125`
+                          }
                         `}
                       >
                         <div className="flex items-center justify-between">
@@ -246,12 +251,12 @@ export function Collection({ uid, onBack }: CollectionProps) {
                             {deck.isStarterDeck && <span className="text-yellow-400 text-[10px]">&#9733;</span>}
                             {deck.name}
                           </span>
-                          <span className={`text-[9px] ${isComplete ? 'text-green-400' : 'text-gray-600'}`}>
+                          <span className={`text-[9px] ${isComplete ? 'text-green-400' : 'text-red-400'}`}>
                             {deck.cards.length}/{DECK_SIZE}
                           </span>
                         </div>
                       </button>
-                      {!editingDeck && !deck.isStarterDeck && (
+                      {!editingDeck && (
                         <button
                           onClick={() => setDeleteConfirm(deck.id)}
                           className="absolute top-1 right-1 text-gray-600 hover:text-red-400 text-[10px] cursor-pointer"

@@ -1,70 +1,34 @@
 import { socket } from '../socket';
 
 export function useGameActions() {
-  // Build phase
-  const buildCard = (cardInstanceId: string, targetStackId?: string, faceDown?: boolean) => {
-    socket.emit('build-card', { cardInstanceId, targetStackId, faceDown });
+  // Mulligan
+  const confirmMulligan = (replacements: boolean[]) => {
+    socket.emit('mulligan-confirm', { replacements });
   };
 
-  const splitStack = (stackId: string, cardInstanceIds: string[]) => {
-    socket.emit('split-stack', { stackId, cardInstanceIds });
+  // Play a card
+  const playCard = (cardInstanceId: string, position?: number, targetId?: string | null) => {
+    socket.emit('play-card', { cardInstanceId, position, targetId });
   };
 
-  const combineStacks = (stackId1: string, stackId2: string) => {
-    socket.emit('combine-stacks', { stackId1, stackId2 });
+  // Attack
+  const attackTarget = (attackerInstanceId: string, targetId: string) => {
+    socket.emit('attack', { attackerInstanceId, targetId });
   };
 
-  const restoreCard = (stackId: string, cardInstanceId: string) => {
-    socket.emit('restore-card', { stackId, cardInstanceId });
+  // Hero power
+  const heroPower = (targetId?: string | null) => {
+    socket.emit('hero-power', { targetId });
   };
 
-  const endBuildPhase = () => {
-    socket.emit('end-build-phase');
-  };
-
-  // Action phase
-  const powerMission = (stackId: string) => {
-    socket.emit('power-mission', { stackId });
-  };
-
-  const smartsMission = (stackId: string) => {
-    socket.emit('smarts-mission', { stackId });
-  };
-
-  const playActionCard = (cardInstanceId: string, stackId: string) => {
-    socket.emit('play-action-card', { cardInstanceId, stackId });
-  };
-
-  const duel = (attackerStackId: string, targetStackId: string) => {
-    socket.emit('duel', { attackerStackId, targetStackId });
-  };
-
-  const endActionPhase = () => {
-    socket.emit('end-action-phase');
-  };
-
-  // Combat
-  const blockDecision = (blockingStackId: string | null) => {
-    socket.emit('block-decision', { blockingStackId });
-  };
-
-  const playCombatTrick = (cardInstanceId: string | null) => {
-    socket.emit('play-combat-trick', { cardInstanceId });
-  };
-
-  // Combat result dismiss
-  const dismissCombatResult = () => {
-    socket.emit('dismiss-combat-result');
+  // End turn
+  const endTurn = () => {
+    socket.emit('end-turn');
   };
 
   // Concede
   const concede = () => {
     socket.emit('concede');
-  };
-
-  // Targeting
-  const chooseTarget = (interactionId: string, selectedTargetId: string | null) => {
-    socket.emit('choose-target', { interactionId, selectedTargetId });
   };
 
   // Emotes
@@ -73,8 +37,8 @@ export function useGameActions() {
   };
 
   // Deck
-  const selectDeck = (deckCards: string[] | null) => {
-    socket.emit('select-deck', { deckCards });
+  const selectDeck = (heroClass: string, deckCards: string[] | null) => {
+    socket.emit('select-deck', { heroClass, deckCards });
   };
 
   // Meta
@@ -91,24 +55,15 @@ export function useGameActions() {
   };
 
   return {
-    buildCard,
-    splitStack,
-    combineStacks,
-    restoreCard,
-    endBuildPhase,
-    powerMission,
-    smartsMission,
-    playActionCard,
-    duel,
-    endActionPhase,
-    blockDecision,
-    playCombatTrick,
-    dismissCombatResult,
+    confirmMulligan,
+    playCard,
+    attackTarget,
+    heroPower,
+    endTurn,
     concede,
-    playAgain,
-    chooseTarget,
     emitEmote,
     selectDeck,
+    playAgain,
     requestRematch,
     declineRematch,
   };

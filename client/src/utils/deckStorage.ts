@@ -77,14 +77,18 @@ export async function deleteDeck(uid: string, id: string): Promise<void> {
 
 export async function seedStarterDecks(uid: string): Promise<void> {
   const existing = await loadDecks(uid);
-
-  // Check if starter decks need re-seeding (old 60-card starters or missing heroClass)
   const starterIds = STARTER_DECKS.map(s => s.id);
-  const oldStarters = existing.filter(d => starterIds.includes(d.id) && (d.cards.length !== 30 || !d.heroClass || d.heroClass === 'JIMMY' as any));
-  const hasStarters = existing.some(d => starterIds.includes(d.id));
 
-  if (existing.length > 0 && !hasStarters) return; // Has custom decks, no starters to fix
-  if (hasStarters && oldStarters.length === 0) return; // Starters are already correct
+  // Check if any starter deck needs fixing (wrong card count or missing)
+  const needsReseed = STARTER_DECKS.some(starter => {
+    const found = existing.find(d => d.id === starter.id);
+    return !found || found.cards.length !== 30;
+  });
+
+  // No starters exist and user has no decks — first time setup
+  const firstTime = existing.length === 0;
+
+  if (!firstTime && !needsReseed) return;
 
   const now = Date.now();
   for (const starter of STARTER_DECKS) {

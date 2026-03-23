@@ -1,7 +1,10 @@
+import type { HeroClass } from '../shared/types.js';
+
 export interface QueueEntry {
   uid: string;
   socketId: string;
   displayName: string;
+  heroClass: HeroClass;
   deckCards: string[];
   queuedAt: number;
 }
@@ -11,7 +14,6 @@ const queue: QueueEntry[] = [];
 const QUEUE_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 
 export function addToQueue(entry: QueueEntry): void {
-  // Remove existing entry for this uid first
   removeFromQueue(entry.uid);
   queue.push(entry);
 }
@@ -29,14 +31,12 @@ export function processQueue(): { matched: [QueueEntry, QueueEntry] | null; time
   const now = Date.now();
   const timedOut: QueueEntry[] = [];
 
-  // Remove stale entries
   for (let i = queue.length - 1; i >= 0; i--) {
     if (now - queue[i].queuedAt > QUEUE_TIMEOUT_MS) {
       timedOut.push(queue.splice(i, 1)[0]);
     }
   }
 
-  // Match first two if available
   if (queue.length >= 2) {
     const p1 = queue.shift()!;
     const p2 = queue.shift()!;

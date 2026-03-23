@@ -107,6 +107,16 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
       ? 'from-amber-600/30 to-transparent'
       : 'from-slate-500/20 to-transparent';
 
+  // Hero class text box background
+  const classTextBg: Record<string, string> = {
+    JIMMY: 'bg-red-900/40',
+    TALA: 'bg-green-900/40',
+    DEREK: 'bg-yellow-900/40',
+    ANDERS: 'bg-blue-900/40',
+    NEUTRAL: 'bg-gray-800/60',
+  };
+  const textBg = classTextBg[def.heroClass] || 'bg-gray-800/60';
+
   return (
     <button
       onClick={onClick}
@@ -135,7 +145,7 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
       </div>
 
       {/* Card art area */}
-      <div className={`${small ? 'h-[45px] mt-5' : 'h-[65px] mt-7'} mx-1 rounded overflow-hidden flex items-center justify-center shrink-0`}>
+      <div className={`${small ? 'h-[55px] mt-5' : 'h-[80px] mt-7'} mx-1 rounded overflow-hidden flex items-center justify-center shrink-0`}>
         <CardArt cardCode={cardCode} className="w-full h-full" />
       </div>
 
@@ -154,23 +164,23 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
         </span>
       </div>
 
-      {/* Card text — only on larger cards or spells (spells need text since no stats) */}
-      {(!small || isSpell) && def.text && (
+      {/* Card text box — colored background by hero class */}
+      {def.text ? (
         <div className={`
-          flex-1 ${small ? 'mx-0.5 px-0.5' : 'mx-2 mt-0.5 px-1.5'}
+          flex-1 ${small ? 'mx-0.5 mt-px px-1 py-px' : 'mx-1.5 mt-0.5 px-2 py-0.5'}
+          ${textBg} rounded-sm
           flex items-start justify-center overflow-hidden min-h-0
         `}>
           <p className={`
-            text-gray-300 text-center leading-tight
+            text-gray-200 text-center leading-tight
             ${small ? 'text-[5px] line-clamp-2' : 'text-[7px] line-clamp-3'}
           `}>
             {def.text}
           </p>
         </div>
+      ) : (
+        <div className="flex-1" />
       )}
-
-      {/* Spacer for small minion/weapon cards (no text shown) */}
-      {small && !isSpell && <div className="flex-1" />}
 
       {/* Bottom stat area */}
       {hasStats && (

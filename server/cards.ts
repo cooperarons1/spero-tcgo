@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import type { CardDef } from '../shared/types.js';
+import type { CardDef, HeroClass } from '../shared/types.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -22,6 +22,12 @@ export function getAllCardDefs(): CardDef[] {
   return Array.from(cardDefs.values());
 }
 
-export function getCardsByColor(color: string): CardDef[] {
-  return getAllCardDefs().filter((c) => c.color === color);
+export function getCardsByClass(heroClass: HeroClass): CardDef[] {
+  return getAllCardDefs().filter((c) => c.heroClass === heroClass);
+}
+
+export function getCardsByClassAndNeutral(heroClass: HeroClass): CardDef[] {
+  return getAllCardDefs().filter(
+    (c) => c.heroClass === heroClass || c.heroClass === 'NEUTRAL'
+  );
 }
