@@ -646,6 +646,22 @@ export default function GameBoard({
   const myBoard = gs.myBoard;
   const opBoard = gs.opponent.board;
 
+  // ─── Turn timer warning (last 20 seconds) ───
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  useEffect(() => {
+    if (!gs.turnDeadline || isGameOver) {
+      setTimeLeft(null);
+      return;
+    }
+    const tick = () => {
+      const remaining = Math.max(0, Math.ceil((gs.turnDeadline! - Date.now()) / 1000));
+      setTimeLeft(remaining);
+    };
+    tick();
+    const interval = setInterval(tick, 200);
+    return () => clearInterval(interval);
+  }, [gs.turnDeadline, isGameOver]);
+
   // Track mouse for attack arrows
   useEffect(() => {
     if (targeting.type !== 'attack') return;
@@ -1026,18 +1042,30 @@ export default function GameBoard({
           Turn {gs.turnNumber}
         </div>
 
-        {/* End Turn button */}
-        <button
-          onClick={handleEndTurn}
-          disabled={!isMyTurn || !isPlaying}
-          className={`rounded-lg px-8 py-3 text-lg font-bold tracking-wide transition-all
-            ${isMyTurn && isPlaying
-              ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-black shadow-[0_0_20px_4px_rgba(234,179,8,0.4)] hover:from-amber-400 hover:to-yellow-400 hover:scale-105 active:scale-95'
-              : 'bg-gray-700 text-gray-500 cursor-not-allowed'}
-          `}
-        >
-          {isMyTurn ? 'End Turn' : "Opponent's Turn"}
-        </button>
+        {/* End Turn button + timer warning */}
+        <div className="flex flex-col items-center gap-1">
+          <button
+            onClick={handleEndTurn}
+            disabled={!isMyTurn || !isPlaying}
+            className={`rounded-lg px-8 py-3 text-lg font-bold tracking-wide transition-all
+              ${isMyTurn && isPlaying
+                ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-black shadow-[0_0_20px_4px_rgba(234,179,8,0.4)] hover:from-amber-400 hover:to-yellow-400 hover:scale-105 active:scale-95'
+                : 'bg-gray-700 text-gray-500 cursor-not-allowed'}
+            `}
+          >
+            {isMyTurn ? 'End Turn' : "Opponent's Turn"}
+          </button>
+          {isMyTurn && timeLeft !== null && timeLeft <= 20 && (
+            <div className="w-32 h-1.5 rounded-full bg-gray-700 overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-200 ${
+                  timeLeft <= 5 ? 'bg-red-500 animate-pulse' : timeLeft <= 10 ? 'bg-orange-500' : 'bg-yellow-500'
+                }`}
+                style={{ width: `${(timeLeft / 20) * 100}%` }}
+              />
+            </div>
+          )}
+        </div>
 
         {/* Game log toggle */}
         <button
