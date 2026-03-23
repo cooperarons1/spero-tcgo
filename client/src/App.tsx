@@ -13,7 +13,7 @@ import { Friends } from './components/Friends';
 import { ReconnectionOverlay } from './components/ReconnectionOverlay';
 
 type View = 'lobby' | 'game' | 'collection' | 'deckpicker' | 'deckpicker-ai' | 'matchhistory' | 'friends';
-type RematchState = 'default' | 'proposed' | 'received' | 'declined';
+type _RematchState = 'default' | 'proposed' | 'received' | 'declined'; // kept for server compat
 type ConnectionStatus = 'connected' | 'disconnected' | 'opponent-disconnected';
 
 function App() {
@@ -25,11 +25,31 @@ function App() {
   const [opponentHovering, setOpponentHovering] = useState(false);
   const [showIntro, setShowIntro] = useState(false);
   const [opponentEmote, setOpponentEmote] = useState<string | null>(null);
-  const [rematchState, setRematchState] = useState<RematchState>('default');
+  const [rematchState, setRematchState] = useState<_RematchState>('default');
   const introShownRef = useRef(false);
   const matchSavedRef = useRef(false);
   const [incomingChallenge, setIncomingChallenge] = useState<{ challengeId: string; fromUid: string; fromName: string } | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('connected');
+
+  // Opponent action animation queue
+  const [displayedState, setDisplayedState] = useState<ClientGameState | null>(null);
+  const stateQueueRef = useRef<ClientGameState[]>([]);
+  const processingRef = useRef(false);
+  const displayedRef = useRef<ClientGameState | null>(null);
+
+  useEffect(() => { displayedRef.current = displayedState; }, [displayedState]);
+
+  const processQueueRef = useRef<() => void>();
+  processQueueRef.current = () => {
+    if (processingRef.current || stateQueueRef.current.length === 0) return;
+    processingRef.current = true;
+    const next = stateQueueRef.current.shift()!;
+    setDisplayedState(next);
+    setTimeout(() => {
+      processingRef.current = false;
+      processQueueRef.current?.();
+    }, 700);
+  };
 
   // Connect socket when auth resolves
   useEffect(() => {
@@ -112,6 +132,22 @@ function App() {
       if (!state.winner) {
         setRematchState('default');
         matchSavedRef.current = false;
+      }
+
+      // Queue animation for opponent actions — show each with ~700ms delay
+      const current = displayedRef.current;
+      const isOpponentActing = current && !state.winner &&
+        state.currentPlayerIndex !== state.myPlayerIndex &&
+        current.currentPlayerIndex !== current.myPlayerIndex;
+
+      if (isOpponentActing) {
+        stateQueueRef.current.push(state);
+        processQueueRef.current?.();
+      } else {
+        // My turn, game start, or game over — apply immediately
+        stateQueueRef.current = [];
+        processingRef.current = false;
+        setDisplayedState(state);
       }
     });
 
@@ -199,11 +235,9 @@ function App() {
       {view === 'game' && gameState ? (
         <>
           <GameBoard
-            gameState={gameState}
+            gameState={displayedState ?? gameState!}
             opponentHovering={opponentHovering}
             opponentEmote={opponentEmote}
-            rematchState={rematchState}
-            onRematchStateChange={(s: string) => setRematchState(s as RematchState)}
             onLeaveGame={() => { setGameState(null); setView('lobby'); sessionStorage.removeItem('spero-room-code'); }}
             uid={user.uid}
           />

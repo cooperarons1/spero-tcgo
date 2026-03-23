@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo, Fragment } from 'react';
 import type {
   ClientGameState,
   ClientCardInstance,
@@ -61,13 +61,190 @@ const CLASS_BG: Record<HeroClass, string> = {
   NEUTRAL: 'bg-gray-700/40',
 };
 
+// ─── Hero Power SVG Icons ───
+const HERO_POWER_SVG: Record<HeroClass, React.ReactNode> = {
+  JIMMY: ( // fire arrow
+    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none">
+      <path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" fill="currentColor" />
+    </svg>
+  ),
+  TALA: ( // leaf
+    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
+      <path d="M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66c.42-1.2 1.1-2.5 2.16-3.57C9.48 16.8 11.68 15.81 15 16V20l7-7-7-7v2z" />
+    </svg>
+  ),
+  DEREK: ( // magnifying glass
+    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5">
+      <circle cx="10.5" cy="10.5" r="6" />
+      <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
+    </svg>
+  ),
+  ANDERS: ( // snowflake
+    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M19.07 4.93L4.93 19.07" strokeLinecap="round" />
+    </svg>
+  ),
+  DES: ( // dark orb
+    <svg viewBox="0 0 24 24" className="w-5 h-5">
+      <circle cx="12" cy="12" r="9" fill="currentColor" opacity="0.7" />
+      <circle cx="12" cy="12" r="4" fill="black" opacity="0.5" />
+      <circle cx="10" cy="10" r="1.5" fill="white" opacity="0.3" />
+    </svg>
+  ),
+  ASTRID: ( // shield
+    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
+      <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3z" />
+    </svg>
+  ),
+  AVA: ( // drone/circuit
+    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="7" y="7" width="10" height="10" rx="2" />
+      <path d="M12 2v5m0 10v5M2 12h5m10 0h5" strokeLinecap="round" />
+    </svg>
+  ),
+  LUCAS: ( // paw print
+    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
+      <ellipse cx="12" cy="17" rx="4.5" ry="3" />
+      <circle cx="7" cy="11" r="2" />
+      <circle cx="17" cy="11" r="2" />
+      <circle cx="9.5" cy="6.5" r="1.5" />
+      <circle cx="14.5" cy="6.5" r="1.5" />
+    </svg>
+  ),
+  IZZY: ( // compass
+    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="12" cy="12" r="9" />
+      <polygon points="16,8 14,14 8,16 10,10" fill="currentColor" stroke="none" />
+    </svg>
+  ),
+  NEUTRAL: (
+    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
+      <circle cx="12" cy="12" r="6" />
+    </svg>
+  ),
+};
+
+// ─── Hero Portrait SVGs ───
+const HERO_PORTRAIT_SVG: Record<HeroClass, React.ReactNode> = {
+  JIMMY: (
+    <svg viewBox="0 0 60 60" className="w-full h-full">
+      <circle cx="30" cy="22" r="11" fill="#dc2626"/>
+      <path d="M19 33 Q30 30 41 33 L39 55 Q30 58 21 55Z" fill="#b91c1c"/>
+      <path d="M22 15 Q25 5 28 14" fill="#f97316" opacity="0.9"/>
+      <path d="M28 13 Q30 2 32 13" fill="#fbbf24" opacity="0.9"/>
+      <path d="M32 14 Q35 5 38 15" fill="#f97316" opacity="0.9"/>
+      <circle cx="26" cy="21" r="1.5" fill="#fbbf24"/>
+      <circle cx="34" cy="21" r="1.5" fill="#fbbf24"/>
+    </svg>
+  ),
+  TALA: (
+    <svg viewBox="0 0 60 60" className="w-full h-full">
+      <circle cx="30" cy="24" r="11" fill="#16a34a"/>
+      <path d="M19 35 Q30 32 41 35 L39 55 Q30 58 21 55Z" fill="#15803d"/>
+      <path d="M20 18 Q25 8 30 16" fill="#4ade80" opacity="0.8"/>
+      <path d="M30 16 Q35 8 40 18" fill="#4ade80" opacity="0.8"/>
+      <path d="M25 14 Q30 6 35 14" fill="#86efac" opacity="0.7"/>
+      <circle cx="26" cy="23" r="1.5" fill="#86efac"/>
+      <circle cx="34" cy="23" r="1.5" fill="#86efac"/>
+    </svg>
+  ),
+  DEREK: (
+    <svg viewBox="0 0 60 60" className="w-full h-full">
+      <circle cx="30" cy="26" r="11" fill="#ca8a04"/>
+      <ellipse cx="30" cy="17" rx="16" ry="3" fill="#a16207"/>
+      <rect x="22" y="8" width="16" height="10" rx="3" fill="#ca8a04"/>
+      <path d="M19 37 Q30 34 41 37 L39 55 Q30 58 21 55Z" fill="#a16207"/>
+      <circle cx="26" cy="25" r="1.5" fill="#fef08a"/>
+      <circle cx="34" cy="25" r="1.5" fill="#fef08a"/>
+      <circle cx="44" cy="40" r="5" fill="none" stroke="#fef08a" strokeWidth="1.5" opacity="0.5"/>
+      <line x1="48" y1="44" x2="52" y2="48" stroke="#fef08a" strokeWidth="1.5" opacity="0.5"/>
+    </svg>
+  ),
+  ANDERS: (
+    <svg viewBox="0 0 60 60" className="w-full h-full">
+      <circle cx="30" cy="24" r="11" fill="#2563eb"/>
+      <path d="M19 35 Q30 32 41 35 L39 55 Q30 58 21 55Z" fill="#1d4ed8"/>
+      <path d="M22 15 L25 6 L28 15" fill="#93c5fd" opacity="0.8"/>
+      <path d="M28 13 L30 3 L32 13" fill="#bfdbfe" opacity="0.9"/>
+      <path d="M32 15 L35 6 L38 15" fill="#93c5fd" opacity="0.8"/>
+      <circle cx="26" cy="23" r="1.5" fill="#bfdbfe"/>
+      <circle cx="34" cy="23" r="1.5" fill="#bfdbfe"/>
+    </svg>
+  ),
+  DES: (
+    <svg viewBox="0 0 60 60" className="w-full h-full">
+      <path d="M18 30 Q18 8 30 10 Q42 8 42 30Z" fill="#7c3aed"/>
+      <circle cx="30" cy="24" r="8" fill="#581c87"/>
+      <path d="M19 35 Q30 32 41 35 L39 55 Q30 58 21 55Z" fill="#6d28d9"/>
+      <circle cx="27" cy="23" r="1.5" fill="#c084fc"/>
+      <circle cx="33" cy="23" r="1.5" fill="#c084fc"/>
+      <circle cx="30" cy="30" r="25" fill="none" stroke="#a855f7" strokeWidth="1" opacity="0.15"/>
+    </svg>
+  ),
+  ASTRID: (
+    <svg viewBox="0 0 60 60" className="w-full h-full">
+      <circle cx="30" cy="22" r="11" fill="#eab308"/>
+      <path d="M20 18 Q30 6 40 18" fill="#ca8a04"/>
+      <rect x="28" y="6" width="4" height="14" rx="1" fill="#fbbf24"/>
+      <path d="M19 33 Q30 30 41 33 L39 55 Q30 58 21 55Z" fill="#a16207"/>
+      <path d="M26 38 L30 36 L34 38 L34 46 Q30 49 26 46Z" fill="#fbbf24" opacity="0.7"/>
+      <circle cx="26" cy="21" r="1.5" fill="#fef9c3"/>
+      <circle cx="34" cy="21" r="1.5" fill="#fef9c3"/>
+    </svg>
+  ),
+  AVA: (
+    <svg viewBox="0 0 60 60" className="w-full h-full">
+      <circle cx="30" cy="24" r="11" fill="#db2777"/>
+      <path d="M19 35 Q30 32 41 35 L39 55 Q30 58 21 55Z" fill="#be185d"/>
+      <circle cx="25" cy="22" r="4" fill="none" stroke="#f9a8d4" strokeWidth="1.5"/>
+      <circle cx="35" cy="22" r="4" fill="none" stroke="#f9a8d4" strokeWidth="1.5"/>
+      <line x1="29" y1="22" x2="31" y2="22" stroke="#f9a8d4" strokeWidth="1.5"/>
+      <circle cx="25" cy="22" r="2" fill="#fbcfe8" opacity="0.5"/>
+      <circle cx="35" cy="22" r="2" fill="#fbcfe8" opacity="0.5"/>
+      <line x1="30" y1="13" x2="30" y2="8" stroke="#f9a8d4" strokeWidth="1"/>
+      <circle cx="30" cy="7" r="2" fill="#f472b6"/>
+    </svg>
+  ),
+  LUCAS: (
+    <svg viewBox="0 0 60 60" className="w-full h-full">
+      <circle cx="30" cy="24" r="11" fill="#0d9488"/>
+      <path d="M19 35 Q30 32 41 35 L39 55 Q30 58 21 55Z" fill="#0f766e"/>
+      <path d="M20 20 Q22 10 26 16" fill="#2dd4bf" opacity="0.7"/>
+      <path d="M34 16 Q38 10 40 20" fill="#2dd4bf" opacity="0.7"/>
+      <path d="M26 14 Q30 8 34 14" fill="#5eead4" opacity="0.6"/>
+      <circle cx="26" cy="23" r="1.5" fill="#99f6e4"/>
+      <circle cx="34" cy="23" r="1.5" fill="#99f6e4"/>
+      <circle cx="24" cy="44" r="2" fill="#5eead4" opacity="0.4"/>
+      <circle cx="36" cy="44" r="2" fill="#5eead4" opacity="0.4"/>
+    </svg>
+  ),
+  IZZY: (
+    <svg viewBox="0 0 60 60" className="w-full h-full">
+      <circle cx="30" cy="24" r="11" fill="#ea580c"/>
+      <path d="M19 35 Q30 32 41 35 L39 55 Q30 58 21 55Z" fill="#c2410c"/>
+      <path d="M20 18 Q30 12 40 18" fill="#fb923c"/>
+      <path d="M40 18 L48 22 L44 20" fill="#fb923c" opacity="0.7"/>
+      <circle cx="26" cy="23" r="1.5" fill="#fed7aa"/>
+      <circle cx="34" cy="23" r="1.5" fill="#fed7aa"/>
+      <circle cx="30" cy="42" r="4" fill="none" stroke="#fdba74" strokeWidth="1" opacity="0.6"/>
+      <polygon points="30,39 31,42 30,45 29,42" fill="#fdba74" opacity="0.6"/>
+    </svg>
+  ),
+  NEUTRAL: (
+    <svg viewBox="0 0 60 60" className="w-full h-full">
+      <circle cx="30" cy="24" r="11" fill="#6b7280"/>
+      <path d="M19 35 Q30 32 41 35 L39 55 Q30 58 21 55Z" fill="#4b5563"/>
+      <circle cx="26" cy="23" r="1.5" fill="#d1d5db"/>
+      <circle cx="34" cy="23" r="1.5" fill="#d1d5db"/>
+    </svg>
+  ),
+};
+
 // ─── Props ───
 interface GameBoardProps {
   gameState: ClientGameState;
   opponentHovering: boolean;
   opponentEmote: string | null;
-  rematchState: string;
-  onRematchStateChange: (s: string) => void;
   onLeaveGame: () => void;
   uid: string;
 }
@@ -134,7 +311,7 @@ function MulliganScreen({
               )}
               {replacing[i] && (
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-4xl text-red-400">✕</span>
+                  <span className="text-4xl text-red-400">{'\u2715'}</span>
                 </div>
               )}
             </button>
@@ -164,6 +341,7 @@ function BoardMinionCard({
   isValidTarget,
   isSelected,
   onClick,
+  animationClass,
 }: {
   minion: BoardMinion;
   isMyMinion: boolean;
@@ -171,6 +349,7 @@ function BoardMinionCard({
   isValidTarget: boolean;
   isSelected: boolean;
   onClick: () => void;
+  animationClass?: string;
 }) {
   const def = getCard(minion.cardCode);
   const isDamaged = minion.currentHealth < minion.maxHealth;
@@ -193,25 +372,26 @@ function BoardMinionCard({
         ${canAct && isMyMinion ? 'shadow-[0_0_12px_2px_rgba(34,197,94,0.5)] cursor-pointer hover:scale-110' : ''}
         ${isValidTarget ? 'shadow-[0_0_12px_2px_rgba(34,197,94,0.7)] cursor-crosshair' : ''}
         ${isSelected ? 'ring-2 ring-green-400' : ''}
+        ${animationClass ?? ''}
       `}
     >
       {/* Frozen overlay */}
       {isFrozen && (
         <div className="absolute inset-0 bg-blue-400/20 pointer-events-none z-10 flex items-start justify-center">
-          <span className="text-[10px] mt-0.5 opacity-80">❄</span>
+          <span className="text-[10px] mt-0.5 opacity-80">{'\u2744'}</span>
         </div>
       )}
 
       {/* Silenced overlay */}
       {isSilenced && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
-          <span className="text-red-500 text-2xl font-black opacity-60 leading-none">✕</span>
+          <span className="text-red-500 text-2xl font-black opacity-60 leading-none">{'\u2715'}</span>
         </div>
       )}
 
       {/* Windfury indicator */}
       {hasWindfury && (
-        <span className="absolute top-0.5 right-0.5 text-[10px] z-10 opacity-80" title="Windfury">≈</span>
+        <span className="absolute top-0.5 right-0.5 text-[10px] z-10 opacity-80" title="Windfury">{'\u2248'}</span>
       )}
 
       {/* Card art area */}
@@ -237,7 +417,7 @@ function BoardMinionCard({
 
         {/* Deathrattle indicator (bottom center) */}
         {hasDeathrattle && (
-          <span className="flex items-end text-[10px] opacity-80" title="Deathrattle">☠</span>
+          <span className="flex items-end text-[10px] opacity-80" title="Deathrattle">{'\u2620'}</span>
         )}
 
         <span
@@ -252,7 +432,7 @@ function BoardMinionCard({
   );
 }
 
-// ─── Hero Portrait ───
+// ─── Hero Portrait (with character SVG art) ───
 function HeroPortrait({
   heroClass,
   health,
@@ -268,6 +448,7 @@ function HeroPortrait({
   isValidTarget,
   onHeroPowerClick,
   onHeroClick,
+  heroDamage,
 }: {
   heroClass: HeroClass;
   health: number;
@@ -283,6 +464,7 @@ function HeroPortrait({
   isValidTarget: boolean;
   onHeroPowerClick: () => void;
   onHeroClick: () => void;
+  heroDamage?: boolean;
 }) {
   const borderClass = CLASS_BORDER[heroClass];
   const bgClass = CLASS_BG[heroClass];
@@ -301,22 +483,25 @@ function HeroPortrait({
         </div>
       )}
 
-      {/* Hero circle */}
+      {/* Hero circle with character portrait */}
       <button
         onClick={onHeroClick}
-        className={`relative flex h-20 w-20 flex-col items-center justify-center rounded-full border-4 ${borderClass} ${bgClass} transition-all
+        className={`relative flex h-20 w-20 items-center justify-center rounded-full border-4 ${borderClass} ${bgClass} transition-all overflow-hidden
           ${isValidTarget ? 'shadow-[0_0_16px_4px_rgba(34,197,94,0.6)] cursor-crosshair' : ''}
           ${!isValidTarget && !isMyHero ? 'cursor-default' : ''}
+          ${heroDamage ? 'animate-hero-damage animate-damage-shake' : ''}
         `}
       >
-        <span className="text-[10px] font-medium text-gray-300 uppercase tracking-wide">
-          {heroClass}
-        </span>
-        <span className={`text-2xl font-bold ${isDamaged ? 'text-red-400' : 'text-white'}`}>
+        {/* Character SVG portrait */}
+        <div className="absolute inset-1 rounded-full overflow-hidden opacity-80">
+          {HERO_PORTRAIT_SVG[heroClass]}
+        </div>
+        {/* HP overlay at bottom */}
+        <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 text-lg font-bold z-10 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] ${isDamaged ? 'text-red-400' : 'text-white'}`}>
           {health}
         </span>
         {armor > 0 && (
-          <div className="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full bg-gray-500 text-xs font-bold text-white">
+          <div className="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full bg-gray-500 text-xs font-bold text-white z-10">
             {armor}
           </div>
         )}
@@ -326,14 +511,19 @@ function HeroPortrait({
       <button
         onClick={onHeroPowerClick}
         disabled={!canUseHeroPower}
-        className={`flex h-14 w-14 flex-col items-center justify-center rounded-lg border-2 transition-all
+        className={`relative flex h-14 w-14 items-center justify-center rounded-lg border-2 transition-all
           ${canUseHeroPower
             ? 'border-amber-500 bg-amber-900/40 hover:bg-amber-800/60 hover:scale-110 cursor-pointer'
             : 'border-gray-600 bg-gray-800 opacity-40 cursor-not-allowed'}
         `}
+        title="Hero Power"
       >
-        <span className="text-[9px] text-gray-300">Power</span>
-        <span className="text-sm font-bold text-blue-400">{HERO_POWER_COST}</span>
+        <span className={`pointer-events-none ${canUseHeroPower ? 'text-amber-300' : 'text-gray-500'}`}>
+          {HERO_POWER_SVG[heroClass]}
+        </span>
+        <span className="pointer-events-none absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white shadow">
+          {HERO_POWER_COST}
+        </span>
       </button>
     </div>
   );
@@ -344,12 +534,18 @@ function HandCard({
   card,
   canPlay,
   isSelected,
+  isDragging,
   onClick,
+  onDragStart,
+  onDragEnd,
 }: {
   card: ClientCardInstance;
   canPlay: boolean;
   isSelected: boolean;
+  isDragging?: boolean;
   onClick: () => void;
+  onDragStart?: (e: React.DragEvent) => void;
+  onDragEnd?: (e: React.DragEvent) => void;
 }) {
   const def = getCard(card.cardCode);
   if (!def) return null;
@@ -357,31 +553,37 @@ function HandCard({
   return (
     <button
       onClick={onClick}
-      className={`group relative flex h-44 w-28 flex-shrink-0 flex-col items-center justify-between rounded-lg border-2 p-2 transition-all
+      draggable={canPlay}
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      className={`group relative flex h-44 w-28 flex-shrink-0 flex-col items-center rounded-lg border-2 p-1 transition-all overflow-hidden
         ${isSelected
           ? 'border-green-400 bg-gray-700 -translate-y-6 scale-110 z-20 shadow-[0_0_20px_4px_rgba(34,197,94,0.5)]'
           : canPlay
             ? 'border-amber-500/70 bg-gray-800 hover:-translate-y-4 hover:scale-105 hover:z-10 cursor-pointer'
             : 'border-gray-600 bg-gray-800/60 opacity-60 cursor-not-allowed'}
+        ${isDragging ? 'dragging-card' : ''}
       `}
     >
       {/* Mana cost */}
-      <div className="absolute -left-2 -top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white shadow">
+      <div className="absolute -left-1 -top-1 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white shadow">
         {def.manaCost}
       </div>
+      {/* Card Art */}
+      <div className="w-full h-16 mt-4 rounded overflow-hidden bg-gray-700/50 flex-shrink-0">
+        <CardArt cardCode={card.cardCode!} className="w-full h-full" />
+      </div>
       {/* Name */}
-      <span className="mt-3 text-center text-[11px] font-semibold text-white leading-tight">
+      <span className="text-[9px] font-semibold text-white leading-tight truncate w-full text-center mt-0.5 px-0.5">
         {def.name}
       </span>
       {/* Text */}
-      <span className="text-[9px] text-gray-400 text-center leading-tight line-clamp-3 px-0.5">
+      <span className="text-[7px] text-gray-400 text-center leading-tight line-clamp-2 px-0.5 flex-1 min-h-0 overflow-hidden">
         {def.text}
       </span>
-      {/* Type badge */}
-      <span className="text-[8px] uppercase tracking-wider text-gray-500">{def.type}</span>
       {/* Stats */}
       {def.type === 'MINION' && (
-        <div className="flex w-full justify-between px-0.5">
+        <div className="flex w-full justify-between px-0.5 shrink-0">
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-700 text-xs font-bold text-white">
             {def.attack}
           </span>
@@ -391,7 +593,7 @@ function HandCard({
         </div>
       )}
       {def.type === 'WEAPON' && (
-        <div className="flex w-full justify-between px-0.5">
+        <div className="flex w-full justify-between px-0.5 shrink-0">
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-700 text-xs font-bold text-white">
             {def.attack}
           </span>
@@ -505,117 +707,6 @@ function AttackArrow({ from, to }: { from: { x: number; y: number }; to: { x: nu
   );
 }
 
-// ─── Action Log Sidebar (Hearthstone-style) ───
-function ActionLogSidebar({
-  log,
-  myPlayerIndex,
-  isOpen,
-  onToggle,
-}: {
-  log: { id: number; turnNumber: number; playerIndex: 0 | 1 | null; message: string; category: string }[];
-  myPlayerIndex: 0 | 1;
-  isOpen: boolean;
-  onToggle: () => void;
-}) {
-  const logEndRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (isOpen) logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [log.length, isOpen]);
-
-  // Show last 8 actions in collapsed mode
-  const recentActions = log.slice(-8);
-
-  const categoryIcon: Record<string, string> = {
-    PLAY: '▶',
-    COMBAT: '⚔',
-    EFFECT: '✦',
-    TURN: '↻',
-    GAME: '★',
-  };
-
-  return (
-    <>
-      {/* Toggle button — left side */}
-      <button
-        onClick={onToggle}
-        className="fixed left-0 top-1/2 -translate-y-1/2 z-20 bg-gray-800/90 hover:bg-gray-700 text-gray-400 hover:text-white px-1.5 py-6 rounded-r-lg transition-all border-r border-t border-b border-gray-700"
-        title="Action History"
-      >
-        <span className="text-[10px] font-bold writing-vertical" style={{ writingMode: 'vertical-rl' }}>
-          {isOpen ? '◀ LOG' : 'LOG ▶'}
-        </span>
-      </button>
-
-      {/* Sidebar panel */}
-      <div
-        className={`fixed left-0 top-0 h-full z-20 bg-gray-900/95 border-r border-gray-700 transition-all duration-200 flex flex-col ${
-          isOpen ? 'w-64 translate-x-0' : 'w-0 -translate-x-full'
-        }`}
-      >
-        {isOpen && (
-          <>
-            <div className="flex items-center justify-between px-3 py-2 border-b border-gray-800">
-              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Action History</span>
-              <button onClick={onToggle} className="text-gray-600 hover:text-gray-300 text-sm cursor-pointer">✕</button>
-            </div>
-            <div className="flex-1 overflow-y-auto px-2 py-1">
-              {log.map((entry) => {
-                const isMe = entry.playerIndex === myPlayerIndex;
-                const isSystem = entry.playerIndex === null;
-                return (
-                  <div
-                    key={entry.id}
-                    className={`flex items-start gap-1.5 py-1 border-b border-gray-800/50 ${
-                      isSystem ? 'opacity-60' : ''
-                    }`}
-                  >
-                    <span className="text-[9px] text-gray-600 mt-0.5 shrink-0 w-3">
-                      {categoryIcon[entry.category] || '·'}
-                    </span>
-                    <span className={`text-[11px] leading-tight ${
-                      isSystem ? 'text-gray-500 italic' : isMe ? 'text-blue-300' : 'text-red-300'
-                    }`}>
-                      {entry.message}
-                    </span>
-                  </div>
-                );
-              })}
-              <div ref={logEndRef} />
-            </div>
-          </>
-        )}
-      </div>
-
-      {/* Mini action feed — always visible collapsed on left side (latest actions) */}
-      {!isOpen && (
-        <div className="fixed left-6 top-1/2 -translate-y-1/2 z-10 pointer-events-none max-h-[300px] overflow-hidden">
-          <div className="flex flex-col gap-0.5">
-            {recentActions.map((entry, i) => {
-              const isMe = entry.playerIndex === myPlayerIndex;
-              const isSystem = entry.playerIndex === null;
-              const opacity = 0.3 + (i / recentActions.length) * 0.7;
-              return (
-                <div
-                  key={entry.id}
-                  className="animate-action-slide"
-                  style={{ opacity }}
-                >
-                  <span className={`text-[10px] ${
-                    isSystem ? 'text-gray-600' : isMe ? 'text-blue-400/70' : 'text-red-400/70'
-                  }`}>
-                    {entry.message.length > 35 ? entry.message.substring(0, 35) + '...' : entry.message}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-    </>
-  );
-}
-
 // ═══════════════════════════════════════════
 // ─── Main GameBoard Component ───
 // ═══════════════════════════════════════════
@@ -624,8 +715,6 @@ export default function GameBoard({
   gameState: gs,
   opponentHovering,
   opponentEmote,
-  rematchState,
-  onRematchStateChange,
   onLeaveGame,
   uid,
 }: GameBoardProps) {
@@ -635,10 +724,27 @@ export default function GameBoard({
   const [targeting, setTargeting] = useState<TargetingMode>({ type: 'none' });
   const [selectedHandCard, setSelectedHandCard] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [logOpen, setLogOpen] = useState(false);
+  const [muted, setMuted] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [attackerPos, setAttackerPos] = useState<{ x: number; y: number } | null>(null);
   const boardRef = useRef<HTMLDivElement>(null);
+
+  // ─── Animation state ───
+  const [entranceIds, setEntranceIds] = useState<Set<string>>(new Set());
+  const [damageIds, setDamageIds] = useState<Set<string>>(new Set());
+  const [lungeId, setLungeId] = useState<string | null>(null);
+  const [myHeroDamage, setMyHeroDamage] = useState(false);
+  const [opHeroDamage, setOpHeroDamage] = useState(false);
+  const prevMyBoardIds = useRef<Set<string>>(new Set());
+  const prevOpBoardIds = useRef<Set<string>>(new Set());
+  const prevHealthMap = useRef<Map<string, number>>(new Map());
+  const prevMyHeroHp = useRef<number | null>(null);
+  const prevOpHeroHp = useRef<number | null>(null);
+
+  // ─── Drag-and-drop state ───
+  const [draggingCardId, setDraggingCardId] = useState<string | null>(null);
+  const [dropZoneActive, setDropZoneActive] = useState(false);
+  const [dropIndex, setDropIndex] = useState<number | null>(null);
 
   const isMyTurn = gs.currentPlayerIndex === gs.myPlayerIndex;
   const isPlaying = gs.phase === 'PLAYING';
@@ -661,6 +767,54 @@ export default function GameBoard({
     const interval = setInterval(tick, 200);
     return () => clearInterval(interval);
   }, [gs.turnDeadline, isGameOver]);
+
+  // ─── Animation detection: new minions, damage, hero damage ───
+  useEffect(() => {
+    // Detect new minions on board → entrance animation
+    const newEntrance = new Set<string>();
+    for (const m of myBoard) {
+      if (!prevMyBoardIds.current.has(m.instanceId)) newEntrance.add(m.instanceId);
+    }
+    for (const m of opBoard) {
+      if (!prevOpBoardIds.current.has(m.instanceId)) newEntrance.add(m.instanceId);
+    }
+    if (newEntrance.size > 0) {
+      setEntranceIds(newEntrance);
+      setTimeout(() => setEntranceIds(new Set()), 400);
+    }
+
+    // Detect minion damage → shake animation
+    const newDamage = new Set<string>();
+    for (const m of [...myBoard, ...opBoard]) {
+      const prev = prevHealthMap.current.get(m.instanceId);
+      if (prev !== undefined && m.currentHealth < prev) {
+        newDamage.add(m.instanceId);
+      }
+    }
+    if (newDamage.size > 0) {
+      setDamageIds(newDamage);
+      setTimeout(() => setDamageIds(new Set()), 400);
+    }
+
+    // Detect hero damage → flash animation
+    if (prevMyHeroHp.current !== null && gs.myHealth < prevMyHeroHp.current) {
+      setMyHeroDamage(true);
+      setTimeout(() => setMyHeroDamage(false), 400);
+    }
+    if (prevOpHeroHp.current !== null && gs.opponent.health < prevOpHeroHp.current) {
+      setOpHeroDamage(true);
+      setTimeout(() => setOpHeroDamage(false), 400);
+    }
+
+    // Update previous state refs
+    prevMyBoardIds.current = new Set(myBoard.map(m => m.instanceId));
+    prevOpBoardIds.current = new Set(opBoard.map(m => m.instanceId));
+    const hMap = new Map<string, number>();
+    for (const m of [...myBoard, ...opBoard]) hMap.set(m.instanceId, m.currentHealth);
+    prevHealthMap.current = hMap;
+    prevMyHeroHp.current = gs.myHealth;
+    prevOpHeroHp.current = gs.opponent.health;
+  }, [myBoard, opBoard, gs.myHealth, gs.opponent.health]);
 
   // Track mouse for attack arrows
   useEffect(() => {
@@ -812,8 +966,6 @@ export default function GameBoard({
     (targetId: string) => {
       if (pendingTarget && validTargetIds.has(targetId)) {
         // Resolve server-side interaction
-        const socket = (actions as any); // We emit via socket
-        // Use the socket directly for target resolution
         import('../socket').then(({ socket }) => {
           socket.emit('resolve-target', {
             interactionId: pendingTarget.interactionId,
@@ -825,8 +977,14 @@ export default function GameBoard({
       }
 
       if (targeting.type === 'attack' && validTargetIds.has(targetId)) {
-        actions.attackTarget(targeting.attackerInstanceId, targetId);
+        const attackerId = targeting.attackerInstanceId;
+        // Show lunge animation, then send attack after short delay
+        setLungeId(attackerId);
         cancelTargeting();
+        setTimeout(() => {
+          actions.attackTarget(attackerId, targetId);
+          setLungeId(null);
+        }, 250);
       }
     },
     [targeting, pendingTarget, validTargetIds, actions, cancelTargeting]
@@ -852,6 +1010,75 @@ export default function GameBoard({
     setMenuOpen(false);
   }, [actions]);
 
+  // ─── Drag-and-drop handlers (with position tracking) ───
+  const handleDragStart = useCallback((e: React.DragEvent, card: ClientCardInstance) => {
+    e.dataTransfer.setData('text/plain', card.instanceId);
+    e.dataTransfer.effectAllowed = 'move';
+    setDraggingCardId(card.instanceId);
+  }, []);
+
+  const handleDragEnd = useCallback(() => {
+    setDraggingCardId(null);
+    setDropZoneActive(false);
+    setDropIndex(null);
+  }, []);
+
+  const handleBoardDragOver = useCallback((e: React.DragEvent) => {
+    if (!draggingCardId) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDropZoneActive(true);
+
+    // Compute drop index from cursor position relative to existing minions
+    const container = e.currentTarget;
+    const minionEls = container.querySelectorAll('[data-minion-index]');
+    let idx = myBoard.length;
+    for (let i = 0; i < minionEls.length; i++) {
+      const rect = minionEls[i].getBoundingClientRect();
+      if (e.clientX < rect.left + rect.width / 2) {
+        idx = parseInt(minionEls[i].getAttribute('data-minion-index') || String(i));
+        break;
+      }
+    }
+    setDropIndex(idx);
+  }, [draggingCardId, myBoard.length]);
+
+  const handleBoardDragLeave = useCallback(() => {
+    setDropZoneActive(false);
+    setDropIndex(null);
+  }, []);
+
+  const handleBoardDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setDropZoneActive(false);
+    const cardId = e.dataTransfer.getData('text/plain');
+    if (!cardId) return;
+
+    const card = gs.myHand.find(c => c.instanceId === cardId);
+    if (!card) return;
+
+    const def = getCard(card.cardCode);
+    if (!def || def.manaCost > gs.myMana) return;
+    if (def.type === 'MINION' && myBoard.length >= MAX_BOARD_SIZE) return;
+
+    const pos = def.type === 'MINION' ? (dropIndex ?? myBoard.length) : undefined;
+    actions.playCard(card.instanceId, pos);
+    setDraggingCardId(null);
+    setDropIndex(null);
+  }, [gs.myHand, gs.myMana, myBoard.length, actions, dropIndex]);
+
+  // ─── Get animation class for a minion ───
+  const getMinionAnim = useCallback((instanceId: string, isMyMinion: boolean): string | undefined => {
+    if (entranceIds.has(instanceId)) return 'animate-minion-entrance';
+    if (damageIds.has(instanceId)) return 'animate-damage-shake';
+    if (lungeId === instanceId) return isMyMinion ? 'animate-attack-lunge-up' : 'animate-attack-lunge-down';
+    return undefined;
+  }, [entranceIds, damageIds, lungeId]);
+
+  // ─── Dynamic board scaling ───
+  const myBoardScale = myBoard.length <= 4 ? 1 : Math.max(0.7, 4.5 / myBoard.length);
+  const opBoardScale = opBoard.length <= 4 ? 1 : Math.max(0.7, 4.5 / opBoard.length);
+
   // ─── Mulligan ───
   if (gs.phase === 'MULLIGAN') {
     const alreadyConfirmed = gs.mulliganConfirmed[gs.myPlayerIndex];
@@ -872,7 +1099,7 @@ export default function GameBoard({
   const GameOverOverlay = isGameOver ? (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/70 backdrop-blur-sm">
       <h1
-        className={`mb-4 text-5xl font-bold ${gs.winner === gs.myPlayerId ? 'text-amber-400' : 'text-red-500'}`}
+        className={`mb-4 text-5xl font-bold animate-victory-title ${gs.winner === gs.myPlayerId ? 'text-amber-400' : 'text-red-500'}`}
       >
         {gs.winner === gs.myPlayerId ? 'VICTORY' : 'DEFEAT'}
       </h1>
@@ -883,24 +1110,10 @@ export default function GameBoard({
             ? 'Death by fatigue'
             : 'Hero destroyed'}
       </p>
-      <div className="mt-6 flex gap-4">
-        <button
-          onClick={() => {
-            actions.requestRematch();
-            onRematchStateChange('requested');
-          }}
-          disabled={rematchState === 'requested'}
-          className={`rounded-lg px-6 py-3 font-bold transition-all
-            ${rematchState === 'requested'
-              ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-              : 'bg-amber-500 text-black hover:bg-amber-400'}
-          `}
-        >
-          {rematchState === 'requested' ? 'Rematch Requested...' : 'Rematch'}
-        </button>
+      <div className="mt-6">
         <button
           onClick={onLeaveGame}
-          className="rounded-lg border border-gray-500 px-6 py-3 font-bold text-gray-300 hover:bg-gray-700"
+          className="rounded-lg bg-amber-500 px-8 py-3 font-bold text-black hover:bg-amber-400 transition-all hover:scale-105"
         >
           Leave
         </button>
@@ -932,6 +1145,11 @@ export default function GameBoard({
     </div>
   ) : null;
 
+  // ─── Drop zone placeholder ───
+  const dropPlaceholder = (
+    <div className="w-3 h-20 rounded bg-green-500/30 border border-dashed border-green-400/60 animate-pulse flex-shrink-0" />
+  );
+
   return (
     <div
       ref={boardRef}
@@ -945,43 +1163,46 @@ export default function GameBoard({
         <AttackArrow from={attackerPos} to={mousePos} />
       )}
 
-      {/* ═══ Opponent Emote ═══ */}
+      {/* Opponent Emote */}
       {opponentEmote && (
         <div className="fixed right-8 top-24 z-30 animate-bounce rounded-lg bg-gray-800 px-4 py-2 text-2xl shadow-lg">
           {opponentEmote}
         </div>
       )}
 
-      {/* ═══ Menu dropdown ═══ */}
-      <div className="absolute right-4 top-4 z-30">
+      {/* ═══ Top-right controls: Volume + Menu ═══ */}
+      <div className="absolute right-4 top-4 z-30 flex items-center gap-2">
         <button
-          onClick={() => setMenuOpen(!menuOpen)}
+          onClick={() => setMuted(!muted)}
           className="rounded-lg bg-gray-800 px-3 py-2 text-sm text-gray-300 hover:bg-gray-700"
+          title={muted ? 'Unmute' : 'Mute'}
         >
-          Menu
+          {muted ? '\uD83D\uDD07' : '\uD83D\uDD0A'}
         </button>
-        {menuOpen && (
-          <div className="absolute right-0 mt-1 w-40 rounded-lg border border-gray-700 bg-gray-800 py-1 shadow-xl">
-            <button
-              onClick={handleConcede}
-              className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-gray-700"
-            >
-              Concede
-            </button>
-            <button
-              onClick={onLeaveGame}
-              className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-gray-700"
-            >
-              Leave Game
-            </button>
-            <button
-              onClick={() => setMenuOpen(false)}
-              className="w-full px-4 py-2 text-left text-sm text-gray-400 hover:bg-gray-700"
-            >
-              Close
-            </button>
-          </div>
-        )}
+        <div className="relative">
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="rounded-lg bg-gray-800 px-3 py-2 text-sm text-gray-300 hover:bg-gray-700"
+          >
+            Menu
+          </button>
+          {menuOpen && (
+            <div className="absolute right-0 mt-1 w-40 rounded-lg border border-gray-700 bg-gray-800 py-1 shadow-xl">
+              <button
+                onClick={handleConcede}
+                className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-gray-700"
+              >
+                Concede
+              </button>
+              <button
+                onClick={() => setMenuOpen(false)}
+                className="w-full px-4 py-2 text-left text-sm text-gray-400 hover:bg-gray-700"
+              >
+                Close
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* ═══════════════════════════════════════════ */}
@@ -991,9 +1212,9 @@ export default function GameBoard({
         {/* Opponent hand */}
         <OpponentHand count={gs.opponent.handCount} />
 
-        {/* Opponent hero row */}
-        <div className="flex items-center gap-6">
-          <DeckPile count={gs.opponentDeckCount} graveyardCount={gs.opponent.graveyardCount} />
+        {/* Opponent hero row: [Mana] [Hero+Power] [Deck] */}
+        <div className="flex items-center justify-center w-full gap-4">
+          <ManaCrystals current={gs.opponent.mana} max={gs.opponent.maxMana} />
           <HeroPortrait
             heroClass={gs.opponent.heroClass}
             health={gs.opponent.health}
@@ -1009,95 +1230,64 @@ export default function GameBoard({
             isValidTarget={validTargetIds.has(`hero-${1 - gs.myPlayerIndex}`)}
             onHeroPowerClick={() => {}}
             onHeroClick={() => handleEnemyTargetClick(`hero-${1 - gs.myPlayerIndex}`)}
+            heroDamage={opHeroDamage}
           />
-          <ManaCrystals current={gs.opponent.mana} max={gs.opponent.maxMana} />
+          <DeckPile count={gs.opponentDeckCount} graveyardCount={gs.opponent.graveyardCount} />
         </div>
 
-        {/* Opponent board */}
-        <div className="flex min-h-[6.5rem] items-center justify-center gap-2">
-          {opBoard.length === 0 ? (
-            <div className="text-sm text-gray-700">No minions</div>
-          ) : (
-            opBoard.map((m) => (
-              <BoardMinionCard
-                key={m.instanceId}
-                minion={m}
-                isMyMinion={false}
-                canAct={false}
-                isValidTarget={validTargetIds.has(m.instanceId)}
-                isSelected={false}
-                onClick={() => handleEnemyTargetClick(m.instanceId)}
-              />
-            ))
-          )}
+        {/* Opponent board — dynamic scaling */}
+        <div className="flex min-h-[7rem] items-center justify-center">
+          <div
+            className="flex items-center justify-center gap-1 max-w-[38rem]"
+            style={opBoardScale < 1 ? { transform: `scale(${opBoardScale})`, transformOrigin: 'center center' } : undefined}
+          >
+            {opBoard.map((m) => (
+              <div key={m.instanceId} style={{ flex: '0 1 5.5rem' }}>
+                <BoardMinionCard
+                  minion={m}
+                  isMyMinion={false}
+                  canAct={false}
+                  isValidTarget={validTargetIds.has(m.instanceId)}
+                  isSelected={false}
+                  onClick={() => handleEnemyTargetClick(m.instanceId)}
+                  animationClass={getMinionAnim(m.instanceId, false)}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* ═══════════════════════════════════════════ */}
-      {/* CENTER DIVIDER */}
+      {/* GOLD DIVIDER + END TURN (right side) */}
       {/* ═══════════════════════════════════════════ */}
-      <div className="flex items-center justify-center gap-6 py-3">
-        {/* Turn info */}
-        <div className="text-sm text-gray-500">
-          Turn {gs.turnNumber}
-        </div>
+      <div className="relative flex items-center px-4">
+        {/* Gold gradient line */}
+        <div className="flex-1 h-[2px] bg-gradient-to-r from-transparent via-amber-500/60 to-amber-500/30" />
 
-        {/* End Turn button + timer warning */}
-        <div className="flex flex-col items-center gap-1">
-          <button
-            onClick={handleEndTurn}
-            disabled={!isMyTurn || !isPlaying}
-            className={`rounded-lg px-8 py-3 text-lg font-bold tracking-wide transition-all
-              ${isMyTurn && isPlaying
-                ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-black shadow-[0_0_20px_4px_rgba(234,179,8,0.4)] hover:from-amber-400 hover:to-yellow-400 hover:scale-105 active:scale-95'
-                : 'bg-gray-700 text-gray-500 cursor-not-allowed'}
-            `}
-          >
-            {isMyTurn ? 'End Turn' : "Opponent's Turn"}
-          </button>
-          {isMyTurn && timeLeft !== null && timeLeft <= 20 && (
-            <div className="w-32 h-1.5 rounded-full bg-gray-700 overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all duration-200 ${
-                  timeLeft <= 5 ? 'bg-red-500 animate-pulse' : timeLeft <= 10 ? 'bg-orange-500' : 'bg-yellow-500'
-                }`}
-                style={{ width: `${(timeLeft / 20) * 100}%` }}
-              />
-            </div>
-          )}
-        </div>
-
-        {/* Game log toggle */}
+        {/* End Turn button — right edge */}
         <button
-          onClick={() => setLogOpen(!logOpen)}
-          className="rounded bg-gray-800 px-3 py-1 text-xs text-gray-400 hover:bg-gray-700"
+          onClick={handleEndTurn}
+          disabled={!isMyTurn || !isPlaying}
+          className={`flex-shrink-0 w-16 h-20 rounded-l-2xl font-bold text-[11px] leading-tight text-center transition-all
+            ${isMyTurn && isPlaying
+              ? 'bg-gradient-to-b from-amber-500 to-yellow-600 text-black shadow-[0_0_20px_rgba(234,179,8,0.4)] hover:from-amber-400 hover:to-yellow-500 active:scale-95 animate-end-turn-glow'
+              : 'bg-gray-700 text-gray-500 cursor-not-allowed'}
+          `}
         >
-          Log
+          {isMyTurn ? <>END{'\n'}TURN</> : <>ENEMY{'\n'}TURN</>}
         </button>
       </div>
 
-      {/* Last action text */}
-      {gs.lastAction && (
-        <div className="mx-auto mb-1 max-w-md text-center text-xs text-gray-500 italic">
-          {gs.lastAction}
-        </div>
-      )}
-
-      {/* Collapsible game log */}
-      {logOpen && (
-        <div className="absolute left-4 top-1/2 z-30 max-h-60 w-72 -translate-y-1/2 overflow-y-auto rounded-lg border border-gray-700 bg-gray-900/95 p-3 shadow-xl">
-          <h3 className="mb-2 text-sm font-bold text-gray-300">Game Log</h3>
-          <div className="space-y-1">
-            {gs.log
-              .slice(-20)
-              .reverse()
-              .map((entry) => (
-                <div key={entry.id} className="text-[11px] text-gray-400">
-                  <span className="text-gray-600">T{entry.turnNumber}</span>{' '}
-                  {entry.message}
-                </div>
-              ))}
-          </div>
+      {/* Timer bar (below divider) */}
+      {isMyTurn && timeLeft !== null && timeLeft <= 20 && (
+        <div className="mx-auto w-32 h-1.5 rounded-full bg-gray-700 overflow-hidden mt-0.5">
+          <div
+            className={`h-full rounded-full transition-all duration-200 ${
+              timeLeft <= 5 ? 'bg-red-500 animate-pulse' : timeLeft <= 10 ? 'bg-orange-500' : 'bg-yellow-500'
+            }`}
+            style={{ width: `${(timeLeft / 20) * 100}%` }}
+          />
         </div>
       )}
 
@@ -1105,29 +1295,39 @@ export default function GameBoard({
       {/* MY AREA */}
       {/* ═══════════════════════════════════════════ */}
       <div className="flex flex-1 flex-col items-center justify-end gap-2 px-4 pb-3">
-        {/* My board */}
-        <div className="flex min-h-[6.5rem] items-center justify-center gap-2">
-          {myBoard.length === 0 ? (
-            <div className="text-sm text-gray-700">
-              {isMyTurn ? 'Play minions here' : 'No minions'}
-            </div>
-          ) : (
-            myBoard.map((m) => (
-              <BoardMinionCard
-                key={m.instanceId}
-                minion={m}
-                isMyMinion={true}
-                canAct={isMyTurn && m.canAttack && m.attacksRemaining > 0 && m.currentAttack > 0}
-                isValidTarget={validTargetIds.has(m.instanceId)}
-                isSelected={targeting.type === 'attack' && targeting.attackerInstanceId === m.instanceId}
-                onClick={(e?: any) => handleMyMinionClick(m, e)}
-              />
-            ))
-          )}
+        {/* My board (drop zone with position indicators) */}
+        <div
+          className={`flex min-h-[7rem] items-center justify-center rounded-lg transition-all ${dropZoneActive ? 'drop-zone-active border-2 border-dashed border-green-500/40' : 'border-2 border-transparent'}`}
+          onDragOver={handleBoardDragOver}
+          onDragLeave={handleBoardDragLeave}
+          onDrop={handleBoardDrop}
+        >
+          <div
+            className="flex items-center justify-center gap-1 max-w-[38rem]"
+            style={myBoardScale < 1 ? { transform: `scale(${myBoardScale})`, transformOrigin: 'bottom center' } : undefined}
+          >
+            {myBoard.map((m, i) => (
+              <Fragment key={m.instanceId}>
+                {dropIndex === i && dropPlaceholder}
+                <div data-minion-index={i} style={{ flex: '0 1 5.5rem' }}>
+                  <BoardMinionCard
+                    minion={m}
+                    isMyMinion={true}
+                    canAct={isMyTurn && m.canAttack && m.attacksRemaining > 0 && m.currentAttack > 0}
+                    isValidTarget={validTargetIds.has(m.instanceId)}
+                    isSelected={targeting.type === 'attack' && targeting.attackerInstanceId === m.instanceId}
+                    onClick={(e?: any) => handleMyMinionClick(m, e)}
+                    animationClass={getMinionAnim(m.instanceId, true)}
+                  />
+                </div>
+              </Fragment>
+            ))}
+            {dropIndex === myBoard.length && dropPlaceholder}
+          </div>
         </div>
 
-        {/* My hero row */}
-        <div className="flex items-center gap-6">
+        {/* My hero row: [Mana] [Hero+Power] [Deck] */}
+        <div className="flex items-center justify-center w-full gap-4">
           <ManaCrystals current={gs.myMana} max={gs.myMaxMana} />
           <HeroPortrait
             heroClass={gs.myHeroClass}
@@ -1148,6 +1348,7 @@ export default function GameBoard({
                 handleEnemyTargetClick(`hero-${gs.myPlayerIndex}`);
               }
             }}
+            heroDamage={myHeroDamage}
           />
           <DeckPile count={gs.deckCount} graveyardCount={gs.myGraveyardCount} />
         </div>
@@ -1164,7 +1365,10 @@ export default function GameBoard({
                 card={card}
                 canPlay={canPlay}
                 isSelected={selectedHandCard === card.instanceId}
+                isDragging={draggingCardId === card.instanceId}
                 onClick={() => handleHandCardClick(card)}
+                onDragStart={(e) => handleDragStart(e, card)}
+                onDragEnd={handleDragEnd}
               />
             );
           })}
@@ -1177,9 +1381,6 @@ export default function GameBoard({
           Opponent is thinking...
         </div>
       )}
-
-      {/* ═══ Action Log Sidebar (Hearthstone-style left panel) ═══ */}
-      <ActionLogSidebar log={gs.log} myPlayerIndex={gs.myPlayerIndex} isOpen={logOpen} onToggle={() => setLogOpen(!logOpen)} />
     </div>
   );
 }

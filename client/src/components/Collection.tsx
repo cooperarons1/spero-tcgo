@@ -292,7 +292,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
                 })}
                 <button
                   onClick={() => editingDeck ? undefined : setShowHeroPicker(true)}
-                  disabled={!!editingDeck || decks.length >= 30}
+                  disabled={!!editingDeck || decks.length >= 27}
                   className="w-full text-left px-2.5 py-2 rounded-lg text-xs cursor-pointer transition-all
                     bg-board-accent/30 text-gray-500 hover:bg-board-accent/50 hover:text-gray-300
                     border border-dashed border-gray-700 disabled:opacity-30 disabled:cursor-not-allowed"
@@ -367,7 +367,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
 
           {/* Card grid */}
           <div className="flex-1 overflow-y-auto p-3">
-            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
+            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
               {filteredCards.map(c => {
                 const count = editingCounts.get(c.cardCode) || 0;
                 const max = c.rarity === 'LEGENDARY' ? MAX_COPIES_LEGENDARY : MAX_COPIES_PER_CARD;
@@ -380,7 +380,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
                   <div
                     key={c.cardCode}
                     className={`relative transition-all select-none ${
-                      editingDeck && !greyed ? 'cursor-pointer hover:scale-105' : greyed ? 'cursor-not-allowed' : ''
+                      editingDeck && !greyed ? 'cursor-pointer hover:scale-110' : greyed ? 'cursor-not-allowed' : ''
                     }`}
                     onClick={() => editingDeck && !greyed && addCard(c.cardCode)}
                   >

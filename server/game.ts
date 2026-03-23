@@ -61,8 +61,7 @@ export function createGame(
     players[secondPlayer].hand.push(decks[secondPlayer].pop()!);
   }
 
-  // Give The Coin to second player
-  players[secondPlayer].hand.push(makeInstance('COIN'));
+  // Coin is given to second player after mulligan (in startPlaying)
 
   const game: GameState = {
     players,
@@ -104,9 +103,6 @@ export function confirmMulligan(
     return { success: false, error: `Expected ${player.hand.length} replacement flags` };
   }
 
-  // Don't replace The Coin — filter it out of replacements
-  const coinIdx = player.hand.findIndex(c => c.cardCode === 'COIN');
-
   game.mulliganChoices[pIdx as 0 | 1] = replacements;
   game.mulliganConfirmed[pIdx as 0 | 1] = true;
 
@@ -115,7 +111,7 @@ export function confirmMulligan(
   const toReplace: number[] = [];
 
   for (let i = 0; i < replacements.length; i++) {
-    if (replacements[i] && i !== coinIdx) {
+    if (replacements[i]) {
       toReplace.push(i);
     }
   }
@@ -165,6 +161,11 @@ export function confirmMulligan(
 /** Transition from MULLIGAN to PLAYING and start the first turn */
 function startPlaying(game: GameState): void {
   game.phase = 'PLAYING';
+
+  // Give The Coin to the second player (the one who doesn't go first)
+  const secondIdx = (game.currentPlayerIndex === 0 ? 1 : 0) as 0 | 1;
+  game.players[secondIdx].hand.push(makeInstance('COIN'));
+
   addLog(game, null, `Mulligan complete! Game begins.`, 'GAME');
   startTurn(game);
 }

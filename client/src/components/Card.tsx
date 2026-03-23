@@ -150,35 +150,33 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
       </div>
 
       {/* Card art area */}
-      <div className={`${small ? 'h-[55px] mt-5' : 'h-[80px] mt-7'} mx-1 rounded overflow-hidden flex items-center justify-center shrink-0`}>
+      <div className={`${small ? 'h-[55px] mt-4' : 'h-[88px] mt-5'} mx-1 rounded overflow-hidden flex items-center justify-center shrink-0`}>
         <CardArt cardCode={cardCode} className="w-full h-full" />
       </div>
 
-      {/* Card name banner */}
+      {/* Card name */}
       <div className={`
-        ${small ? 'mx-0.5 px-1 py-px' : 'mx-1.5 px-2 py-0.5'}
-        ${rarityBannerBg[def.rarity]} rounded-sm
-        text-center z-10 shrink-0
+        ${small ? 'mx-0.5 px-0.5' : 'mx-1 px-1'}
+        text-center z-10 shrink-0 w-full overflow-hidden
       `}>
         <span className={`
-          text-white font-bold leading-none
-          ${small ? 'text-[7px]' : 'text-[10px]'}
-          drop-shadow-sm
+          text-white font-bold leading-tight block truncate
+          ${small ? 'text-[6px]' : 'text-[8px]'}
+          drop-shadow-md
         `}>
           {def.name}
         </span>
       </div>
 
-      {/* Card text box — colored background by hero class */}
+      {/* Card text */}
       {def.text ? (
         <div className={`
-          flex-1 ${small ? 'mx-0.5 mt-px px-1 py-px' : 'mx-1.5 mt-0.5 px-2 py-0.5'}
-          ${textBg} rounded-sm
+          flex-1 ${small ? 'mx-0.5 px-0.5' : 'mx-1 mt-px px-1'}
           flex items-start justify-center overflow-hidden min-h-0
         `}>
           <p className={`
-            text-gray-200 text-center leading-tight
-            ${small ? 'text-[5px] line-clamp-2' : 'text-[7px] line-clamp-3'}
+            text-gray-300 text-center leading-tight
+            ${small ? 'text-[5px] line-clamp-2' : 'text-[6px] line-clamp-2'}
           `}>
             {def.text}
           </p>
@@ -190,7 +188,7 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
       {/* Bottom stat area */}
       {hasStats && (
         <div className={`
-          flex justify-between items-end
+          flex justify-between items-end shrink-0
           ${small ? 'px-0.5 pb-0.5' : 'px-1 pb-1'}
           z-10
         `}>

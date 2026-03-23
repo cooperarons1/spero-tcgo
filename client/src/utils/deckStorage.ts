@@ -27,18 +27,29 @@ const SELECTED_KEY = 'spero-selected-deck';
 export async function loadDecks(uid: string): Promise<DeckList[]> {
   const q = query(collection(db, 'users', uid, 'decks'), orderBy('createdAt', 'asc'));
   const snap = await getDocs(q);
-  return snap.docs.map(d => {
+  const decks = snap.docs.map(d => {
     const data = d.data();
+    const cards = data.cards ?? [];
     return {
       id: d.id,
       name: data.name,
-      heroClass: data.heroClass ?? inferHeroClass(data.cards ?? []),
-      cards: data.cards ?? [],
+      heroClass: data.heroClass ?? inferHeroClass(cards),
+      cards: cards.length > 30 ? cards.slice(0, 30) : cards,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
       isStarterDeck: data.isStarterDeck,
     } as DeckList;
   });
+
+  // Auto-fix oversized decks in Firestore
+  for (const d of snap.docs) {
+    const cards = d.data().cards ?? [];
+    if (cards.length > 30) {
+      await setDoc(doc(db, 'users', uid, 'decks', d.id), { cards: cards.slice(0, 30) }, { merge: true });
+    }
+  }
+
+  return decks;
 }
 
 /** Infer heroClass from card codes for legacy decks missing the field */
@@ -58,6 +69,9 @@ function inferHeroClass(cards: string[]): HeroClass {
 }
 
 export async function saveDeck(uid: string, deck: DeckList): Promise<void> {
+  if (deck.cards.length > 30) {
+    deck.cards = deck.cards.slice(0, 30);
+  }
   const decks = await loadDecks(uid);
   const existing = decks.find(d => d.id === deck.id);
   if (!existing && decks.length >= MAX_DECKS) {

@@ -223,6 +223,50 @@ body {
 }
 .animate-card-inspect-in { animation: card-inspect-in 0.2s ease-out forwards; }
 
+/* Attack lunge (my minion lunging upward toward enemy) */
+@keyframes attack-lunge-up {
+  0% { transform: translateY(0) scale(1); }
+  40% { transform: translateY(-24px) scale(1.1); }
+  70% { transform: translateY(-24px) scale(1.1); }
+  100% { transform: translateY(0) scale(1); }
+}
+.animate-attack-lunge-up { animation: attack-lunge-up 0.4s ease-in-out; }
+
+/* Attack lunge (opponent minion lunging downward) */
+@keyframes attack-lunge-down {
+  0% { transform: translateY(0) scale(1); }
+  40% { transform: translateY(24px) scale(1.1); }
+  70% { transform: translateY(24px) scale(1.1); }
+  100% { transform: translateY(0) scale(1); }
+}
+.animate-attack-lunge-down { animation: attack-lunge-down 0.4s ease-in-out; }
+
+/* Minion entrance (played from hand) */
+@keyframes minion-entrance {
+  0% { opacity: 0; transform: translateY(40px) scale(0.6); }
+  60% { opacity: 1; transform: translateY(-4px) scale(1.05); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-minion-entrance { animation: minion-entrance 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+/* Hero portrait damage flash */
+@keyframes hero-damage-flash {
+  0% { filter: brightness(1); }
+  25% { filter: brightness(1.8) saturate(2); }
+  50% { filter: brightness(0.6); }
+  100% { filter: brightness(1); }
+}
+.animate-hero-damage { animation: hero-damage-flash 0.4s ease-out; }
+
+/* Drag ghost card appearance */
+.dragging-card { opacity: 0.5; transform: scale(0.95); }
+
+/* Board drop zone highlight */
+.drop-zone-active {
+  background: rgba(34, 197, 94, 0.08);
+  box-shadow: inset 0 0 20px rgba(34, 197, 94, 0.15);
+}
+
 /* Show inspect icon on touch devices without hover */
 @media (hover: none) {
   .inspect-icon { opacity: 0.6; }
