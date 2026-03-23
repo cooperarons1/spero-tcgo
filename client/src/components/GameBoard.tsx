@@ -441,6 +441,7 @@ function HeroPortrait({
   onHeroPowerClick,
   onHeroClick,
   heroDamage,
+  secretCount,
 }: {
   heroClass: HeroClass;
   health: number;
