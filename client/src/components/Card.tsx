@@ -135,54 +135,42 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
       </div>
 
       {/* Card art area */}
-      <div className={`${small ? 'h-[50px]' : 'h-[75px]'} mx-1 mt-6 rounded overflow-hidden flex items-center justify-center`}>
+      <div className={`${small ? 'h-[45px] mt-5' : 'h-[65px] mt-7'} mx-1 rounded overflow-hidden flex items-center justify-center shrink-0`}>
         <CardArt cardCode={cardCode} className="w-full h-full" />
       </div>
 
       {/* Card name banner */}
       <div className={`
-        ${small ? 'mx-1 px-1 py-0.5' : 'mx-2 px-2 py-0.5'}
+        ${small ? 'mx-0.5 px-1 py-px' : 'mx-1.5 px-2 py-0.5'}
         ${rarityBannerBg[def.rarity]} rounded-sm
-        text-center z-10
+        text-center z-10 shrink-0
       `}>
         <span className={`
-          text-white font-bold leading-tight
-          ${small ? 'text-[7px]' : 'text-[9px]'}
+          text-white font-bold leading-none
+          ${small ? 'text-[7px]' : 'text-[10px]'}
           drop-shadow-sm
         `}>
           {def.name}
         </span>
       </div>
 
-      {/* Card text / description area */}
-      <div className={`
-        flex-1 ${small ? 'mx-1 mt-0.5 px-1' : 'mx-2 mt-0.5 px-2'}
-        flex items-start justify-center overflow-hidden
-      `}>
-        <p className={`
-          text-gray-300 text-center leading-tight
-          ${small ? 'text-[5px]' : 'text-[7px]'}
+      {/* Card text — only on larger cards or spells (spells need text since no stats) */}
+      {(!small || isSpell) && def.text && (
+        <div className={`
+          flex-1 ${small ? 'mx-0.5 px-0.5' : 'mx-2 mt-0.5 px-1.5'}
+          flex items-start justify-center overflow-hidden min-h-0
         `}>
-          {def.text}
-        </p>
-      </div>
-
-      {/* Keywords */}
-      {def.keywords.length > 0 && (
-        <div className={`${small ? 'mx-1 mb-0.5' : 'mx-2 mb-0.5'} flex justify-center flex-wrap gap-0.5`}>
-          {def.keywords.map((kw) => (
-            <span
-              key={kw}
-              className={`
-                ${small ? 'text-[5px] px-0.5' : 'text-[7px] px-1'}
-                bg-white/10 text-gray-400 rounded-sm font-semibold uppercase
-              `}
-            >
-              {kw}
-            </span>
-          ))}
+          <p className={`
+            text-gray-300 text-center leading-tight
+            ${small ? 'text-[5px] line-clamp-2' : 'text-[7px] line-clamp-3'}
+          `}>
+            {def.text}
+          </p>
         </div>
       )}
+
+      {/* Spacer for small minion/weapon cards (no text shown) */}
+      {small && !isSpell && <div className="flex-1" />}
 
       {/* Bottom stat area */}
       {hasStats && (
