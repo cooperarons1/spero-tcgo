@@ -279,39 +279,53 @@ function MulliganScreen({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm">
-      <h2 className="mb-2 text-3xl font-bold text-amber-400">Mulligan Phase</h2>
-      <p className="mb-8 text-stone-300">Click cards to replace them, then confirm.</p>
-      <div className="flex gap-4">
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center" style={{ background: 'radial-gradient(ellipse at center, #2a1a08 0%, #0a0604 100%)' }}>
+      <h2 className="mb-1 text-4xl font-extrabold text-amber-400 drop-shadow-lg tracking-wide">MULLIGAN</h2>
+      <p className="mb-8 text-amber-200/60 text-sm">Click cards you want to replace</p>
+      <div className="flex gap-5">
         {hand.map((c, i) => {
           const def = getCard(c.cardCode);
           return (
             <button
               key={c.instanceId}
               onClick={() => toggle(i)}
-              className={`relative flex h-52 w-36 flex-col items-center justify-between rounded-lg border-2 p-3 transition-all
+              className={`relative flex h-56 w-40 flex-col items-center rounded-xl border-2 overflow-hidden transition-all duration-200
                 ${replacing[i]
-                  ? 'border-red-500 bg-stone-800/60 opacity-50 grayscale'
-                  : 'border-amber-500 bg-stone-800 hover:border-amber-300 hover:scale-105'}
+                  ? 'border-red-500 opacity-40 grayscale scale-95'
+                  : 'border-amber-500/70 hover:border-amber-300 hover:scale-105 hover:shadow-[0_0_20px_rgba(245,158,11,0.4)]'}
               `}
+              style={{ background: 'linear-gradient(to bottom, #3d2a14, #2a1a08)' }}
             >
-              {/* Mana */}
-              <div className="absolute -left-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white">
+              {/* Mana gem */}
+              <div className="absolute -left-1 -top-1 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-700 border-2 border-blue-300 text-sm font-extrabold text-white shadow-lg">
                 {def?.manaCost ?? '?'}
               </div>
-              <span className="mt-4 text-center text-sm font-semibold text-white">
+              {/* Card art — large */}
+              <div className="w-full h-28 mt-1 overflow-hidden">
+                {c.cardCode && <CardArt cardCode={c.cardCode} className="w-full h-full" />}
+              </div>
+              {/* Name */}
+              <span className="text-[11px] font-bold text-amber-100 text-center leading-tight truncate w-full px-2 mt-1">
                 {def?.name ?? 'Unknown'}
               </span>
-              <span className="text-xs text-stone-400 text-center px-1">{def?.text}</span>
+              {/* Text */}
+              <span className="text-[8px] text-amber-200/50 text-center leading-tight line-clamp-2 px-2 flex-1">{def?.text}</span>
+              {/* Stats */}
               {def?.type === 'MINION' && (
-                <div className="flex w-full justify-between px-1 text-sm">
-                  <span className="font-bold text-amber-400">{def.attack}</span>
-                  <span className="font-bold text-red-400">{def.health}</span>
+                <div className="flex w-full justify-between px-2 pb-1">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-yellow-500 to-yellow-700 border border-yellow-400 text-xs font-extrabold text-white">
+                    {def.attack}
+                  </span>
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-red-800 border border-red-400 text-xs font-extrabold text-white">
+                    {def.health}
+                  </span>
                 </div>
               )}
+              {/* Replace overlay */}
               {replacing[i] && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-4xl text-red-400">{'\u2715'}</span>
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 z-10">
+                  <span className="text-5xl text-red-400 font-black">{'\u2715'}</span>
+                  <span className="text-xs text-red-300 mt-1">REPLACING</span>
                 </div>
               )}
             </button>
@@ -321,13 +335,13 @@ function MulliganScreen({
       <button
         disabled={confirmed}
         onClick={() => onConfirm(replacing)}
-        className={`mt-8 rounded-lg px-8 py-3 text-lg font-bold transition-all
+        className={`mt-8 rounded-xl px-10 py-3 text-lg font-extrabold tracking-wide transition-all
           ${confirmed
-            ? 'bg-stone-600 text-stone-400 cursor-not-allowed'
-            : 'bg-amber-500 text-black hover:bg-amber-400 hover:scale-105'}
+            ? 'bg-stone-700 text-stone-500 cursor-not-allowed'
+            : 'bg-gradient-to-b from-amber-400 to-amber-600 text-black hover:from-amber-300 hover:to-amber-500 hover:scale-105 shadow-[0_0_20px_rgba(245,158,11,0.3)]'}
         `}
       >
-        {confirmed ? 'Waiting for opponent...' : 'Confirm Mulligan'}
+        {confirmed ? 'Waiting for opponent...' : 'CONFIRM'}
       </button>
     </div>
   );
@@ -342,6 +356,10 @@ function BoardMinionCard({
   isSelected,
   onClick,
   animationClass,
+  onDragStart,
+  onDragEnd,
+  onDrop,
+  onDragOver,
 }: {
   minion: BoardMinion;
   isMyMinion: boolean;
@@ -350,6 +368,10 @@ function BoardMinionCard({
   isSelected: boolean;
   onClick: () => void;
   animationClass?: string;
+  onDragStart?: (e: React.DragEvent) => void;
+  onDragEnd?: (e: React.DragEvent) => void;
+  onDrop?: (e: React.DragEvent) => void;
+  onDragOver?: (e: React.DragEvent) => void;
 }) {
   const def = getCard(minion.cardCode);
   const isDamaged = minion.currentHealth < minion.maxHealth;
@@ -374,7 +396,7 @@ function BoardMinionCard({
       `}
     >
       {/* Art fills entire oval */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 bg-stone-600">
         {minion.cardCode && <CardArt cardCode={minion.cardCode} className="w-full h-full" />}
       </div>
 
@@ -435,6 +457,7 @@ function HeroPortrait({
   onHeroPowerClick: () => void;
   onHeroClick: () => void;
   heroDamage?: boolean;
+  secretCount?: number;
 }) {
   const borderClass = CLASS_BORDER[heroClass];
   const bgClass = CLASS_BG[heroClass];
@@ -442,6 +465,16 @@ function HeroPortrait({
 
   return (
     <div className="flex items-center gap-3">
+      {/* Secrets (shown as ? badges above hero) */}
+      {secretCount != null && secretCount > 0 && (
+        <div className="flex gap-0.5">
+          {Array.from({ length: secretCount }).map((_, i) => (
+            <div key={i} className="w-7 h-7 rounded-full bg-gradient-to-b from-amber-400 to-amber-600 border-2 border-amber-300 flex items-center justify-center text-white font-bold text-xs shadow-md">
+              ?
+            </div>
+          ))}
+        </div>
+      )}
       {/* Weapon (left side) */}
       {weapon && (
         <div className="flex h-16 w-16 flex-col items-center justify-center rounded-lg border-2 border-stone-600 bg-stone-800">
@@ -471,11 +504,12 @@ function HeroPortrait({
           {health}
         </span>
         {armor > 0 && (
-          <div className="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full bg-stone-500 text-xs font-bold text-white z-10">
+          <div className="absolute -right-1 -top-1 flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-gray-300 to-gray-500 border-2 border-gray-200 text-xs font-extrabold text-gray-800 z-10 shadow-md">
             {armor}
           </div>
         )}
       </button>
+
 
       {/* Hero Power */}
       <button
@@ -528,10 +562,10 @@ function HandCard({
       onDragEnd={onDragEnd}
       className={`group relative flex h-44 w-28 flex-shrink-0 flex-col items-center rounded-lg border-2 p-1 transition-all overflow-hidden
         ${isSelected
-          ? 'border-green-400 bg-stone-700 -translate-y-6 scale-110 z-20 shadow-[0_0_20px_4px_rgba(34,197,94,0.5)]'
+          ? 'border-green-400 bg-stone-600 -translate-y-6 scale-110 z-20 shadow-[0_0_20px_4px_rgba(34,197,94,0.5)]'
           : canPlay
-            ? 'border-amber-500/70 bg-stone-800 hover:-translate-y-4 hover:scale-105 hover:z-10 cursor-pointer'
-            : 'border-stone-600 bg-stone-800/60 opacity-60 cursor-not-allowed'}
+            ? 'border-amber-500/70 bg-stone-700 hover:-translate-y-4 hover:scale-105 hover:z-10 cursor-pointer'
+            : 'border-stone-500 bg-stone-700/60 opacity-60 cursor-not-allowed'}
         ${isDragging ? 'dragging-card' : ''}
       `}
     >
@@ -540,7 +574,7 @@ function HandCard({
         {def.manaCost}
       </div>
       {/* Card Art */}
-      <div className="w-full h-16 mt-4 rounded overflow-hidden bg-stone-700/50 flex-shrink-0">
+      <div className="w-full h-16 mt-4 rounded overflow-hidden bg-stone-600/60 flex-shrink-0">
         <CardArt cardCode={card.cardCode!} className="w-full h-full" />
       </div>
       {/* Name */}
@@ -583,7 +617,7 @@ function OpponentHand({ count }: { count: number }) {
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="h-16 w-11 rounded border border-amber-700 bg-gradient-to-b from-amber-900 to-amber-950 shadow-inner"
+          className="h-20 w-14 rounded-lg border-2 border-amber-700 bg-gradient-to-b from-amber-800 to-amber-950 shadow-inner"
         />
       ))}
     </div>
@@ -1124,7 +1158,7 @@ export default function GameBoard({
     <div
       ref={boardRef}
       className="relative flex h-screen w-screen flex-col overflow-hidden"
-      style={{ background: 'linear-gradient(to bottom, #5c3d1a, #a07d3a 12%, #c9ad6e 30%, #d4b87a 50%, #c9ad6e 70%, #a07d3a 88%, #5c3d1a)' }}
+      style={{ background: 'linear-gradient(to bottom, #1a0f05, #2d1e0e 6%, #4a3520 15%, #5c4528 30%, #6b5232 45%, #725838 50%, #6b5232 55%, #5c4528 70%, #4a3520 85%, #2d1e0e 94%, #1a0f05)' }}
     >
       {GameOverOverlay}
       {InteractionOverlay}
@@ -1141,24 +1175,23 @@ export default function GameBoard({
         </div>
       )}
 
-      {/* ═══ Top-right controls: Volume + Menu ═══ */}
-      <div className="absolute right-4 top-4 z-30 flex items-center gap-2">
-        <button
-          onClick={() => setMuted(!muted)}
-          className="rounded-lg bg-stone-800 px-3 py-2 text-sm text-stone-300 hover:bg-stone-700"
-          title={muted ? 'Unmute' : 'Mute'}
-        >
-          {muted ? '\uD83D\uDD07' : '\uD83D\uDD0A'}
-        </button>
+      {/* ═══ Top-right controls: Menu ═══ */}
+      <div className="absolute right-4 top-4 z-30">
         <div className="relative">
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="rounded-lg bg-stone-800 px-3 py-2 text-sm text-stone-300 hover:bg-stone-700"
+            className="rounded-lg bg-stone-800/80 px-3 py-2 text-sm text-stone-300 hover:bg-stone-700"
           >
             Menu
           </button>
           {menuOpen && (
             <div className="absolute right-0 mt-1 w-40 rounded-lg border border-stone-700 bg-stone-800 py-1 shadow-xl">
+              <button
+                onClick={() => { setMuted(!muted); }}
+                className="w-full px-4 py-2 text-left text-sm text-stone-300 hover:bg-stone-700"
+              >
+                {muted ? '\uD83D\uDD07 Unmute' : '\uD83D\uDD0A Mute'}
+              </button>
               <button
                 onClick={handleConcede}
                 className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-stone-700"
@@ -1183,7 +1216,7 @@ export default function GameBoard({
         {/* Opponent hand */}
         <OpponentHand count={gs.opponent.handCount} />
 
-        {/* Opponent hero row: [Mana] [Hero+Power] [Deck] */}
+        {/* Opponent hero row: [Mana] [Hero+Power] */}
         <div className="flex items-center justify-center w-full gap-4">
           <ManaCrystals current={gs.opponent.mana} max={gs.opponent.maxMana} />
           <HeroPortrait
@@ -1202,8 +1235,8 @@ export default function GameBoard({
             onHeroPowerClick={() => {}}
             onHeroClick={() => handleEnemyTargetClick(`hero-${1 - gs.myPlayerIndex}`)}
             heroDamage={opHeroDamage}
+            secretCount={gs.opponent.secretCount}
           />
-          <DeckPile count={gs.opponentDeckCount} graveyardCount={gs.opponent.graveyardCount} />
         </div>
 
         {/* Opponent board — dynamic scaling */}
@@ -1230,17 +1263,22 @@ export default function GameBoard({
       </div>
 
       {/* ═══════════════════════════════════════════ */}
-      {/* GOLD DIVIDER + END TURN (right side) */}
+      {/* GOLD DIVIDER */}
       {/* ═══════════════════════════════════════════ */}
-      <div className="relative flex items-center px-4">
-        {/* Gold gradient line */}
-        <div className="flex-1 h-[2px] bg-gradient-to-r from-transparent via-amber-500/60 to-amber-500/30" />
+      <div className="px-4 pr-28">
+        <div className="h-[2px] bg-gradient-to-r from-transparent via-amber-500/60 to-amber-500/30" />
+      </div>
 
-        {/* End Turn button — right edge */}
+      {/* ═══ Right sidebar: Deck → End Turn → Timer → Deck (absolutely positioned) ═══ */}
+      <div className="absolute right-2 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-2">
+        {/* Opponent deck (above) */}
+        <DeckPile count={gs.opponentDeckCount} graveyardCount={gs.opponent.graveyardCount} />
+
+        {/* End Turn button */}
         <button
           onClick={handleEndTurn}
           disabled={!isMyTurn || !isPlaying}
-          className={`flex-shrink-0 w-20 h-24 rounded-l-2xl font-bold text-[11px] leading-tight text-center transition-all
+          className={`w-20 h-20 rounded-xl font-bold text-[11px] leading-tight text-center transition-all
             ${isMyTurn && isPlaying
               ? 'bg-gradient-to-b from-amber-500 to-yellow-600 text-black shadow-[0_0_20px_rgba(234,179,8,0.4)] hover:from-amber-400 hover:to-yellow-500 active:scale-95 animate-end-turn-glow'
               : 'bg-stone-700 text-stone-500 cursor-not-allowed'}
@@ -1248,19 +1286,22 @@ export default function GameBoard({
         >
           {isMyTurn ? <>END{'\n'}TURN</> : <>ENEMY{'\n'}TURN</>}
         </button>
-      </div>
 
-      {/* Timer bar (below divider) */}
-      {isMyTurn && timeLeft !== null && timeLeft <= 20 && (
-        <div className="mx-auto w-32 h-1.5 rounded-full bg-stone-700 overflow-hidden mt-0.5">
-          <div
-            className={`h-full rounded-full transition-all duration-200 ${
-              timeLeft <= 5 ? 'bg-red-500 animate-pulse' : timeLeft <= 10 ? 'bg-orange-500' : 'bg-yellow-500'
-            }`}
-            style={{ width: `${(timeLeft / 20) * 100}%` }}
-          />
-        </div>
-      )}
+        {/* Timer bar */}
+        {isMyTurn && timeLeft !== null && timeLeft <= 20 && (
+          <div className="w-16 h-1.5 rounded-full bg-stone-700 overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-200 ${
+                timeLeft <= 5 ? 'bg-red-500 animate-pulse' : timeLeft <= 10 ? 'bg-orange-500' : 'bg-yellow-500'
+              }`}
+              style={{ width: `${(timeLeft / 20) * 100}%` }}
+            />
+          </div>
+        )}
+
+        {/* My deck (below) */}
+        <DeckPile count={gs.deckCount} graveyardCount={gs.myGraveyardCount} />
+      </div>
 
       {/* ═══════════════════════════════════════════ */}
       {/* MY AREA */}
@@ -1297,7 +1338,7 @@ export default function GameBoard({
           </div>
         </div>
 
-        {/* My hero row: [Mana] [Hero+Power] [Deck] */}
+        {/* My hero row: [Mana] [Hero+Power] */}
         <div className="flex items-center justify-center w-full gap-4">
           <ManaCrystals current={gs.myMana} max={gs.myMaxMana} />
           <HeroPortrait
@@ -1320,8 +1361,8 @@ export default function GameBoard({
               }
             }}
             heroDamage={myHeroDamage}
+            secretCount={gs.mySecrets?.length ?? 0}
           />
-          <DeckPile count={gs.deckCount} graveyardCount={gs.myGraveyardCount} />
         </div>
 
         {/* My hand */}

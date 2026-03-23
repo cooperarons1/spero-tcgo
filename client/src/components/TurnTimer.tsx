@@ -38,7 +38,7 @@ export function TurnTimer({ deadline, isMyTurn }: TurnTimerProps) {
   const urgent = pct < 16.7; // ~10s of 60s
 
   return (
-    <div className="w-full h-1 bg-board-accent/50 shrink-0">
+    <div className="w-full h-1 bg-slate-700/50 shrink-0">
       <div
         className={`h-full ${color} transition-colors duration-300 ${urgent ? 'animate-timer-urgent' : ''}`}
         style={{ width: `${pct}%`, transition: 'width 100ms linear' }}

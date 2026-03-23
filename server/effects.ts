@@ -283,6 +283,14 @@ export function executeEffect(
       }
       break;
     }
+    case 'COUNTER_SPELL': {
+      // Handled by secrets.ts returning countered flag; no additional effect needed
+      break;
+    }
+    case 'COPY_MINION': {
+      // Handled by secrets.ts directly; no additional effect needed
+      break;
+    }
   }
 }
 

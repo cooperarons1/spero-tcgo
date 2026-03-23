@@ -12,7 +12,23 @@ export type Keyword =
   | 'DEATHRATTLE'
   | 'FREEZE'
   | 'WINDFURY'
-  | 'STEALTH';
+  | 'STEALTH'
+  | 'SECRET';
+
+// ─── Secrets ───
+
+export type SecretTrigger =
+  | 'WHEN_ATTACKED'              // opponent declares any attack
+  | 'WHEN_HERO_ATTACKED'         // opponent attacks your hero
+  | 'WHEN_MINION_PLAYED'         // opponent plays a minion
+  | 'WHEN_SPELL_CAST'            // opponent casts a spell
+  | 'WHEN_FRIENDLY_MINION_DIES'; // one of your minions dies
+
+export interface ActiveSecret {
+  instanceId: string;
+  cardCode: string;
+  ownerPlayerIndex: 0 | 1;
+}
 
 export interface CardDef {
   cardCode: string;
@@ -31,6 +47,9 @@ export interface CardDef {
   deathrattleEffect?: EffectDef;
   spellEffect?: EffectDef;
   spellEffects?: EffectDef[];
+  secretTrigger?: SecretTrigger;
+  secretEffect?: EffectDef;
+  secretEffects?: EffectDef[];
 }
 
 // ─── Effect System ───
@@ -53,7 +72,9 @@ export type EffectType =
   | 'RETURN_TO_HAND'
   | 'GAIN_MANA_CRYSTAL'
   | 'GAIN_TEMPORARY_MANA'
-  | 'GRANT_KEYWORD';
+  | 'GRANT_KEYWORD'
+  | 'COUNTER_SPELL'
+  | 'COPY_MINION';
 
 export type EffectTarget =
   | 'NONE'
@@ -138,6 +159,7 @@ export interface PlayerState {
   heroPowerUsed: boolean;
   fatigueDamage: number;   // increments each draw from empty deck
   graveyard: CardInstance[];
+  secrets: ActiveSecret[];
 }
 
 // ─── Game State ───
@@ -234,6 +256,7 @@ export interface ClientPlayerInfo {
   heroPowerUsed: boolean;
   fatigueDamage: number;
   graveyardCount: number;
+  secretCount: number;
 }
 
 export interface ClientGameState {
@@ -252,6 +275,7 @@ export interface ClientGameState {
   myHeroPowerUsed: boolean;
   myFatigueDamage: number;
   myGraveyardCount: number;
+  mySecrets: ActiveSecret[];
   opponent: ClientPlayerInfo;
   deckCount: number;
   opponentDeckCount: number;
@@ -274,6 +298,7 @@ export const DECK_SIZE = 30;
 export const MAX_COPIES_PER_CARD = 2;
 export const MAX_COPIES_LEGENDARY = 1;
 export const MAX_BOARD_SIZE = 7;
+export const MAX_SECRETS = 5;
 export const MAX_HAND_SIZE = 10;
 export const MAX_MANA = 10;
 export const STARTING_HEALTH = 30;

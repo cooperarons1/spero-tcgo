@@ -36,7 +36,7 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
   if (lobby) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
-        <div className="bg-board-surface rounded-2xl p-8 shadow-xl max-w-md w-full text-center border border-board-accent">
+        <div className="bg-slate-800 rounded-2xl p-8 shadow-xl max-w-md w-full text-center border border-slate-700">
           <h2 className="text-2xl font-bold text-white mb-2">Room Code</h2>
           <div className="text-5xl font-bold tracking-[0.3em] text-spero-yellow mb-6 font-mono">
             {lobby.code}
@@ -48,7 +48,7 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
             {lobby.players.map((p) => (
               <div
                 key={p.id}
-                className="bg-board-accent rounded-lg py-2 px-4 flex items-center justify-between"
+                className="bg-slate-700 rounded-lg py-2 px-4 flex items-center justify-between"
               >
                 <span className="font-medium text-white">{p.name}</span>
                 {p.isHost && (
@@ -76,8 +76,8 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <div className="bg-board-surface rounded-2xl p-8 shadow-xl max-w-md w-full text-center border border-board-accent">
-        <h1 className="text-5xl font-extrabold text-white mb-1">SPERO</h1>
+      <div className="bg-slate-800 rounded-2xl p-8 shadow-xl max-w-md w-full text-center border border-slate-700">
+        <h1 className="text-5xl font-extrabold text-white mb-1">MIRO</h1>
         <p className="text-spero-yellow font-bold text-lg mb-1">TCG Online</p>
         <div className="flex items-center justify-center gap-2 mb-6">
           <span className="text-gray-400 text-sm">Signed in as <span className="text-white font-medium">{displayName}</span></span>
@@ -131,13 +131,13 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
             <div className="flex gap-3 mt-2">
               <button
                 onClick={onCollection}
-                className="flex-1 bg-board-accent text-gray-300 font-bold py-2.5 px-4 rounded-xl text-sm hover:bg-board-accent/80 active:scale-95 transition-all cursor-pointer"
+                className="flex-1 bg-slate-700 text-gray-300 font-bold py-2.5 px-4 rounded-xl text-sm hover:bg-slate-700/80 active:scale-95 transition-all cursor-pointer"
               >
                 Collection
               </button>
               <button
                 onClick={onMatchHistory}
-                className="flex-1 bg-board-accent text-gray-300 font-bold py-2.5 px-4 rounded-xl text-sm hover:bg-board-accent/80 active:scale-95 transition-all cursor-pointer"
+                className="flex-1 bg-slate-700 text-gray-300 font-bold py-2.5 px-4 rounded-xl text-sm hover:bg-slate-700/80 active:scale-95 transition-all cursor-pointer"
               >
                 Match History
               </button>
@@ -153,7 +153,7 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
               onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
               placeholder="Room code (e.g. ABCDEF)"
               maxLength={6}
-              className="w-full bg-board-accent border border-gray-600 rounded-xl py-3 px-4 text-center text-2xl tracking-[0.3em] font-mono text-white placeholder-gray-500 focus:border-spero-yellow focus:outline-none uppercase"
+              className="w-full bg-slate-700 border border-gray-600 rounded-xl py-3 px-4 text-center text-2xl tracking-[0.3em] font-mono text-white placeholder-gray-500 focus:border-spero-yellow focus:outline-none uppercase"
             />
             <button
               onClick={handleJoin}

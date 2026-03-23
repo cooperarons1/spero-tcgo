@@ -30,10 +30,10 @@ export function CardTooltip({ cardDef, anchorRect }: CardTooltipProps) {
   return createPortal(
     <div
       style={style}
-      className="bg-board-surface border border-board-accent rounded-lg shadow-2xl max-w-[320px] w-[320px] animate-tooltip-fade pointer-events-none overflow-hidden"
+      className="bg-slate-800 border border-slate-700 rounded-lg shadow-2xl max-w-[320px] w-[320px] animate-tooltip-fade pointer-events-none overflow-hidden"
     >
       {/* Card name header */}
-      <div className="px-3 py-1.5 border-b border-board-accent/50 flex items-center justify-between">
+      <div className="px-3 py-1.5 border-b border-slate-700/50 flex items-center justify-between">
         <span className="text-white text-sm font-bold truncate">{cardDef.name}</span>
         <span className="text-gray-400 text-xs ml-2 shrink-0">{cardDef.type}</span>
       </div>

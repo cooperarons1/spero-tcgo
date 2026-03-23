@@ -24,7 +24,7 @@ export function GameOver({ winnerName, isMe, onPlayAgain, onRequestRematch, onDe
   return (
     <div className={`fixed inset-0 bg-black/70 flex items-center justify-center z-50 ${!isMe ? 'animate-vignette-red' : ''}`}>
       {isMe && <ConfettiCanvas />}
-      <div className={`bg-board-surface rounded-2xl p-8 shadow-2xl max-w-sm w-full mx-4 text-center animate-bounce-in border border-board-accent ${isMe ? 'ring-2 ring-spero-yellow/40' : ''}`}>
+      <div className={`bg-slate-800 rounded-2xl p-8 shadow-2xl max-w-sm w-full mx-4 text-center animate-bounce-in border border-slate-700 ${isMe ? 'ring-2 ring-spero-yellow/40' : ''}`}>
         <h2 className={`text-3xl font-bold text-white mb-2 ${isMe ? 'animate-victory-title' : ''}`}>
           {isMe ? 'Victory!' : `${winnerName} Wins!`}
         </h2>
@@ -56,7 +56,7 @@ export function GameOver({ winnerName, isMe, onPlayAgain, onRequestRematch, onDe
               </button>
               <button
                 onClick={onDeclineRematch}
-                className="flex-1 bg-board-accent text-gray-300 font-bold py-3 rounded-xl hover:bg-board-accent/80 active:scale-95 transition-all cursor-pointer"
+                className="flex-1 bg-slate-700 text-gray-300 font-bold py-3 rounded-xl hover:bg-slate-700/80 active:scale-95 transition-all cursor-pointer"
               >
                 Decline
               </button>
@@ -68,7 +68,7 @@ export function GameOver({ winnerName, isMe, onPlayAgain, onRequestRematch, onDe
           {onLeaveGame && (
             <button
               onClick={onLeaveGame}
-              className="w-full bg-board-accent text-gray-300 font-bold py-3 px-8 rounded-xl text-base hover:bg-board-accent/80 active:scale-95 transition-all cursor-pointer"
+              className="w-full bg-slate-700 text-gray-300 font-bold py-3 px-8 rounded-xl text-base hover:bg-slate-700/80 active:scale-95 transition-all cursor-pointer"
             >
               Leave
             </button>

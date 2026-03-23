@@ -10,7 +10,7 @@ import { minionHasKeyword, hasActiveTaunt, getTauntMinions } from './keywords.js
 export const AI_PLAYER_ID_PREFIX = 'ai-bot-';
 
 const AI_NAMES = [
-  'SperoBot', 'CardMaster AI', 'Robo Duelist', 'Circuit Sage',
+  'MiroBot', 'CardMaster AI', 'Robo Duelist', 'Circuit Sage',
   'Byte Battler', 'Neon Rival', 'Pixel Prowler', 'Data Deck',
 ];
 
@@ -107,6 +107,15 @@ function executeAITurn(
 
       // Skip if board is full and it's a minion
       if (def.type === 'MINION' && me.board.length >= 7) continue;
+
+      // Play secrets immediately if affordable and not duplicate
+      if (def.secretTrigger) {
+        if (me.secrets.some(s => s.cardCode === card.cardCode)) continue;
+        if (me.secrets.length >= 5) continue;
+        const result = playCard(game, aiPlayerId, card.instanceId);
+        if (result.success) { played = true; broadcast(); break; }
+        continue;
+      }
 
       // For targeted effects, pick a smart target
       let targetId: string | null = null;

@@ -902,5 +902,5 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3002;
 httpServer.listen(PORT, () => {
-  console.log(`Spero TCGO server running on port ${PORT}`);
+  console.log(`Miro TCGO server running on port ${PORT}`);
 });

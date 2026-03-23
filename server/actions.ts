@@ -1,5 +1,6 @@
 import type { GameState, PlayerState, BoardMinion, Weapon, EffectDef } from '../shared/types.js';
-import { MAX_BOARD_SIZE, MAX_HAND_SIZE, HERO_POWER_COST } from '../shared/types.js';
+import { MAX_BOARD_SIZE, MAX_HAND_SIZE, HERO_POWER_COST, MAX_SECRETS } from '../shared/types.js';
+import { checkSecrets } from './secrets.js';
 import { getCardDef } from './cards.js';
 import { addLog } from './log.js';
 import { createBoardMinion, checkDeaths } from './combat.js';
@@ -75,8 +76,36 @@ export function playCard(
       executeEffects(game, pIdx as 0 | 1, bcEffects, targetId);
     }
 
+    // Check opponent's WHEN_MINION_PLAYED secrets
+    checkSecrets(game, 'WHEN_MINION_PLAYED', {
+      actingPlayerIndex: pIdx as 0 | 1,
+      minionInstanceId: minion.instanceId,
+    });
+
   } else if (def.type === 'SPELL') {
-    // Check if spell needs a target (plural effects take priority)
+    // ─── Secret spell ───
+    if (def.secretTrigger) {
+      if (player.secrets.some(s => s.cardCode === cardInst.cardCode)) {
+        return { success: false, error: 'You already have this secret active' };
+      }
+      if (player.secrets.length >= MAX_SECRETS) {
+        return { success: false, error: 'Maximum 5 secrets' };
+      }
+      player.mana -= def.manaCost;
+      game.playerStats[pIdx as 0 | 1].manaSpent += def.manaCost;
+      player.hand.splice(cardIdx, 1);
+      player.secrets.push({
+        instanceId: `secret-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        cardCode: cardInst.cardCode,
+        ownerPlayerIndex: pIdx as 0 | 1,
+      });
+      addLog(game, pIdx as 0 | 1, `${player.playerName} plays a secret`, 'PLAY');
+      game.playerStats[pIdx as 0 | 1].spellsCast++;
+      game.lastAction = `${player.playerName} plays a secret.`;
+      return { success: true };
+    }
+
+    // ─── Normal spell ───
     const spEffects = def.spellEffects ?? (def.spellEffect ? [def.spellEffect] : []);
     if (spEffects.length > 0 && effectsNeedTarget(spEffects)) {
       const targetType = getEffectsTargetType(spEffects);
@@ -99,8 +128,14 @@ export function playCard(
     addLog(game, pIdx as 0 | 1, `${player.playerName} casts ${def.name}`, 'PLAY');
     game.playerStats[pIdx as 0 | 1].spellsCast++;
 
-    // Execute spell effects (plural takes priority)
-    if (spEffects.length > 0) {
+    // Check opponent's WHEN_SPELL_CAST secrets (after mana spent, before effects)
+    const spellSecretResult = checkSecrets(game, 'WHEN_SPELL_CAST', {
+      actingPlayerIndex: pIdx as 0 | 1,
+      spellCardCode: cardInst.cardCode,
+    });
+
+    // Execute spell effects unless countered
+    if (!spellSecretResult.countered && spEffects.length > 0) {
       executeEffects(game, pIdx as 0 | 1, spEffects, targetId);
     }
 

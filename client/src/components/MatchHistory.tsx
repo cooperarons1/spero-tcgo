@@ -31,7 +31,7 @@ function MatchRow({ match }: { match: MatchRecord }) {
         </div>
       </div>
       {expanded && (
-        <div className="mt-2 pt-2 border-t border-board-accent grid grid-cols-3 gap-2 text-xs text-gray-400">
+        <div className="mt-2 pt-2 border-t border-slate-700 grid grid-cols-3 gap-2 text-xs text-gray-400">
           <span>Turns: {match.turns}</span>
           <span>Missions: {match.myMissions} vs {match.opponentMissions}</span>
           <span>Damage: {match.myDamage} vs {match.opponentDamage}</span>
@@ -54,7 +54,7 @@ export function MatchHistory({ uid, onBack }: MatchHistoryProps) {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <div className="bg-board-surface rounded-2xl p-6 shadow-xl max-w-lg w-full border border-board-accent">
+      <div className="bg-slate-800 rounded-2xl p-6 shadow-xl max-w-lg w-full border border-slate-700">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-white">Match History</h2>
           <button onClick={onBack} className="text-gray-400 hover:text-white text-sm underline cursor-pointer">Back</button>

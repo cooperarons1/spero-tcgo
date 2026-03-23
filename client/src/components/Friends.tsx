@@ -198,8 +198,8 @@ export function Friends({ uid, onBack, incomingChallenge, onChallengeHandled }: 
   if (chatWith) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
-        <div className="bg-board-surface rounded-2xl shadow-xl max-w-md w-full border border-board-accent flex flex-col" style={{ height: '80vh' }}>
-          <div className="p-4 border-b border-board-accent flex items-center gap-3">
+        <div className="bg-slate-800 rounded-2xl shadow-xl max-w-md w-full border border-slate-700 flex flex-col" style={{ height: '80vh' }}>
+          <div className="p-4 border-b border-slate-700 flex items-center gap-3">
             <button onClick={() => setChatWith(null)} className="text-gray-400 hover:text-white cursor-pointer text-lg">&larr;</button>
             <div className="flex items-center gap-2">
               <span className={`w-2 h-2 rounded-full ${data.onlineUids.includes(chatWith.uid) ? 'bg-spero-green' : 'bg-gray-600'}`} />
@@ -216,7 +216,7 @@ export function Friends({ uid, onBack, incomingChallenge, onChallengeHandled }: 
                 <div className={`max-w-[75%] px-3 py-2 rounded-xl text-sm ${
                   msg.fromUid === uid
                     ? 'bg-spero-blue text-white rounded-br-sm'
-                    : 'bg-board-accent text-gray-200 rounded-bl-sm'
+                    : 'bg-slate-700 text-gray-200 rounded-bl-sm'
                 }`}>
                   {msg.text}
                   <div className="text-[10px] opacity-50 mt-0.5">
@@ -228,7 +228,7 @@ export function Friends({ uid, onBack, incomingChallenge, onChallengeHandled }: 
             <div ref={chatEndRef} />
           </div>
 
-          <div className="p-3 border-t border-board-accent flex gap-2">
+          <div className="p-3 border-t border-slate-700 flex gap-2">
             <input
               type="text"
               value={chatInput}
@@ -236,7 +236,7 @@ export function Friends({ uid, onBack, incomingChallenge, onChallengeHandled }: 
               onKeyDown={e => e.key === 'Enter' && handleSendChat()}
               placeholder="Type a message..."
               maxLength={500}
-              className="flex-1 bg-board-accent border border-gray-600 rounded-xl py-2 px-3 text-sm text-white placeholder-gray-500 focus:border-spero-yellow focus:outline-none"
+              className="flex-1 bg-slate-700 border border-gray-600 rounded-xl py-2 px-3 text-sm text-white placeholder-gray-500 focus:border-spero-yellow focus:outline-none"
             />
             <button
               onClick={handleSendChat}
@@ -255,7 +255,7 @@ export function Friends({ uid, onBack, incomingChallenge, onChallengeHandled }: 
   if (pendingChallenge && challengeTarget !== 'responding') {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
-        <div className="bg-board-surface rounded-2xl p-8 shadow-xl max-w-md w-full text-center border border-board-accent">
+        <div className="bg-slate-800 rounded-2xl p-8 shadow-xl max-w-md w-full text-center border border-slate-700">
           <h2 className="text-2xl font-bold text-spero-yellow mb-4">Duel Challenge!</h2>
           <p className="text-white mb-6"><span className="font-bold">{pendingChallenge.fromName}</span> wants to duel you!</p>
           <div className="space-y-3">
@@ -267,7 +267,7 @@ export function Friends({ uid, onBack, incomingChallenge, onChallengeHandled }: 
             </button>
             <button
               onClick={() => handleRespondChallenge(false)}
-              className="w-full bg-board-accent text-gray-300 font-bold py-3 px-6 rounded-xl text-lg hover:bg-board-accent/80 active:scale-95 transition-all cursor-pointer"
+              className="w-full bg-slate-700 text-gray-300 font-bold py-3 px-6 rounded-xl text-lg hover:bg-slate-700/80 active:scale-95 transition-all cursor-pointer"
             >
               Decline
             </button>
@@ -281,7 +281,7 @@ export function Friends({ uid, onBack, incomingChallenge, onChallengeHandled }: 
   if (challengeTarget) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
-        <div className="bg-board-surface rounded-2xl p-8 shadow-xl max-w-md w-full text-center border border-board-accent">
+        <div className="bg-slate-800 rounded-2xl p-8 shadow-xl max-w-md w-full text-center border border-slate-700">
           <h2 className="text-xl font-bold text-white mb-4">Select Your Deck</h2>
           <p className="text-gray-400 text-sm mb-4">Choose a deck for the duel</p>
           <div className="mb-4 space-y-2">
@@ -292,7 +292,7 @@ export function Friends({ uid, onBack, incomingChallenge, onChallengeHandled }: 
                 className={`w-full text-left px-3 py-2 rounded-lg text-sm cursor-pointer transition-all ${
                   challengeDeck?.cards === d.cards
                     ? 'bg-spero-green/20 border border-spero-green text-white font-bold'
-                    : 'bg-board-accent text-gray-400 hover:bg-board-accent/80'
+                    : 'bg-slate-700 text-gray-400 hover:bg-slate-700/80'
                 }`}
               >
                 <div className="flex justify-between items-center">
@@ -328,13 +328,13 @@ export function Friends({ uid, onBack, incomingChallenge, onChallengeHandled }: 
     const friendName = data.friends.find(f => f.uid === sentChallenge)?.displayName || 'friend';
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
-        <div className="bg-board-surface rounded-2xl p-8 shadow-xl max-w-md w-full text-center border border-board-accent">
+        <div className="bg-slate-800 rounded-2xl p-8 shadow-xl max-w-md w-full text-center border border-slate-700">
           <div className="w-12 h-12 border-4 border-spero-yellow border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-white font-bold text-lg mb-2">Waiting for {friendName}...</p>
           <p className="text-gray-400 text-sm mb-6">Challenge expires in 30 seconds</p>
           <button
             onClick={() => setSentChallenge(null)}
-            className="bg-board-accent text-gray-300 font-bold py-2 px-6 rounded-xl hover:bg-board-accent/80 cursor-pointer"
+            className="bg-slate-700 text-gray-300 font-bold py-2 px-6 rounded-xl hover:bg-slate-700/80 cursor-pointer"
           >
             Cancel
           </button>
@@ -345,7 +345,7 @@ export function Friends({ uid, onBack, incomingChallenge, onChallengeHandled }: 
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <div className="bg-board-surface rounded-2xl p-6 shadow-xl max-w-md w-full border border-board-accent">
+      <div className="bg-slate-800 rounded-2xl p-6 shadow-xl max-w-md w-full border border-slate-700">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold text-white">Friends</h1>
           <button onClick={onBack} className="text-gray-400 hover:text-white cursor-pointer text-sm underline">Back</button>
@@ -360,7 +360,7 @@ export function Friends({ uid, onBack, incomingChallenge, onChallengeHandled }: 
               className={`flex-1 py-2 rounded-lg text-sm font-bold cursor-pointer transition-all ${
                 tab === t
                   ? 'bg-spero-blue text-white'
-                  : 'bg-board-accent text-gray-400 hover:bg-board-accent/80'
+                  : 'bg-slate-700 text-gray-400 hover:bg-slate-700/80'
               }`}
             >
               {t === 'friends' ? `Friends (${data.friends.length})` : t === 'requests' ? `Requests (${data.requests.length})` : 'Add'}
@@ -377,7 +377,7 @@ export function Friends({ uid, onBack, incomingChallenge, onChallengeHandled }: 
             {data.friends.map(friend => {
               const isOnline = data.onlineUids.includes(friend.uid);
               return (
-                <div key={friend.uid} className="bg-board-accent rounded-lg p-3 flex items-center justify-between">
+                <div key={friend.uid} className="bg-slate-700 rounded-lg p-3 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-spero-green' : 'bg-gray-600'}`} />
                     <span className="text-white font-medium text-sm">{friend.displayName}</span>
@@ -418,7 +418,7 @@ export function Friends({ uid, onBack, incomingChallenge, onChallengeHandled }: 
               <p className="text-gray-600 text-sm text-center py-8">No pending requests</p>
             )}
             {data.requests.map(req => (
-              <div key={req.id} className="bg-board-accent rounded-lg p-3 flex items-center justify-between">
+              <div key={req.id} className="bg-slate-700 rounded-lg p-3 flex items-center justify-between">
                 <span className="text-white font-medium text-sm">{req.fromName}</span>
                 <div className="flex gap-1.5">
                   <button
@@ -450,7 +450,7 @@ export function Friends({ uid, onBack, incomingChallenge, onChallengeHandled }: 
                 onKeyDown={e => e.key === 'Enter' && handleSearch()}
                 placeholder="Search by username..."
                 maxLength={30}
-                className="flex-1 bg-board-accent border border-gray-600 rounded-xl py-2 px-3 text-sm text-white placeholder-gray-500 focus:border-spero-yellow focus:outline-none"
+                className="flex-1 bg-slate-700 border border-gray-600 rounded-xl py-2 px-3 text-sm text-white placeholder-gray-500 focus:border-spero-yellow focus:outline-none"
               />
               <button
                 onClick={handleSearch}
@@ -464,7 +464,7 @@ export function Friends({ uid, onBack, incomingChallenge, onChallengeHandled }: 
               {searchResults.map(user => {
                 const isFriend = data.friends.some(f => f.uid === user.uid);
                 return (
-                  <div key={user.uid} className="bg-board-accent rounded-lg p-3 flex items-center justify-between">
+                  <div key={user.uid} className="bg-slate-700 rounded-lg p-3 flex items-center justify-between">
                     <span className="text-white font-medium text-sm">{user.displayName}</span>
                     {isFriend ? (
                       <span className="text-spero-green text-xs font-bold">Already friends</span>

@@ -55,7 +55,7 @@ function getCardDef(code: string): CardDef | undefined {
   return cardsByCode.get(code);
 }
 
-const MANA_FILTERS = [0, 1, 2, 3, 4, 5, 6, 7] as const;
+const MANA_FILTERS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
 
 export function Collection({ uid, onBack }: CollectionProps) {
   const [decks, setDecks] = useState<DeckList[]>([]);
@@ -100,11 +100,11 @@ export function Collection({ uid, onBack }: CollectionProps) {
       if (c.heroClass === 'NEUTRAL' && c.rarity === 'COMMON' && c.cardCode.startsWith('TOK')) return false;
 
       if (filterClass !== 'ALL') {
-        if (c.heroClass !== filterClass && c.heroClass !== 'NEUTRAL') return false;
+        if (c.heroClass !== filterClass) return false;
       }
       if (filterMana !== null) {
-        if (filterMana === 7) {
-          if (c.manaCost < 7) return false;
+        if (filterMana === 10) {
+          if (c.manaCost < 10) return false;
         } else {
           if (c.manaCost !== filterMana) return false;
         }
@@ -141,7 +141,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
     for (const code of editingCards) {
       const def = getCardDef(code);
       if (def) {
-        const bucket = Math.min(def.manaCost, 7);
+        const bucket = Math.min(def.manaCost, 10);
         curve[bucket] = (curve[bucket] || 0) + 1;
       }
     }
@@ -223,9 +223,9 @@ export function Collection({ uid, onBack }: CollectionProps) {
   }, [editingCards, editingDeck]);
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-b from-[#5c3d1a] to-[#6b4f1d]">
+    <div className="flex flex-col h-screen bg-gradient-to-b from-slate-950 to-slate-900">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-board-accent bg-board-surface/50 shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700 bg-slate-800/50 shrink-0">
         <button onClick={onBack} className="text-gray-400 hover:text-white text-sm cursor-pointer">
           &larr; Back
         </button>
@@ -235,8 +235,8 @@ export function Collection({ uid, onBack }: CollectionProps) {
 
       <div className="flex-1 flex min-h-0">
         {/* Left sidebar — My Decks */}
-        <div className="w-[200px] flex flex-col border-r border-board-accent/30 bg-board-surface/30 shrink-0">
-          <div className="p-3 border-b border-board-accent/30">
+        <div className="w-[200px] flex flex-col border-r border-slate-700/30 bg-slate-800/30 shrink-0">
+          <div className="p-3 border-b border-slate-700/30">
             <h2 className="text-xs uppercase tracking-wider text-gray-500 font-bold mb-2">My Decks</h2>
           </div>
           <div className="flex-1 overflow-y-auto p-2 space-y-1.5">
@@ -281,7 +281,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
                         </button>
                       )}
                       {deleteConfirm === deck.id && (
-                        <div className="absolute inset-0 bg-board-accent/95 rounded-lg flex items-center justify-center gap-2 z-10">
+                        <div className="absolute inset-0 bg-slate-700/95 rounded-lg flex items-center justify-center gap-2 z-10">
                           <span className="text-[10px] text-white">Delete?</span>
                           <button onClick={() => handleDelete(deck.id)} className="text-[10px] bg-red-600 text-white px-2 py-0.5 rounded cursor-pointer">Yes</button>
                           <button onClick={() => setDeleteConfirm(null)} className="text-[10px] bg-gray-700 text-white px-2 py-0.5 rounded cursor-pointer">No</button>
@@ -294,7 +294,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
                   onClick={() => editingDeck ? undefined : setShowHeroPicker(true)}
                   disabled={!!editingDeck || decks.length >= 27}
                   className="w-full text-left px-2.5 py-2 rounded-lg text-xs cursor-pointer transition-all
-                    bg-board-accent/30 text-gray-500 hover:bg-board-accent/50 hover:text-gray-300
+                    bg-slate-700/30 text-gray-500 hover:bg-slate-700/50 hover:text-gray-300
                     border border-dashed border-gray-700 disabled:opacity-30 disabled:cursor-not-allowed"
                 >
                   + New Deck
@@ -307,13 +307,13 @@ export function Collection({ uid, onBack }: CollectionProps) {
         {/* Center — Card Collection */}
         <div className="flex-1 flex flex-col min-w-0">
           {/* Filter bar */}
-          <div className="p-3 space-y-2 border-b border-board-accent/30 shrink-0">
+          <div className="p-3 space-y-2 border-b border-slate-700/30 shrink-0">
             {/* Class tabs */}
             <div className="flex gap-1 flex-wrap">
               <button
                 onClick={() => setFilterClass('ALL')}
                 className={`text-xs px-2.5 py-1 rounded-full cursor-pointer transition-all ${
-                  filterClass === 'ALL' ? 'bg-white text-black font-bold' : 'bg-board-accent text-gray-400 hover:bg-board-accent/80'
+                  filterClass === 'ALL' ? 'bg-white text-black font-bold' : 'bg-slate-700 text-gray-400 hover:bg-slate-700/80'
                 }`}
               >
                 All
@@ -323,7 +323,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
                   key={h.id}
                   onClick={() => setFilterClass(filterClass === h.id ? 'ALL' : h.id)}
                   className={`text-xs px-2.5 py-1 rounded-full cursor-pointer transition-all flex items-center gap-1 ${
-                    filterClass === h.id ? `${h.color} text-white font-bold` : 'bg-board-accent text-gray-400 hover:bg-board-accent/80'
+                    filterClass === h.id ? `${h.color} text-white font-bold` : 'bg-slate-700 text-gray-400 hover:bg-slate-700/80'
                   }`}
                 >
                   {h.label}
@@ -332,7 +332,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
               <button
                 onClick={() => setFilterClass(filterClass === 'NEUTRAL' as any ? 'ALL' : 'NEUTRAL' as any)}
                 className={`text-xs px-2.5 py-1 rounded-full cursor-pointer transition-all ${
-                  filterClass === 'NEUTRAL' ? 'bg-gray-500 text-white font-bold' : 'bg-board-accent text-gray-400 hover:bg-board-accent/80'
+                  filterClass === 'NEUTRAL' ? 'bg-gray-500 text-white font-bold' : 'bg-slate-700 text-gray-400 hover:bg-slate-700/80'
                 }`}
               >
                 Neutral
@@ -348,10 +348,10 @@ export function Collection({ uid, onBack }: CollectionProps) {
                     className={`w-6 h-6 text-[10px] font-bold rounded-full cursor-pointer transition-all flex items-center justify-center ${
                       filterMana === m
                         ? 'bg-blue-500 text-white'
-                        : 'bg-board-accent text-gray-500 hover:bg-board-accent/80'
+                        : 'bg-slate-700 text-gray-500 hover:bg-slate-700/80'
                     }`}
                   >
-                    {m === 7 ? '7+' : m}
+                    {m === 10 ? '10+' : m}
                   </button>
                 ))}
               </div>
@@ -359,15 +359,15 @@ export function Collection({ uid, onBack }: CollectionProps) {
                 type="text"
                 value={filterSearch}
                 onChange={e => setFilterSearch(e.target.value)}
-                placeholder="Search cards..."
-                className="flex-1 text-xs bg-board-accent text-white rounded-lg px-3 py-1.5 border border-gray-700 focus:border-blue-500 focus:outline-none"
+                placeholder="Search..."
+                className="w-32 text-xs bg-slate-800 text-white rounded-lg px-2 py-1 border border-slate-600 focus:border-blue-500 focus:outline-none"
               />
             </div>
           </div>
 
           {/* Card grid */}
-          <div className="flex-1 overflow-y-auto p-2 bg-gradient-to-b from-board-bg via-board-surface/40 to-board-bg" style={{ boxShadow: 'inset 0 0 60px rgba(0,0,0,0.15)' }}>
-            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
+          <div className="flex-1 overflow-y-auto p-2 bg-slate-900/80">
+            <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-1.5">
               {filteredCards.map(c => {
                 const count = editingCounts.get(c.cardCode) || 0;
                 const max = c.rarity === 'LEGENDARY' ? MAX_COPIES_LEGENDARY : MAX_COPIES_PER_CARD;
@@ -406,9 +406,9 @@ export function Collection({ uid, onBack }: CollectionProps) {
 
         {/* Right panel — Deck Editor (visible when editing) */}
         {editingDeck && (
-          <div className="w-[260px] flex flex-col border-l border-board-accent/30 bg-board-surface/30 shrink-0">
+          <div className="w-[260px] flex flex-col border-l border-slate-700/30 bg-slate-800/30 shrink-0">
             {/* Deck header */}
-            <div className={`p-3 border-b border-board-accent/30 ${HERO_BG_MAP[editingDeck.heroClass] || ''}`}>
+            <div className={`p-3 border-b border-slate-700/30 ${HERO_BG_MAP[editingDeck.heroClass] || ''}`}>
               <input
                 type="text"
                 value={editingName}
@@ -434,7 +434,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
             </div>
 
             {/* Mana curve */}
-            <div className="px-3 py-2 border-b border-board-accent/30">
+            <div className="px-3 py-2 border-b border-slate-700/30">
               <div className="flex items-end gap-0.5 h-8">
                 {MANA_FILTERS.map(m => (
                   <div key={m} className="flex-1 flex flex-col items-center">
@@ -448,7 +448,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
               <div className="flex gap-0.5">
                 {MANA_FILTERS.map(m => (
                   <div key={m} className="flex-1 text-center text-[8px] text-gray-600">
-                    {m === 7 ? '7+' : m}
+                    {m === 10 ? '10+' : m}
                   </div>
                 ))}
               </div>
@@ -483,7 +483,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
             </div>
 
             {/* Validation + save */}
-            <div className="p-3 border-t border-board-accent/30 space-y-2">
+            <div className="p-3 border-t border-slate-700/30 space-y-2">
               {validation && validation.errors.length > 0 && (
                 <div className="max-h-16 overflow-y-auto">
                   {validation.errors.slice(0, 3).map((e, i) => (
@@ -501,7 +501,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
                 </button>
                 <button
                   onClick={() => setEditingDeck(null)}
-                  className="px-3 bg-board-accent text-gray-400 py-2 rounded-lg text-xs hover:bg-board-accent/80 cursor-pointer"
+                  className="px-3 bg-slate-700 text-gray-400 py-2 rounded-lg text-xs hover:bg-slate-700/80 cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -514,7 +514,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
       {/* Hero Class Picker Modal */}
       {showHeroPicker && (
         <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center">
-          <div className="bg-board-surface rounded-2xl p-6 border border-board-accent max-w-md w-full mx-4">
+          <div className="bg-slate-800 rounded-2xl p-6 border border-slate-700 max-w-md w-full mx-4">
             <h2 className="text-white font-bold text-lg text-center mb-1">Choose a Hero</h2>
             <p className="text-gray-500 text-xs text-center mb-5">Select a class for your new deck</p>
             <div className="grid grid-cols-2 gap-3">

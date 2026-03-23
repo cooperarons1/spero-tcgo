@@ -23,6 +23,7 @@ function makePlayerState(id: string, name: string, heroClass: HeroClass): Player
     heroPowerUsed: false,
     fatigueDamage: 0,
     graveyard: [],
+    secrets: [],
   };
 }
 

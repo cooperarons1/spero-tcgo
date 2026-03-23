@@ -44,7 +44,7 @@ export function Settings({ onConcede, onClose }: SettingsProps) {
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-40">
       <div
         ref={panelRef}
-        className="bg-board-surface rounded-2xl p-6 shadow-2xl max-w-sm w-full mx-4 border border-board-accent animate-bounce-in"
+        className="bg-slate-800 rounded-2xl p-6 shadow-2xl max-w-sm w-full mx-4 border border-slate-700 animate-bounce-in"
       >
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-white">Settings</h2>
@@ -105,7 +105,7 @@ export function Settings({ onConcede, onClose }: SettingsProps) {
               </button>
               <button
                 onClick={() => setConfirming(false)}
-                className="flex-1 bg-board-accent text-gray-300 font-bold py-3 rounded-xl hover:bg-board-accent/80 active:scale-95 transition-all cursor-pointer"
+                className="flex-1 bg-slate-700 text-gray-300 font-bold py-3 rounded-xl hover:bg-slate-700/80 active:scale-95 transition-all cursor-pointer"
               >
                 Cancel
               </button>

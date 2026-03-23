@@ -4,8 +4,9 @@ import { getCardDef } from './cards.js';
 import { makeInstance } from './deck.js';
 import { addLog } from './log.js';
 import { minionHasKeyword, hasActiveTaunt, getTauntMinions } from './keywords.js';
-import { applyDamageToMinion, applyDamageToHero, checkHeroDeath, executeEffect } from './effects.js';
+import { applyDamageToMinion, applyDamageToHero, checkHeroDeath, executeEffect, findMinion } from './effects.js';
 import { applySummonRules } from './keywords.js';
+import { checkSecrets } from './secrets.js';
 
 /** Create a BoardMinion from a card code */
 export function createBoardMinion(cardCode: string): BoardMinion {
@@ -83,6 +84,35 @@ export function attack(
   const attackerName = isHeroAttack
     ? me.playerName
     : getCardDef(attackerMinion!.cardCode).name;
+
+  // ─── Check secrets before resolving attack ───
+  // WHEN_HERO_ATTACKED fires first (more specific), then WHEN_ATTACKED
+  if (isTargetHero) {
+    checkSecrets(game, 'WHEN_HERO_ATTACKED', {
+      actingPlayerIndex: myIdx as 0 | 1,
+      attackerInstanceId,
+      targetId,
+    });
+  }
+  checkSecrets(game, 'WHEN_ATTACKED', {
+    actingPlayerIndex: myIdx as 0 | 1,
+    attackerInstanceId,
+    targetId,
+  });
+
+  // Re-validate: attacker may have been bounced/killed by a secret
+  if (!isHeroAttack) {
+    if (!findMinion(game, attackerInstanceId)) {
+      // Attacker was removed (bounced/killed by secret) — attack aborted
+      return { success: true };
+    }
+  }
+  if (!isTargetHero && targetMinion) {
+    if (!findMinion(game, targetId)) {
+      // Target was removed by secret — attack aborted
+      return { success: true };
+    }
+  }
 
   if (isHeroAttack) {
     const weaponAtk = me.weapon!.currentAttack;
@@ -171,6 +201,13 @@ export function checkDeaths(game: GameState): void {
           addLog(game, ownerIdx, `${def.name}'s Deathrattle triggers!`, 'EFFECT');
           executeEffect(game, ownerIdx, def.deathrattleEffect);
         }
+
+        // Check WHEN_FRIENDLY_MINION_DIES secrets
+        checkSecrets(game, 'WHEN_FRIENDLY_MINION_DIES', {
+          actingPlayerIndex: (ownerIdx === 0 ? 1 : 0) as 0 | 1,
+          deadMinionCardCode: minion.cardCode,
+          deadMinionOwnerIndex: ownerIdx,
+        });
       }
     }
   }

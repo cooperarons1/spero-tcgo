@@ -8,14 +8,14 @@
   --color-spero-yellow: #f39c12;
   --color-spero-black: #2c3e50;
   --color-spero-none: #95a5a6;
-  --color-board-bg: #5c3d1a;
-  --color-board-surface: #a07d3a;
-  --color-board-accent: #7a5c28;
+  --color-board-bg: #3b2510;
+  --color-board-surface: #6b4f2a;
+  --color-board-accent: #55401e;
 }
 
 body {
   margin: 0;
-  background: var(--color-board-bg);
+  background: #0f1218;
   color: white;
   font-family: var(--font-sans);
   min-height: 100vh;

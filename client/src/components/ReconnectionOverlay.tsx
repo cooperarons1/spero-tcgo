@@ -5,7 +5,7 @@ interface ReconnectionOverlayProps {
 export function ReconnectionOverlay({ status }: ReconnectionOverlayProps) {
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="bg-board-surface border border-board-accent rounded-2xl p-8 shadow-2xl max-w-sm w-full mx-4 text-center">
+      <div className="bg-slate-800 border border-slate-700 rounded-2xl p-8 shadow-2xl max-w-sm w-full mx-4 text-center">
         {status === 'disconnected' ? (
           <>
             <div className="w-10 h-10 border-4 border-spero-blue border-t-transparent rounded-full animate-spin mx-auto mb-4" />

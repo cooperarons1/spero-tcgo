@@ -67,7 +67,7 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
         {/* Diamond pattern for card back */}
         <div className="absolute inset-2 border border-amber-600 rounded-lg opacity-40" />
         <div className="absolute inset-4 border border-amber-700 rounded-md opacity-25 rotate-45 scale-75" />
-        <div className="text-amber-600 font-extrabold text-sm tracking-widest select-none">SPERO</div>
+        <div className="text-amber-600 font-extrabold text-sm tracking-widest select-none">MIRO</div>
       </button>
     );
   }
@@ -98,7 +98,7 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
     ? 'bg-gradient-to-b from-indigo-900 via-violet-950 to-indigo-900'
     : isWeapon
       ? 'bg-gradient-to-b from-stone-800 via-stone-900 to-stone-800'
-      : 'bg-gradient-to-b from-stone-700 via-stone-800 to-stone-700';
+      : 'bg-gradient-to-b from-stone-600 via-stone-700 to-stone-600';
 
   // Top accent based on type (frame style)
   const frameAccent = isSpell
@@ -150,7 +150,7 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
       <div className={`
         ${small ? 'h-[58px] mt-2 mx-0.5' : 'h-[90px] mt-3 mx-1'}
         rounded border border-gray-600/50 overflow-hidden
-        bg-stone-900/60 flex items-center justify-center shrink-0
+        bg-stone-700/60 flex items-center justify-center shrink-0
       `}>
         <CardArt cardCode={cardCode} className="w-full h-full" />
       </div>
@@ -252,7 +252,7 @@ export function CardBack({ size = 'md', onClick, disabled }: { size?: 'sm' | 'md
     >
       <div className="absolute inset-2 border border-amber-600 rounded-lg opacity-40" />
       <div className="absolute inset-4 border border-amber-700 rounded-md opacity-25 rotate-45 scale-75" />
-      <div className="text-amber-600 font-extrabold text-sm tracking-widest select-none">SPERO</div>
+      <div className="text-amber-600 font-extrabold text-sm tracking-widest select-none">MIRO</div>
     </button>
   );
 }

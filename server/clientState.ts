@@ -35,6 +35,7 @@ export function getClientState(game: GameState, playerId: string): ClientGameSta
     heroPowerUsed: opp.heroPowerUsed,
     fatigueDamage: opp.fatigueDamage,
     graveyardCount: opp.graveyard.length,
+    secretCount: opp.secrets.length,
   };
 
   const turnDeadline = game.turnStartedAt && !game.winner
@@ -57,6 +58,7 @@ export function getClientState(game: GameState, playerId: string): ClientGameSta
     myHeroPowerUsed: me.heroPowerUsed,
     myFatigueDamage: me.fatigueDamage,
     myGraveyardCount: me.graveyard.length,
+    mySecrets: me.secrets,
     opponent,
     deckCount: game.decks[myIdx].length,
     opponentDeckCount: game.decks[oppIdx].length,

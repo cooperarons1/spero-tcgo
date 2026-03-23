@@ -20,7 +20,7 @@ export function TurnBanner({ isMyTurn }: TurnBannerProps) {
         className={`mt-16 px-8 py-3 rounded-full font-extrabold text-xl shadow-2xl ${
           isMyTurn
             ? 'bg-spero-yellow text-black'
-            : 'bg-board-accent text-gray-300 border border-gray-600'
+            : 'bg-slate-700 text-gray-300 border border-gray-600'
         }`}
       >
         {isMyTurn ? 'YOUR TURN' : "OPPONENT'S TURN"}

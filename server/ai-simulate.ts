@@ -19,7 +19,7 @@ const args = process.argv.slice(2);
 const gameCount = parseInt(args[args.indexOf('--games') + 1] || '10');
 const verbose = args.includes('--verbose');
 
-console.log(`\n🎮 Spero TCGO AI Simulator — Hearthstone Edition`);
+console.log(`\n🎮 Miro TCGO AI Simulator — Hearthstone Edition`);
 console.log(`Running ${gameCount} games...\n`);
 
 let wins = [0, 0];

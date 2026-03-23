@@ -42,15 +42,15 @@ export function AuthScreen({ onSignIn, onSignUp }: AuthScreenProps) {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <div className="bg-board-surface rounded-2xl p-8 shadow-xl max-w-md w-full border border-board-accent">
-        <h1 className="text-5xl font-extrabold text-white mb-1 text-center">SPERO</h1>
+      <div className="bg-slate-800 rounded-2xl p-8 shadow-xl max-w-md w-full border border-slate-700">
+        <h1 className="text-5xl font-extrabold text-white mb-1 text-center">MIRO</h1>
         <p className="text-spero-yellow font-bold text-lg mb-6 text-center">TCG Online</p>
 
         <div className="flex mb-6">
           <button
             onClick={() => { setTab('signin'); setError(null); }}
             className={`flex-1 py-2 text-sm font-bold rounded-l-xl cursor-pointer transition-all ${
-              tab === 'signin' ? 'bg-spero-blue text-white' : 'bg-board-accent text-gray-400'
+              tab === 'signin' ? 'bg-spero-blue text-white' : 'bg-slate-700 text-gray-400'
             }`}
           >
             Sign In
@@ -58,7 +58,7 @@ export function AuthScreen({ onSignIn, onSignUp }: AuthScreenProps) {
           <button
             onClick={() => { setTab('signup'); setError(null); }}
             className={`flex-1 py-2 text-sm font-bold rounded-r-xl cursor-pointer transition-all ${
-              tab === 'signup' ? 'bg-spero-blue text-white' : 'bg-board-accent text-gray-400'
+              tab === 'signup' ? 'bg-spero-blue text-white' : 'bg-slate-700 text-gray-400'
             }`}
           >
             Create Account
@@ -73,7 +73,7 @@ export function AuthScreen({ onSignIn, onSignUp }: AuthScreenProps) {
               onChange={(e) => setDisplayName(e.target.value)}
               placeholder="Display name"
               maxLength={15}
-              className="w-full bg-board-accent border border-gray-600 rounded-xl py-3 px-4 text-white placeholder-gray-500 focus:border-spero-yellow focus:outline-none"
+              className="w-full bg-slate-700 border border-gray-600 rounded-xl py-3 px-4 text-white placeholder-gray-500 focus:border-spero-yellow focus:outline-none"
             />
           )}
           <input
@@ -81,14 +81,14 @@ export function AuthScreen({ onSignIn, onSignUp }: AuthScreenProps) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
-            className="w-full bg-board-accent border border-gray-600 rounded-xl py-3 px-4 text-white placeholder-gray-500 focus:border-spero-yellow focus:outline-none"
+            className="w-full bg-slate-700 border border-gray-600 rounded-xl py-3 px-4 text-white placeholder-gray-500 focus:border-spero-yellow focus:outline-none"
           />
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
-            className="w-full bg-board-accent border border-gray-600 rounded-xl py-3 px-4 text-white placeholder-gray-500 focus:border-spero-yellow focus:outline-none"
+            className="w-full bg-slate-700 border border-gray-600 rounded-xl py-3 px-4 text-white placeholder-gray-500 focus:border-spero-yellow focus:outline-none"
           />
 
           {error && (

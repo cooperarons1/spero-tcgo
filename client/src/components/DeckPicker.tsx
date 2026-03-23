@@ -145,7 +145,7 @@ export function DeckPicker({ mode, uid, onBack }: DeckPickerProps) {
   return (
     <div className="flex flex-col h-screen bg-gradient-to-b from-gray-950 to-gray-900">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-board-accent bg-board-surface/50 shrink-0">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700 bg-slate-800/50 shrink-0">
         <button onClick={onBack} className="text-gray-400 hover:text-white text-sm cursor-pointer">
           &larr; Back
         </button>
@@ -158,13 +158,13 @@ export function DeckPicker({ mode, uid, onBack }: DeckPickerProps) {
       {/* Matchmaking overlay */}
       {matchmaking && (
         <div className="fixed inset-0 z-50 bg-black/60 flex flex-col items-center justify-center">
-          <div className="bg-board-surface rounded-2xl p-8 border border-board-accent text-center">
+          <div className="bg-slate-800 rounded-2xl p-8 border border-slate-700 text-center">
             <div className="w-12 h-12 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
             <p className="text-white font-bold text-lg mb-2">Searching for an Opponent...</p>
             <p className="text-gray-400 text-sm mb-6">This may take a moment</p>
             <button
               onClick={handleCancelQueue}
-              className="bg-board-accent text-gray-300 font-bold py-2 px-6 rounded-xl hover:bg-board-accent/80 cursor-pointer"
+              className="bg-slate-700 text-gray-300 font-bold py-2 px-6 rounded-xl hover:bg-slate-700/80 cursor-pointer"
             >
               Cancel
             </button>
@@ -199,8 +199,8 @@ export function DeckPicker({ mode, uid, onBack }: DeckPickerProps) {
                       ${isSelected
                         ? `${colors.bg} ${colors.border} shadow-lg`
                         : isValid
-                          ? 'bg-board-accent/50 border-transparent hover:border-gray-600'
-                          : 'bg-board-accent/20 border-transparent opacity-40 cursor-not-allowed'
+                          ? 'bg-slate-700/50 border-transparent hover:border-gray-600'
+                          : 'bg-slate-700/20 border-transparent opacity-40 cursor-not-allowed'
                       }
                     `}
                   >
@@ -226,11 +226,11 @@ export function DeckPicker({ mode, uid, onBack }: DeckPickerProps) {
         </div>
 
         {/* Right — Selected deck preview (30%) */}
-        <div className="flex-[3] flex flex-col border-l border-board-accent/30 bg-board-surface/30">
+        <div className="flex-[3] flex flex-col border-l border-slate-700/30 bg-slate-800/30">
           {selectedDeck ? (
             <>
               {/* Deck info */}
-              <div className={`p-4 border-b border-board-accent/30 ${HERO_COLORS[selectedDeck.heroClass]?.bg ?? ''}`}>
+              <div className={`p-4 border-b border-slate-700/30 ${HERO_COLORS[selectedDeck.heroClass]?.bg ?? ''}`}>
                 <h2 className="text-white font-bold text-base">{selectedDeck.name}</h2>
                 <span className={`text-xs font-bold ${HERO_COLORS[selectedDeck.heroClass]?.text ?? 'text-gray-400'}`}>
                   {HERO_LABELS[selectedDeck.heroClass]}
@@ -238,7 +238,7 @@ export function DeckPicker({ mode, uid, onBack }: DeckPickerProps) {
               </div>
 
               {/* Mana curve */}
-              <div className="px-4 py-3 border-b border-board-accent/30">
+              <div className="px-4 py-3 border-b border-slate-700/30">
                 <div className="text-[10px] text-gray-600 mb-1">Mana Curve</div>
                 <div className="flex items-end gap-0.5 h-10">
                   {MANA_BUCKETS.map(m => (
@@ -282,7 +282,7 @@ export function DeckPicker({ mode, uid, onBack }: DeckPickerProps) {
           )}
 
           {/* Start button */}
-          <div className="p-4 border-t border-board-accent/30">
+          <div className="p-4 border-t border-slate-700/30">
             <button
               onClick={handleStart}
               disabled={!isValidDeck || starting || matchmaking}
