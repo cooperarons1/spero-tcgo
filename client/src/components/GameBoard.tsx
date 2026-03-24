@@ -400,7 +400,7 @@ function BoardMinionCard({
   return (
     <button
       onClick={onClick}
-      className={`relative w-[6.5rem] h-[7.5rem] select-none transition-all
+      className={`relative w-[8rem] h-[9.5rem] select-none transition-all
         ${hasTaunt ? 'minion-oval-taunt' : 'minion-oval'}
         ${hasDivine && !isSilenced ? 'ring-2 ring-yellow-300 animate-pulse ring-offset-1 ring-offset-transparent' : ''}
         ${isFrozen ? 'brightness-75 saturate-50' : ''}
@@ -435,11 +435,11 @@ function BoardMinionCard({
       )}
 
       {/* Attack circle — bottom-left */}
-      <div className="absolute -bottom-2 -left-2 flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-yellow-700 border-2 border-yellow-300 text-sm font-extrabold text-white shadow-lg z-20">
+      <div className="absolute -bottom-2 -left-2 flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-yellow-700 border-2 border-yellow-300 text-base font-extrabold text-white shadow-lg z-20">
         {minion.currentAttack}
       </div>
       {/* Health circle — bottom-right */}
-      <div className={`absolute -bottom-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full text-sm font-extrabold text-white shadow-lg z-20 border-2
+      <div className={`absolute -bottom-2 -right-2 flex h-9 w-9 items-center justify-center rounded-full text-base font-extrabold text-white shadow-lg z-20 border-2
         ${isDamaged ? 'bg-gradient-to-br from-red-500 to-red-700 border-red-300' : 'bg-gradient-to-br from-red-700 to-red-900 border-red-400'}
       `}>
         {minion.currentHealth}
@@ -1180,8 +1180,8 @@ export default function GameBoard({
   }, [entranceIds, damageIds, lungeId]);
 
   // ─── Dynamic board scaling ───
-  const myBoardScale = myBoard.length <= 5 ? 1 : Math.max(0.7, 5.5 / myBoard.length);
-  const opBoardScale = opBoard.length <= 5 ? 1 : Math.max(0.7, 5.5 / opBoard.length);
+  const myBoardScale = myBoard.length <= 4 ? 1 : Math.max(0.65, 4.5 / myBoard.length);
+  const opBoardScale = opBoard.length <= 4 ? 1 : Math.max(0.65, 4.5 / opBoard.length);
 
   // ─── Mulligan ───
   if (gs.phase === 'MULLIGAN') {
@@ -1349,13 +1349,13 @@ export default function GameBoard({
         {/* Opponent board — dynamic scaling */}
         <div className="flex min-h-[7rem] items-center justify-center board-field">
           <div
-            className="flex items-center justify-center gap-1 max-w-[52rem]"
+            className="flex items-center justify-center gap-3 max-w-[64rem]"
             style={opBoardScale < 1 ? { transform: `scale(${opBoardScale})`, transformOrigin: 'center center' } : undefined}
           >
             {opBoard.map((m) => (
               <div
                 key={m.instanceId}
-                style={{ flex: '0 1 7rem' }}
+                style={{ flex: '0 1 9rem' }}
                 onDragOver={handleTargetDragOver}
                 onDrop={(e) => handleTargetDrop(e, m.instanceId)}
                 onMouseEnter={(e) => setHoveredCard({ cardCode: m.cardCode, x: e.clientX, y: e.clientY })}
@@ -1432,7 +1432,7 @@ export default function GameBoard({
           className={`flex min-h-[7rem] items-center justify-center rounded-lg board-field ${dropZoneActive ? 'drop-zone-active border-2 border-dashed border-green-500/40' : 'border-2 border-transparent'}`}
         >
           <div
-            className="flex items-center justify-center gap-1 max-w-[52rem]"
+            className="flex items-center justify-center gap-3 max-w-[64rem]"
             style={myBoardScale < 1 ? { transform: `scale(${myBoardScale})`, transformOrigin: 'bottom center' } : undefined}
           >
             {myBoard.map((m, i) => (
@@ -1440,7 +1440,7 @@ export default function GameBoard({
                 {dropIndex === i && dropPlaceholder}
                 <div
                   data-minion-index={i}
-                  style={{ flex: '0 1 7rem' }}
+                  style={{ flex: '0 1 9rem' }}
                   onDragOver={draggingCardType === 'SPELL' ? handleTargetDragOver : undefined}
                   onDrop={draggingCardType === 'SPELL' ? (e) => handleTargetDrop(e, m.instanceId) : undefined}
                   onMouseEnter={(e) => setHoveredCard({ cardCode: m.cardCode, x: e.clientX, y: e.clientY })}
