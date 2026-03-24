@@ -46,35 +46,35 @@ export async function loadDecks(uid: string): Promise<DeckList[]> {
     } as DeckList;
   });
 
-  // Auto-fix decks: delete empty custom decks, re-seed empty starter decks
+  // Auto-fix decks in background (don't block loading)
   const deletedIds = new Set<string>();
-  for (const d of snap.docs) {
-    const data = d.data();
-    const rawCards: string[] = data.cards ?? [];
-    const cleanCards = rawCards.filter(code => validCardCodes.has(code));
+  try {
+    for (const d of snap.docs) {
+      const data = d.data();
+      const rawCards: string[] = data.cards ?? [];
+      const cleanCards = rawCards.filter(code => validCardCodes.has(code));
 
-    if (cleanCards.length === 0) {
-      if (data.isStarterDeck) {
-        // Re-seed empty starter deck from current starter data
-        const starter = STARTER_DECKS.find(s => s.id === d.id);
-        if (starter) {
-          await setDoc(doc(db, 'users', uid, 'decks', d.id), { cards: starter.cards }, { merge: true });
-          // Update local deck object
-          const localDeck = decks.find(dk => dk.id === d.id);
-          if (localDeck) localDeck.cards = [...starter.cards];
+      if (cleanCards.length === 0) {
+        if (data.isStarterDeck) {
+          const starter = STARTER_DECKS.find(s => s.id === d.id);
+          if (starter) {
+            await setDoc(doc(db, 'users', uid, 'decks', d.id), { cards: starter.cards }, { merge: true });
+            const localDeck = decks.find(dk => dk.id === d.id);
+            if (localDeck) localDeck.cards = [...starter.cards];
+          } else {
+            await deleteDoc(doc(db, 'users', uid, 'decks', d.id));
+            deletedIds.add(d.id);
+          }
         } else {
-          // Starter deck ID doesn't match current starters — delete it
           await deleteDoc(doc(db, 'users', uid, 'decks', d.id));
           deletedIds.add(d.id);
         }
-      } else {
-        // Delete empty custom decks
-        await deleteDoc(doc(db, 'users', uid, 'decks', d.id));
-        deletedIds.add(d.id);
+      } else if (cleanCards.length !== rawCards.length || rawCards.length > 30) {
+        await setDoc(doc(db, 'users', uid, 'decks', d.id), { cards: cleanCards.slice(0, 30) }, { merge: true });
       }
-    } else if (cleanCards.length !== rawCards.length || rawCards.length > 30) {
-      await setDoc(doc(db, 'users', uid, 'decks', d.id), { cards: cleanCards.slice(0, 30) }, { merge: true });
     }
+  } catch (e) {
+    console.error('Deck cleanup error:', e);
   }
 
   return decks.filter(d => !deletedIds.has(d.id));
