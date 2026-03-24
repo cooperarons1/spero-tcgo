@@ -366,6 +366,7 @@ function BoardMinionCard({
   minion,
   isMyMinion,
   canAct,
+  hasSummoningSickness,
   isValidTarget,
   isSelected,
   onClick,
@@ -378,6 +379,7 @@ function BoardMinionCard({
   minion: BoardMinion;
   isMyMinion: boolean;
   canAct: boolean;
+  hasSummoningSickness: boolean;
   isValidTarget: boolean;
   isSelected: boolean;
   onClick: () => void;
@@ -403,7 +405,8 @@ function BoardMinionCard({
         ${hasDivine && !isSilenced ? 'ring-2 ring-yellow-300 animate-pulse ring-offset-1 ring-offset-transparent' : ''}
         ${isFrozen ? 'brightness-75 saturate-50' : ''}
         ${isStealth ? 'opacity-40' : ''}
-        ${canAct && isMyMinion ? 'shadow-[0_0_16px_4px_rgba(34,197,94,0.6)] cursor-pointer hover:scale-110 ring-2 ring-green-400/50' : ''}
+        ${canAct && isMyMinion ? 'shadow-[0_0_20px_6px_rgba(34,197,94,0.7)] cursor-pointer hover:scale-110 ring-[3px] ring-green-400/80 animate-pulse' : ''}
+        ${isMyMinion && !canAct && !isFrozen ? 'opacity-80' : ''}
         ${isValidTarget ? 'shadow-[0_0_12px_2px_rgba(34,197,94,0.7)] cursor-crosshair' : ''}
         ${isSelected ? 'ring-2 ring-green-400' : ''}
         ${animationClass ?? ''}
@@ -416,6 +419,13 @@ function BoardMinionCard({
 
       {/* Frozen overlay */}
       {isFrozen && <div className="absolute inset-0 bg-blue-400/30 z-10" style={{ borderRadius: '42%' }} />}
+
+      {/* Summoning sickness indicator */}
+      {hasSummoningSickness && isMyMinion && !isFrozen && (
+        <div className="absolute top-0 right-0 z-20 text-[10px] text-yellow-300/80 font-bold">
+          z<span className="text-[8px]">z</span><span className="text-[6px]">z</span>
+        </div>
+      )}
 
       {/* Silenced X */}
       {isSilenced && (
@@ -1073,6 +1083,8 @@ export default function GameBoard({
   const handleBoardDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setDropZoneActive(false);
+    // Only process if we initiated a drag from our hand
+    if (!draggingCardId) return;
     const cardId = e.dataTransfer.getData('text/plain');
     if (!cardId) return;
 
@@ -1267,9 +1279,11 @@ export default function GameBoard({
       {/* ═══════════════════════════════════════════ */}
       {/* OPPONENT AREA (top half) */}
       {/* ═══════════════════════════════════════════ */}
-      <div className="flex flex-1 flex-col items-center justify-between px-4 pt-2 pb-1">
+      <div className="flex flex-1 flex-col items-center px-4 pt-2 pb-0">
         {/* Opponent hand */}
         <OpponentHand count={gs.opponent.handCount} />
+        {/* Spacer — pushes hero+board toward center divider */}
+        <div className="flex-1" />
 
         {/* Opponent hero row: [Mana] [Hero+Power] */}
         <div
@@ -1317,6 +1331,7 @@ export default function GameBoard({
                   minion={m}
                   isMyMinion={false}
                   canAct={false}
+                  hasSummoningSickness={false}
                   isValidTarget={validTargetIds.has(m.instanceId) || (draggingCardType === 'SPELL' && !!draggingCardId)}
                   isSelected={false}
                   onClick={() => handleEnemyTargetClick(m.instanceId)}
@@ -1373,7 +1388,7 @@ export default function GameBoard({
       {/* MY AREA (entire bottom half is drop zone) */}
       {/* ═══════════════════════════════════════════ */}
       <div
-        className={`flex flex-1 flex-col items-center justify-between px-4 pt-1 pb-2 transition-all ${dropZoneActive ? 'bg-green-500/5' : ''}`}
+        className={`flex flex-1 flex-col items-center px-4 pt-0 pb-2 transition-all ${dropZoneActive ? 'bg-green-500/5' : ''}`}
         onDragOver={handleBoardDragOver}
         onDragLeave={handleBoardDragLeave}
         onDrop={handleBoardDrop}
@@ -1401,6 +1416,7 @@ export default function GameBoard({
                     minion={m}
                     isMyMinion={true}
                     canAct={isMyTurn && m.canAttack && m.attacksRemaining > 0 && m.currentAttack > 0}
+                    hasSummoningSickness={isMyTurn && !m.canAttack && m.currentAttack > 0 && !m.isFrozen}
                     isValidTarget={validTargetIds.has(m.instanceId) || (draggingCardType === 'SPELL' && !!draggingCardId)}
                     isSelected={targeting.type === 'attack' && targeting.attackerInstanceId === m.instanceId}
                     onClick={(e?: any) => handleMyMinionClick(m, e)}
@@ -1443,6 +1459,9 @@ export default function GameBoard({
             secretCount={gs.mySecrets?.length ?? 0}
           />
         </div>
+
+        {/* Spacer — pushes board+hero toward center, hand toward bottom */}
+        <div className="flex-1" />
 
         {/* My hand */}
         <div className="flex items-end justify-center gap-1 pb-1">
