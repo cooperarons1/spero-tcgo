@@ -1059,6 +1059,18 @@ export default function GameBoard({
     e.dataTransfer.setData('text/plain', card.instanceId);
     e.dataTransfer.setData('card-type', def?.type ?? '');
     e.dataTransfer.effectAllowed = 'move';
+    // Use a minimal transparent drag image to avoid text/number ghost
+    const ghost = document.createElement('div');
+    ghost.style.width = '60px';
+    ghost.style.height = '80px';
+    ghost.style.background = 'rgba(212,165,32,0.4)';
+    ghost.style.borderRadius = '8px';
+    ghost.style.border = '2px solid rgba(212,165,32,0.8)';
+    ghost.style.position = 'absolute';
+    ghost.style.top = '-1000px';
+    document.body.appendChild(ghost);
+    e.dataTransfer.setDragImage(ghost, 30, 40);
+    setTimeout(() => document.body.removeChild(ghost), 0);
     setDraggingCardId(card.instanceId);
     setDraggingCardType(def?.type ?? null);
   }, []);
