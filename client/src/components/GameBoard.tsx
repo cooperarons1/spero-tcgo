@@ -461,6 +461,7 @@ function HeroPortrait({
   mana,
   maxMana,
   canUseHeroPower,
+  canHeroAttack,
   isValidTarget,
   onHeroPowerClick,
   onHeroClick,
@@ -478,9 +479,10 @@ function HeroPortrait({
   mana: number;
   maxMana: number;
   canUseHeroPower: boolean;
+  canHeroAttack?: boolean;
   isValidTarget: boolean;
   onHeroPowerClick: () => void;
-  onHeroClick: () => void;
+  onHeroClick: (e?: React.MouseEvent) => void;
   heroDamage?: boolean;
   secretCount?: number;
 }) {
@@ -502,7 +504,8 @@ function HeroPortrait({
       )}
       {/* Weapon (left side) */}
       {weapon && (
-        <div className="flex h-16 w-16 flex-col items-center justify-center rounded-lg border-2 border-stone-600 bg-stone-800">
+        <div className={`flex h-16 w-16 flex-col items-center justify-center rounded-lg border-2 bg-stone-800
+          ${canHeroAttack ? 'border-green-400 shadow-[0_0_12px_3px_rgba(34,197,94,0.6)]' : 'border-stone-600'}`}>
           <span className="text-xs text-stone-400">Weapon</span>
           <div className="flex gap-2 text-sm">
             <span className="font-bold text-amber-400">{weapon.currentAttack}</span>
@@ -517,7 +520,8 @@ function HeroPortrait({
           onClick={onHeroClick}
           className={`relative flex h-24 w-24 items-center justify-center rounded-full border-4 ${borderClass} ${bgClass} transition-all overflow-hidden
             ${isValidTarget ? 'shadow-[0_0_16px_4px_rgba(34,197,94,0.6)] cursor-crosshair' : ''}
-            ${!isValidTarget && !isMyHero ? 'cursor-default' : ''}
+            ${canHeroAttack ? 'shadow-[0_0_20px_6px_rgba(34,197,94,0.7)] ring-[3px] ring-green-400/80 cursor-pointer' : ''}
+            ${!isValidTarget && !canHeroAttack && !isMyHero ? 'cursor-default' : ''}
             ${heroDamage ? 'animate-hero-damage animate-damage-shake' : ''}
           `}
         >
@@ -970,7 +974,12 @@ export default function GameBoard({
 
       // If in targeting mode from interaction, select this as target
       if (pendingTarget && validTargetIds.has(minion.instanceId)) {
-        actions.playCard('__resolve_target__', undefined, minion.instanceId);
+        if (pendingTarget.interactionId.startsWith('needs-target-')) {
+          const cardInstanceId = pendingTarget.interactionId.replace('needs-target-', '');
+          actions.playCard(cardInstanceId, undefined, minion.instanceId);
+        } else {
+          actions.playCard('__resolve_target__', undefined, minion.instanceId);
+        }
         cancelTargeting();
         return;
       }
@@ -994,13 +1003,18 @@ export default function GameBoard({
   const handleEnemyTargetClick = useCallback(
     (targetId: string) => {
       if (pendingTarget && validTargetIds.has(targetId)) {
-        // Resolve server-side interaction
-        import('../socket').then(({ socket }) => {
-          socket.emit('resolve-target', {
-            interactionId: pendingTarget.interactionId,
-            targetId,
+        // Check if this is a needs-target interaction (card replay with target)
+        if (pendingTarget.interactionId.startsWith('needs-target-')) {
+          const cardInstanceId = pendingTarget.interactionId.replace('needs-target-', '');
+          actions.playCard(cardInstanceId, undefined, targetId);
+        } else {
+          import('../socket').then(({ socket }) => {
+            socket.emit('resolve-target', {
+              interactionId: pendingTarget.interactionId,
+              targetId,
+            });
           });
-        });
+        }
         cancelTargeting();
         return;
       }
@@ -1098,13 +1112,17 @@ export default function GameBoard({
     if (!def || def.manaCost > gs.myMana) return;
     if (def.type === 'MINION' && myBoard.length >= MAX_BOARD_SIZE) return;
 
-    // Only minions get played via board drop — spells must use click or drag-to-target
-    if (def.type !== 'MINION') return;
     if (pendingPlayRef.current.has(card.instanceId)) return;
-
     pendingPlayRef.current.add(card.instanceId);
-    const pos = dropIndex ?? myBoard.length;
-    actions.playCard(card.instanceId, pos);
+
+    if (def.type === 'MINION') {
+      if (myBoard.length >= MAX_BOARD_SIZE) return;
+      const pos = dropIndex ?? myBoard.length;
+      actions.playCard(card.instanceId, pos);
+    } else {
+      // Spells/weapons dropped on the board play without a target
+      actions.playCard(card.instanceId);
+    }
     setDraggingCardId(null);
     setDraggingCardType(null);
     setDropIndex(null);
@@ -1455,11 +1473,27 @@ export default function GameBoard({
             mana={gs.myMana}
             maxMana={gs.myMaxMana}
             canUseHeroPower={isMyTurn && !gs.myHeroPowerUsed && gs.myMana >= HERO_POWER_COST}
+            canHeroAttack={isMyTurn && isPlaying && !!gs.myWeapon && gs.myWeapon.currentAttack > 0}
             isValidTarget={validTargetIds.has(`hero-${gs.myPlayerIndex}`)}
             onHeroPowerClick={handleHeroPower}
-            onHeroClick={() => {
+            onHeroClick={(e?: React.MouseEvent) => {
+              // If being targeted by a spell/attack interaction, handle as target
               if (validTargetIds.has(`hero-${gs.myPlayerIndex}`)) {
                 handleEnemyTargetClick(`hero-${gs.myPlayerIndex}`);
+                return;
+              }
+              // If I have a weapon and it's my turn, initiate hero attack
+              if (isMyTurn && isPlaying && gs.myWeapon && gs.myWeapon.currentAttack > 0) {
+                if (targeting.type === 'attack') {
+                  cancelTargeting();
+                  return;
+                }
+                const el = e?.currentTarget as HTMLElement | undefined;
+                if (el) {
+                  const rect = el.getBoundingClientRect();
+                  setAttackerPos({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+                }
+                setTargeting({ type: 'attack', attackerInstanceId: `hero-${gs.myPlayerIndex}` });
               }
             }}
             heroDamage={myHeroDamage}

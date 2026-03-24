@@ -151,6 +151,27 @@ function App() {
       }
     });
 
+    socket.on('needs-target', (data: { cardInstanceId: string; validTargets: string[] }) => {
+      // Card needs a target — update game state with a pending interaction
+      setGameState(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          pendingInteraction: {
+            type: 'CHOOSE_TARGET' as const,
+            waitingForPlayerId: prev.myPlayerId,
+            targetChoice: {
+              interactionId: `needs-target-${data.cardInstanceId}`,
+              cardInstanceId: data.cardInstanceId,
+              prompt: 'Choose a target',
+              validTargets: data.validTargets.map(id => ({ id, label: '' })),
+              allowSkip: false,
+            },
+          },
+        };
+      });
+    });
+
     socket.on('error', (msg: string) => {
       setError(msg);
       setTimeout(() => setError(null), 3000);
