@@ -113,6 +113,7 @@ const DES_STARTER: string[] = [
   'NEU015', 'NEU015', // Summit Brute 4 mana 4/5
   'NEU023', 'NEU023', // Duskfang Assassin 5 mana 4/4 BC 3 dmg hero
   'NEU026', 'NEU026', // Stonefist Ogre 6 mana 6/7
+  'NEU029', 'NEU029', // Reckless Rocketeer 6 mana 5/2 Charge
 ];
 
 // Astrid — Protector (30 cards)
@@ -134,7 +135,8 @@ const ASTRID_STARTER: string[] = [
   'NEU019', 'NEU019', // Prism Drake 4 mana 4/4 Divine Shield
   'NEU021', 'NEU021', // Mirewalker Brute 5 mana 3/6 Taunt
   'NEU046', 'NEU046', // Wellspring Soothsayer 3 mana 3/3 BC heal
-  'NEU016',           // Shellback Tortoise 4 mana 2/7
+  'NEU016', 'NEU016', // Shellback Tortoise 4 mana 2/7
+  'AST009',           // 5 mana class card
 ];
 
 // Ava — Tech Inventor (30 cards)
