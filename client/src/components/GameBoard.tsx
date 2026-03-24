@@ -974,7 +974,9 @@ export default function GameBoard({
 
       // If in targeting mode from interaction, select this as target
       if (pendingTarget && validTargetIds.has(minion.instanceId)) {
-        if (pendingTarget.interactionId.startsWith('needs-target-')) {
+        if (pendingTarget.interactionId === 'needs-target-hero-power') {
+          actions.heroPower(minion.instanceId);
+        } else if (pendingTarget.interactionId.startsWith('needs-target-')) {
           const cardInstanceId = pendingTarget.interactionId.replace('needs-target-', '');
           actions.playCard(cardInstanceId, undefined, minion.instanceId);
         } else {
@@ -1003,8 +1005,11 @@ export default function GameBoard({
   const handleEnemyTargetClick = useCallback(
     (targetId: string) => {
       if (pendingTarget && validTargetIds.has(targetId)) {
-        // Check if this is a needs-target interaction (card replay with target)
-        if (pendingTarget.interactionId.startsWith('needs-target-')) {
+        if (pendingTarget.interactionId === 'needs-target-hero-power') {
+          // Hero power targeting
+          actions.heroPower(targetId);
+        } else if (pendingTarget.interactionId.startsWith('needs-target-')) {
+          // Card replay with target
           const cardInstanceId = pendingTarget.interactionId.replace('needs-target-', '');
           actions.playCard(cardInstanceId, undefined, targetId);
         } else {

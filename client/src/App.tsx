@@ -151,9 +151,11 @@ function App() {
       }
     });
 
-    socket.on('needs-target', (data: { cardInstanceId: string; validTargets: string[]; position?: number }) => {
-      console.log('[needs-target]', data.cardInstanceId, 'targets:', data.validTargets);
-      // Card needs a target — update game state with a pending interaction
+    socket.on('needs-target', (data: { cardInstanceId?: string; heroPower?: boolean; validTargets: string[] }) => {
+      console.log('[needs-target]', data.heroPower ? 'hero-power' : data.cardInstanceId, 'targets:', data.validTargets);
+      const isHeroPower = !!data.heroPower;
+      const interactionId = isHeroPower ? 'needs-target-hero-power' : `needs-target-${data.cardInstanceId}`;
+      const context = isHeroPower ? 'hero-power' as const : 'battlecry' as const;
       setGameState(prev => {
         if (!prev) return prev;
         return {
@@ -163,12 +165,12 @@ function App() {
             waitingForPlayerId: prev.myPlayerId,
             timeoutAt: null as any,
             targetChoice: {
-              interactionId: `needs-target-${data.cardInstanceId}`,
-              effectSource: data.cardInstanceId,
-              prompt: 'Choose a target',
+              interactionId,
+              effectSource: data.cardInstanceId ?? 'hero-power',
+              prompt: isHeroPower ? 'Choose a target for Hero Power' : 'Choose a target',
               validTargets: data.validTargets.map((id: string) => ({ id, label: '' })),
               allowSkip: false,
-              context: 'battlecry' as const,
+              context,
             },
           },
         };

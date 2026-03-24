@@ -82,7 +82,6 @@ export function effectNeedsTarget(effect: EffectDef): boolean {
     'TARGET_ANY',
     'TARGET_FRIENDLY_MINION',
     'TARGET_ENEMY_MINION',
-    'TARGET_HERO',
   ].includes(effect.target);
 }
 
@@ -105,8 +104,9 @@ export function executeEffect(
       break;
     }
     case 'RESTORE_HEALTH': {
-      if (!targetId) break;
-      restoreHealthToTarget(game, casterIndex, targetId, value);
+      const healTarget = targetId ?? (effect.target === 'TARGET_HERO' ? `hero-${casterIndex}` : null);
+      if (!healTarget) break;
+      restoreHealthToTarget(game, casterIndex, healTarget, value);
       break;
     }
     case 'DRAW_CARDS': {
