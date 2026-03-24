@@ -1152,7 +1152,7 @@ export default function GameBoard({
 
   // ─── Drop zone placeholder ───
   const dropPlaceholder = (
-    <div className="w-3 h-20 rounded bg-green-500/30 border border-dashed border-green-400/60 animate-pulse flex-shrink-0" />
+    <div className="w-4 h-[5.5rem] rounded-lg bg-green-500/20 border-2 border-dashed border-green-400/60 animate-pulse flex-shrink-0" />
   );
 
   return (
@@ -1305,15 +1305,17 @@ export default function GameBoard({
       </div>
 
       {/* ═══════════════════════════════════════════ */}
-      {/* MY AREA */}
+      {/* MY AREA (entire bottom half is drop zone) */}
       {/* ═══════════════════════════════════════════ */}
-      <div className="flex flex-1 flex-col items-center justify-end gap-2 px-4 pb-3">
-        {/* My board (drop zone with position indicators) */}
+      <div
+        className={`flex flex-1 flex-col items-center justify-end gap-2 px-4 pb-3 transition-all ${dropZoneActive ? 'bg-green-500/5' : ''}`}
+        onDragOver={handleBoardDragOver}
+        onDragLeave={handleBoardDragLeave}
+        onDrop={handleBoardDrop}
+      >
+        {/* My board (minion positions) */}
         <div
-          className={`flex min-h-[7rem] items-center justify-center rounded-lg transition-all board-field ${dropZoneActive ? 'drop-zone-active border-2 border-dashed border-green-500/40' : 'border-2 border-transparent'}`}
-          onDragOver={handleBoardDragOver}
-          onDragLeave={handleBoardDragLeave}
-          onDrop={handleBoardDrop}
+          className={`flex min-h-[7rem] items-center justify-center rounded-lg board-field ${dropZoneActive ? 'drop-zone-active border-2 border-dashed border-green-500/40' : 'border-2 border-transparent'}`}
         >
           <div
             className="flex items-center justify-center gap-1 max-w-[38rem]"
