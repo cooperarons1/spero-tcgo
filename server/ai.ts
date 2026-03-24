@@ -107,37 +107,210 @@ function executeAITurn(
   if (game.players[game.currentPlayerIndex].playerId !== aiPlayerId) return;
 
   const myIdx = game.players.findIndex(p => p.playerId === aiPlayerId) as 0 | 1;
-  const me = game.players[myIdx];
   const oppIdx = (myIdx === 0 ? 1 : 0) as 0 | 1;
+
+  // Build action queue: each action is a function that returns true if it did something
+  const actionQueue: Array<() => boolean> = [];
+
+  // Phase 1: Pre-attack hero power
+  actionQueue.push(() => {
+    const me = game.players[myIdx];
+    if (!me.heroPowerUsed && me.mana >= 2) {
+      return tryPreAttackHeroPower(game, aiPlayerId, myIdx, oppIdx, broadcast);
+    }
+    return false;
+  });
+
+  // Phase 2: Play cards (one at a time — this gets called repeatedly)
+  for (let i = 0; i < 10; i++) { // max 10 card plays per turn
+    actionQueue.push(() => playOneCard(game, aiPlayerId, myIdx, oppIdx, broadcast));
+  }
+
+  // Phase 3: Attacks (one at a time)
+  for (let i = 0; i < 8; i++) { // max 7 minions + 1 weapon
+    actionQueue.push(() => attackWithOneMinion(game, aiPlayerId, myIdx, oppIdx, broadcast));
+  }
+
+  // Phase 4: Post-attack hero power
+  actionQueue.push(() => {
+    const me = game.players[myIdx];
+    if (!me.heroPowerUsed && me.mana >= 2) {
+      usePostAttackHeroPower(game, aiPlayerId, myIdx, oppIdx, broadcast);
+      return true;
+    }
+    return false;
+  });
+
+  // Execute one action at a time with delays, skipping no-ops
+  executeActionQueue(game, aiPlayerId, actionQueue, 0, broadcast);
+}
+
+/** Execute action queue: run each action, delay only when action did something */
+function executeActionQueue(
+  game: GameState,
+  aiPlayerId: string,
+  queue: Array<() => boolean>,
+  index: number,
+  broadcast: () => void
+): void {
+  if (game.winner) return;
+  if (game.players[game.currentPlayerIndex]?.playerId !== aiPlayerId) return;
+
+  if (index >= queue.length) {
+    // All actions done — end turn
+    setTimeout(() => {
+      if (game.winner) return;
+      if (game.players[game.currentPlayerIndex]?.playerId !== aiPlayerId) return;
+      endTurn(game, aiPlayerId);
+      broadcast();
+    }, DELAYS.endTurn);
+    return;
+  }
+
+  const didSomething = queue[index]();
+
+  if (didSomething) {
+    // Action happened — delay before next action so client can see it
+    setTimeout(() => {
+      executeActionQueue(game, aiPlayerId, queue, index + 1, broadcast);
+    }, DELAYS.action);
+  } else {
+    // No-op — skip immediately to next action
+    executeActionQueue(game, aiPlayerId, queue, index + 1, broadcast);
+  }
+}
+
+/**
+ * Like playCardsPhase, but plays only ONE card and returns true if it played one.
+ * Call repeatedly (with delays) to play all cards.
+ */
+function playOneCard(
+  game: GameState,
+  aiPlayerId: string,
+  myIdx: 0 | 1,
+  oppIdx: 0 | 1,
+  broadcast: () => void
+): boolean {
+  const me = game.players[myIdx];
   const opp = game.players[oppIdx];
 
-  // ─── Phase 1: Pre-attack hero power (for damage hero powers that enable trades) ───
-  if (!me.heroPowerUsed && me.mana >= 2) {
-    const usedPreAttack = tryPreAttackHeroPower(game, aiPlayerId, myIdx, oppIdx, broadcast);
-    if (usedPreAttack && game.winner) return;
+  // Coin logic
+  const coinCard = me.hand.find(c => c.cardCode === 'COIN');
+  if (coinCard) {
+    const shouldUseCoin = evaluateCoinUsage(me, opp, game.turnNumber);
+    if (shouldUseCoin) {
+      const bestUnplayable = me.hand
+        .filter(c => c.cardCode !== 'COIN')
+        .filter(c => {
+          const d = getCardDef(c.cardCode);
+          return d.manaCost > me.mana && d.manaCost <= me.mana + 1;
+        })
+        .sort((a, b) => {
+          const da = getCardDef(a.cardCode);
+          const db = getCardDef(b.cardCode);
+          return cardPlayPriority(db, me, opp) - cardPlayPriority(da, me, opp);
+        })[0];
+      if (bestUnplayable) {
+        const coinResult = playCard(game, aiPlayerId, coinCard.instanceId);
+        if (coinResult.success) { broadcast(); return true; }
+      }
+    }
   }
 
-  // ─── Phase 2: Play cards intelligently ───
-  playCardsPhase(game, aiPlayerId, myIdx, oppIdx, broadcast);
-  if (game.winner) return;
+  const minionAdvantage = me.board.length - opp.board.length;
+  const playableCards = me.hand
+    .filter(c => {
+      const def = getCardDef(c.cardCode);
+      return def.manaCost <= me.mana && c.cardCode !== 'COIN';
+    })
+    .sort((a, b) => {
+      const da = getCardDef(a.cardCode);
+      const db = getCardDef(b.cardCode);
+      return cardPlayPriority(db, me, opp) - cardPlayPriority(da, me, opp);
+    });
 
-  // ─── Phase 3: Make attacks with threat-aware targeting ───
-  executeAIAttacks(game, aiPlayerId, myIdx, oppIdx, broadcast);
-  if (game.winner) return;
+  for (const card of playableCards) {
+    if (game.winner) break;
+    const def = getCardDef(card.cardCode);
+    if (def.type === 'MINION' && me.board.length >= 7) continue;
+    if (def.type === 'MINION' && minionAdvantage >= 3) {
+      const isHighValue = def.manaCost >= 4 ||
+        def.keywords.includes('TAUNT') ||
+        def.keywords.includes('DIVINE_SHIELD') ||
+        def.battlecryEffect !== undefined ||
+        (def.battlecryEffects && def.battlecryEffects.length > 0);
+      if (!isHighValue) continue;
+    }
+    if (def.secretTrigger) {
+      if (me.secrets.some(s => s.cardCode === card.cardCode)) continue;
+      if (me.secrets.length >= 5) continue;
+      const result = playCard(game, aiPlayerId, card.instanceId);
+      if (result.success) { broadcast(); return true; }
+      continue;
+    }
+    let targetId: string | null = null;
+    if (def.type === 'MINION' && def.keywords.includes('BATTLECRY') && def.battlecryEffect) {
+      targetId = pickSmartTarget(game, myIdx, def);
+    } else if (def.type === 'SPELL' && def.spellEffect) {
+      targetId = pickSmartTarget(game, myIdx, def);
+    }
+    const result = playCard(game, aiPlayerId, card.instanceId, undefined, targetId);
+    if (result.success) { broadcast(); return true; }
+    if (result.needsTarget && result.validTargets && result.validTargets.length > 0) {
+      const retryTarget = pickTargetFromList(game, myIdx, def, result.validTargets);
+      const retry = playCard(game, aiPlayerId, card.instanceId, undefined, retryTarget);
+      if (retry.success) { broadcast(); return true; }
+    }
+  }
+  return false;
+}
 
-  // ─── Phase 4: Post-attack hero power (for non-damage hero powers, or if not used yet) ───
-  if (!me.heroPowerUsed && me.mana >= 2) {
-    usePostAttackHeroPower(game, aiPlayerId, myIdx, oppIdx, broadcast);
-    if (game.winner) return;
+/**
+ * Attack with ONE minion and return true if an attack happened.
+ * Call repeatedly to attack with all minions.
+ */
+function attackWithOneMinion(
+  game: GameState,
+  aiPlayerId: string,
+  myIdx: 0 | 1,
+  oppIdx: 0 | 1,
+  broadcast: () => void
+): boolean {
+  const me = game.players[myIdx];
+  const opp = game.players[oppIdx];
+
+  for (const minion of me.board) {
+    if (game.winner) break;
+    if (!minion.canAttack || minion.attacksRemaining <= 0 || minion.isFrozen || minion.currentAttack <= 0) continue;
+
+    const targetId = pickSmartAttackTarget(minion, me, opp, oppIdx);
+    if (!targetId) continue;
+
+    const result = attack(game, aiPlayerId, minion.instanceId, targetId);
+    if (result.success) {
+      broadcast();
+      // Windfury second attack
+      if (minion.attacksRemaining > 0 && !game.winner) {
+        const target2 = pickSmartAttackTarget(minion, me, opp, oppIdx);
+        if (target2) {
+          attack(game, aiPlayerId, minion.instanceId, target2);
+          broadcast();
+        }
+      }
+      return true;
+    }
   }
 
-  // ─── Phase 5: End turn ───
-  setTimeout(() => {
-    if (game.winner) return;
-    if (game.players[game.currentPlayerIndex].playerId !== aiPlayerId) return;
-    endTurn(game, aiPlayerId);
-    broadcast();
-  }, DELAYS.endTurn);
+  // Weapon attack
+  if (me.weapon && me.weapon.currentAttack > 0) {
+    const heroTarget = pickAttackTargetForHero(me, opp, oppIdx);
+    if (heroTarget) {
+      const result = attack(game, aiPlayerId, `hero-${myIdx}`, heroTarget);
+      if (result.success) { broadcast(); return true; }
+    }
+  }
+
+  return false;
 }
 
 // ── Phase 1: Pre-attack hero power ──

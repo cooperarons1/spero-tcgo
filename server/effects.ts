@@ -281,9 +281,32 @@ export function executeEffect(
       break;
     }
     case 'GRANT_KEYWORD': {
-      if (!targetId || !effect.grantKeyword) break;
+      if (!effect.grantKeyword) break;
+      // AoE grant keyword (e.g. AST020 gives all friendly minions Divine Shield)
+      if (effect.target === 'ALL_FRIENDLY_MINIONS') {
+        for (const m of me.board) {
+          if (effect.grantKeyword === 'DIVINE_SHIELD') {
+            m.hasDivineShield = true;
+          }
+          m.enchantments.push({
+            source: 'grant-keyword',
+            attackMod: 0,
+            healthMod: 0,
+            addedKeywords: [effect.grantKeyword],
+          });
+        }
+        if (me.board.length > 0) {
+          addLog(game, casterIndex, `Grants ${effect.grantKeyword} to all friendly minions`, 'EFFECT');
+        }
+        break;
+      }
+      // Single-target grant keyword
+      if (!targetId) break;
       const target = findMinion(game, targetId);
       if (target) {
+        if (effect.grantKeyword === 'DIVINE_SHIELD') {
+          target.hasDivineShield = true;
+        }
         target.enchantments.push({
           source: 'grant-keyword',
           attackMod: 0,
