@@ -766,12 +766,16 @@ export default function GameBoard({
   const [dropZoneActive, setDropZoneActive] = useState(false);
   const [dropIndex, setDropIndex] = useState<number | null>(null);
   const justDraggedRef = useRef(false);
+  const pendingPlayRef = useRef<Set<string>>(new Set());
 
   // ─── Card hover preview state ───
   const [hoveredCard, setHoveredCard] = useState<{ cardCode: string; x: number; y: number } | null>(null);
 
   const isMyTurn = gs.currentPlayerIndex === gs.myPlayerIndex;
   const isPlaying = gs.phase === 'PLAYING';
+
+  // Clear pending play guard when hand changes (server confirmed the action)
+  useEffect(() => { pendingPlayRef.current.clear(); }, [gs.myHand]);
   const isGameOver = gs.winner !== null;
   const myBoard = gs.myBoard;
   const opBoard = gs.opponent.board;
@@ -921,8 +925,9 @@ export default function GameBoard({
   // ─── Handle hand card click (spells/weapons only — minions must be dragged) ───
   const handleHandCardClick = useCallback(
     (card: ClientCardInstance) => {
-      // Skip click if a drag just completed (prevents double-play)
+      // Skip click if a drag just completed or card already being played
       if (justDraggedRef.current) return;
+      if (pendingPlayRef.current.has(card.instanceId)) return;
       if (!isMyTurn || !isPlaying || isGameOver) return;
       const def = getCard(card.cardCode);
       if (!def || def.manaCost > gs.myMana) return;
@@ -938,6 +943,7 @@ export default function GameBoard({
       setSelectedHandCard(card.instanceId);
 
       // Spells and weapons play on click
+      pendingPlayRef.current.add(card.instanceId);
       actions.playCard(card.instanceId);
       cancelTargeting();
     },
@@ -1079,7 +1085,9 @@ export default function GameBoard({
 
     // Only minions get played via board drop — spells must use click or drag-to-target
     if (def.type !== 'MINION') return;
+    if (pendingPlayRef.current.has(card.instanceId)) return;
 
+    pendingPlayRef.current.add(card.instanceId);
     const pos = dropIndex ?? myBoard.length;
     actions.playCard(card.instanceId, pos);
     setDraggingCardId(null);
@@ -1100,6 +1108,9 @@ export default function GameBoard({
     const cardId = e.dataTransfer.getData('text/plain');
     if (!cardId) return;
 
+    // Prevent double-play
+    if (pendingPlayRef.current.has(cardId)) return;
+
     const card = gs.myHand.find(c => c.instanceId === cardId);
     if (!card) return;
 
@@ -1108,6 +1119,7 @@ export default function GameBoard({
     // Only spells and weapons can be drag-targeted
     if (def.type === 'MINION') return;
 
+    pendingPlayRef.current.add(cardId);
     actions.playCard(card.instanceId, undefined, targetId);
     setDraggingCardId(null);
     setDraggingCardType(null);
@@ -1255,7 +1267,7 @@ export default function GameBoard({
       {/* ═══════════════════════════════════════════ */}
       {/* OPPONENT AREA (top half) */}
       {/* ═══════════════════════════════════════════ */}
-      <div className="flex flex-1 flex-col items-center justify-end gap-1 px-4 pt-2">
+      <div className="flex flex-1 flex-col items-center justify-between px-4 pt-2 pb-1">
         {/* Opponent hand */}
         <OpponentHand count={gs.opponent.handCount} />
 
@@ -1361,7 +1373,7 @@ export default function GameBoard({
       {/* MY AREA (entire bottom half is drop zone) */}
       {/* ═══════════════════════════════════════════ */}
       <div
-        className={`flex flex-1 flex-col items-center justify-start gap-1 px-4 pb-2 transition-all ${dropZoneActive ? 'bg-green-500/5' : ''}`}
+        className={`flex flex-1 flex-col items-center justify-between px-4 pt-1 pb-2 transition-all ${dropZoneActive ? 'bg-green-500/5' : ''}`}
         onDragOver={handleBoardDragOver}
         onDragLeave={handleBoardDragLeave}
         onDrop={handleBoardDrop}
