@@ -352,7 +352,7 @@ function MulliganScreen({
         className={`mt-8 rounded-xl px-10 py-3 text-lg font-extrabold tracking-wide transition-all
           ${confirmed
             ? 'bg-stone-700 text-stone-500 cursor-not-allowed'
-            : 'bg-gradient-to-b from-amber-400 to-amber-600 text-black hover:from-amber-300 hover:to-amber-500 hover:scale-105 shadow-[0_0_20px_rgba(245,158,11,0.3)]'}
+            : 'bg-gradient-to-b from-amber-400 to-amber-600 text-black hover:from-amber-300 hover:to-amber-500 hover:scale-105 shadow-[0_0_20px_rgba(245,158,11,0.3)] cursor-pointer'}
         `}
       >
         {confirmed ? 'Waiting for opponent...' : 'CONFIRM'}
