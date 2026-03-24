@@ -405,7 +405,7 @@ function BoardMinionCard({
         ${hasDivine && !isSilenced ? 'ring-2 ring-yellow-300 animate-pulse ring-offset-1 ring-offset-transparent' : ''}
         ${isFrozen ? 'brightness-75 saturate-50' : ''}
         ${isStealth ? 'opacity-40' : ''}
-        ${canAct && isMyMinion ? 'shadow-[0_0_20px_6px_rgba(34,197,94,0.7)] cursor-pointer hover:scale-110 ring-[3px] ring-green-400/80 animate-pulse' : ''}
+        ${canAct && isMyMinion ? 'shadow-[0_0_20px_6px_rgba(34,197,94,0.7)] cursor-pointer hover:scale-110 ring-[3px] ring-green-400/80' : ''}
         ${isMyMinion && !canAct && !isFrozen ? 'opacity-80' : ''}
         ${isValidTarget ? 'shadow-[0_0_12px_2px_rgba(34,197,94,0.7)] cursor-crosshair' : ''}
         ${isSelected ? 'ring-2 ring-green-400' : ''}
@@ -680,15 +680,15 @@ function DeckPile({ count, graveyardCount }: { count: number; graveyardCount: nu
     <div className="flex flex-col items-center gap-1.5">
       {/* Deck */}
       <div
-        className="relative w-12 h-16 rounded-lg border-2 border-amber-700 bg-gradient-to-br from-amber-950 via-stone-900 to-amber-950 flex items-center justify-center cursor-default group"
+        className="relative w-16 h-20 rounded-lg border-2 border-amber-700 bg-gradient-to-br from-amber-950 via-stone-900 to-amber-950 flex items-center justify-center cursor-default group"
         title={`${count} cards remaining`}
       >
         {/* Stacked card visual */}
         {count > 0 && (
           <>
             <div className="absolute inset-0.5 rounded-md border border-stone-700 opacity-30" />
-            {count > 5 && <div className="absolute -top-0.5 -left-0.5 w-12 h-16 rounded-lg border border-stone-700 opacity-20" />}
-            {count > 15 && <div className="absolute -top-1 -left-1 w-12 h-16 rounded-lg border border-stone-700 opacity-10" />}
+            {count > 5 && <div className="absolute -top-0.5 -left-0.5 w-16 h-20 rounded-lg border border-stone-700 opacity-20" />}
+            {count > 15 && <div className="absolute -top-1 -left-1 w-16 h-20 rounded-lg border border-stone-700 opacity-10" />}
           </>
         )}
         <span className={`text-sm font-bold z-10 ${count > 0 ? 'text-stone-300' : 'text-stone-700'}`}>
@@ -1285,10 +1285,8 @@ export default function GameBoard({
       <div className="flex flex-1 flex-col items-center px-4 pt-2 pb-0">
         {/* Opponent hand */}
         <OpponentHand count={gs.opponent.handCount} />
-        {/* Spacer — pushes hero+board toward center divider */}
-        <div className="flex-1" />
 
-        {/* Opponent hero row: [Mana] [Hero+Power] */}
+        {/* Opponent hero row: [Mana] [Hero+Power] — right under hand */}
         <div
           className="flex items-center justify-center w-full gap-4"
           onDragOver={handleTargetDragOver}
@@ -1314,6 +1312,9 @@ export default function GameBoard({
             secretCount={gs.opponent.secretCount}
           />
         </div>
+
+        {/* Spacer — pushes board toward center divider */}
+        <div className="flex-1" />
 
         {/* Opponent board — dynamic scaling */}
         <div className="flex min-h-[7rem] items-center justify-center board-field">
@@ -1432,7 +1433,10 @@ export default function GameBoard({
           </div>
         </div>
 
-        {/* My hero row: [Mana] [Hero+Power] */}
+        {/* Spacer — pushes board toward center, hero+hand toward bottom */}
+        <div className="flex-1" />
+
+        {/* My hero row: [Mana] [Hero+Power] — right above hand */}
         <div
           className="flex items-center justify-center w-full gap-4"
           onDragOver={handleTargetDragOver}
@@ -1462,9 +1466,6 @@ export default function GameBoard({
             secretCount={gs.mySecrets?.length ?? 0}
           />
         </div>
-
-        {/* Spacer — pushes board+hero toward center, hand toward bottom */}
-        <div className="flex-1" />
 
         {/* My hand */}
         <div className="flex items-end justify-center gap-1 pb-1">

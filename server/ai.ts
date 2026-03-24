@@ -15,8 +15,8 @@ const AI_NAMES = [
 ];
 
 const DELAYS = {
-  action: 1000,
-  endTurn: 800,
+  action: 1800,
+  endTurn: 1200,
 };
 
 // ── Exports ──
