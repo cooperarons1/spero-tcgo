@@ -270,8 +270,8 @@ body {
 /* Oval minion portrait frame */
 .minion-oval {
   border-radius: 42%;
-  border: 3px solid #b8860b;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.4), inset 0 0 4px rgba(184,134,11,0.2);
+  border: 3px solid #d4a520;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5), inset 0 0 4px rgba(212,165,32,0.3);
 }
 .minion-oval-taunt {
   border-radius: 42%;

@@ -396,7 +396,7 @@ function BoardMinionCard({
       `}
     >
       {/* Art fills entire oval */}
-      <div className="absolute inset-0 bg-stone-600">
+      <div className="absolute inset-0 bg-amber-900/80">
         {minion.cardCode && <CardArt cardCode={minion.cardCode} className="w-full h-full" />}
       </div>
 
@@ -1211,9 +1211,9 @@ export default function GameBoard({
       </div>
 
       {/* ═══════════════════════════════════════════ */}
-      {/* OPPONENT AREA */}
+      {/* OPPONENT AREA (top half) */}
       {/* ═══════════════════════════════════════════ */}
-      <div className="flex flex-col items-center gap-2 px-4 pt-3">
+      <div className="flex flex-1 flex-col items-center gap-2 px-4 pt-3">
         {/* Opponent hand */}
         <OpponentHand count={gs.opponent.handCount} />
 
@@ -1264,10 +1264,10 @@ export default function GameBoard({
       </div>
 
       {/* ═══════════════════════════════════════════ */}
-      {/* GOLD DIVIDER */}
+      {/* GOLD DIVIDER (center of board) */}
       {/* ═══════════════════════════════════════════ */}
-      <div className="px-4 pr-28">
-        <div className="h-[2px] bg-gradient-to-r from-transparent via-amber-500/60 to-amber-500/30" />
+      <div className="shrink-0 px-8 pr-28">
+        <div className="h-[3px] bg-gradient-to-r from-amber-700/20 via-amber-500/80 to-amber-700/20 shadow-[0_0_6px_rgba(245,158,11,0.3)]" />
       </div>
 
       {/* ═══ Right sidebar: Deck → End Turn → Timer → Deck (absolutely positioned) ═══ */}
