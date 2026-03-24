@@ -791,8 +791,9 @@ export default function GameBoard({
   const isMyTurn = gs.currentPlayerIndex === gs.myPlayerIndex;
   const isPlaying = gs.phase === 'PLAYING';
 
-  // Clear pending play guard when hand changes (server confirmed the action)
+  // Clear pending play guard when hand changes or pending interaction arrives
   useEffect(() => { pendingPlayRef.current.clear(); }, [gs.myHand]);
+  useEffect(() => { if (gs.pendingInteraction) pendingPlayRef.current.clear(); }, [gs.pendingInteraction]);
   const isGameOver = gs.winner !== null;
   const myBoard = gs.myBoard;
   const opBoard = gs.opponent.board;
@@ -959,10 +960,9 @@ export default function GameBoard({
 
       setSelectedHandCard(card.instanceId);
 
-      // Spells and weapons play on click
+      // Spells and weapons play on click — server may respond with needs-target
       pendingPlayRef.current.add(card.instanceId);
       actions.playCard(card.instanceId);
-      cancelTargeting();
     },
     [isMyTurn, isPlaying, isGameOver, gs.myMana, selectedHandCard, actions, cancelTargeting]
   );
