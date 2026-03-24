@@ -1264,9 +1264,9 @@ export default function GameBoard({
       </div>
 
       {/* ═══════════════════════════════════════════ */}
-      {/* GOLD DIVIDER (center of board) */}
+      {/* GOLD DIVIDER (absolutely centered) */}
       {/* ═══════════════════════════════════════════ */}
-      <div className="shrink-0 px-8 pr-28">
+      <div className="absolute left-0 right-24 top-1/2 -translate-y-1/2 z-10 px-8">
         <div className="h-[3px] bg-gradient-to-r from-amber-700/20 via-amber-500/80 to-amber-700/20 shadow-[0_0_6px_rgba(245,158,11,0.3)]" />
       </div>
 
