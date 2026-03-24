@@ -78,6 +78,9 @@ export function Collection({ uid, onBack }: CollectionProps) {
   // Delete confirmation
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
+  // Card hover preview
+  const [hoveredCard, setHoveredCard] = useState<{ code: string; x: number; y: number } | null>(null);
+
   const refresh = useCallback(async () => {
     const d = await loadDecks(uid);
     setDecks(d);
@@ -380,9 +383,12 @@ export function Collection({ uid, onBack }: CollectionProps) {
                   <div
                     key={c.cardCode}
                     className={`relative transition-all select-none ${
-                      editingDeck && !greyed ? 'cursor-pointer hover:scale-110' : greyed ? 'cursor-not-allowed' : ''
+                      editingDeck && !greyed ? 'cursor-pointer hover:scale-105' : greyed ? 'cursor-not-allowed' : ''
                     }`}
                     onClick={() => editingDeck && !greyed && addCard(c.cardCode)}
+                    onMouseEnter={(e) => setHoveredCard({ code: c.cardCode, x: e.clientX, y: e.clientY })}
+                    onMouseMove={(e) => hoveredCard && setHoveredCard({ code: c.cardCode, x: e.clientX, y: e.clientY })}
+                    onMouseLeave={() => setHoveredCard(null)}
                   >
                     <Card
                       cardCode={c.cardCode}
@@ -510,6 +516,19 @@ export function Collection({ uid, onBack }: CollectionProps) {
           </div>
         )}
       </div>
+
+      {/* Card hover preview */}
+      {hoveredCard && (() => {
+        const def = getCardDef(hoveredCard.code);
+        if (!def) return null;
+        const px = hoveredCard.x > window.innerWidth / 2 ? hoveredCard.x - 220 : hoveredCard.x + 20;
+        const py = Math.max(8, Math.min(hoveredCard.y - 60, window.innerHeight - 320));
+        return (
+          <div className="fixed z-[60] pointer-events-none" style={{ left: px, top: py }}>
+            <Card cardCode={hoveredCard.code} className="!w-[180px] !h-[257px] shadow-2xl" />
+          </div>
+        );
+      })()}
 
       {/* Hero Class Picker Modal */}
       {showHeroPicker && (

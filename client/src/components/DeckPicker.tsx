@@ -239,7 +239,7 @@ export function DeckPicker({ mode, uid, onBack }: DeckPickerProps) {
 
               {/* Mana curve */}
               <div className="px-4 py-3 border-b border-slate-700/30">
-                <div className="text-[10px] text-gray-600 mb-1">Mana Curve</div>
+                <div className="text-[10px] text-gray-600 mb-1">Orra Curve</div>
                 <div className="flex items-end gap-0.5 h-10">
                   {MANA_BUCKETS.map(m => (
                     <div key={m} className="flex-1 flex flex-col items-center">

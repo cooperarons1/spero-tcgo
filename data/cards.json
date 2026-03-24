@@ -93,7 +93,7 @@
     "heroClass": "JIMMY",
     "rarity": "COMMON",
     "attack": 3,
-    "health": 3,
+    "health": 2,
     "text": "Charge",
     "flavor": "Leaves nothing but scorch marks in her wake.",
     "keywords": [
@@ -107,7 +107,7 @@
     "type": "MINION",
     "heroClass": "JIMMY",
     "rarity": "RARE",
-    "attack": 4,
+    "attack": 3,
     "health": 3,
     "text": "Charge",
     "flavor": "Good boy. Very hot boy.",
@@ -158,13 +158,13 @@
   {
     "cardCode": "JIM009",
     "name": "Volcanus, Pyromancer King",
-    "manaCost": 8,
+    "manaCost": 9,
     "type": "MINION",
     "heroClass": "JIMMY",
     "rarity": "LEGENDARY",
     "attack": 7,
     "health": 7,
-    "text": "Charge. Battlecry: Deal 4 damage to all enemy minions.",
+    "text": "Charge. Battlecry: Deal 3 damage to all enemy minions.",
     "flavor": "When Jimmy's fury reaches its zenith, everything ignites.",
     "keywords": [
       "CHARGE",
@@ -173,7 +173,7 @@
     "battlecryEffect": {
       "type": "DEAL_DAMAGE_ALL_ENEMIES",
       "target": "ALL_ENEMY_MINIONS",
-      "value": 4
+      "value": 3
     }
   },
   {
@@ -185,13 +185,13 @@
     "rarity": "COMMON",
     "attack": 0,
     "health": 0,
-    "text": "Deal 2 damage to any target.",
+    "text": "Deal 1 damage to any target.",
     "flavor": "Quick, cheap, devastating \u2014 Jimmy's motto.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE",
       "target": "TARGET_ANY",
-      "value": 2
+      "value": 1
     }
   },
   {
@@ -351,7 +351,7 @@
     "type": "MINION",
     "heroClass": "TALA",
     "rarity": "COMMON",
-    "attack": 3,
+    "attack": 2,
     "health": 6,
     "text": "Taunt",
     "flavor": "It remembers when the Everbloom was a sapling.",
@@ -388,7 +388,7 @@
     "rarity": "RARE",
     "attack": 3,
     "health": 5,
-    "text": "Battlecry: Give a friendly minion +2/+3.",
+    "text": "Battlecry: Give a friendly minion +1/+2.",
     "flavor": "She reads the rings of ancient trees and whispers their secrets.",
     "keywords": [
       "BATTLECRY"
@@ -396,8 +396,8 @@
     "battlecryEffect": {
       "type": "BUFF_MINION",
       "target": "TARGET_FRIENDLY_MINION",
-      "attackBuff": 2,
-      "healthBuff": 3
+      "attackBuff": 1,
+      "healthBuff": 2
     }
   },
   {
@@ -424,13 +424,13 @@
   {
     "cardCode": "TAL009",
     "name": "Gaia, the World Root",
-    "manaCost": 9,
+    "manaCost": 10,
     "type": "MINION",
     "heroClass": "TALA",
     "rarity": "LEGENDARY",
     "attack": 5,
     "health": 10,
-    "text": "Taunt. Battlecry: Restore 8 health to all friendly minions and give them +0/+2.",
+    "text": "Taunt. Battlecry: Restore 5 health to all friendly minions and give them +0/+2.",
     "flavor": "The world breathes through her ancient roots.",
     "keywords": [
       "TAUNT",
@@ -440,7 +440,7 @@
       {
         "type": "RESTORE_HEALTH",
         "target": "ALL_FRIENDLY_MINIONS",
-        "value": 8
+        "value": 5
       },
       {
         "type": "BUFF_ALL_FRIENDLY",
@@ -2172,7 +2172,7 @@
     "heroClass": "DES",
     "rarity": "COMMON",
     "attack": 2,
-    "health": 1,
+    "health": 2,
     "text": "",
     "flavor": "The Dominion's lowest rank \u2014 expendable and eager.",
     "keywords": []
@@ -2222,7 +2222,7 @@
     "type": "MINION",
     "heroClass": "DES",
     "rarity": "COMMON",
-    "attack": 2,
+    "attack": 3,
     "health": 3,
     "text": "",
     "flavor": "Patrols the corridors beneath Mount Polara without question.",
@@ -2305,8 +2305,8 @@
     "type": "MINION",
     "heroClass": "DES",
     "rarity": "COMMON",
-    "attack": 4,
-    "health": 3,
+    "attack": 5,
+    "health": 4,
     "text": "Stealth",
     "flavor": "A Dominion scout cloaked in corrupted Orra \u2014 invisible until it strikes.",
     "keywords": [
@@ -2320,7 +2320,7 @@
     "type": "MINION",
     "heroClass": "DES",
     "rarity": "COMMON",
-    "attack": 4,
+    "attack": 5,
     "health": 5,
     "text": "",
     "flavor": "Powered by stolen Orragems from Aster Peak's deepest mines.",
@@ -2585,7 +2585,7 @@
     "heroClass": "ASTRID",
     "rarity": "COMMON",
     "attack": 2,
-    "health": 3,
+    "health": 4,
     "text": "Taunt",
     "flavor": "The Rumblers may be rough, but they always protect their own.",
     "keywords": [
@@ -2641,7 +2641,7 @@
     "heroClass": "ASTRID",
     "rarity": "COMMON",
     "attack": 3,
-    "health": 2,
+    "health": 3,
     "text": "Battlecry: Give a friendly minion +1/+1.",
     "flavor": "Mighty may be small, but his loyalty makes everyone stronger.",
     "keywords": [
@@ -2661,7 +2661,7 @@
     "type": "MINION",
     "heroClass": "ASTRID",
     "rarity": "RARE",
-    "attack": 2,
+    "attack": 3,
     "health": 4,
     "text": "Divine Shield. Taunt",
     "flavor": "Woven from crystallized Orra, it guards the mountain passes above Aster.",
@@ -2696,7 +2696,7 @@
     "type": "MINION",
     "heroClass": "ASTRID",
     "rarity": "COMMON",
-    "attack": 3,
+    "attack": 4,
     "health": 5,
     "text": "Taunt",
     "flavor": "Watches over the frozen trails between Aster Peak and the valley.",
@@ -3665,7 +3665,7 @@
     "type": "MINION",
     "heroClass": "IZZY",
     "rarity": "COMMON",
-    "attack": 1,
+    "attack": 2,
     "health": 2,
     "text": "Battlecry: Gain 1 Armor.",
     "flavor": "First lesson at Aster Academy: sparkle responsibly.",
@@ -3725,7 +3725,7 @@
     "heroClass": "IZZY",
     "rarity": "COMMON",
     "attack": 2,
-    "health": 2,
+    "health": 3,
     "text": "Deathrattle: Summon a 1/1 Sparkle Shard.",
     "flavor": "Everything must be balanced \u2014 her desk, her notes, and her energy.",
     "keywords": [
@@ -3745,7 +3745,7 @@
     "type": "MINION",
     "heroClass": "IZZY",
     "rarity": "RARE",
-    "attack": 2,
+    "attack": 3,
     "health": 3,
     "text": "Battlecry: Gain 2 Armor.",
     "flavor": "Bling always finds the fastest route \u2014 through sparkle or storm.",
@@ -3783,7 +3783,7 @@
     "type": "MINION",
     "heroClass": "IZZY",
     "rarity": "COMMON",
-    "attack": 2,
+    "attack": 3,
     "health": 4,
     "text": "Deathrattle: Gain 3 Armor.",
     "flavor": "Even in defeat, her sparkle energy lingers to protect.",
@@ -3822,7 +3822,7 @@
     "type": "MINION",
     "heroClass": "IZZY",
     "rarity": "RARE",
-    "attack": 2,
+    "attack": 3,
     "health": 4,
     "text": "Taunt. Battlecry: Gain 2 Armor.",
     "flavor": "Her ice orb's diamond core pulses with every threat deflected.",
