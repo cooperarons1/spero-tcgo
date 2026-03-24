@@ -512,28 +512,31 @@ function HeroPortrait({
       )}
 
       {/* Hero circle with character portrait */}
-      <button
-        onClick={onHeroClick}
-        className={`relative flex h-24 w-24 items-center justify-center rounded-full border-4 ${borderClass} ${bgClass} transition-all overflow-hidden
-          ${isValidTarget ? 'shadow-[0_0_16px_4px_rgba(34,197,94,0.6)] cursor-crosshair' : ''}
-          ${!isValidTarget && !isMyHero ? 'cursor-default' : ''}
-          ${heroDamage ? 'animate-hero-damage animate-damage-shake' : ''}
-        `}
-      >
-        {/* Character SVG portrait */}
-        <div className="absolute inset-1 rounded-full overflow-hidden opacity-80">
-          {HERO_PORTRAIT_SVG[heroClass]}
-        </div>
-        {/* HP overlay at bottom */}
-        <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 text-lg font-bold z-10 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] ${isDamaged ? 'text-red-400' : 'text-white'}`}>
-          {health}
-        </span>
+      <div className="relative">
+        <button
+          onClick={onHeroClick}
+          className={`relative flex h-24 w-24 items-center justify-center rounded-full border-4 ${borderClass} ${bgClass} transition-all overflow-hidden
+            ${isValidTarget ? 'shadow-[0_0_16px_4px_rgba(34,197,94,0.6)] cursor-crosshair' : ''}
+            ${!isValidTarget && !isMyHero ? 'cursor-default' : ''}
+            ${heroDamage ? 'animate-hero-damage animate-damage-shake' : ''}
+          `}
+        >
+          {/* Character SVG portrait */}
+          <div className="absolute inset-1 rounded-full overflow-hidden opacity-80">
+            {HERO_PORTRAIT_SVG[heroClass]}
+          </div>
+          {/* HP overlay at bottom */}
+          <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 text-lg font-bold z-10 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] ${isDamaged ? 'text-red-400' : 'text-white'}`}>
+            {health}
+          </span>
+        </button>
+        {/* Armor badge — outside button so it's not clipped */}
         {armor > 0 && (
-          <div className="absolute -right-1 -top-1 flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-gray-300 to-gray-500 border-2 border-gray-200 text-xs font-extrabold text-gray-800 z-10 shadow-md">
+          <div className="absolute -right-1 -top-1 flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-gray-300 to-gray-500 border-2 border-gray-200 text-xs font-extrabold text-gray-800 z-20 shadow-md pointer-events-none">
             {armor}
           </div>
         )}
-      </button>
+      </div>
 
 
       {/* Hero Power */}
