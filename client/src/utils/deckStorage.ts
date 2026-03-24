@@ -46,38 +46,26 @@ export async function loadDecks(uid: string): Promise<DeckList[]> {
     } as DeckList;
   });
 
-  // Auto-fix decks in background (don't block loading)
-  const deletedIds = new Set<string>();
-  try {
-    for (const d of snap.docs) {
-      const data = d.data();
-      const rawCards: string[] = data.cards ?? [];
-      const cleanCards = rawCards.filter(code => validCardCodes.has(code));
-
-      if (cleanCards.length === 0) {
-        if (data.isStarterDeck) {
-          const starter = STARTER_DECKS.find(s => s.id === d.id);
-          if (starter) {
-            await setDoc(doc(db, 'users', uid, 'decks', d.id), { cards: starter.cards }, { merge: true });
-            const localDeck = decks.find(dk => dk.id === d.id);
-            if (localDeck) localDeck.cards = [...starter.cards];
-          } else {
-            await deleteDoc(doc(db, 'users', uid, 'decks', d.id));
-            deletedIds.add(d.id);
-          }
-        } else {
+  // Clean up Firestore in background — don't block loading
+  (async () => {
+    try {
+      for (const d of snap.docs) {
+        const data = d.data();
+        const rawCards: string[] = data.cards ?? [];
+        const cleanCards = rawCards.filter(code => validCardCodes.has(code));
+        if (cleanCards.length === 0) {
           await deleteDoc(doc(db, 'users', uid, 'decks', d.id));
-          deletedIds.add(d.id);
+        } else if (cleanCards.length !== rawCards.length || rawCards.length > 30) {
+          await setDoc(doc(db, 'users', uid, 'decks', d.id), { cards: cleanCards.slice(0, 30) }, { merge: true });
         }
-      } else if (cleanCards.length !== rawCards.length || rawCards.length > 30) {
-        await setDoc(doc(db, 'users', uid, 'decks', d.id), { cards: cleanCards.slice(0, 30) }, { merge: true });
       }
+    } catch (e) {
+      console.error('Deck cleanup error:', e);
     }
-  } catch (e) {
-    console.error('Deck cleanup error:', e);
-  }
+  })();
 
-  return decks.filter(d => !deletedIds.has(d.id));
+  // Always filter out empty decks from the UI immediately
+  return decks.filter(d => d.cards.length > 0);
 }
 
 /** Infer heroClass from card codes for legacy decks missing the field */
