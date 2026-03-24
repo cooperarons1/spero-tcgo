@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { LobbyState } from '../../../shared/types';
 import type { User } from 'firebase/auth';
 import { socket } from '../socket';
@@ -14,9 +14,33 @@ interface LobbyProps {
   onSignOut: () => void;
 }
 
+const RANK_COLORS: Record<string, string> = {
+  BRONZE: 'text-amber-600',
+  SILVER: 'text-gray-300',
+  GOLD: 'text-yellow-400',
+  DIAMOND: 'text-cyan-400',
+  LEGEND: 'text-purple-400',
+};
+
 export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, onPlayOnline, onPlayAI, onSignOut }: LobbyProps) {
   const [joinCode, setJoinCode] = useState('');
   const [mode, setMode] = useState<'menu' | 'join'>('menu');
+  const [rank, setRank] = useState<{ elo: number; rankTier: string } | null>(null);
+  const [quests, setQuests] = useState<{ quests: any[]; gold: number; xp: number; level: number } | null>(null);
+
+  useEffect(() => {
+    socket.emit('get-rank');
+    socket.emit('get-quests');
+
+    const onRank = (data: any) => setRank(data);
+    const onQuests = (data: any) => setQuests(data);
+    socket.on('rank-update', onRank);
+    socket.on('quests-update', onQuests);
+    return () => {
+      socket.off('rank-update', onRank);
+      socket.off('quests-update', onQuests);
+    };
+  }, []);
 
   const displayName = user.displayName || 'Player';
 
@@ -80,7 +104,11 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
         <h1 className="text-5xl font-extrabold text-white mb-1">MIRO</h1>
         <p className="text-spero-yellow font-bold text-lg mb-1">TCG Online</p>
         <div className="flex items-center justify-center gap-2 mb-6">
-          <span className="text-gray-400 text-sm">Signed in as <span className="text-white font-medium">{displayName}</span></span>
+          <span className="text-gray-400 text-sm">Signed in as <span className="text-white font-medium">{displayName}</span>{rank && (
+              <span className={`ml-2 text-xs font-bold ${RANK_COLORS[rank.rankTier] || 'text-gray-400'}`}>
+                {rank.rankTier} ({rank.elo})
+              </span>
+            )}</span>
           <button
             onClick={onSignOut}
             className="text-gray-500 text-xs underline hover:text-gray-300 cursor-pointer"
@@ -128,6 +156,34 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
             >
               Friends
             </button>
+            {quests && quests.quests.length > 0 && (
+              <div className="mt-4 bg-slate-700/50 rounded-xl p-4 text-left">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-bold text-sm text-gray-300">Daily Quests</h3>
+                  <span className="text-xs text-yellow-400 font-bold">{quests.gold}g | Lvl {quests.level}</span>
+                </div>
+                <div className="space-y-2">
+                  {quests.quests.map((q: any) => (
+                    <div key={q.id} className={`bg-slate-800 rounded-lg p-2 ${q.completed ? 'opacity-50' : ''}`}>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-gray-200">{q.description}</span>
+                        <span className="text-yellow-400 font-bold">{q.reward}g</span>
+                      </div>
+                      <div className="mt-1 bg-slate-900 rounded-full h-1.5 overflow-hidden">
+                        <div
+                          className="h-full bg-spero-green rounded-full transition-all"
+                          style={{ width: `${Math.min(100, (q.progress / q.target) * 100)}%` }}
+                        />
+                      </div>
+                      <div className="text-right text-[10px] text-gray-500 mt-0.5">
+                        {q.completed ? 'Complete!' : `${q.progress}/${q.target}`}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="flex gap-3 mt-2">
               <button
                 onClick={onCollection}

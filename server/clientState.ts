@@ -73,5 +73,69 @@ export function getClientState(game: GameState, playerId: string): ClientGameSta
     pendingInteraction: game.pendingInteraction ?? null,
     turnDeadline,
     playerStats: game.playerStats,
+    spectatorCount: game.spectators?.length ?? 0,
+  };
+}
+
+/** Sanitize game state for a spectator (sees player 0 perspective, no hand info) */
+export function getSpectatorState(game: GameState): ClientGameState {
+  const p0 = game.players[0];
+  const p1 = game.players[1];
+
+  const opponent: ClientPlayerInfo = {
+    playerId: p1.playerId,
+    playerName: p1.playerName,
+    heroClass: p1.heroClass,
+    health: p1.health,
+    maxHealth: p1.maxHealth,
+    armor: p1.armor,
+    mana: p1.mana,
+    maxMana: p1.maxMana,
+    handCount: p1.hand.length,
+    board: p1.board,
+    weapon: p1.weapon,
+    heroPowerUsed: p1.heroPowerUsed,
+    fatigueDamage: p1.fatigueDamage,
+    graveyardCount: p1.graveyard.length,
+    secretCount: p1.secrets.length,
+  };
+
+  const turnDeadline = game.turnStartedAt && !game.winner
+    ? game.turnStartedAt + TURN_TIMEOUT_MS
+    : null;
+
+  return {
+    myPlayerId: '__spectator__',
+    myPlayerIndex: 0,
+    myPlayerName: p0.playerName,
+    myHeroClass: p0.heroClass,
+    myHealth: p0.health,
+    myMaxHealth: p0.maxHealth,
+    myArmor: p0.armor,
+    myMana: p0.mana,
+    myMaxMana: p0.maxMana,
+    myHand: p0.hand.map(c => ({ instanceId: c.instanceId, cardCode: null })), // hide hand from spectators
+    myBoard: p0.board,
+    myWeapon: p0.weapon,
+    myHeroPowerUsed: p0.heroPowerUsed,
+    myFatigueDamage: p0.fatigueDamage,
+    myGraveyardCount: p0.graveyard.length,
+    mySecrets: [],
+    opponent,
+    deckCount: game.decks[0].length,
+    opponentDeckCount: game.decks[1].length,
+    currentPlayerIndex: game.currentPlayerIndex,
+    turnNumber: game.turnNumber,
+    phase: game.phase,
+    mulliganConfirmed: game.mulliganConfirmed,
+    winner: game.winner,
+    winReason: game.winReason,
+    lastAction: game.lastAction,
+    log: game.log,
+    pendingInteraction: null,
+    turnDeadline,
+    playerStats: game.playerStats,
+    spectatorCount: game.spectators?.length ?? 0,
+    isSpectator: true,
   };
 }

@@ -2,8 +2,10 @@ import type { GameState, PlayerState, HeroClass, CardInstance } from '../shared/
 import { STARTING_HEALTH, MAX_MANA, TURN_TIMEOUT_MS } from '../shared/types.js';
 import { createDeckFromList, createTwoDecks, resetInstanceCounter, makeInstance, shuffle } from './deck.js';
 import { addLog, emptyStats } from './log.js';
-import { drawCard, checkHeroDeath } from './effects.js';
+import { drawCard, checkHeroDeath, executeEffect, applyDamageToHero } from './effects.js';
 import { minionHasKeyword } from './keywords.js';
+import { getCardDef } from './cards.js';
+import { checkDeaths } from './combat.js';
 
 export { TURN_TIMEOUT_MS };
 
@@ -79,6 +81,7 @@ export function createGame(
     turnStartedAt: Date.now(),
     playerStats: [emptyStats(), emptyStats()],
     pendingInteraction: null,
+    cardsPlayedThisTurn: 0,
   };
 
   addLog(game, null, `Game started! ${players[firstPlayer].playerName} goes first.`, 'GAME');
@@ -219,7 +222,13 @@ export function endTurn(
   const player = game.players[pIdx];
   game.playerStats[pIdx as 0 | 1].turnsPlayed++;
 
+  // End-of-turn triggers for the current player's minions
+  resolveEndOfTurnEffects(game, pIdx as 0 | 1);
+
   addLog(game, pIdx as 0 | 1, `${player.playerName} ends their turn`, 'TURN');
+
+  // Reset combo counter
+  game.cardsPlayedThisTurn = 0;
 
   // Switch to other player
   game.currentPlayerIndex = game.currentPlayerIndex === 0 ? 1 : 0;
@@ -229,4 +238,38 @@ export function endTurn(
   startTurn(game);
 
   return { success: true };
+}
+
+/** Resolve end-of-turn effects for all minions owned by the given player */
+function resolveEndOfTurnEffects(game: GameState, playerIndex: 0 | 1): void {
+  if (game.winner) return;
+  const player = game.players[playerIndex];
+  const oppIdx = (playerIndex === 0 ? 1 : 0) as 0 | 1;
+
+  for (const minion of [...player.board]) {
+    if (game.winner) break;
+    if (minion.isSilenced) continue;
+
+    const def = getCardDef(minion.cardCode);
+    if (!def.endOfTurnEffect) continue;
+
+    const effect = def.endOfTurnEffect;
+    addLog(game, playerIndex, `${def.name}'s end-of-turn effect triggers`, 'EFFECT');
+
+    // Resolve targeting for end-of-turn effects
+    if (effect.type === 'DEAL_DAMAGE' && effect.target === 'NONE') {
+      // Deal damage to enemy hero (e.g. Shadow Leech)
+      applyDamageToHero(game.players[oppIdx], effect.value ?? 0);
+      game.playerStats[playerIndex].damageDealtToHeroes += effect.value ?? 0;
+      addLog(game, playerIndex, `Deals ${effect.value} damage to ${game.players[oppIdx].playerName}`, 'EFFECT');
+      checkHeroDeath(game);
+    } else if (effect.type === 'RESTORE_HEALTH' && (effect.target === 'TARGET_HERO' || effect.target === 'SELF')) {
+      // Heal own hero
+      executeEffect(game, playerIndex, { ...effect, target: 'SELF' });
+    } else {
+      executeEffect(game, playerIndex, effect);
+    }
+
+    checkDeaths(game);
+  }
 }

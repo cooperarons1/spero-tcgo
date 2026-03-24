@@ -13,7 +13,9 @@ export type Keyword =
   | 'FREEZE'
   | 'WINDFURY'
   | 'STEALTH'
-  | 'SECRET';
+  | 'SECRET'
+  | 'END_OF_TURN'
+  | 'COMBO';
 
 // ─── Secrets ───
 
@@ -50,6 +52,9 @@ export interface CardDef {
   secretTrigger?: SecretTrigger;
   secretEffect?: EffectDef;
   secretEffects?: EffectDef[];
+  endOfTurnEffect?: EffectDef;
+  comboEffect?: EffectDef;
+  comboEffects?: EffectDef[];
 }
 
 // ─── Effect System ───
@@ -74,7 +79,9 @@ export type EffectType =
   | 'GAIN_TEMPORARY_MANA'
   | 'GRANT_KEYWORD'
   | 'COUNTER_SPELL'
-  | 'COPY_MINION';
+  | 'COPY_MINION'
+  | 'DEAL_DAMAGE_BASED_ON_ARMOR'
+  | 'DRAW_CARDS_CONDITIONAL';
 
 export type EffectTarget =
   | 'NONE'
@@ -99,6 +106,7 @@ export interface EffectDef {
   summonCardCode?: string;
   summonCount?: number;
   grantKeyword?: Keyword; // for GRANT_KEYWORD effect
+  condition?: string;     // for conditional effects (e.g. 'HAS_DIVINE_SHIELD_MINION')
 }
 
 // ─── Enchantment (buff/debuff on a minion) ───
@@ -179,6 +187,8 @@ export interface GameState {
   turnStartedAt: number | null;
   playerStats: [PlayerStats, PlayerStats];
   pendingInteraction: PendingInteraction | null;
+  cardsPlayedThisTurn: number; // for COMBO mechanic
+  spectators?: string[];       // spectator user IDs
 }
 
 // ─── Game Log ───
@@ -290,6 +300,8 @@ export interface ClientGameState {
   pendingInteraction: PendingInteraction | null;
   turnDeadline: number | null;
   playerStats: [PlayerStats, PlayerStats];
+  spectatorCount: number;
+  isSpectator?: boolean;
 }
 
 // ─── Constants ───
@@ -343,6 +355,16 @@ export interface Room {
 
 // ─── User Profile ───
 
+export type RankTier = 'BRONZE' | 'SILVER' | 'GOLD' | 'DIAMOND' | 'LEGEND';
+
+export function getRankTier(elo: number): RankTier {
+  if (elo >= 2100) return 'LEGEND';
+  if (elo >= 1800) return 'DIAMOND';
+  if (elo >= 1500) return 'GOLD';
+  if (elo >= 1200) return 'SILVER';
+  return 'BRONZE';
+}
+
 export interface UserProfile {
   uid: string;
   displayName: string;
@@ -350,6 +372,34 @@ export interface UserProfile {
   createdAt: number;
   gamesPlayed: number;
   gamesWon: number;
+  elo: number;
+  rankTier: RankTier;
+  xp: number;
+  level: number;
+  gold: number;
+  quests?: DailyQuest[];
+  questsRefreshedAt?: number;
+}
+
+// ─── Daily Quests ───
+
+export type QuestType =
+  | 'WIN_GAMES_AS_CLASS'
+  | 'PLAY_MINIONS'
+  | 'DEAL_DAMAGE_TO_HEROES'
+  | 'CAST_SPELLS'
+  | 'DESTROY_MINIONS'
+  | 'WIN_GAMES';
+
+export interface DailyQuest {
+  id: string;
+  type: QuestType;
+  description: string;
+  target: number;       // how many to complete
+  progress: number;     // current progress
+  reward: number;       // gold reward
+  heroClass?: HeroClass; // for class-specific quests
+  completed: boolean;
 }
 
 // ─── Friends & Chat ───

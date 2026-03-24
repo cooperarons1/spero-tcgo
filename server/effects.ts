@@ -99,12 +99,23 @@ export function executeEffect(
 
   switch (effect.type) {
     case 'DEAL_DAMAGE': {
+      // SELF target = deal damage to caster's own hero (for Life Tap cards)
+      if (effect.target === 'SELF') {
+        applyDamageToHero(me, value);
+        addLog(game, casterIndex, `Takes ${value} damage`, 'EFFECT');
+        checkHeroDeath(game);
+        break;
+      }
       if (!targetId) break;
       dealDamageToTarget(game, casterIndex, targetId, value);
       break;
     }
     case 'RESTORE_HEALTH': {
-      const healTarget = targetId ?? (effect.target === 'TARGET_HERO' ? `hero-${casterIndex}` : null);
+      const healTarget = targetId ?? (
+        effect.target === 'TARGET_HERO' || effect.target === 'SELF'
+          ? `hero-${casterIndex}`
+          : null
+      );
       if (!healTarget) break;
       restoreHealthToTarget(game, casterIndex, healTarget, value);
       break;
@@ -289,6 +300,29 @@ export function executeEffect(
     }
     case 'COPY_MINION': {
       // Handled by secrets.ts directly; no additional effect needed
+      break;
+    }
+    case 'DEAL_DAMAGE_BASED_ON_ARMOR': {
+      // Deal damage equal to caster's armor to all enemy minions
+      const armorDmg = me.armor;
+      if (armorDmg <= 0) break;
+      for (const m of [...opp.board]) {
+        applyDamageToMinion(m, armorDmg);
+      }
+      addLog(game, casterIndex, `Deals ${armorDmg} damage to all enemy minions (from Armor)`, 'EFFECT');
+      checkDeaths(game);
+      break;
+    }
+    case 'DRAW_CARDS_CONDITIONAL': {
+      // Draw cards — more if condition is met
+      let drawCount = value;
+      if (effect.condition === 'HAS_DIVINE_SHIELD_MINION') {
+        const hasDivineShield = me.board.some(m => m.hasDivineShield);
+        if (hasDivineShield) drawCount = value + 1;
+      }
+      for (let i = 0; i < drawCount; i++) {
+        drawCard(game, casterIndex);
+      }
       break;
     }
   }

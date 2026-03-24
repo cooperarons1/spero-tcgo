@@ -67,11 +67,11 @@ const HERO_POWER_DESC: Record<HeroClass, string> = {
   TALA: "Nature's Touch: Restore 2 health to any target",
   DEREK: 'Tinker: Draw a card',
   ANDERS: 'Frost Bolt: Deal 1 damage to a minion and Freeze it',
-  DES: 'Dark Command: Deal 2 damage to a random enemy',
+  DES: 'Dark Command: Deal 2 damage to any target',
   ASTRID: 'Mighty Guard: Give a friendly minion Divine Shield',
   AVA: 'Deploy Drone: Summon a 1/1 Gadget Drone',
   LUCAS: 'Coyote Trick: Return a random enemy minion to hand',
-  IZZY: 'Chart Course: Gain 2 Armor',
+  IZZY: 'Chart Course: Gain 2 Armor. Draw a card if 5+ Armor',
   NEUTRAL: 'Hero Power',
 };
 
@@ -788,7 +788,8 @@ export default function GameBoard({
   // ─── Card hover preview state ───
   const [hoveredCard, setHoveredCard] = useState<{ cardCode: string; x: number; y: number } | null>(null);
 
-  const isMyTurn = gs.currentPlayerIndex === gs.myPlayerIndex;
+  const isSpectator = gs.isSpectator === true;
+  const isMyTurn = !isSpectator && gs.currentPlayerIndex === gs.myPlayerIndex;
   const isPlaying = gs.phase === 'PLAYING';
 
   // Clear pending play guard when hand changes or pending interaction arrives
@@ -1275,6 +1276,20 @@ export default function GameBoard({
     >
       {GameOverOverlay}
       {InteractionOverlay}
+
+      {/* Spectator banner */}
+      {isSpectator && (
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-50 bg-purple-600/90 text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-lg">
+          Spectating
+        </div>
+      )}
+
+      {/* Spectator count */}
+      {gs.spectatorCount > 0 && !isSpectator && (
+        <div className="absolute top-2 right-28 z-40 bg-slate-800/80 text-purple-300 px-2 py-1 rounded text-xs font-medium">
+          {gs.spectatorCount} watching
+        </div>
+      )}
 
       {/* Attack arrow */}
       {targeting.type === 'attack' && attackerPos && (

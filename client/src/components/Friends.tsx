@@ -34,6 +34,7 @@ export function Friends({ uid, onBack, incomingChallenge, onChallengeHandled }: 
   const [challengeTarget, setChallengeTarget] = useState<string | null>(null);
   const [pendingChallenge, setPendingChallenge] = useState<{ challengeId: string; fromUid: string; fromName: string } | null>(null);
   const [sentChallenge, setSentChallenge] = useState<string | null>(null);
+  const [inGameFriends, setInGameFriends] = useState<Set<string>>(new Set());
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const loadFriends = useCallback(() => {
@@ -72,8 +73,10 @@ export function Friends({ uid, onBack, incomingChallenge, onChallengeHandled }: 
     const onChallengeDeclined = () => {
       setSentChallenge(null);
     };
+    const onFriendsInGame = (data: { uids: string[] }) => setInGameFriends(new Set(data.uids));
 
     socket.on('friends-list', onFriendsList);
+    socket.on('friends-in-game', onFriendsInGame);
     socket.on('friends-updated', onFriendsUpdated);
     socket.on('search-results', onSearchResults);
     socket.on('friend-request-received', onFriendRequestReceived);
@@ -100,6 +103,7 @@ export function Friends({ uid, onBack, incomingChallenge, onChallengeHandled }: 
       socket.off('duel-challenge', onDuelChallenge);
       socket.off('challenge-expired', onChallengeExpired);
       socket.off('challenge-declined', onChallengeDeclined);
+      socket.off('friends-in-game', onFriendsInGame);
       socket.off('challenge-accepted');
     };
   }, [loadFriends, chatWith]);
@@ -390,6 +394,16 @@ export function Friends({ uid, onBack, incomingChallenge, onChallengeHandled }: 
                     >
                       Chat
                     </button>
+                    {isOnline && inGameFriends.has(friend.uid) && (
+                      <button
+                        onClick={() => {
+                          socket.emit('spectate-friend', { friendUid: friend.uid });
+                        }}
+                        className="text-xs bg-purple-600 text-white px-2 py-0.5 rounded hover:bg-purple-500 cursor-pointer"
+                      >
+                        Spectate
+                      </button>
+                    )}
                     {isOnline && (
                       <button
                         onClick={() => handleChallenge(friend.uid)}

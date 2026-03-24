@@ -168,6 +168,16 @@ export function playCard(
 
   game.lastAction = `${player.playerName} plays ${def.name}.`;
 
+  // COMBO mechanic: if player played another card this turn, trigger combo effects
+  if (game.cardsPlayedThisTurn > 0 && def.keywords.includes('COMBO')) {
+    const comboEffects = def.comboEffects ?? (def.comboEffect ? [def.comboEffect] : []);
+    if (comboEffects.length > 0) {
+      addLog(game, pIdx as 0 | 1, `Combo! ${def.name}'s bonus effect triggers!`, 'EFFECT');
+      executeEffects(game, pIdx as 0 | 1, comboEffects, targetId);
+    }
+  }
+  game.cardsPlayedThisTurn++;
+
   checkDeaths(game);
   checkHeroDeath(game);
 
@@ -261,12 +271,20 @@ export function useHeroPower(
       break;
     }
     case 'DES': {
-      // Dark Command: Deal 2 damage to a random enemy (no target needed)
+      // Dark Command: Deal 2 damage to any target (targeted, like Fireblast)
+      if (!targetId) {
+        const targets = [
+          ...game.players[0].board.filter(m => !m.hasStealthUntilAttack).map(m => m.instanceId),
+          ...game.players[1].board.filter(m => !m.hasStealthUntilAttack).map(m => m.instanceId),
+          'hero-0', 'hero-1',
+        ];
+        return { success: false, needsTarget: true, validTargets: targets };
+      }
       player.mana -= HERO_POWER_COST;
       player.heroPowerUsed = true;
       game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
       game.playerStats[pIdx as 0 | 1].heroPowerUses++;
-      executeEffect(game, pIdx as 0 | 1, { type: 'DEAL_DAMAGE_RANDOM_ENEMY', target: 'RANDOM_ENEMY', value: 2 });
+      executeEffect(game, pIdx as 0 | 1, { type: 'DEAL_DAMAGE', target: 'TARGET_ANY', value: 2 }, targetId);
       addLog(game, pIdx as 0 | 1, `${player.playerName} uses Dark Command`, 'PLAY');
       break;
     }
@@ -314,13 +332,18 @@ export function useHeroPower(
       break;
     }
     case 'IZZY': {
-      // Chart Course: Gain 2 Armor (no target needed)
+      // Chart Course: Gain 2 Armor. Draw a card if you have 5+ Armor.
       player.mana -= HERO_POWER_COST;
       player.heroPowerUsed = true;
       game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
       game.playerStats[pIdx as 0 | 1].heroPowerUses++;
       executeEffect(game, pIdx as 0 | 1, { type: 'GAIN_ARMOR', target: 'NONE', value: 2 });
-      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Chart Course`, 'PLAY');
+      if (player.armor >= 5) {
+        drawCard(game, pIdx as 0 | 1);
+        addLog(game, pIdx as 0 | 1, `${player.playerName} uses Chart Course — gains Armor and draws a card!`, 'PLAY');
+      } else {
+        addLog(game, pIdx as 0 | 1, `${player.playerName} uses Chart Course`, 'PLAY');
+      }
       break;
     }
     default:

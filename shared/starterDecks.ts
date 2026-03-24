@@ -96,38 +96,37 @@ const ANDERS_STARTER: string[] = [
 
 // Des — Dark Orra Aggro/Control (30 cards)
 const DES_STARTER: string[] = [
-  // Class cards (12) + Secrets (2)
+  // Class cards (12) + Secrets (2) + New cards
   'DES001', 'DES001', // 1 mana
   'DES003', 'DES003', // 2 mana
+  'DES_NEW_01', 'DES_NEW_01', // 2 mana Dark Pact (Life Tap draw)
+  'DES_NEW_02', 'DES_NEW_02', // 3 mana Void Siphon (Life Tap minion)
   'DES005', 'DES005', // 3 mana
-  'DES007', 'DES007', // 4 mana
-  'DES009', 'DES009', // 5 mana
-  'DES011', 'DES011', // 6 mana
+  'DES011', 'DES011', // 3 mana (reduced from 4)
   'DES_S01',           // Shadow Ambush (secret)
   'DES_S02',           // Dark Bargain (secret)
-  // Neutral filler (16)
+  // Neutral filler (14)
   'NEU003', 'NEU003', // Scrappy Brawler 1 mana 2/1
   'NEU005', 'NEU005', // Razor Raptor 2 mana 3/2
   'NEU041', 'NEU041', // Treasure Scavenger 2 mana 2/1 DR draw
   'NEU012', 'NEU012', // Shadowpaw Stalker 3 mana 4/2 Stealth
   'NEU015', 'NEU015', // Summit Brute 4 mana 4/5
   'NEU023', 'NEU023', // Duskfang Assassin 5 mana 4/4 BC 3 dmg hero
-  'NEU029', 'NEU029', // Reckless Rocketeer 6 mana 5/2 Charge
   'NEU026', 'NEU026', // Stonefist Ogre 6 mana 6/7
 ];
 
 // Astrid — Protector (30 cards)
 const ASTRID_STARTER: string[] = [
-  // Class cards (12) + Secrets (2)
+  // Class cards (12) + Secrets (2) + New cards
   'AST001', 'AST001', // 1 mana
   'AST003', 'AST003', // 2 mana
+  'AST_NEW_01', 'AST_NEW_01', // 3 mana Shield Maiden's Insight (draw)
   'AST005', 'AST005', // 3 mana
   'AST007', 'AST007', // 4 mana
-  'AST009', 'AST009', // 5 mana
-  'AST011', 'AST011', // 6 mana
+  'AST_NEW_02',        // 6 mana Radiant Protector (Divine Shield + summon)
   'AST_S01',           // Guardian's Oath (secret)
   'AST_S02',           // Second Chance (secret)
-  // Neutral filler (16)
+  // Neutral filler (15)
   'NEU002', 'NEU002', // Eager Apprentice 1 mana 1/2
   'NEU006', 'NEU006', // Blessed Recruit 2 mana 2/2 Divine Shield
   'NEU010', 'NEU010', // Fernwood Protector 3 mana 2/4 Taunt
@@ -135,7 +134,7 @@ const ASTRID_STARTER: string[] = [
   'NEU019', 'NEU019', // Prism Drake 4 mana 4/4 Divine Shield
   'NEU021', 'NEU021', // Mirewalker Brute 5 mana 3/6 Taunt
   'NEU046', 'NEU046', // Wellspring Soothsayer 3 mana 3/3 BC heal
-  'NEU016', 'NEU016', // Shellback Tortoise 4 mana 2/7
+  'NEU016',           // Shellback Tortoise 4 mana 2/7
 ];
 
 // Ava — Tech Inventor (30 cards)
@@ -182,14 +181,15 @@ const LUCAS_STARTER: string[] = [
 
 // Izzy — Navigator (30 cards)
 const IZZY_STARTER: string[] = [
-  // Class cards (12)
+  // Class cards (12) + New card
   'IZZ001', 'IZZ001', // 1 mana
   'IZZ003', 'IZZ003', // 2 mana
   'IZZ005', 'IZZ005', // 3 mana
   'IZZ007', 'IZZ007', // 4 mana
   'IZZ009', 'IZZ009', // 5 mana
   'IZZ011', 'IZZ011', // 6 mana
-  // Neutral filler (18)
+  'IZZ_NEW_01',        // 7 mana Sparkle Avalanche (armor AoE finisher)
+  // Neutral filler (17)
   'NEU002', 'NEU002', // Eager Apprentice 1 mana 1/2
   'NEU004', 'NEU004', // Marsh Lurker 2 mana 2/3
   'NEU011', 'NEU011', // Patchwork Golem 3 mana 2/3 DR summon 2/1
@@ -197,7 +197,7 @@ const IZZY_STARTER: string[] = [
   'NEU015', 'NEU015', // Summit Brute 4 mana 4/5
   'NEU021', 'NEU021', // Mirewalker Brute 5 mana 3/6 Taunt
   'NEU026', 'NEU026', // Stonefist Ogre 6 mana 6/7
-  'NEU035', 'NEU035', // Ironclad Behemoth 8 mana 8/8
+  'NEU035',            // Ironclad Behemoth 8 mana 8/8
   'NEU046', 'NEU046', // Wellspring Soothsayer 3 mana 3/3 BC heal
 ];
 

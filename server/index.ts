@@ -47,9 +47,12 @@ import {
   getFriendsList,
   getChatHistory,
 } from './friends.js';
-import { addToQueue, removeFromQueue, isInQueue, processQueue } from './matchmaking.js';
-import { scheduleAITurn, generateAIPlayerId, randomAIName, isAIPlayer } from './ai.js';
+import { addToQueue, removeFromQueue, isInQueue, processQueue, calculateElo } from './matchmaking.js';
+import { scheduleAITurn, generateAIPlayerId, randomAIName, isAIPlayer, getAIMulliganReplacements } from './ai.js';
 import { STARTER_DECKS } from '../shared/starterDecks.js';
+import { generateDailyQuests, shouldRefreshQuests, updateQuestProgress, calculateXP, getLevel } from './quests.js';
+import { getSpectatorState } from './clientState.js';
+import { getRankTier } from '../shared/types.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -217,6 +220,10 @@ function startRoomTimer(room: ReturnType<typeof getRoom>) {
   }, 1000);
 }
 
+// ── Spectator tracking ──
+const spectatorRooms = new Map<string, string>(); // uid -> roomCode
+const spectatorSockets = new Map<string, string>(); // uid -> socketId
+
 function broadcastGameState(roomCode: string) {
   const room = getRoom(roomCode);
   if (!room?.game) return;
@@ -227,6 +234,14 @@ function broadcastGameState(roomCode: string) {
     io.to(socketId).emit('game-state', state);
   }
 
+  // Send to spectators
+  const specState = getSpectatorState(room.game);
+  for (const [uid, sRoomCode] of spectatorRooms) {
+    if (sRoomCode !== roomCode) continue;
+    const sid = spectatorSockets.get(uid);
+    if (sid) io.to(sid).emit('game-state', specState);
+  }
+
   if (room.game.winner) {
     finalizeGame(room);
   }
@@ -234,11 +249,12 @@ function broadcastGameState(roomCode: string) {
   // Trigger AI turn
   if (room.isAIGame && room.aiPlayerId && !room.game.winner) {
     if (room.game.phase === 'MULLIGAN') {
-      // AI auto-confirms mulligan (keep all)
+      // AI smart mulligan: replace expensive cards, keep cheap ones
       const aiIdx = room.game.players.findIndex(p => p.playerId === room.aiPlayerId);
       if (aiIdx >= 0 && !room.game.mulliganConfirmed[aiIdx as 0 | 1]) {
         const hand = room.game.players[aiIdx].hand;
-        confirmMulligan(room.game, room.aiPlayerId!, hand.map(() => false));
+        const heroClass = room.game.players[aiIdx].heroClass;
+        confirmMulligan(room.game, room.aiPlayerId!, getAIMulliganReplacements(hand, heroClass));
         broadcastGameState(roomCode);
       }
     } else if (room.game.phase === 'PLAYING') {
@@ -281,25 +297,100 @@ async function finalizeGame(room: ReturnType<typeof getRoom>) {
 
   const matchId = `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
 
+  // Determine winner/loser indices
+  const winnerIdx = game.players.findIndex(p => p.playerId === game.winner);
+  const loserIdx = winnerIdx === 0 ? 1 : 0;
+
+  // Load ELO for both players (skip AI)
+  const elos: number[] = [1000, 1000];
+  for (let i = 0; i < 2; i++) {
+    if (isAIPlayer(uids[i])) continue;
+    try {
+      const doc = await adminDb.collection('users').doc(uids[i]).get();
+      if (doc.exists && doc.data()?.elo) elos[i] = doc.data()!.elo;
+    } catch {}
+  }
+
+  // Calculate new ELO (only for PvP games)
+  const isPvP = !uids.some(u => isAIPlayer(u));
+  let newElos = elos;
+  if (isPvP) {
+    const result = calculateElo(elos[winnerIdx], elos[loserIdx]);
+    newElos = [...elos];
+    newElos[winnerIdx] = result.newWinnerElo;
+    newElos[loserIdx] = result.newLoserElo;
+  }
+
   for (let i = 0; i < 2; i++) {
     const uid = uids[i];
     if (isAIPlayer(uid)) continue;
     const oppIdx = i === 0 ? 1 : 0;
     const myStats = game.playerStats[i as 0 | 1];
+    const isWin = game.winner === game.players[i].playerId;
+    const heroClass = game.players[i].heroClass;
 
     try {
+      // Write match history
       await adminDb.collection('users').doc(uid).collection('matches').doc(matchId).set({
         date: Date.now(),
         myName: game.players[i].playerName,
         opponentName: game.players[oppIdx].playerName,
-        isWin: game.winner === game.players[i].playerId,
+        isWin,
         winReason: game.winReason,
         turns: game.turnNumber,
         myDamage: myStats.damageDealtToHeroes,
         myMinionsPlayed: myStats.minionsPlayed,
       });
+
+      // Update user profile: ELO, XP, level, quests, game stats
+      const userRef = adminDb.collection('users').doc(uid);
+      const userDoc = await userRef.get();
+      const userData = userDoc.data() ?? {};
+
+      const xpGain = calculateXP(isWin);
+      const newXp = (userData.xp ?? 0) + xpGain;
+      const newLevel = getLevel(newXp);
+      const newElo = newElos[i];
+
+      // Quest progress
+      let quests = userData.quests ?? [];
+      let questGold = 0;
+      if (shouldRefreshQuests(userData.questsRefreshedAt)) {
+        quests = generateDailyQuests();
+      }
+      const questResult = updateQuestProgress(quests, isWin, heroClass, myStats);
+      quests = questResult.quests;
+      questGold = questResult.goldEarned;
+
+      await userRef.set({
+        ...userData,
+        gamesPlayed: (userData.gamesPlayed ?? 0) + 1,
+        gamesWon: (userData.gamesWon ?? 0) + (isWin ? 1 : 0),
+        elo: newElo,
+        rankTier: getRankTier(newElo),
+        xp: newXp,
+        level: newLevel,
+        gold: (userData.gold ?? 0) + questGold,
+        quests,
+        questsRefreshedAt: shouldRefreshQuests(userData.questsRefreshedAt) ? Date.now() : (userData.questsRefreshedAt ?? Date.now()),
+      }, { merge: true });
+
+      // Notify client of quest/XP updates
+      const sid = room.sockets.get(uid);
+      if (sid && sid !== '__ai__') {
+        io.to(sid).emit('post-game-rewards', {
+          xpGain,
+          newXp,
+          newLevel,
+          eloChange: newElo - elos[i],
+          newElo,
+          rankTier: getRankTier(newElo),
+          questsCompleted: questResult.quests.filter(q => q.completed).map(q => ({ description: q.description, reward: q.reward })),
+          goldEarned: questGold,
+        });
+      }
     } catch (err) {
-      console.error(`Failed to write match for ${uid}:`, err);
+      console.error(`Failed to finalize game for ${uid}:`, err);
     }
   }
 }
@@ -585,12 +676,18 @@ io.on('connection', (socket) => {
 
   // ── Matchmaking Queue ──
 
-  socket.on('join-queue', validated(JoinQueueSchema, (data) => {
+  socket.on('join-queue', validated(JoinQueueSchema, async (data) => {
     if (!lobbyLimiter.allow(uid)) return;
     if (getRoomByPlayer(uid)) {
       socket.emit('error', 'Already in a room');
       return;
     }
+    // Fetch ELO for matchmaking
+    let elo = 1000;
+    try {
+      const doc = await adminDb.collection('users').doc(uid).get();
+      if (doc.exists && doc.data()?.elo) elo = doc.data()!.elo;
+    } catch {}
     addToQueue({
       uid,
       socketId: socket.id,
@@ -598,6 +695,7 @@ io.on('connection', (socket) => {
       heroClass: data.heroClass,
       deckCards: data.deckCards,
       queuedAt: Date.now(),
+      elo,
     });
   }));
 
@@ -878,6 +976,94 @@ io.on('connection', (socket) => {
     broadcastGameState(room.code);
   }));
 
+  // ── Spectating ──
+
+  socket.on('spectate-friend', (data: { friendUid: string }) => {
+    if (!socialLimiter.allow(uid)) return;
+    const friendRoom = getRoomByPlayer(data.friendUid);
+    if (!friendRoom?.game || friendRoom.game.winner) {
+      socket.emit('error', 'Friend is not in an active game');
+      return;
+    }
+    // Add spectator
+    spectatorRooms.set(uid, friendRoom.code);
+    spectatorSockets.set(uid, socket.id);
+    if (!friendRoom.game.spectators) friendRoom.game.spectators = [];
+    if (!friendRoom.game.spectators.includes(uid)) {
+      friendRoom.game.spectators.push(uid);
+    }
+    socket.join(friendRoom.code);
+    // Send initial spectator state
+    const specState = getSpectatorState(friendRoom.game);
+    socket.emit('game-state', specState);
+    socket.emit('spectating-started', { roomCode: friendRoom.code });
+    // Notify players of spectator count
+    broadcastGameState(friendRoom.code);
+  });
+
+  socket.on('stop-spectating', () => {
+    const roomCode = spectatorRooms.get(uid);
+    if (roomCode) {
+      const room = getRoom(roomCode);
+      if (room?.game?.spectators) {
+        room.game.spectators = room.game.spectators.filter(s => s !== uid);
+        broadcastGameState(roomCode);
+      }
+      socket.leave(roomCode);
+    }
+    spectatorRooms.delete(uid);
+    spectatorSockets.delete(uid);
+  });
+
+  // ── Quests ──
+
+  socket.on('get-quests', async () => {
+    if (!socialLimiter.allow(uid)) return;
+    try {
+      const userDoc = await adminDb.collection('users').doc(uid).get();
+      const userData = userDoc.data() ?? {};
+      let quests = userData.quests ?? [];
+
+      if (shouldRefreshQuests(userData.questsRefreshedAt)) {
+        quests = generateDailyQuests();
+        await adminDb.collection('users').doc(uid).set({
+          quests,
+          questsRefreshedAt: Date.now(),
+        }, { merge: true });
+      }
+
+      socket.emit('quests-update', {
+        quests,
+        gold: userData.gold ?? 0,
+        xp: userData.xp ?? 0,
+        level: getLevel(userData.xp ?? 0),
+      });
+    } catch (err) {
+      console.error('get-quests error:', err);
+      socket.emit('quests-update', { quests: [], gold: 0, xp: 0, level: 1 });
+    }
+  });
+
+  // ── Get Rank / ELO ──
+
+  socket.on('get-rank', async () => {
+    if (!socialLimiter.allow(uid)) return;
+    try {
+      const userDoc = await adminDb.collection('users').doc(uid).get();
+      const userData = userDoc.data() ?? {};
+      const elo = userData.elo ?? 1000;
+      socket.emit('rank-update', {
+        elo,
+        rankTier: getRankTier(elo),
+        gamesPlayed: userData.gamesPlayed ?? 0,
+        gamesWon: userData.gamesWon ?? 0,
+      });
+    } catch (err) {
+      console.error('get-rank error:', err);
+      socket.emit('rank-update', { elo: 1000, rankTier: 'BRONZE', gamesPlayed: 0, gamesWon: 0 });
+    }
+  });
+
   // ── Disconnect ──
 
   socket.on('disconnect', () => {
@@ -886,6 +1072,16 @@ io.on('connection', (socket) => {
     lobbyLimiter.remove(uid);
     gameActionLimiter.remove(uid);
     removeFromQueue(uid);
+    // Clean up spectating
+    const specRoom = spectatorRooms.get(uid);
+    if (specRoom) {
+      const room = getRoom(specRoom);
+      if (room?.game?.spectators) {
+        room.game.spectators = room.game.spectators.filter(s => s !== uid);
+      }
+      spectatorRooms.delete(uid);
+      spectatorSockets.delete(uid);
+    }
     const room = getRoomByPlayer(uid);
     if (room) {
       const code = room.code;

@@ -2329,7 +2329,7 @@
   {
     "cardCode": "DES011",
     "name": "Corrupting Influence",
-    "manaCost": 4,
+    "manaCost": 3,
     "type": "SPELL",
     "heroClass": "DES",
     "rarity": "EPIC",
@@ -2870,7 +2870,7 @@
   {
     "cardCode": "AST020",
     "name": "Astrid, Shield of Aster",
-    "manaCost": 9,
+    "manaCost": 8,
     "type": "MINION",
     "heroClass": "ASTRID",
     "rarity": "LEGENDARY",
@@ -3805,12 +3805,12 @@
     "rarity": "RARE",
     "attack": 0,
     "health": 0,
-    "text": "Give ALL minions +1/+1.",
+    "text": "Give all friendly minions +1/+1.",
     "flavor": "Izzy's sparkle energy surges outward \u2014 it doesn't pick sides.",
     "keywords": [],
     "spellEffect": {
       "type": "BUFF_ALL_FRIENDLY",
-      "target": "ALL_MINIONS",
+      "target": "ALL_FRIENDLY_MINIONS",
       "attackBuff": 1,
       "healthBuff": 1
     }
@@ -4099,7 +4099,7 @@
     "heroClass": "IZZY",
     "rarity": "COMMON",
     "attack": 1,
-    "health": 1,
+    "health": 2,
     "text": "",
     "flavor": "A fragment of pure sparkle energy, still glowing.",
     "keywords": []
@@ -4351,5 +4351,225 @@
     "text": "Taunt",
     "flavor": "Sworn to protect.",
     "keywords": ["TAUNT"]
+  },
+  {
+    "cardCode": "DES_NEW_01",
+    "name": "Dark Pact",
+    "manaCost": 2,
+    "type": "SPELL",
+    "heroClass": "DES",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 3 damage to your hero. Draw 2 cards.",
+    "flavor": "The darkness always extracts a price. Des pays it gladly.",
+    "keywords": [],
+    "spellEffects": [
+      { "type": "DEAL_DAMAGE", "target": "SELF", "value": 3 },
+      { "type": "DRAW_CARDS", "target": "NONE", "value": 2 }
+    ]
+  },
+  {
+    "cardCode": "IZZ_NEW_01",
+    "name": "Sparkle Avalanche",
+    "manaCost": 7,
+    "type": "SPELL",
+    "heroClass": "IZZY",
+    "rarity": "EPIC",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 1 damage for each Armor you have to all enemy minions.",
+    "flavor": "Izzy channels every spark of shielding into a devastating wave.",
+    "keywords": [],
+    "spellEffect": {
+      "type": "DEAL_DAMAGE_BASED_ON_ARMOR",
+      "target": "ALL_ENEMY_MINIONS",
+      "value": 1
+    }
+  },
+  {
+    "cardCode": "AST_NEW_01",
+    "name": "Shield Maiden's Insight",
+    "manaCost": 3,
+    "type": "SPELL",
+    "heroClass": "ASTRID",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Draw 2 cards. If you have a minion with Divine Shield, draw 3 instead.",
+    "flavor": "Astrid's shield reflects more than blows \u2014 it reflects wisdom.",
+    "keywords": [],
+    "spellEffect": {
+      "type": "DRAW_CARDS_CONDITIONAL",
+      "target": "NONE",
+      "value": 2,
+      "condition": "HAS_DIVINE_SHIELD_MINION"
+    }
+  },
+  {
+    "cardCode": "AST_NEW_02",
+    "name": "Radiant Protector",
+    "manaCost": 6,
+    "type": "MINION",
+    "heroClass": "ASTRID",
+    "rarity": "RARE",
+    "attack": 4,
+    "health": 5,
+    "text": "Divine Shield. Battlecry: Summon a 2/2 with Taunt.",
+    "flavor": "Where she stands, others rally.",
+    "keywords": ["DIVINE_SHIELD", "BATTLECRY"],
+    "battlecryEffect": {
+      "type": "SUMMON_MINION",
+      "target": "NONE",
+      "summonCardCode": "AST_TOKEN_02"
+    }
+  },
+  {
+    "cardCode": "AST_TOKEN_02",
+    "name": "Shield Squire",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "ASTRID",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 2,
+    "text": "Taunt",
+    "flavor": "Always at the protector's side.",
+    "keywords": ["TAUNT"]
+  },
+  {
+    "cardCode": "DES_NEW_02",
+    "name": "Void Siphon",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "DES",
+    "rarity": "RARE",
+    "attack": 3,
+    "health": 4,
+    "text": "Battlecry: Deal 2 damage to your hero. Draw a card.",
+    "flavor": "It feeds on its master's pain, growing stronger with every drop.",
+    "keywords": ["BATTLECRY"],
+    "battlecryEffects": [
+      { "type": "DEAL_DAMAGE", "target": "SELF", "value": 2 },
+      { "type": "DRAW_CARDS", "target": "NONE", "value": 1 }
+    ]
+  },
+  {
+    "cardCode": "EOT_001",
+    "name": "Orra Channeler",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 3,
+    "text": "At the end of your turn, gain 1 Armor.",
+    "flavor": "The Orra flows through her, a steady pulse of protection.",
+    "keywords": ["END_OF_TURN"],
+    "endOfTurnEffect": {
+      "type": "GAIN_ARMOR",
+      "target": "NONE",
+      "value": 1
+    }
+  },
+  {
+    "cardCode": "EOT_002",
+    "name": "Ameti Healer",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "RARE",
+    "attack": 2,
+    "health": 5,
+    "text": "At the end of your turn, restore 2 Health to your hero.",
+    "flavor": "Her prayers are answered by the Ameti \u2014 every single turn.",
+    "keywords": ["END_OF_TURN"],
+    "endOfTurnEffect": {
+      "type": "RESTORE_HEALTH",
+      "target": "TARGET_HERO",
+      "value": 2
+    }
+  },
+  {
+    "cardCode": "EOT_003",
+    "name": "Shadow Leech",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "DES",
+    "rarity": "EPIC",
+    "attack": 4,
+    "health": 4,
+    "text": "At the end of your turn, deal 2 damage to the enemy hero.",
+    "flavor": "It drains life slowly, savoring every drop.",
+    "keywords": ["END_OF_TURN"],
+    "endOfTurnEffect": {
+      "type": "DEAL_DAMAGE",
+      "target": "NONE",
+      "value": 2
+    }
+  },
+  {
+    "cardCode": "COMBO_001",
+    "name": "Shadow Strike",
+    "manaCost": 2,
+    "type": "SPELL",
+    "heroClass": "DES",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 2 damage. Combo: Deal 4 instead.",
+    "flavor": "The second strike always lands harder.",
+    "keywords": ["COMBO"],
+    "spellEffect": {
+      "type": "DEAL_DAMAGE",
+      "target": "TARGET_ANY",
+      "value": 2
+    },
+    "comboEffect": {
+      "type": "DEAL_DAMAGE",
+      "target": "TARGET_ANY",
+      "value": 4
+    }
+  },
+  {
+    "cardCode": "COMBO_002",
+    "name": "Quick Draw",
+    "manaCost": 1,
+    "type": "SPELL",
+    "heroClass": "LUCAS",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Draw a card. Combo: Draw 2 instead.",
+    "flavor": "Lucas always has another trick up his sleeve.",
+    "keywords": ["COMBO"],
+    "spellEffect": {
+      "type": "DRAW_CARDS",
+      "target": "NONE",
+      "value": 1
+    },
+    "comboEffect": {
+      "type": "DRAW_CARDS",
+      "target": "NONE",
+      "value": 2
+    }
+  },
+  {
+    "cardCode": "COMBO_003",
+    "name": "Double Agent",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "LUCAS",
+    "rarity": "RARE",
+    "attack": 3,
+    "health": 3,
+    "text": "Combo: Summon a copy of this minion.",
+    "flavor": "One is a trick. Two is a surprise.",
+    "keywords": ["COMBO"],
+    "comboEffect": {
+      "type": "SUMMON_MINION",
+      "target": "NONE",
+      "summonCardCode": "COMBO_003"
+    }
   }
 ]
