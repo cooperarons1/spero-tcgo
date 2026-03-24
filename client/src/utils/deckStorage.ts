@@ -46,16 +46,21 @@ export async function loadDecks(uid: string): Promise<DeckList[]> {
     } as DeckList;
   });
 
-  // Auto-fix decks with invalid cards or oversized in Firestore
+  // Auto-fix decks with invalid cards, oversized, or delete empty non-starter decks
   for (const d of snap.docs) {
-    const rawCards: string[] = d.data().cards ?? [];
+    const data = d.data();
+    const rawCards: string[] = data.cards ?? [];
     const cleanCards = rawCards.filter(code => validCardCodes.has(code));
-    if (cleanCards.length !== rawCards.length || rawCards.length > 30) {
+    if (cleanCards.length === 0 && !data.isStarterDeck) {
+      // Delete custom decks that became empty after cleanup
+      await deleteDoc(doc(db, 'users', uid, 'decks', d.id));
+    } else if (cleanCards.length !== rawCards.length || rawCards.length > 30) {
       await setDoc(doc(db, 'users', uid, 'decks', d.id), { cards: cleanCards.slice(0, 30) }, { merge: true });
     }
   }
 
-  return decks;
+  // Return only non-empty decks (filter out deleted ones)
+  return decks.filter(d => d.cards.length > 0 || d.isStarterDeck);
 }
 
 /** Infer heroClass from card codes for legacy decks missing the field */

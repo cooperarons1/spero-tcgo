@@ -384,7 +384,7 @@ function BoardMinionCard({
   return (
     <button
       onClick={onClick}
-      className={`relative w-[4.5rem] h-[5.5rem] select-none overflow-hidden transition-all
+      className={`relative w-[4.5rem] h-[5.5rem] select-none transition-all
         ${hasTaunt ? 'minion-oval-taunt' : 'minion-oval'}
         ${hasDivine && !isSilenced ? 'ring-2 ring-yellow-300 animate-pulse ring-offset-1 ring-offset-transparent' : ''}
         ${isFrozen ? 'brightness-75 saturate-50' : ''}
@@ -395,28 +395,28 @@ function BoardMinionCard({
         ${animationClass ?? ''}
       `}
     >
-      {/* Art fills entire oval */}
-      <div className="absolute inset-0 bg-amber-900/80">
+      {/* Art fills entire oval — clip to oval shape */}
+      <div className="absolute inset-0 bg-amber-900/80 overflow-hidden" style={{ borderRadius: '42%' }}>
         {minion.cardCode && <CardArt cardCode={minion.cardCode} className="w-full h-full" />}
       </div>
 
       {/* Frozen overlay */}
-      {isFrozen && <div className="absolute inset-0 bg-blue-400/30 z-10" />}
+      {isFrozen && <div className="absolute inset-0 bg-blue-400/30 z-10" style={{ borderRadius: '42%' }} />}
 
       {/* Silenced X */}
       {isSilenced && (
-        <div className="absolute inset-0 flex items-center justify-center z-20">
+        <div className="absolute inset-0 flex items-center justify-center z-15" style={{ borderRadius: '42%' }}>
           <span className="text-red-500 text-2xl font-black opacity-60">{'\u2715'}</span>
         </div>
       )}
 
       {/* Attack circle — bottom-left */}
-      <div className="absolute -bottom-1 -left-1 flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-yellow-500 to-yellow-700 border border-yellow-400 text-xs font-bold text-white shadow-md z-10">
+      <div className="absolute -bottom-2 -left-2 flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-yellow-700 border-2 border-yellow-300 text-sm font-extrabold text-white shadow-lg z-20">
         {minion.currentAttack}
       </div>
       {/* Health circle — bottom-right */}
-      <div className={`absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold text-white shadow-md z-10 border
-        ${isDamaged ? 'bg-gradient-to-br from-red-500 to-red-700 border-red-400' : 'bg-gradient-to-br from-red-700 to-red-900 border-red-500'}
+      <div className={`absolute -bottom-2 -right-2 flex h-7 w-7 items-center justify-center rounded-full text-sm font-extrabold text-white shadow-lg z-20 border-2
+        ${isDamaged ? 'bg-gradient-to-br from-red-500 to-red-700 border-red-300' : 'bg-gradient-to-br from-red-700 to-red-900 border-red-400'}
       `}>
         {minion.currentHealth}
       </div>
