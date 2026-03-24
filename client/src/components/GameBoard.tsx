@@ -1192,12 +1192,14 @@ export default function GameBoard({
   // ─── Mulligan ───
   if (gs.phase === 'MULLIGAN') {
     const alreadyConfirmed = gs.mulliganConfirmed[gs.myPlayerIndex];
+    console.log('[MULLIGAN] myIdx:', gs.myPlayerIndex, 'confirmed:', gs.mulliganConfirmed, 'hand:', gs.myHand.length);
     return (
       <div className="relative h-screen w-screen bg-stone-950">
         <MulliganScreen
           hand={gs.myHand}
           confirmed={alreadyConfirmed}
           onConfirm={(replacements) => {
+            console.log('[MULLIGAN] confirming with', replacements);
             actions.confirmMulligan(replacements);
           }}
         />
