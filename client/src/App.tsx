@@ -160,6 +160,7 @@ function App() {
           pendingInteraction: {
             type: 'CHOOSE_TARGET' as const,
             waitingForPlayerId: prev.myPlayerId,
+            timeoutAt: null as any,
             targetChoice: {
               interactionId: `needs-target-${data.cardInstanceId}`,
               cardInstanceId: data.cardInstanceId,
