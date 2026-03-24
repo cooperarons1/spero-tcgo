@@ -152,8 +152,8 @@ function App() {
     });
 
     socket.on('needs-target', (data: { cardInstanceId: string; validTargets: string[]; position?: number }) => {
+      console.log('[needs-target]', data.cardInstanceId, 'targets:', data.validTargets);
       // Card needs a target — update game state with a pending interaction
-      // Note: GameBoard's pendingPlayRef will be cleared when game state updates
       setGameState(prev => {
         if (!prev) return prev;
         return {

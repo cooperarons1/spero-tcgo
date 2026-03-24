@@ -402,7 +402,7 @@ function BoardMinionCard({
       onClick={onClick}
       className={`relative w-[8rem] h-[9.5rem] select-none transition-all
         ${hasTaunt ? 'minion-oval-taunt' : 'minion-oval'}
-        ${hasDivine && !isSilenced ? 'ring-2 ring-yellow-300 animate-pulse ring-offset-1 ring-offset-transparent' : ''}
+        ${hasDivine && !isSilenced ? 'ring-[3px] ring-yellow-300 shadow-[0_0_16px_4px_rgba(253,224,71,0.6)] ring-offset-1 ring-offset-transparent' : ''}
         ${isFrozen ? 'brightness-75 saturate-50' : ''}
         ${isStealth ? 'opacity-40' : ''}
         ${canAct && isMyMinion ? 'shadow-[0_0_20px_6px_rgba(34,197,94,0.7)] cursor-pointer hover:scale-110 ring-[3px] ring-green-400/80' : ''}
@@ -1021,6 +1021,12 @@ export default function GameBoard({
 
       if (targeting.type === 'attack' && validTargetIds.has(targetId)) {
         const attackerId = targeting.attackerInstanceId;
+        // Validate attacker still exists (minion on board or hero with weapon)
+        const isHeroAttack = attackerId.startsWith('hero-');
+        if (!isHeroAttack && !myBoard.find(m => m.instanceId === attackerId)) {
+          cancelTargeting();
+          return;
+        }
         // Show lunge animation, then send attack after short delay
         setLungeId(attackerId);
         cancelTargeting();
