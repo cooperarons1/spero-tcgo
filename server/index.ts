@@ -527,6 +527,15 @@ io.on('connection', (socket) => {
     broadcastGameState(room.code);
   });
 
+  // ── Leave Game ──
+
+  socket.on('leave-game', () => {
+    const room = getRoomByPlayer(uid);
+    if (!room) return;
+    clearRoomTimer(room);
+    removePlayer(uid);
+  });
+
   // ── Hover Hand ──
 
   socket.on('hover-hand', validated(HoverHandSchema, (data) => {

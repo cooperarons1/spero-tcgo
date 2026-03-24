@@ -238,7 +238,7 @@ function App() {
             gameState={displayedState ?? gameState!}
             opponentHovering={opponentHovering}
             opponentEmote={opponentEmote}
-            onLeaveGame={() => { setGameState(null); setView('lobby'); sessionStorage.removeItem('spero-room-code'); }}
+            onLeaveGame={() => { socket.emit('leave-game'); setGameState(null); setView('lobby'); sessionStorage.removeItem('spero-room-code'); }}
             uid={user.uid}
           />
           {showIntro && (
