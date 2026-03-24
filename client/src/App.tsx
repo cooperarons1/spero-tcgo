@@ -163,10 +163,11 @@ function App() {
             timeoutAt: null as any,
             targetChoice: {
               interactionId: `needs-target-${data.cardInstanceId}`,
-              cardInstanceId: data.cardInstanceId,
+              effectSource: data.cardInstanceId,
               prompt: 'Choose a target',
-              validTargets: data.validTargets.map(id => ({ id, label: '' })),
+              validTargets: data.validTargets.map((id: string) => ({ id, label: '' })),
               allowSkip: false,
+              context: 'battlecry' as const,
             },
           },
         };
