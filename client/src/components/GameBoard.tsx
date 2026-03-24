@@ -748,6 +748,7 @@ export default function GameBoard({
 
   // ─── Drag-and-drop state ───
   const [draggingCardId, setDraggingCardId] = useState<string | null>(null);
+  const [draggingCardType, setDraggingCardType] = useState<string | null>(null);
   const [dropZoneActive, setDropZoneActive] = useState(false);
   const [dropIndex, setDropIndex] = useState<number | null>(null);
 
@@ -1001,13 +1002,17 @@ export default function GameBoard({
 
   // ─── Drag-and-drop handlers (with position tracking) ───
   const handleDragStart = useCallback((e: React.DragEvent, card: ClientCardInstance) => {
+    const def = getCard(card.cardCode);
     e.dataTransfer.setData('text/plain', card.instanceId);
+    e.dataTransfer.setData('card-type', def?.type ?? '');
     e.dataTransfer.effectAllowed = 'move';
     setDraggingCardId(card.instanceId);
+    setDraggingCardType(def?.type ?? null);
   }, []);
 
   const handleDragEnd = useCallback(() => {
     setDraggingCardId(null);
+    setDraggingCardType(null);
     setDropZoneActive(false);
     setDropIndex(null);
   }, []);
@@ -1053,8 +1058,36 @@ export default function GameBoard({
     const pos = def.type === 'MINION' ? (dropIndex ?? myBoard.length) : undefined;
     actions.playCard(card.instanceId, pos);
     setDraggingCardId(null);
+    setDraggingCardType(null);
     setDropIndex(null);
   }, [gs.myHand, gs.myMana, myBoard.length, actions, dropIndex]);
+
+  // ─── Drop spell/weapon on a target (minion or hero) ───
+  const handleTargetDragOver = useCallback((e: React.DragEvent) => {
+    if (!draggingCardId || draggingCardType === 'MINION') return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  }, [draggingCardId, draggingCardType]);
+
+  const handleTargetDrop = useCallback((e: React.DragEvent, targetId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const cardId = e.dataTransfer.getData('text/plain');
+    if (!cardId) return;
+
+    const card = gs.myHand.find(c => c.instanceId === cardId);
+    if (!card) return;
+
+    const def = getCard(card.cardCode);
+    if (!def || def.manaCost > gs.myMana) return;
+    // Only spells and weapons can be drag-targeted
+    if (def.type === 'MINION') return;
+
+    actions.playCard(card.instanceId, undefined, targetId);
+    setDraggingCardId(null);
+    setDraggingCardType(null);
+    setDropIndex(null);
+  }, [gs.myHand, gs.myMana, actions]);
 
   // ─── Get animation class for a minion ───
   const getMinionAnim = useCallback((instanceId: string, isMyMinion: boolean): string | undefined => {
@@ -1202,7 +1235,11 @@ export default function GameBoard({
         <OpponentHand count={gs.opponent.handCount} />
 
         {/* Opponent hero row: [Mana] [Hero+Power] */}
-        <div className="flex items-center justify-center w-full gap-4">
+        <div
+          className="flex items-center justify-center w-full gap-4"
+          onDragOver={handleTargetDragOver}
+          onDrop={(e) => handleTargetDrop(e, `hero-${1 - gs.myPlayerIndex}`)}
+        >
           <ManaCrystals current={gs.opponent.mana} max={gs.opponent.maxMana} />
           <HeroPortrait
             heroClass={gs.opponent.heroClass}
@@ -1231,12 +1268,17 @@ export default function GameBoard({
             style={opBoardScale < 1 ? { transform: `scale(${opBoardScale})`, transformOrigin: 'center center' } : undefined}
           >
             {opBoard.map((m) => (
-              <div key={m.instanceId} style={{ flex: '0 1 5.5rem' }}>
+              <div
+                key={m.instanceId}
+                style={{ flex: '0 1 5.5rem' }}
+                onDragOver={handleTargetDragOver}
+                onDrop={(e) => handleTargetDrop(e, m.instanceId)}
+              >
                 <BoardMinionCard
                   minion={m}
                   isMyMinion={false}
                   canAct={false}
-                  isValidTarget={validTargetIds.has(m.instanceId)}
+                  isValidTarget={validTargetIds.has(m.instanceId) || (draggingCardType === 'SPELL' && !!draggingCardId)}
                   isSelected={false}
                   onClick={() => handleEnemyTargetClick(m.instanceId)}
                   animationClass={getMinionAnim(m.instanceId, false)}
@@ -1308,12 +1350,17 @@ export default function GameBoard({
             {myBoard.map((m, i) => (
               <Fragment key={m.instanceId}>
                 {dropIndex === i && dropPlaceholder}
-                <div data-minion-index={i} style={{ flex: '0 1 5.5rem' }}>
+                <div
+                  data-minion-index={i}
+                  style={{ flex: '0 1 5.5rem' }}
+                  onDragOver={draggingCardType === 'SPELL' ? handleTargetDragOver : undefined}
+                  onDrop={draggingCardType === 'SPELL' ? (e) => handleTargetDrop(e, m.instanceId) : undefined}
+                >
                   <BoardMinionCard
                     minion={m}
                     isMyMinion={true}
                     canAct={isMyTurn && m.canAttack && m.attacksRemaining > 0 && m.currentAttack > 0}
-                    isValidTarget={validTargetIds.has(m.instanceId)}
+                    isValidTarget={validTargetIds.has(m.instanceId) || (draggingCardType === 'SPELL' && !!draggingCardId)}
                     isSelected={targeting.type === 'attack' && targeting.attackerInstanceId === m.instanceId}
                     onClick={(e?: any) => handleMyMinionClick(m, e)}
                     animationClass={getMinionAnim(m.instanceId, true)}
@@ -1326,7 +1373,11 @@ export default function GameBoard({
         </div>
 
         {/* My hero row: [Mana] [Hero+Power] */}
-        <div className="flex items-center justify-center w-full gap-4">
+        <div
+          className="flex items-center justify-center w-full gap-4"
+          onDragOver={handleTargetDragOver}
+          onDrop={(e) => handleTargetDrop(e, `hero-${gs.myPlayerIndex}`)}
+        >
           <ManaCrystals current={gs.myMana} max={gs.myMaxMana} />
           <HeroPortrait
             heroClass={gs.myHeroClass}

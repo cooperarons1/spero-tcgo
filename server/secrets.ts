@@ -5,6 +5,10 @@ import { addLog } from './log.js';
 import { executeEffects } from './effects.js';
 import { createBoardMinion, checkDeaths } from './combat.js';
 
+/** Global secret trigger counter (for simulation diagnostics). */
+export let secretTriggerCount = 0;
+export function resetSecretTriggerCount(): void { secretTriggerCount = 0; }
+
 /**
  * Check and resolve secrets in response to a game event.
  *
@@ -64,6 +68,9 @@ export function checkSecrets(
 
   // Remove the secret before resolving (oldest-first, one per event)
   owner.secrets.splice(secretIndex, 1);
+
+  // Increment global trigger counter
+  secretTriggerCount++;
 
   // Set re-entrancy guard
   (game as any)._secretResolving = true;

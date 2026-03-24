@@ -9,21 +9,22 @@ export interface StarterDeckDef {
 
 // Jimmy — Aggro/Burn (30 cards)
 const JIMMY_STARTER: string[] = [
-  // Class cards (12)
+  // Class cards (12) + Secrets (2)
   'JIM001', 'JIM001', // Ember Sprite 1 mana
   'JIM002', 'JIM002', // Flame Imp 1 mana
   'JIM003', 'JIM003', // Fire Axe 2 mana weapon
   'JIM005', 'JIM005', // Blazing Firehawk 3 mana
   'JIM006', 'JIM006', // Lava Burst 3 mana spell
   'JIM009', 'JIM009', // Inferno 4 mana spell
-  // Neutral filler (18)
+  'JIM_S01',           // Ember Trap (secret)
+  'JIM_S02',           // Blaze Snare (secret)
+  // Neutral filler (16)
   'NEU003', 'NEU003', // Scrappy Fighter 1 mana 2/1
   'NEU005', 'NEU005', // Raptor 2 mana 3/2
   'NEU009', 'NEU009', // Iron Sentinel 3 mana 3/4
   'NEU015', 'NEU015', // Chillwind Yeti 4 mana 4/5
   'NEU022', 'NEU022', // Stranglethorn Tiger 5 mana 5/5 Stealth
   'NEU026', 'NEU026', // Boulderfist Ogre 6 mana 6/7
-  'NEU029', 'NEU029', // Reckless Rocketeer 6 mana 5/2 Charge
   'NEU041', 'NEU041', // Loot Hoarder 2 mana 2/1 DR
   'NEU012', 'NEU012', // Jungle Panther 3 mana 4/2 Stealth
 ];
@@ -72,7 +73,7 @@ const DEREK_STARTER: string[] = [
 
 // Anders — Control/Frost (30 cards)
 const ANDERS_STARTER: string[] = [
-  // Class cards (12)
+  // Class cards (12) + Secrets (2)
   'AND001', 'AND001', // Ice Shard 1 mana spell
   'AND003', 'AND003', // Frostbolt 2 mana spell
   'AND005', 'AND005', // Water Elemental 4 mana 3/6
@@ -80,28 +81,31 @@ const ANDERS_STARTER: string[] = [
   'AND010', 'AND010', // Glacial Spike 1 mana 2/1 freeze
   'AND009',           // Frost Giant 10 mana 8/8 (legendary = 1 copy)
   'AND008',           // Glacial Barrier 5 mana spell
-  // Neutral filler (17)
+  'AND_S01',           // Runic Counter (secret)
+  'AND_S02',           // Mirror Reflection (secret)
+  // Neutral filler (16)
   'NEU004', 'NEU004', // River Crocolisk 2 mana 2/3
   'NEU010', 'NEU010', // Woodland Defender 3 mana 2/4 Taunt
   'NEU015', 'NEU015', // Chillwind Yeti 4 mana 4/5
   'NEU021', 'NEU021', // Fen Creeper 5 mana 3/6 Taunt
   'NEU026', 'NEU026', // Boulderfist Ogre 6 mana 6/7
   'NEU035', 'NEU035', // Ironclad Behemoth 8 mana 8/8
-  'NEU027', 'NEU027', // Sunwalker 6 mana 4/5 Taunt DS
   'NEU046', 'NEU046', // Earthen Ring Farseer 3 mana 3/3 BC heal
   'NEU002', 'NEU002', // Squire 1 mana 1/2
 ];
 
 // Des — Dark Orra Aggro/Control (30 cards)
 const DES_STARTER: string[] = [
-  // Class cards (12)
+  // Class cards (12) + Secrets (2)
   'DES001', 'DES001', // 1 mana
   'DES003', 'DES003', // 2 mana
   'DES005', 'DES005', // 3 mana
   'DES007', 'DES007', // 4 mana
   'DES009', 'DES009', // 5 mana
   'DES011', 'DES011', // 6 mana
-  // Neutral filler (18)
+  'DES_S01',           // Shadow Ambush (secret)
+  'DES_S02',           // Dark Bargain (secret)
+  // Neutral filler (16)
   'NEU003', 'NEU003', // Scrappy Brawler 1 mana 2/1
   'NEU005', 'NEU005', // Razor Raptor 2 mana 3/2
   'NEU041', 'NEU041', // Treasure Scavenger 2 mana 2/1 DR draw
@@ -110,26 +114,26 @@ const DES_STARTER: string[] = [
   'NEU023', 'NEU023', // Duskfang Assassin 5 mana 4/4 BC 3 dmg hero
   'NEU029', 'NEU029', // Reckless Rocketeer 6 mana 5/2 Charge
   'NEU026', 'NEU026', // Stonefist Ogre 6 mana 6/7
-  'NEU043', 'NEU043', // Volatile Wretch 2 mana 1/3 Taunt DR 1 dmg all
 ];
 
 // Astrid — Protector (30 cards)
 const ASTRID_STARTER: string[] = [
-  // Class cards (12)
+  // Class cards (12) + Secrets (2)
   'AST001', 'AST001', // 1 mana
   'AST003', 'AST003', // 2 mana
   'AST005', 'AST005', // 3 mana
   'AST007', 'AST007', // 4 mana
   'AST009', 'AST009', // 5 mana
   'AST011', 'AST011', // 6 mana
-  // Neutral filler (18)
+  'AST_S01',           // Guardian's Oath (secret)
+  'AST_S02',           // Second Chance (secret)
+  // Neutral filler (16)
   'NEU002', 'NEU002', // Eager Apprentice 1 mana 1/2
   'NEU006', 'NEU006', // Blessed Recruit 2 mana 2/2 Divine Shield
   'NEU010', 'NEU010', // Fernwood Protector 3 mana 2/4 Taunt
   'NEU013', 'NEU013', // Gilded Templar 3 mana 3/1 Divine Shield
   'NEU019', 'NEU019', // Prism Drake 4 mana 4/4 Divine Shield
   'NEU021', 'NEU021', // Mirewalker Brute 5 mana 3/6 Taunt
-  'NEU027', 'NEU027', // Lightsworn Guardian 6 mana 4/5 Taunt DS
   'NEU046', 'NEU046', // Wellspring Soothsayer 3 mana 3/3 BC heal
   'NEU016', 'NEU016', // Shellback Tortoise 4 mana 2/7
 ];
