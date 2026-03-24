@@ -46,21 +46,38 @@ export async function loadDecks(uid: string): Promise<DeckList[]> {
     } as DeckList;
   });
 
-  // Auto-fix decks with invalid cards, oversized, or delete empty non-starter decks
+  // Auto-fix decks: delete empty custom decks, re-seed empty starter decks
+  const deletedIds = new Set<string>();
   for (const d of snap.docs) {
     const data = d.data();
     const rawCards: string[] = data.cards ?? [];
     const cleanCards = rawCards.filter(code => validCardCodes.has(code));
-    if (cleanCards.length === 0 && !data.isStarterDeck) {
-      // Delete custom decks that became empty after cleanup
-      await deleteDoc(doc(db, 'users', uid, 'decks', d.id));
+
+    if (cleanCards.length === 0) {
+      if (data.isStarterDeck) {
+        // Re-seed empty starter deck from current starter data
+        const starter = STARTER_DECKS.find(s => s.id === d.id);
+        if (starter) {
+          await setDoc(doc(db, 'users', uid, 'decks', d.id), { cards: starter.cards }, { merge: true });
+          // Update local deck object
+          const localDeck = decks.find(dk => dk.id === d.id);
+          if (localDeck) localDeck.cards = [...starter.cards];
+        } else {
+          // Starter deck ID doesn't match current starters — delete it
+          await deleteDoc(doc(db, 'users', uid, 'decks', d.id));
+          deletedIds.add(d.id);
+        }
+      } else {
+        // Delete empty custom decks
+        await deleteDoc(doc(db, 'users', uid, 'decks', d.id));
+        deletedIds.add(d.id);
+      }
     } else if (cleanCards.length !== rawCards.length || rawCards.length > 30) {
       await setDoc(doc(db, 'users', uid, 'decks', d.id), { cards: cleanCards.slice(0, 30) }, { merge: true });
     }
   }
 
-  // Return only non-empty decks (filter out deleted ones)
-  return decks.filter(d => d.cards.length > 0 || d.isStarterDeck);
+  return decks.filter(d => !deletedIds.has(d.id));
 }
 
 /** Infer heroClass from card codes for legacy decks missing the field */
