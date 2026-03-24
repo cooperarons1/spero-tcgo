@@ -384,12 +384,12 @@ function BoardMinionCard({
   return (
     <button
       onClick={onClick}
-      className={`relative w-[4.5rem] h-[5.5rem] select-none transition-all
+      className={`relative w-[5rem] h-[6rem] select-none transition-all
         ${hasTaunt ? 'minion-oval-taunt' : 'minion-oval'}
         ${hasDivine && !isSilenced ? 'ring-2 ring-yellow-300 animate-pulse ring-offset-1 ring-offset-transparent' : ''}
         ${isFrozen ? 'brightness-75 saturate-50' : ''}
         ${isStealth ? 'opacity-40' : ''}
-        ${canAct && isMyMinion ? 'shadow-[0_0_12px_2px_rgba(34,197,94,0.5)] cursor-pointer hover:scale-110' : ''}
+        ${canAct && isMyMinion ? 'shadow-[0_0_16px_4px_rgba(34,197,94,0.6)] cursor-pointer hover:scale-110 ring-2 ring-green-400/50' : ''}
         ${isValidTarget ? 'shadow-[0_0_12px_2px_rgba(34,197,94,0.7)] cursor-crosshair' : ''}
         ${isSelected ? 'ring-2 ring-green-400' : ''}
         ${animationClass ?? ''}
@@ -899,44 +899,28 @@ export default function GameBoard({
     };
   }, [targeting.type, cancelTargeting]);
 
-  // ─── Handle hand card click ───
+  // ─── Handle hand card click (spells/weapons only — minions must be dragged) ───
   const handleHandCardClick = useCallback(
     (card: ClientCardInstance) => {
       if (!isMyTurn || !isPlaying || isGameOver) return;
       const def = getCard(card.cardCode);
       if (!def || def.manaCost > gs.myMana) return;
 
+      // Minions must be dragged to the board, not clicked
+      if (def.type === 'MINION') return;
+
       if (selectedHandCard === card.instanceId) {
-        // Deselect
         cancelTargeting();
         return;
       }
 
-      // If it's a minion without a targeted battlecry, or a non-targeted spell:
-      const needsTarget =
-        (def.type === 'MINION' && def.battlecryEffect?.target &&
-          !['NONE', 'SELF', 'ALL_ENEMY_MINIONS', 'ALL_FRIENDLY_MINIONS', 'ALL_MINIONS', 'RANDOM_ENEMY', 'RANDOM_ENEMY_MINION'].includes(def.battlecryEffect.target)) ||
-        (def.type === 'SPELL' && def.spellEffect?.target &&
-          !['NONE', 'ALL_ENEMY_MINIONS', 'ALL_FRIENDLY_MINIONS', 'ALL_MINIONS', 'RANDOM_ENEMY', 'RANDOM_ENEMY_MINION'].includes(def.spellEffect.target));
-
-      if (def.type === 'MINION' && myBoard.length >= MAX_BOARD_SIZE) return;
-
       setSelectedHandCard(card.instanceId);
 
-      if (!needsTarget) {
-        // Play immediately (minion goes to rightmost position)
-        const pos = def.type === 'MINION' ? myBoard.length : undefined;
-        actions.playCard(card.instanceId, pos);
-        cancelTargeting();
-      } else {
-        // Enter targeting mode - server will send pendingInteraction
-        const pos = def.type === 'MINION' ? myBoard.length : undefined;
-        actions.playCard(card.instanceId, pos);
-        setSelectedHandCard(null);
-        // Server will respond with pendingInteraction if target needed
-      }
+      // Spells and weapons play on click
+      actions.playCard(card.instanceId);
+      cancelTargeting();
     },
-    [isMyTurn, isPlaying, isGameOver, gs.myMana, selectedHandCard, myBoard.length, actions, cancelTargeting]
+    [isMyTurn, isPlaying, isGameOver, gs.myMana, selectedHandCard, actions, cancelTargeting]
   );
 
   // ─── Handle board minion click ───
