@@ -9,7 +9,10 @@ import {
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import { STARTER_DECKS } from '../../../shared/starterDecks';
-import type { HeroClass } from '../../../shared/types';
+import type { HeroClass, CardDef } from '../../../shared/types';
+import cardsData from '../../../data/cards.json';
+
+const validCardCodes = new Set((cardsData as CardDef[]).map(c => c.cardCode));
 
 export interface DeckList {
   id: string;
@@ -29,7 +32,9 @@ export async function loadDecks(uid: string): Promise<DeckList[]> {
   const snap = await getDocs(q);
   const decks = snap.docs.map(d => {
     const data = d.data();
-    const cards = data.cards ?? [];
+    const rawCards: string[] = data.cards ?? [];
+    // Filter out any card codes that no longer exist in the database
+    const cards = rawCards.filter(code => validCardCodes.has(code));
     return {
       id: d.id,
       name: data.name,
@@ -41,11 +46,12 @@ export async function loadDecks(uid: string): Promise<DeckList[]> {
     } as DeckList;
   });
 
-  // Auto-fix oversized decks in Firestore
+  // Auto-fix decks with invalid cards or oversized in Firestore
   for (const d of snap.docs) {
-    const cards = d.data().cards ?? [];
-    if (cards.length > 30) {
-      await setDoc(doc(db, 'users', uid, 'decks', d.id), { cards: cards.slice(0, 30) }, { merge: true });
+    const rawCards: string[] = d.data().cards ?? [];
+    const cleanCards = rawCards.filter(code => validCardCodes.has(code));
+    if (cleanCards.length !== rawCards.length || rawCards.length > 30) {
+      await setDoc(doc(db, 'users', uid, 'decks', d.id), { cards: cleanCards.slice(0, 30) }, { merge: true });
     }
   }
 
