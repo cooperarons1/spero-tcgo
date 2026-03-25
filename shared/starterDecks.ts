@@ -14,8 +14,9 @@ const JIMMY_STARTER: string[] = [
   'JIM002', 'JIM002', // Flame Imp 1 mana
   'JIM003', 'JIM003', // Fire Axe 2 mana weapon
   'JIM005', 'JIM005', // Blazing Firehawk 3 mana
-  'JIM006', 'JIM006', // Lava Burst 3 mana spell
-  'JIM009',            // Inferno 4 mana spell (legendary — 1 copy)
+  'JIM006',            // Volcanis Hound 3 mana 4/3
+  'JIM009',            // Volcanus, Pyromancer King (legendary — 1 copy)
+  'JIM016',            // Emberstorm Phoenix 6 mana 5/6 (legendary — 1 copy)
   'JIM004',            // Pyro Whelpling 2 mana
   'JIM_S01',           // Ember Trap (secret)
   'JIM_S02',           // Blaze Snare (secret)

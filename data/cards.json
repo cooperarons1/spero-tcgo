@@ -4922,5 +4922,26 @@
       "target": "TARGET_HERO",
       "value": 2
     }
+  },
+  {
+    "cardCode": "JIM016",
+    "name": "Emberstorm Phoenix",
+    "manaCost": 6,
+    "type": "MINION",
+    "heroClass": "JIMMY",
+    "rarity": "LEGENDARY",
+    "attack": 5,
+    "health": 6,
+    "text": "Battlecry: Deal 3 damage to all enemy minions.",
+    "flavor": "From the ashes of Gavalon, she rises again — and again.",
+    "keywords": [
+      "BATTLECRY"
+    ],
+    "minionType": "ELEMENTAL",
+    "battlecryEffect": {
+      "type": "DEAL_DAMAGE_ALL_ENEMIES",
+      "target": "ALL_ENEMY_MINIONS",
+      "value": 3
+    }
   }
 ]

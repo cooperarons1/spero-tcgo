@@ -1772,7 +1772,7 @@ export default function GameBoard({
         <div className="flex-1" />
 
         {/* Opponent locations */}
-        {gs.opponent.locations && gs.opponent.locations.length > 0 && (
+        {gs.opponent?.locations && gs.opponent.locations.length > 0 && (
           <div className="flex items-center justify-center gap-3 mb-1">
             {gs.opponent.locations.map((loc) => (
               <div

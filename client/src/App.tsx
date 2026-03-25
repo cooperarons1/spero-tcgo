@@ -22,7 +22,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | 
       return (
         <div className="fixed inset-0 bg-black text-white flex flex-col items-center justify-center p-8">
           <h1 className="text-2xl font-bold text-red-400 mb-4">Something went wrong</h1>
-          <pre className="text-sm text-gray-300 max-w-lg overflow-auto">{this.state.error.message}</pre>
+          <pre className="text-sm text-gray-300 max-w-lg overflow-auto">{String(this.state.error?.message ?? this.state.error)}</pre>
           <button onClick={() => { this.setState({ error: null }); window.location.reload(); }}
             className="mt-4 bg-amber-500 text-black px-6 py-2 rounded font-bold">Reload</button>
         </div>
