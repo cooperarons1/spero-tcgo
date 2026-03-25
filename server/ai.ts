@@ -175,8 +175,8 @@ function executeActionQueue(
       executeActionQueue(game, aiPlayerId, queue, index + 1, broadcast);
     }, DELAYS.action);
   } else {
-    // No-op — skip immediately to next action
-    executeActionQueue(game, aiPlayerId, queue, index + 1, broadcast);
+    // No-op — use setTimeout(0) to avoid deep recursion from many consecutive no-ops
+    setTimeout(() => executeActionQueue(game, aiPlayerId, queue, index + 1, broadcast), 0);
   }
 }
 

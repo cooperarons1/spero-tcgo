@@ -115,7 +115,17 @@ function App() {
     });
 
     socket.on('game-state', (state: ClientGameState) => {
-      setGameState(state);
+      // Preserve client-side targeting overlay if server state has no pending interaction
+      // (server broadcasts can overwrite the needs-target overlay before the player clicks)
+      setGameState(prev => {
+        if (
+          prev?.pendingInteraction?.targetChoice?.interactionId?.startsWith('needs-target-') &&
+          !state.pendingInteraction
+        ) {
+          return { ...state, pendingInteraction: prev.pendingInteraction };
+        }
+        return state;
+      });
       setLobby(null);
       setView('game');
       setOpponentHovering(false);

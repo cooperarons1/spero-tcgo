@@ -611,6 +611,7 @@ io.on('connection', (socket) => {
     const oppIdx = myIdx === 0 ? 1 : 0;
     room.game.winner = room.game.players[oppIdx].playerId;
     room.game.winReason = 'concede';
+    room.game.pendingInteraction = null;
     room.game.turnStartedAt = null;
     room.game.lastAction = `${room.game.players[myIdx].playerName} conceded!`;
     addLog(room.game, myIdx as 0 | 1, `${room.game.players[myIdx].playerName} conceded`, 'GAME');

@@ -194,10 +194,11 @@ export function startTurn(game: GameState): void {
 
   // Unfreeze minions that were frozen last turn, enable attacks
   for (const minion of player.board) {
+    // Frozen minions: unfreeze but can't attack this turn (standard freeze mechanic)
+    // Non-frozen minions: can attack normally
+    minion.canAttack = !minion.isFrozen;
     if (minion.isFrozen) {
       minion.isFrozen = false;
-    } else {
-      minion.canAttack = true;
     }
     // Reset attacks remaining
     minion.attacksRemaining = minionHasKeyword(minion, 'WINDFURY') ? 2 : 1;
