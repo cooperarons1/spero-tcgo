@@ -13,17 +13,20 @@ import { MatchHistory } from './components/MatchHistory';
 import { Friends } from './components/Friends';
 import { ReconnectionOverlay } from './components/ReconnectionOverlay';
 
-class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
-  state = { error: null as Error | null };
-  static getDerivedStateFromError(error: Error) { return { error }; }
-  componentDidCatch(error: Error, info: any) { console.error('[CRASH]', error, info); }
+class ErrorBoundary extends Component<{ children: ReactNode }, { errorMsg: string | null }> {
+  state = { errorMsg: null as string | null };
+  static getDerivedStateFromError(error: unknown) {
+    try { return { errorMsg: error instanceof Error ? error.message : JSON.stringify(error) }; }
+    catch { return { errorMsg: 'Unknown error' }; }
+  }
+  componentDidCatch(error: unknown, info: any) { console.error('[CRASH]', error, info?.componentStack); }
   render() {
-    if (this.state.error) {
+    if (this.state.errorMsg) {
       return (
         <div className="fixed inset-0 bg-black text-white flex flex-col items-center justify-center p-8">
           <h1 className="text-2xl font-bold text-red-400 mb-4">Something went wrong</h1>
-          <pre className="text-sm text-gray-300 max-w-lg overflow-auto">{String(this.state.error?.message ?? this.state.error)}</pre>
-          <button onClick={() => { this.setState({ error: null }); window.location.reload(); }}
+          <pre className="text-sm text-gray-300 max-w-lg overflow-auto whitespace-pre-wrap">{this.state.errorMsg}</pre>
+          <button onClick={() => { this.setState({ errorMsg: null }); window.location.reload(); }}
             className="mt-4 bg-amber-500 text-black px-6 py-2 rounded font-bold">Reload</button>
         </div>
       );
