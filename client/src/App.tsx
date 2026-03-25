@@ -136,17 +136,7 @@ function App() {
     });
 
     socket.on('game-state', (state: ClientGameState) => {
-      // Preserve client-side targeting overlay if server state has no pending interaction
-      // (server broadcasts can overwrite the needs-target overlay before the player clicks)
-      setGameState(prev => {
-        if (
-          prev?.pendingInteraction?.targetChoice?.interactionId?.startsWith('needs-target-') &&
-          !state.pendingInteraction
-        ) {
-          return { ...state, pendingInteraction: prev.pendingInteraction };
-        }
-        return state;
-      });
+      setGameState(state);
       setLobby(null);
       setView('game');
       setOpponentHovering(false);
@@ -185,18 +175,9 @@ function App() {
         // My turn, game start, phase transition, or game over — apply immediately
         stateQueueRef.current = [];
         processingRef.current = false;
-        // Preserve client-side needs-target targeting on displayedState too
-        let finalState = state;
-        const prevDisplayed = displayedRef.current;
-        if (
-          prevDisplayed?.pendingInteraction?.targetChoice?.interactionId?.startsWith('needs-target-') &&
-          !state.pendingInteraction
-        ) {
-          finalState = { ...state, pendingInteraction: prevDisplayed.pendingInteraction };
-        }
         // Sync ref immediately so subsequent events in same tick see fresh state
-        displayedRef.current = finalState;
-        setDisplayedState(finalState);
+        displayedRef.current = state;
+        setDisplayedState(state);
       }
     });
 
