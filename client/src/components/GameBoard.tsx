@@ -11,7 +11,13 @@ import type {
 } from '../../../shared/types';
 import { HERO_POWER_COST, MAX_BOARD_SIZE } from '../../../shared/types';
 import { useGameActions } from '../hooks/useGameActions';
+import { useStateDiff } from '../hooks/useStateDiff';
+import { useSoundEffects } from '../hooks/useSoundEffects';
+import { soundManager } from '../utils/soundManager';
 import { CardArt } from '../utils/cardArt';
+import { FloatingNumbers } from './FloatingNumbers';
+import { DeathAnimation } from './DeathAnimation';
+import { SpellCastEffect } from './SpellCastEffect';
 import cardsJson from '../../../data/cards.json';
 
 // ─── Card lookup ───
@@ -371,6 +377,7 @@ function BoardMinionCard({
   isSelected,
   onClick,
   animationClass,
+  isBuffed,
   onDragStart,
   onDragEnd,
   onDrop,
@@ -384,6 +391,7 @@ function BoardMinionCard({
   isSelected: boolean;
   onClick: () => void;
   animationClass?: string;
+  isBuffed?: boolean;
   onDragStart?: (e: React.DragEvent) => void;
   onDragEnd?: (e: React.DragEvent) => void;
   onDrop?: (e: React.DragEvent) => void;
@@ -402,13 +410,14 @@ function BoardMinionCard({
       onClick={onClick}
       className={`relative w-[8rem] h-[9.5rem] select-none transition-all
         ${hasTaunt ? 'minion-oval-taunt' : 'minion-oval'}
-        ${hasDivine && !isSilenced ? 'ring-[3px] ring-yellow-300 shadow-[0_0_16px_4px_rgba(253,224,71,0.6)] ring-offset-1 ring-offset-transparent' : ''}
+        ${hasDivine && !isSilenced ? 'ring-[3px] ring-yellow-300 ring-offset-1 ring-offset-transparent animate-divine-sparkle' : ''}
         ${isFrozen ? 'brightness-75 saturate-50' : ''}
         ${isStealth ? 'opacity-40' : ''}
         ${canAct && isMyMinion ? 'shadow-[0_0_20px_6px_rgba(34,197,94,0.7)] cursor-pointer hover:scale-110 ring-[3px] ring-green-400/80' : ''}
         ${isMyMinion && !canAct && !isFrozen ? 'opacity-80' : ''}
         ${isValidTarget ? 'shadow-[0_0_12px_2px_rgba(34,197,94,0.7)] cursor-crosshair' : ''}
         ${isSelected ? 'ring-2 ring-green-400' : ''}
+        ${isBuffed ? 'animate-buff-pulse' : ''}
         ${animationClass ?? ''}
       `}
     >
@@ -417,8 +426,8 @@ function BoardMinionCard({
         {minion.cardCode && <CardArt cardCode={minion.cardCode} className="w-full h-full" />}
       </div>
 
-      {/* Frozen overlay */}
-      {isFrozen && <div className="absolute inset-0 bg-blue-400/30 z-10" style={{ borderRadius: '42%' }} />}
+      {/* Frozen overlay — animated shimmer */}
+      {isFrozen && <div className="absolute inset-0 animate-frost-shimmer z-10" style={{ borderRadius: '42%' }} />}
 
       {/* Summoning sickness indicator */}
       {hasSummoningSickness && isMyMinion && !isFrozen && (
@@ -467,6 +476,7 @@ function HeroPortrait({
   onHeroClick,
   heroDamage,
   secretCount,
+  entityId,
 }: {
   heroClass: HeroClass;
   health: number;
@@ -485,6 +495,7 @@ function HeroPortrait({
   onHeroClick: (e?: React.MouseEvent) => void;
   heroDamage?: boolean;
   secretCount?: number;
+  entityId?: string;
 }) {
   const borderClass = CLASS_BORDER[heroClass];
   const bgClass = CLASS_BG[heroClass];
@@ -518,6 +529,7 @@ function HeroPortrait({
       <div className="relative">
         <button
           onClick={onHeroClick}
+          data-entity-id={entityId}
           className={`relative flex h-24 w-24 items-center justify-center rounded-full border-4 ${borderClass} ${bgClass} transition-all overflow-hidden
             ${isValidTarget ? 'shadow-[0_0_16px_4px_rgba(34,197,94,0.6)] cursor-crosshair' : ''}
             ${canHeroAttack ? 'shadow-[0_0_20px_6px_rgba(34,197,94,0.7)] ring-[3px] ring-green-400/80 cursor-pointer' : ''}
@@ -571,6 +583,7 @@ function HandCard({
   canPlay,
   isSelected,
   isDragging,
+  isNew,
   onClick,
   onDragStart,
   onDragEnd,
@@ -579,6 +592,7 @@ function HandCard({
   canPlay: boolean;
   isSelected: boolean;
   isDragging?: boolean;
+  isNew?: boolean;
   onClick: () => void;
   onDragStart?: (e: React.DragEvent) => void;
   onDragEnd?: (e: React.DragEvent) => void;
@@ -599,6 +613,7 @@ function HandCard({
             ? 'border-amber-500/70 bg-stone-700 hover:-translate-y-4 hover:scale-105 hover:z-10 cursor-pointer'
             : 'border-stone-500 bg-stone-700/60 opacity-60 cursor-not-allowed'}
         ${isDragging ? 'dragging-card' : ''}
+        ${isNew ? 'animate-card-draw-in' : ''}
       `}
     >
       {/* Mana cost */}
@@ -658,13 +673,30 @@ function OpponentHand({ count }: { count: number }) {
 
 // ─── Orra Crystals ───
 function ManaCrystals({ current, max }: { current: number; max: number }) {
+  const prevMana = useRef(current);
+  const [drainingIndices, setDrainingIndices] = useState<Set<number>>(new Set());
+
+  useEffect(() => {
+    if (current < prevMana.current) {
+      // Crystals at indices [current, prevMana) are draining
+      const draining = new Set<number>();
+      for (let i = current; i < prevMana.current; i++) draining.add(i);
+      setDrainingIndices(draining);
+      const timer = setTimeout(() => setDrainingIndices(new Set()), 400);
+      prevMana.current = current;
+      return () => clearTimeout(timer);
+    }
+    prevMana.current = current;
+  }, [current]);
+
   return (
     <div className="flex items-center gap-1">
       {Array.from({ length: max }).map((_, i) => (
         <div
           key={i}
           className={`h-4 w-4 rounded-full border transition-colors
-            ${i < current
+            ${drainingIndices.has(i) ? 'animate-crystal-drain border-blue-400 bg-blue-500' :
+              i < current
               ? 'border-blue-400 bg-blue-500 shadow-[0_0_6px_1px_rgba(59,130,246,0.5)]'
               : 'border-stone-600 bg-stone-800'}
           `}
@@ -765,17 +797,16 @@ export default function GameBoard({
   const [attackerPos, setAttackerPos] = useState<{ x: number; y: number } | null>(null);
   const boardRef = useRef<HTMLDivElement>(null);
 
-  // ─── Animation state ───
+  // ─── State diff (animations, floating numbers, deaths, etc.) ───
+  const diff = useStateDiff(gs);
   const [entranceIds, setEntranceIds] = useState<Set<string>>(new Set());
   const [damageIds, setDamageIds] = useState<Set<string>>(new Set());
   const [lungeId, setLungeId] = useState<string | null>(null);
   const [myHeroDamage, setMyHeroDamage] = useState(false);
   const [opHeroDamage, setOpHeroDamage] = useState(false);
-  const prevMyBoardIds = useRef<Set<string>>(new Set());
-  const prevOpBoardIds = useRef<Set<string>>(new Set());
-  const prevHealthMap = useRef<Map<string, number>>(new Map());
-  const prevMyHeroHp = useRef<number | null>(null);
-  const prevOpHeroHp = useRef<number | null>(null);
+  const [newCardIds, setNewCardIds] = useState<Set<string>>(new Set());
+  const [buffedIds, setBuffedIds] = useState<Set<string>>(new Set());
+  const [activeSpell, setActiveSpell] = useState<{ cardCode: string; targetId: string } | null>(null);
 
   // ─── Drag-and-drop state ───
   const [draggingCardId, setDraggingCardId] = useState<string | null>(null);
@@ -815,53 +846,36 @@ export default function GameBoard({
     return () => clearInterval(interval);
   }, [gs.turnDeadline, isGameOver]);
 
-  // ─── Animation detection: new minions, damage, hero damage ───
+  // ─── Derive animation state from diff ───
   useEffect(() => {
-    // Detect new minions on board → entrance animation
-    const newEntrance = new Set<string>();
-    for (const m of myBoard) {
-      if (!prevMyBoardIds.current.has(m.instanceId)) newEntrance.add(m.instanceId);
-    }
-    for (const m of opBoard) {
-      if (!prevOpBoardIds.current.has(m.instanceId)) newEntrance.add(m.instanceId);
-    }
-    if (newEntrance.size > 0) {
-      setEntranceIds(newEntrance);
+    if (diff.entranceIds.size > 0) {
+      setEntranceIds(diff.entranceIds);
       setTimeout(() => setEntranceIds(new Set()), 400);
     }
-
-    // Detect minion damage → shake animation
-    const newDamage = new Set<string>();
-    for (const m of [...myBoard, ...opBoard]) {
-      const prev = prevHealthMap.current.get(m.instanceId);
-      if (prev !== undefined && m.currentHealth < prev) {
-        newDamage.add(m.instanceId);
-      }
-    }
-    if (newDamage.size > 0) {
-      setDamageIds(newDamage);
+    if (diff.damageIds.size > 0) {
+      setDamageIds(diff.damageIds);
       setTimeout(() => setDamageIds(new Set()), 400);
     }
-
-    // Detect hero damage → flash animation
-    if (prevMyHeroHp.current !== null && gs.myHealth < prevMyHeroHp.current) {
+    if (diff.myHeroDamaged) {
       setMyHeroDamage(true);
       setTimeout(() => setMyHeroDamage(false), 400);
     }
-    if (prevOpHeroHp.current !== null && gs.opponent.health < prevOpHeroHp.current) {
+    if (diff.opHeroDamaged) {
       setOpHeroDamage(true);
       setTimeout(() => setOpHeroDamage(false), 400);
     }
+    if (diff.newCardIds.size > 0) {
+      setNewCardIds(diff.newCardIds);
+      setTimeout(() => setNewCardIds(new Set()), 600);
+    }
+    if (diff.newlyBuffedIds.size > 0) {
+      setBuffedIds(diff.newlyBuffedIds);
+      setTimeout(() => setBuffedIds(new Set()), 500);
+    }
+  }, [diff]);
 
-    // Update previous state refs
-    prevMyBoardIds.current = new Set(myBoard.map(m => m.instanceId));
-    prevOpBoardIds.current = new Set(opBoard.map(m => m.instanceId));
-    const hMap = new Map<string, number>();
-    for (const m of [...myBoard, ...opBoard]) hMap.set(m.instanceId, m.currentHealth);
-    prevHealthMap.current = hMap;
-    prevMyHeroHp.current = gs.myHealth;
-    prevOpHeroHp.current = gs.opponent.health;
-  }, [myBoard, opBoard, gs.myHealth, gs.opponent.health]);
+  // ─── Sound effects ───
+  useSoundEffects(diff, gs, muted);
 
   // Track mouse for attack arrows
   useEffect(() => {
@@ -963,6 +977,8 @@ export default function GameBoard({
 
       // Spells and weapons play on click — server may respond with needs-target
       pendingPlayRef.current.add(card.instanceId);
+      if (def.type === 'SPELL') soundManager.play('SPELL_CAST');
+      else soundManager.play('CARD_PLAY');
       actions.playCard(card.instanceId);
     },
     [isMyTurn, isPlaying, isGameOver, gs.myMana, selectedHandCard, actions, cancelTargeting]
@@ -1034,6 +1050,7 @@ export default function GameBoard({
           return;
         }
         // Show lunge animation, then send attack after short delay
+        soundManager.play('ATTACK_WHOOSH');
         setLungeId(attackerId);
         cancelTargeting();
         setTimeout(() => {
@@ -1142,9 +1159,12 @@ export default function GameBoard({
     if (def.type === 'MINION') {
       if (myBoard.length >= MAX_BOARD_SIZE) return;
       const pos = dropIndex ?? myBoard.length;
+      soundManager.play('CARD_PLAY');
       actions.playCard(card.instanceId, pos);
     } else {
       // Spells/weapons dropped on the board play without a target
+      if (def.type === 'SPELL') soundManager.play('SPELL_CAST');
+      else soundManager.play('CARD_PLAY');
       actions.playCard(card.instanceId);
     }
     setDraggingCardId(null);
@@ -1177,6 +1197,12 @@ export default function GameBoard({
     if (def.type === 'MINION') return;
 
     pendingPlayRef.current.add(cardId);
+    if (def.type === 'SPELL') {
+      soundManager.play('SPELL_CAST');
+      setActiveSpell({ cardCode: card.cardCode!, targetId });
+    } else {
+      soundManager.play('CARD_PLAY');
+    }
     actions.playCard(card.instanceId, undefined, targetId);
     setDraggingCardId(null);
     setDraggingCardType(null);
@@ -1277,6 +1303,11 @@ export default function GameBoard({
       {GameOverOverlay}
       {InteractionOverlay}
 
+      {/* ═══ Animation overlays ═══ */}
+      <FloatingNumbers numbers={diff.floatingNumbers} />
+      <DeathAnimation deadMinions={diff.deadMinions} />
+      <SpellCastEffect spell={activeSpell} onComplete={useCallback(() => setActiveSpell(null), [])} />
+
       {/* Spectator banner */}
       {isSpectator && (
         <div className="absolute top-2 left-1/2 -translate-x-1/2 z-50 bg-purple-600/90 text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-lg">
@@ -1368,6 +1399,7 @@ export default function GameBoard({
             onHeroClick={() => handleEnemyTargetClick(`hero-${1 - gs.myPlayerIndex}`)}
             heroDamage={opHeroDamage}
             secretCount={gs.opponent.secretCount}
+            entityId={`hero-${1 - gs.myPlayerIndex}`}
           />
         </div>
 
@@ -1383,6 +1415,7 @@ export default function GameBoard({
             {opBoard.map((m) => (
               <div
                 key={m.instanceId}
+                data-entity-id={m.instanceId}
                 style={{ flex: '0 1 9rem' }}
                 onDragOver={handleTargetDragOver}
                 onDrop={(e) => handleTargetDrop(e, m.instanceId)}
@@ -1398,6 +1431,7 @@ export default function GameBoard({
                   isSelected={false}
                   onClick={() => handleEnemyTargetClick(m.instanceId)}
                   animationClass={getMinionAnim(m.instanceId, false)}
+                  isBuffed={buffedIds.has(m.instanceId)}
                 />
               </div>
             ))}
@@ -1468,6 +1502,7 @@ export default function GameBoard({
                 {dropIndex === i && dropPlaceholder}
                 <div
                   data-minion-index={i}
+                  data-entity-id={m.instanceId}
                   style={{ flex: '0 1 9rem' }}
                   onDragOver={draggingCardType === 'SPELL' ? handleTargetDragOver : undefined}
                   onDrop={draggingCardType === 'SPELL' ? (e) => handleTargetDrop(e, m.instanceId) : undefined}
@@ -1483,6 +1518,7 @@ export default function GameBoard({
                     isSelected={targeting.type === 'attack' && targeting.attackerInstanceId === m.instanceId}
                     onClick={(e?: any) => handleMyMinionClick(m, e)}
                     animationClass={getMinionAnim(m.instanceId, true)}
+                    isBuffed={buffedIds.has(m.instanceId)}
                   />
                 </div>
               </Fragment>
@@ -1538,18 +1574,33 @@ export default function GameBoard({
             }}
             heroDamage={myHeroDamage}
             secretCount={gs.mySecrets?.length ?? 0}
+            entityId={`hero-${gs.myPlayerIndex}`}
           />
         </div>
 
-        {/* My hand */}
-        <div className="flex items-end justify-center gap-1 pb-1">
-          {gs.myHand.map((card) => {
+        {/* My hand — fanned arc layout */}
+        <div className="flex items-end justify-center pb-1" style={{ gap: gs.myHand.length > 6 ? '-0.5rem' : '0.25rem' }}>
+          {gs.myHand.map((card, i) => {
             const def = getCard(card.cardCode);
             const canPlay = isMyTurn && isPlaying && !isGameOver && (def?.manaCost ?? 99) <= gs.myMana
               && (def?.type !== 'MINION' || myBoard.length < MAX_BOARD_SIZE);
+            const handSize = gs.myHand.length;
+            const maxAngle = Math.min(handSize * 3, 20);
+            const angleStep = handSize > 1 ? (maxAngle * 2) / (handSize - 1) : 0;
+            const angle = handSize > 1 ? -maxAngle + i * angleStep : 0;
+            const yOffset = Math.abs(angle) * 0.8;
+            const isHovered = hoveredCard?.cardCode === card.cardCode;
+            const isDrag = draggingCardId === card.instanceId;
             return (
               <div
                 key={card.instanceId}
+                className="transition-all duration-200 hover:z-30 hover:!rotate-0 hover:!translate-y-[-1.5rem] hover:scale-110"
+                style={{
+                  transform: isDrag ? 'none' : `rotate(${angle}deg)`,
+                  marginBottom: `-${yOffset}px`,
+                  transformOrigin: 'bottom center',
+                  zIndex: isHovered ? 30 : i,
+                }}
                 onMouseEnter={(e) => setHoveredCard({ cardCode: card.cardCode!, x: e.clientX, y: e.clientY })}
                 onMouseMove={(e) => hoveredCard && setHoveredCard({ cardCode: card.cardCode!, x: e.clientX, y: e.clientY })}
                 onMouseLeave={() => setHoveredCard(null)}
@@ -1558,7 +1609,8 @@ export default function GameBoard({
                   card={card}
                   canPlay={canPlay}
                   isSelected={selectedHandCard === card.instanceId}
-                  isDragging={draggingCardId === card.instanceId}
+                  isDragging={isDrag}
+                  isNew={newCardIds.has(card.instanceId)}
                   onClick={() => handleHandCardClick(card)}
                   onDragStart={(e) => handleDragStart(e, card)}
                   onDragEnd={handleDragEnd}

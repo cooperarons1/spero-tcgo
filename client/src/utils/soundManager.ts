@@ -7,7 +7,10 @@ type SoundName =
   | 'TURN_START'
   | 'VICTORY'
   | 'DEFEAT'
-  | 'TIMER_WARNING';
+  | 'TIMER_WARNING'
+  | 'MINION_DEATH'
+  | 'SPELL_CAST'
+  | 'ATTACK_WHOOSH';
 
 const STORAGE_KEY = 'spero-sound-settings';
 
@@ -138,6 +141,35 @@ class SoundManager {
         }
         case 'TIMER_WARNING':
           this.tone(1000, 50, 'square');
+          break;
+        case 'MINION_DEATH': {
+          // Low-frequency white noise burst (deeper than COMBAT_HIT)
+          const ctx2 = this.getCtx();
+          const bufferSize2 = ctx2.sampleRate * 0.15;
+          const buffer2 = ctx2.createBuffer(1, bufferSize2, ctx2.sampleRate);
+          const data2 = buffer2.getChannelData(0);
+          for (let i = 0; i < bufferSize2; i++) data2[i] = Math.random() * 2 - 1;
+          const noise2 = ctx2.createBufferSource();
+          noise2.buffer = buffer2;
+          // Low-pass filter for deeper sound
+          const lp = ctx2.createBiquadFilter();
+          lp.type = 'lowpass';
+          lp.frequency.value = 600;
+          const g2 = this.gain();
+          g2.gain.linearRampToValueAtTime(0, ctx2.currentTime + 0.15);
+          noise2.connect(lp);
+          lp.connect(g2);
+          noise2.start();
+          noise2.stop(ctx2.currentTime + 0.15);
+          break;
+        }
+        case 'SPELL_CAST':
+          // Ascending frequency sweep (triangle wave)
+          this.sweep(500, 1200, 300, 'triangle');
+          break;
+        case 'ATTACK_WHOOSH':
+          // Fast descending sweep before combat hit
+          this.sweep(800, 200, 100);
           break;
       }
     } catch { /* audio errors are non-critical */ }
