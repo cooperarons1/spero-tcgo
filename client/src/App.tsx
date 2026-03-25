@@ -146,7 +146,9 @@ function App() {
 
       // Queue animation for opponent actions — show each with ~700ms delay
       const current = displayedRef.current;
-      const isOpponentActing = current && !state.winner &&
+      const phaseChanged = current && current.phase !== state.phase;
+      const isOpponentActing = current && !phaseChanged && !state.winner &&
+        state.phase === 'PLAYING' &&
         state.currentPlayerIndex !== state.myPlayerIndex &&
         current.currentPlayerIndex !== current.myPlayerIndex;
 
@@ -154,7 +156,7 @@ function App() {
         stateQueueRef.current.push(state);
         processQueueRef.current?.();
       } else {
-        // My turn, game start, or game over — apply immediately
+        // My turn, game start, phase transition, or game over — apply immediately
         stateQueueRef.current = [];
         processingRef.current = false;
         setDisplayedState(state);
