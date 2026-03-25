@@ -219,13 +219,17 @@ export function executeEffect(
       break;
     }
     case 'DEAL_DAMAGE_ALL_ENEMIES': {
-      // Damage all enemy minions and the enemy hero
+      // Damage all enemy minions (and hero too unless target is ALL_ENEMY_MINIONS)
       for (const m of [...opp.board]) {
         applyDamageToMinion(m, value);
       }
-      applyDamageToHero(opp, value);
-      addLog(game, casterIndex, `Deals ${value} damage to all enemies`, 'EFFECT');
-      game.playerStats[casterIndex].damageDealtToHeroes += value;
+      if (effect.target !== 'ALL_ENEMY_MINIONS') {
+        applyDamageToHero(opp, value);
+        game.playerStats[casterIndex].damageDealtToHeroes += value;
+        addLog(game, casterIndex, `Deals ${value} damage to all enemies`, 'EFFECT');
+      } else {
+        addLog(game, casterIndex, `Deals ${value} damage to all enemy minions`, 'EFFECT');
+      }
       checkDeaths(game);
       break;
     }

@@ -74,6 +74,8 @@ export function Collection({ uid, onBack }: CollectionProps) {
   const [filterClass, setFilterClass] = useState<HeroClass | 'ALL'>('ALL');
   const [filterMana, setFilterMana] = useState<number | null>(null);
   const [filterSearch, setFilterSearch] = useState('');
+  const [filterRarity, setFilterRarity] = useState<'ALL' | 'COMMON' | 'RARE' | 'EPIC' | 'LEGENDARY'>('ALL');
+  const [filterType, setFilterType] = useState<'ALL' | 'MINION' | 'SPELL' | 'WEAPON' | 'LOCATION'>('ALL');
 
   // Delete confirmation
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
@@ -112,10 +114,38 @@ export function Collection({ uid, onBack }: CollectionProps) {
           if (c.manaCost !== filterMana) return false;
         }
       }
+      if (filterRarity !== 'ALL' && c.rarity !== filterRarity) return false;
+      if (filterType !== 'ALL' && c.type !== filterType) return false;
       if (filterSearch && !c.name.toLowerCase().includes(filterSearch.toLowerCase())) return false;
       return true;
     }).sort((a, b) => a.manaCost - b.manaCost || a.name.localeCompare(b.name));
-  }, [filterClass, filterMana, filterSearch]);
+  }, [filterClass, filterMana, filterSearch, filterRarity, filterType]);
+
+  // Card counts per filter category (computed from class-filtered base, excluding tokens)
+  const filterCounts = useMemo(() => {
+    const base = allCards.filter(c => {
+      if (c.cardCode === 'COIN') return false;
+      if (c.heroClass === 'NEUTRAL' && c.rarity === 'COMMON' && c.cardCode.startsWith('TOK')) return false;
+      if (filterClass !== 'ALL' && c.heroClass !== filterClass) return false;
+      return true;
+    });
+    return {
+      rarity: {
+        ALL: base.length,
+        COMMON: base.filter(c => c.rarity === 'COMMON').length,
+        RARE: base.filter(c => c.rarity === 'RARE').length,
+        EPIC: base.filter(c => c.rarity === 'EPIC').length,
+        LEGENDARY: base.filter(c => c.rarity === 'LEGENDARY').length,
+      },
+      type: {
+        ALL: base.length,
+        MINION: base.filter(c => c.type === 'MINION').length,
+        SPELL: base.filter(c => c.type === 'SPELL').length,
+        WEAPON: base.filter(c => c.type === 'WEAPON').length,
+        LOCATION: base.filter(c => c.type === 'LOCATION').length,
+      },
+    };
+  }, [filterClass]);
 
   const editingCounts = useMemo(() => {
     const counts = new Map<string, number>();
@@ -340,6 +370,39 @@ export function Collection({ uid, onBack }: CollectionProps) {
               >
                 Neutral
               </button>
+            </div>
+            {/* Rarity filters */}
+            <div className="flex gap-1 flex-wrap">
+              {(['ALL', 'COMMON', 'RARE', 'EPIC', 'LEGENDARY'] as const).map(r => {
+                const colors: Record<string, string> = { ALL: 'bg-white text-black', COMMON: 'bg-gray-500 text-white', RARE: 'bg-blue-500 text-white', EPIC: 'bg-purple-500 text-white', LEGENDARY: 'bg-yellow-500 text-black' };
+                return (
+                  <button
+                    key={r}
+                    onClick={() => setFilterRarity(filterRarity === r ? 'ALL' : r)}
+                    className={`text-[10px] px-2 py-0.5 rounded-full cursor-pointer transition-all ${
+                      filterRarity === r ? `${colors[r]} font-bold` : 'bg-slate-700 text-gray-400 hover:bg-slate-700/80'
+                    }`}
+                  >
+                    {r === 'ALL' ? 'All' : r.charAt(0) + r.slice(1).toLowerCase()}
+                    <span className="ml-1 opacity-60">{filterCounts.rarity[r]}</span>
+                  </button>
+                );
+              })}
+            </div>
+            {/* Type filters */}
+            <div className="flex gap-1 flex-wrap">
+              {(['ALL', 'MINION', 'SPELL', 'WEAPON', 'LOCATION'] as const).map(t => (
+                <button
+                  key={t}
+                  onClick={() => setFilterType(filterType === t ? 'ALL' : t)}
+                  className={`text-[10px] px-2 py-0.5 rounded-full cursor-pointer transition-all ${
+                    filterType === t ? 'bg-white text-black font-bold' : 'bg-slate-700 text-gray-400 hover:bg-slate-700/80'
+                  }`}
+                >
+                  {t === 'ALL' ? 'All Types' : t.charAt(0) + t.slice(1).toLowerCase()}
+                  <span className="ml-1 opacity-60">{filterCounts.type[t]}</span>
+                </button>
+              ))}
             </div>
             {/* Mana + search */}
             <div className="flex gap-2 items-center">

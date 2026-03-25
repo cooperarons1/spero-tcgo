@@ -624,6 +624,8 @@ function HeroPortrait({
   onHeroClick: (e?: React.MouseEvent) => void;
   heroDamage?: boolean;
   secretCount?: number;
+  mySecretCodes?: string[];
+  heroPowerFlash?: boolean;
   entityId?: string;
 }) {
   const borderClass = CLASS_BORDER[heroClass];
@@ -632,14 +634,28 @@ function HeroPortrait({
 
   return (
     <div className="flex items-center gap-3">
-      {/* Secrets (shown as ? badges above hero) */}
+      {/* Secrets (shown as ? badges — own secrets show name on hover, opponent's enlarge on hover) */}
       {secretCount != null && secretCount > 0 && (
         <div className="flex gap-0.5">
-          {Array.from({ length: secretCount }).map((_, i) => (
-            <div key={i} className="w-7 h-7 rounded-full bg-gradient-to-b from-amber-400 to-amber-600 border-2 border-amber-300 flex items-center justify-center text-white font-bold text-xs shadow-md">
-              ?
-            </div>
-          ))}
+          {Array.from({ length: secretCount }).map((_, i) => {
+            const secretCardCode = isMyHero && mySecretCodes ? mySecretCodes[i] : undefined;
+            const secretDef = secretCardCode ? getCard(secretCardCode) : undefined;
+            return (
+              <div key={i} className="relative group">
+                <div className={`w-7 h-7 rounded-full bg-gradient-to-b from-amber-400 to-amber-600 border-2 border-amber-300 flex items-center justify-center text-white font-bold text-xs shadow-md transition-transform
+                  ${!isMyHero ? 'group-hover:scale-150 cursor-default' : ''}
+                `}>
+                  ?
+                </div>
+                {/* Own secret tooltip — show name on hover */}
+                {isMyHero && secretDef && (
+                  <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 hidden group-hover:block bg-stone-900 text-amber-200 text-[10px] px-2 py-1 rounded whitespace-nowrap z-50 border border-amber-600/50 shadow-lg pointer-events-none">
+                    {secretDef.name}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
       {/* Weapon (left side) */}
@@ -685,23 +701,29 @@ function HeroPortrait({
 
 
       {/* Hero Power */}
-      <button
-        onClick={onHeroPowerClick}
-        disabled={!canUseHeroPower}
-        className={`group/hp relative flex h-14 w-14 items-center justify-center rounded-lg border-2 transition-all
-          ${canUseHeroPower
-            ? 'border-amber-500 bg-amber-900/40 hover:bg-amber-800/60 hover:scale-110 cursor-pointer'
-            : 'border-stone-600 bg-stone-800 opacity-40 cursor-not-allowed'}
-        `}
-        title={HERO_POWER_DESC[heroClass]}
-      >
-        <span className={`pointer-events-none ${canUseHeroPower ? 'text-amber-300' : 'text-stone-500'}`}>
-          {HERO_POWER_SVG[heroClass]}
-        </span>
-        <span className="pointer-events-none absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white shadow">
-          {HERO_POWER_COST}
-        </span>
-      </button>
+      <div className="relative group/hp">
+        <button
+          onClick={onHeroPowerClick}
+          disabled={!canUseHeroPower}
+          className={`relative flex h-14 w-14 items-center justify-center rounded-lg border-2 transition-all
+            ${canUseHeroPower
+              ? 'border-amber-500 bg-amber-900/40 hover:bg-amber-800/60 hover:scale-110 cursor-pointer'
+              : 'border-stone-600 bg-stone-800 opacity-40 cursor-not-allowed'}
+            ${heroPowerFlash ? 'animate-hero-power-flash' : ''}
+          `}
+        >
+          <span className={`pointer-events-none ${canUseHeroPower ? 'text-amber-300' : 'text-stone-500'}`}>
+            {HERO_POWER_SVG[heroClass]}
+          </span>
+          <span className="pointer-events-none absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white shadow">
+            {HERO_POWER_COST}
+          </span>
+        </button>
+        {/* Styled tooltip on hover */}
+        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover/hp:block bg-stone-900 text-amber-200 text-[11px] px-3 py-1.5 rounded-lg whitespace-nowrap z-50 border border-amber-600/40 shadow-lg pointer-events-none">
+          {HERO_POWER_DESC[heroClass]}
+        </div>
+      </div>
     </div>
   );
 }
@@ -973,6 +995,7 @@ export default function GameBoard({
   const [newCardIds, setNewCardIds] = useState<Set<string>>(new Set());
   const [buffedIds, setBuffedIds] = useState<Set<string>>(new Set());
   const [activeSpell, setActiveSpell] = useState<{ cardCode: string; targetId: string } | null>(null);
+  const [heroPowerFlash, setHeroPowerFlash] = useState(false);
 
   // ─── Drag-and-drop state ───
   const [draggingCardId, setDraggingCardId] = useState<string | null>(null);
@@ -1240,6 +1263,8 @@ export default function GameBoard({
       }
       // Client-side hero-power targeting
       if (targeting.type === 'hero-power' && validTargetIds.has(minion.instanceId)) {
+        setHeroPowerFlash(true);
+        setTimeout(() => setHeroPowerFlash(false), 400);
         actions.heroPower(minion.instanceId);
         cancelTargeting();
         return;
@@ -1293,6 +1318,8 @@ export default function GameBoard({
       }
       // Client-side hero-power targeting
       if (targeting.type === 'hero-power' && validTargetIds.has(targetId)) {
+        setHeroPowerFlash(true);
+        setTimeout(() => setHeroPowerFlash(false), 400);
         actions.heroPower(targetId);
         cancelTargeting();
         return;
@@ -1355,6 +1382,8 @@ export default function GameBoard({
       setTargeting({ type: 'hero-power' });
       return;
     }
+    setHeroPowerFlash(true);
+    setTimeout(() => setHeroPowerFlash(false), 400);
     actions.heroPower();
   }, [isMyTurn, isPlaying, gs.myHeroPowerUsed, gs.myMana, gs.myHeroClass, actions]);
 
@@ -1519,7 +1548,7 @@ export default function GameBoard({
     setDraggingCardId(null);
     setDraggingCardType(null);
     setDropIndex(null);
-  }, [gs.myHand, gs.myMana, myBoard.length, actions, dropIndex]);
+  }, [gs.myHand, gs.myMana, myBoard.length, gs.myLocations?.length, draggingCardId, actions, dropIndex]);
 
   // ─── Drop spell/weapon on a target (minion or hero) ───
   const handleTargetDragOver = useCallback((e: React.DragEvent) => {
@@ -2000,6 +2029,8 @@ export default function GameBoard({
             }}
             heroDamage={myHeroDamage}
             secretCount={gs.mySecrets?.length ?? 0}
+            mySecretCodes={gs.mySecrets?.map(s => s.cardCode)}
+            heroPowerFlash={heroPowerFlash}
             entityId={`hero-${gs.myPlayerIndex}`}
           />
         </div>

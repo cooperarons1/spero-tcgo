@@ -384,6 +384,14 @@ body {
   border-bottom: 1px solid rgba(212,165,32,0.4);
 }
 
+/* ═══ Hero power activation flash ═══ */
+@keyframes hero-power-flash {
+  0% { filter: brightness(1); box-shadow: none; }
+  30% { filter: brightness(2); box-shadow: 0 0 20px 6px rgba(251,191,36,0.8); }
+  100% { filter: brightness(1); box-shadow: none; }
+}
+.animate-hero-power-flash { animation: hero-power-flash 0.4s ease-out; }
+
 /* Show inspect icon on touch devices without hover */
 @media (hover: none) {
   .inspect-icon { opacity: 0.6; }

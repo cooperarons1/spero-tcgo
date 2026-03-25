@@ -5,13 +5,15 @@ interface CardDef {
   cardCode: string;
   name: string;
   manaCost: number;
-  type: 'MINION' | 'SPELL' | 'WEAPON';
+  type: 'MINION' | 'SPELL' | 'WEAPON' | 'LOCATION';
   heroClass: 'DEREK' | 'TALA' | 'JIMMY' | 'ANDERS' | 'DES' | 'ASTRID' | 'AVA' | 'LUCAS' | 'IZZY' | 'NEUTRAL';
   rarity: 'COMMON' | 'RARE' | 'EPIC' | 'LEGENDARY';
   attack: number;
   health: number;
   text: string;
   keywords: string[];
+  minionType?: string | null;
+  secretTrigger?: string;
 }
 
 interface CardProps {
@@ -91,21 +93,34 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
   const isMinion = def.type === 'MINION';
   const isWeapon = def.type === 'WEAPON';
   const isSpell = def.type === 'SPELL';
+  const isLocation = def.type === 'LOCATION';
+  const isSecret = isSpell && !!def.secretTrigger;
   const hasStats = isMinion || isWeapon;
 
   // Frame background based on card type
-  const frameBg = isSpell
-    ? 'bg-gradient-to-b from-indigo-900 via-violet-950 to-indigo-900'
-    : isWeapon
-      ? 'bg-gradient-to-b from-stone-800 via-stone-900 to-stone-800'
-      : 'bg-gradient-to-b from-stone-600 via-stone-700 to-stone-600';
+  const frameBg = isLocation
+    ? 'bg-gradient-to-b from-green-900 via-green-950 to-green-900'
+    : isSpell
+      ? 'bg-gradient-to-b from-indigo-900 via-violet-950 to-indigo-900'
+      : isWeapon
+        ? 'bg-gradient-to-b from-stone-800 via-stone-900 to-stone-800'
+        : 'bg-gradient-to-b from-stone-600 via-stone-700 to-stone-600';
 
   // Top accent based on type (frame style)
-  const frameAccent = isSpell
-    ? 'from-violet-500/30 to-transparent'
-    : isWeapon
-      ? 'from-amber-600/30 to-transparent'
-      : 'from-slate-500/20 to-transparent';
+  const frameAccent = isLocation
+    ? 'from-emerald-500/30 to-transparent'
+    : isSpell
+      ? 'from-violet-500/30 to-transparent'
+      : isWeapon
+        ? 'from-amber-600/30 to-transparent'
+        : 'from-slate-500/20 to-transparent';
+
+  const rarityColor: Record<string, string> = {
+    COMMON: '#9ca3af',
+    RARE: '#3b82f6',
+    EPIC: '#a855f7',
+    LEGENDARY: '#f59e0b',
+  };
 
   // Hero class text box background
   const classTextBg: Record<string, string> = {
@@ -146,6 +161,18 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
         {def.manaCost}
       </div>
 
+      {/* Secret badge overlay */}
+      {isSecret && (
+        <div className={`
+          absolute ${small ? 'top-0.5 right-0.5 w-4 h-4 text-[8px]' : 'top-0.5 right-0.5 w-6 h-6 text-[10px]'}
+          rounded-full bg-gradient-to-b from-amber-400 to-amber-600
+          border border-amber-300 shadow-md
+          flex items-center justify-center font-bold text-white z-10
+        `}>
+          ?
+        </div>
+      )}
+
       {/* Card art area — contained with border */}
       <div className={`
         ${small ? 'h-[58px] mt-2 mx-0.5' : 'h-[90px] mt-3 mx-1'}
@@ -154,6 +181,16 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
       `}>
         <CardArt cardCode={cardCode} className="w-full h-full" />
       </div>
+
+      {/* Rarity gem — diamond between art and name */}
+      {def.rarity !== 'COMMON' && (
+        <div className={`flex justify-center ${small ? '-mt-1 z-10' : '-mt-1.5 z-10'}`}>
+          <div
+            className={`${small ? 'w-2 h-2' : 'w-2.5 h-2.5'} rotate-45 shadow-md`}
+            style={{ backgroundColor: rarityColor[def.rarity], boxShadow: `0 0 4px ${rarityColor[def.rarity]}80` }}
+          />
+        </div>
+      )}
 
       {/* Card name banner — distinct background */}
       <div className={`
@@ -188,7 +225,7 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
         <div className="flex-1" />
       )}
 
-      {/* Bottom stat area */}
+      {/* Bottom stat area — minions & weapons */}
       {hasStats && (
         <div className={`
           flex justify-between items-end shrink-0
@@ -204,6 +241,13 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
           `}>
             {def.attack}
           </div>
+
+          {/* Minion type label — centered between attack/health */}
+          {isMinion && def.minionType && (
+            <span className={`${small ? 'text-[5px]' : 'text-[7px]'} font-bold text-amber-300/70`}>
+              {def.minionType}
+            </span>
+          )}
 
           {/* Health (red) or Durability (green for weapon) */}
           <div className={`
@@ -221,8 +265,26 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
         </div>
       )}
 
+      {/* Location durability — centered green circle */}
+      {isLocation && (
+        <div className={`
+          flex justify-center items-end shrink-0
+          ${small ? 'px-0.5 pb-0.5 pt-0.5' : 'px-1 pb-1 pt-0.5'}
+          z-10
+        `}>
+          <div className={`
+            ${small ? 'w-5 h-5 text-[9px]' : 'w-7 h-7 text-xs'}
+            rounded-full bg-gradient-to-br from-emerald-400 to-emerald-700
+            border border-emerald-300 shadow-md shadow-emerald-500/40
+            flex items-center justify-center font-extrabold text-white
+          `}>
+            {def.health}
+          </div>
+        </div>
+      )}
+
       {/* Spell bottom spacer (no stats) */}
-      {isSpell && <div className={small ? 'h-1' : 'h-2'} />}
+      {isSpell && !isLocation && <div className={small ? 'h-1' : 'h-2'} />}
 
       {/* Selected glow overlay */}
       {selected && (
