@@ -48,7 +48,7 @@ function App() {
     setTimeout(() => {
       processingRef.current = false;
       processQueueRef.current?.();
-    }, 700);
+    }, 1200);
   };
 
   // Connect socket when auth resolves
@@ -144,13 +144,12 @@ function App() {
         matchSavedRef.current = false;
       }
 
-      // Queue animation for opponent actions — show each with ~700ms delay
+      // Queue animation for opponent actions — show each with delay
       const current = displayedRef.current;
       const phaseChanged = current && current.phase !== state.phase;
-      const isOpponentActing = current && !phaseChanged && !state.winner &&
-        state.phase === 'PLAYING' &&
-        state.currentPlayerIndex !== state.myPlayerIndex &&
-        current.currentPlayerIndex !== current.myPlayerIndex;
+      const isOpponentTurn = state.phase === 'PLAYING' &&
+        state.currentPlayerIndex !== state.myPlayerIndex;
+      const isOpponentActing = current && !phaseChanged && !state.winner && isOpponentTurn;
 
       if (isOpponentActing) {
         stateQueueRef.current.push(state);
