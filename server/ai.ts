@@ -1,6 +1,6 @@
 import type { GameState, BoardMinion, PlayerState, CardDef, HeroClass, CardInstance } from '../shared/types.js';
 import { getCardDef } from './cards.js';
-import { playCard, useHeroPower } from './actions.js';
+import { playCard, useHeroPower, activateLocation } from './actions.js';
 import { attack } from './combat.js';
 import { endTurn } from './game.js';
 import { minionHasKeyword, hasActiveTaunt, getTauntMinions } from './keywords.js';
@@ -126,7 +126,12 @@ function executeAITurn(
     actionQueue.push(() => playOneCard(game, aiPlayerId, myIdx, oppIdx, broadcast));
   }
 
-  // Phase 3: Attacks (one at a time)
+  // Phase 3: Activate locations (one at a time)
+  for (let i = 0; i < 3; i++) { // max 3 location activations per turn
+    actionQueue.push(() => activateOneLocation(game, aiPlayerId, myIdx, oppIdx, broadcast));
+  }
+
+  // Phase 4: Attacks (one at a time)
   for (let i = 0; i < 8; i++) { // max 7 minions + 1 weapon
     actionQueue.push(() => attackWithOneMinion(game, aiPlayerId, myIdx, oppIdx, broadcast));
   }
@@ -232,7 +237,9 @@ function playOneCard(
   for (const card of playableCards) {
     if (game.winner) break;
     const def = getCardDef(card.cardCode);
-    if (def.type === 'MINION' && me.board.length >= 7) continue;
+    const totalBoardSize = me.board.length + me.locations.length;
+    if (def.type === 'MINION' && totalBoardSize >= 7) continue;
+    if (def.type === 'LOCATION' && totalBoardSize >= 7) continue;
     if (def.type === 'MINION' && minionAdvantage >= 3) {
       const isHighValue = def.manaCost >= 4 ||
         def.keywords.includes('TAUNT') ||
@@ -259,6 +266,41 @@ function playOneCard(
     if (result.needsTarget && result.validTargets && result.validTargets.length > 0) {
       const retryTarget = pickTargetFromList(game, myIdx, def, result.validTargets);
       const retry = playCard(game, aiPlayerId, card.instanceId, undefined, retryTarget);
+      if (retry.success) { broadcast(); return true; }
+    }
+  }
+  return false;
+}
+
+/**
+ * Activate ONE location and return true if it activated.
+ */
+function activateOneLocation(
+  game: GameState,
+  aiPlayerId: string,
+  myIdx: 0 | 1,
+  oppIdx: 0 | 1,
+  broadcast: () => void
+): boolean {
+  const me = game.players[myIdx];
+
+  for (const location of me.locations) {
+    if (game.winner) break;
+    if (location.cooldownRemaining > 0 || location.activatedThisTurn) continue;
+
+    const def = getCardDef(location.cardCode);
+    const locEffects = def.locationEffects ?? (def.locationEffect ? [def.locationEffect] : []);
+    if (locEffects.length === 0) continue;
+
+    // Try to pick a smart target for the location effect
+    let targetId: string | null = null;
+    targetId = pickSmartTarget(game, myIdx, def);
+
+    const result = activateLocation(game, aiPlayerId, location.instanceId, targetId);
+    if (result.success) { broadcast(); return true; }
+    if (result.needsTarget && result.validTargets && result.validTargets.length > 0) {
+      const retryTarget = pickTargetFromList(game, myIdx, def, result.validTargets);
+      const retry = activateLocation(game, aiPlayerId, location.instanceId, retryTarget);
       if (retry.success) { broadcast(); return true; }
     }
   }
@@ -425,8 +467,10 @@ function playCardsPhase(
       if (game.winner) break;
       const def = getCardDef(card.cardCode);
 
-      // Skip if board is full and it's a minion
-      if (def.type === 'MINION' && me.board.length >= 7) continue;
+      // Skip if board is full and it's a minion or location
+      const totalBoardSize2 = me.board.length + me.locations.length;
+      if (def.type === 'MINION' && totalBoardSize2 >= 7) continue;
+      if (def.type === 'LOCATION' && totalBoardSize2 >= 7) continue;
 
       // Board overcommit prevention: don't play low-value minions when ahead
       if (def.type === 'MINION' && minionAdvantage >= 3) {
@@ -501,6 +545,9 @@ function cardPlayPriority(def: CardDef, me: PlayerState, opp: PlayerState): numb
 
   // Weapons are strong tempo plays
   if (def.type === 'WEAPON') score += 3;
+
+  // Locations are moderate priority
+  if (def.type === 'LOCATION') score += 5;
 
   return score;
 }
@@ -914,9 +961,14 @@ function pickSmartTarget(
   const opp = game.players[oppIdx];
   const me = game.players[myIdx];
 
-  const effects = def.type === 'SPELL'
-    ? (def.spellEffects ?? (def.spellEffect ? [def.spellEffect] : []))
-    : (def.battlecryEffects ?? (def.battlecryEffect ? [def.battlecryEffect] : []));
+  let effects;
+  if (def.type === 'SPELL') {
+    effects = def.spellEffects ?? (def.spellEffect ? [def.spellEffect] : []);
+  } else if (def.type === 'LOCATION') {
+    effects = def.locationEffects ?? (def.locationEffect ? [def.locationEffect] : []);
+  } else {
+    effects = def.battlecryEffects ?? (def.battlecryEffect ? [def.battlecryEffect] : []);
+  }
   const effect = effects[0];
   if (!effect) return null;
 
@@ -1087,9 +1139,14 @@ function pickTargetFromList(
   const me = game.players[myIdx];
   const opp = game.players[oppIdx];
 
-  const effects = def.type === 'SPELL'
-    ? (def.spellEffects ?? (def.spellEffect ? [def.spellEffect] : []))
-    : (def.battlecryEffects ?? (def.battlecryEffect ? [def.battlecryEffect] : []));
+  let effects;
+  if (def.type === 'SPELL') {
+    effects = def.spellEffects ?? (def.spellEffect ? [def.spellEffect] : []);
+  } else if (def.type === 'LOCATION') {
+    effects = def.locationEffects ?? (def.locationEffect ? [def.locationEffect] : []);
+  } else {
+    effects = def.battlecryEffects ?? (def.battlecryEffect ? [def.battlecryEffect] : []);
+  }
   const effect = effects[0];
 
   if (effect?.type === 'DEAL_DAMAGE' || effect?.type === 'DESTROY_MINION' || effect?.type === 'FREEZE_TARGET' || effect?.type === 'RETURN_TO_HAND' || effect?.type === 'SILENCE_TARGET') {

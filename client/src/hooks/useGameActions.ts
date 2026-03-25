@@ -21,6 +21,11 @@ export function useGameActions() {
     socket.emit('hero-power', { targetId });
   };
 
+  // Activate location
+  const activateLocation = (locationInstanceId: string, targetId?: string | null) => {
+    socket.emit('activate-location', { locationInstanceId, targetId });
+  };
+
   // End turn
   const endTurn = () => {
     socket.emit('end-turn');
@@ -59,6 +64,7 @@ export function useGameActions() {
     playCard,
     attackTarget,
     heroPower,
+    activateLocation,
     endTurn,
     concede,
     emitEmote,

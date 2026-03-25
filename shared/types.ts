@@ -1,8 +1,9 @@
 // ─── Card Types ───
 
-export type CardType = 'MINION' | 'SPELL' | 'WEAPON';
+export type CardType = 'MINION' | 'SPELL' | 'WEAPON' | 'LOCATION';
 export type CardRarity = 'COMMON' | 'RARE' | 'EPIC' | 'LEGENDARY';
 export type HeroClass = 'DEREK' | 'TALA' | 'JIMMY' | 'ANDERS' | 'DES' | 'ASTRID' | 'AVA' | 'LUCAS' | 'IZZY' | 'NEUTRAL';
+export type MinionType = 'BEAST' | 'MECH' | 'ELEMENTAL' | 'SPIRIT' | 'DRAGON' | 'PIRATE' | 'UNDEAD' | null;
 
 export type Keyword =
   | 'TAUNT'
@@ -55,6 +56,9 @@ export interface CardDef {
   endOfTurnEffect?: EffectDef;
   comboEffect?: EffectDef;
   comboEffects?: EffectDef[];
+  minionType?: MinionType;
+  locationEffect?: EffectDef;
+  locationEffects?: EffectDef[];
 }
 
 // ─── Effect System ───
@@ -142,6 +146,17 @@ export interface BoardMinion {
   enchantments: Enchantment[];
 }
 
+// ─── Board Location ───
+
+export interface BoardLocation {
+  instanceId: string;
+  cardCode: string;
+  durability: number;
+  maxDurability: number;
+  cooldownRemaining: number; // 1 on play, decrements each turn
+  activatedThisTurn: boolean;
+}
+
 // ─── Weapon ───
 
 export interface Weapon {
@@ -164,6 +179,7 @@ export interface PlayerState {
   hand: CardInstance[];    // max 10
   board: BoardMinion[];    // max 7
   weapon: Weapon | null;
+  locations: BoardLocation[];
   heroPowerUsed: boolean;
   fatigueDamage: number;   // increments each draw from empty deck
   graveyard: CardInstance[];
@@ -209,6 +225,7 @@ export interface PlayerStats {
   minionsPlayed: number;
   spellsCast: number;
   weaponsEquipped: number;
+  locationsPlayed: number;
   heroPowerUses: number;
   minionsKilled: number;
   damageDealtToHeroes: number;
@@ -227,7 +244,7 @@ export interface TargetChoice {
   prompt: string;              // "Choose a target"
   validTargets: TargetOption[];
   allowSkip: boolean;
-  context: 'battlecry' | 'spell' | 'hero-power';
+  context: 'battlecry' | 'spell' | 'hero-power' | 'location';
 }
 
 export interface TargetOption {
@@ -262,6 +279,7 @@ export interface ClientPlayerInfo {
   maxMana: number;
   handCount: number;
   board: BoardMinion[];
+  locations: BoardLocation[];
   weapon: Weapon | null;
   heroPowerUsed: boolean;
   fatigueDamage: number;
@@ -281,6 +299,7 @@ export interface ClientGameState {
   myMaxMana: number;
   myHand: ClientCardInstance[];
   myBoard: BoardMinion[];
+  myLocations: BoardLocation[];
   myWeapon: Weapon | null;
   myHeroPowerUsed: boolean;
   myFatigueDamage: number;

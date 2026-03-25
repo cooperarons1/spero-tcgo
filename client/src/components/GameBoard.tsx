@@ -3,9 +3,11 @@ import type {
   ClientGameState,
   ClientCardInstance,
   BoardMinion,
+  BoardLocation,
   Weapon,
   CardDef,
   HeroClass,
+  CardRarity,
   PendingInteraction,
   TargetOption,
 } from '../../../shared/types';
@@ -67,6 +69,14 @@ const CLASS_BG: Record<HeroClass, string> = {
   NEUTRAL: 'bg-gray-700/40',
 };
 
+// ─── Rarity colors ───
+const RARITY_COLORS: Record<CardRarity, string> = {
+  COMMON: '#9ca3af',
+  RARE: '#3b82f6',
+  EPIC: '#a855f7',
+  LEGENDARY: '#f59e0b',
+};
+
 // ─── Card targeting helper ───
 function cardNeedsTarget(def: CardDef): { needsTarget: boolean; targetType: string | null } {
   const TARGETING_TYPES = ['TARGET_MINION','TARGET_ANY','TARGET_FRIENDLY_MINION','TARGET_ENEMY_MINION'];
@@ -75,6 +85,15 @@ function cardNeedsTarget(def: CardDef): { needsTarget: boolean; targetType: stri
     for (const e of effects) {
       if (TARGETING_TYPES.includes(e.target)) return { needsTarget: true, targetType: e.target };
     }
+  }
+  return { needsTarget: false, targetType: null };
+}
+
+function locationNeedsTarget(def: CardDef): { needsTarget: boolean; targetType: string | null } {
+  const TARGETING_TYPES = ['TARGET_MINION','TARGET_ANY','TARGET_FRIENDLY_MINION','TARGET_ENEMY_MINION','TARGET_HERO'];
+  const effects = def.locationEffects ?? (def.locationEffect ? [def.locationEffect] : []);
+  for (const e of effects) {
+    if (TARGETING_TYPES.includes(e.target)) return { needsTarget: true, targetType: e.target };
   }
   return { needsTarget: false, targetType: null };
 }
@@ -296,6 +315,7 @@ type TargetingMode =
   | { type: 'play-card'; cardInstanceId: string; cardDef: CardDef; position: number }
   | { type: 'attack'; attackerInstanceId: string }
   | { type: 'hero-power' }
+  | { type: 'activate-location'; locationInstanceId: string; cardDef: CardDef }
   | { type: 'interaction'; interactionId: string };
 
 // ─── Mulligan Screen ───
@@ -425,6 +445,7 @@ function BoardMinionCard({
   const hasDivine = minion.hasDivineShield;
   const isFrozen = minion.isFrozen;
   const isStealth = minion.hasStealthUntilAttack;
+  const rarityColor = def ? RARITY_COLORS[def.rarity] : undefined;
 
   return (
     <button
@@ -442,6 +463,10 @@ function BoardMinionCard({
         ${animationClass ?? ''}
       `}
     >
+      {/* Rarity-colored ring */}
+      {rarityColor && def?.rarity !== 'COMMON' && (
+        <div className="absolute inset-0 z-[1] pointer-events-none" style={{ borderRadius: '42%', boxShadow: `inset 0 0 0 2px ${rarityColor}40, 0 0 6px 1px ${rarityColor}30` }} />
+      )}
       {/* Art fills entire oval — clip to oval shape */}
       <div className="absolute inset-0 bg-amber-900/80 overflow-hidden" style={{ borderRadius: '42%' }}>
         {minion.cardCode && <CardArt cardCode={minion.cardCode} className="w-full h-full" />}
@@ -474,12 +499,89 @@ function BoardMinionCard({
       `}>
         {minion.currentHealth}
       </div>
+      {/* Minion type label — between attack/health */}
+      {def?.minionType && (
+        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+          <span className="text-[7px] font-bold text-amber-300/80 bg-black/50 px-1.5 py-0.5 rounded-sm">
+            {def.minionType}
+          </span>
+        </div>
+      )}
       {/* Name label */}
       <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap z-20">
         <span className="text-[8px] font-semibold text-amber-200/70 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
           {def?.name}
         </span>
       </div>
+    </button>
+  );
+}
+
+// ─── Location Card on Board ───
+function BoardLocationCard({
+  location,
+  isMyLocation,
+  canActivate,
+  isSelected,
+  onClick,
+}: {
+  location: BoardLocation;
+  isMyLocation: boolean;
+  canActivate: boolean;
+  isSelected: boolean;
+  onClick: () => void;
+}) {
+  const def = getCard(location.cardCode);
+  const onCooldown = location.cooldownRemaining > 0;
+  const activated = location.activatedThisTurn;
+
+  return (
+    <button
+      onClick={onClick}
+      className={`relative w-[7rem] h-[8rem] select-none transition-all rounded-xl border-2 overflow-hidden
+        ${canActivate ? 'shadow-[0_0_16px_4px_rgba(59,130,246,0.6)] cursor-pointer hover:scale-110 ring-[2px] ring-blue-400/80 border-blue-500' : ''}
+        ${onCooldown || activated ? 'opacity-50 border-stone-600' : !canActivate ? 'border-amber-700' : ''}
+        ${isSelected ? 'ring-[3px] ring-green-400 shadow-[0_0_24px_8px_rgba(34,197,94,0.6)] -translate-y-2 scale-110 z-30' : ''}
+      `}
+      style={{ background: 'linear-gradient(to bottom, #2a3a2a, #1a2a1a)' }}
+    >
+      {/* Art */}
+      <div className="absolute inset-0 overflow-hidden rounded-xl opacity-60">
+        {location.cardCode && <CardArt cardCode={location.cardCode} className="w-full h-full" />}
+      </div>
+
+      {/* Building icon overlay */}
+      <div className="absolute top-1 left-1/2 -translate-x-1/2 z-10">
+        <svg viewBox="0 0 24 24" className="w-5 h-5 text-amber-400/80" fill="currentColor">
+          <path d="M12 2L2 7v2h20V7L12 2zm0 2.5L18 7H6l6-2.5zM4 11v9h3v-5h2v5h2v-5h2v5h2v-5h2v5h3v-9H4z" />
+        </svg>
+      </div>
+
+      {/* Name */}
+      <div className="absolute bottom-7 left-0 right-0 z-10 text-center">
+        <span className="text-[8px] font-bold text-amber-200/90 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] px-1">
+          {def?.name}
+        </span>
+      </div>
+
+      {/* Durability counter */}
+      <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-emerald-700 border-2 border-emerald-300 text-sm font-extrabold text-white shadow-lg z-20">
+        {location.durability}
+      </div>
+
+      {/* Cooldown overlay */}
+      {onCooldown && (
+        <div className="absolute inset-0 flex items-center justify-center z-15 rounded-xl bg-black/30">
+          <span className="text-[10px] text-blue-300 font-bold">COOLDOWN</span>
+        </div>
+      )}
+
+      {/* Activated overlay */}
+      {activated && !onCooldown && (
+        <div className="absolute inset-0 flex items-center justify-center z-15 rounded-xl bg-black/20">
+          <span className="text-[10px] text-stone-400 font-bold">USED</span>
+        </div>
+      )}
     </button>
   );
 }
@@ -628,6 +730,8 @@ function HandCard({
   if (!def) return null;
 
   const classColor = CLASS_COLORS[def.heroClass] ?? '#d4a520';
+  const rarityColor = RARITY_COLORS[def.rarity];
+  const isLocation = def.type === 'LOCATION';
 
   return (
     <button
@@ -639,12 +743,16 @@ function HandCard({
         ${isSelected
           ? 'border-green-400 -translate-y-6 scale-110 z-20 shadow-[0_0_20px_4px_rgba(34,197,94,0.5)]'
           : canPlay
-            ? 'border-amber-500/70 hover:-translate-y-4 hover:scale-105 hover:z-10 cursor-pointer hover:shadow-[0_0_16px_rgba(245,158,11,0.3)]'
+            ? 'hover:-translate-y-4 hover:scale-105 hover:z-10 cursor-pointer hover:shadow-[0_0_16px_rgba(245,158,11,0.3)]'
             : 'border-stone-500 opacity-60 cursor-not-allowed'}
         ${isDragging ? 'dragging-card' : ''}
         ${isNew ? 'animate-card-draw-in' : ''}
       `}
-      style={{ borderTopColor: classColor, borderTopWidth: '3px' }}
+      style={{
+        borderTopColor: classColor,
+        borderTopWidth: '3px',
+        borderColor: isSelected ? undefined : (canPlay ? rarityColor + '90' : undefined),
+      }}
     >
       {/* Mana gem */}
       <div className="absolute -left-1.5 -top-1.5 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-700 border-2 border-blue-300 text-sm font-extrabold text-white shadow-lg">
@@ -654,6 +762,15 @@ function HandCard({
       <div className="w-full h-24 mt-3 rounded overflow-hidden bg-stone-600/60 flex-shrink-0">
         <CardArt cardCode={card.cardCode!} className="w-full h-full" />
       </div>
+      {/* Rarity gem — diamond shape centered between art and name */}
+      {def.rarity !== 'COMMON' && (
+        <div className="flex justify-center -mt-1.5 z-10">
+          <div
+            className="w-3 h-3 rotate-45 shadow-md"
+            style={{ backgroundColor: rarityColor, boxShadow: `0 0 6px 1px ${rarityColor}80` }}
+          />
+        </div>
+      )}
       {/* Name banner */}
       <div className="w-full card-name-banner px-1 py-0.5 mt-0.5">
         <span className="text-[10px] font-bold text-amber-100 leading-tight truncate w-full text-center block">
@@ -668,10 +785,13 @@ function HandCard({
       </div>
       {/* Stats */}
       {def.type === 'MINION' && (
-        <div className="flex w-full justify-between px-0.5 shrink-0 mt-0.5">
+        <div className="flex w-full justify-between items-center px-0.5 shrink-0 mt-0.5">
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-yellow-700 border border-yellow-300 text-xs font-extrabold text-white shadow">
             {def.attack}
           </span>
+          {def.minionType && (
+            <span className="text-[7px] font-bold text-amber-300/70">{def.minionType}</span>
+          )}
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-red-800 border border-red-400 text-xs font-extrabold text-white shadow">
             {def.health}
           </span>
@@ -682,6 +802,13 @@ function HandCard({
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-yellow-700 border border-yellow-300 text-xs font-extrabold text-white shadow">
             {def.attack}
           </span>
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-emerald-700 border border-emerald-300 text-xs font-extrabold text-white shadow">
+            {def.health}
+          </span>
+        </div>
+      )}
+      {isLocation && (
+        <div className="flex w-full justify-center px-0.5 shrink-0 mt-0.5">
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-emerald-700 border border-emerald-300 text-xs font-extrabold text-white shadow">
             {def.health}
           </span>
@@ -985,6 +1112,25 @@ export default function GameBoard({
       }
       return ids;
     }
+    // Client-side location activation targeting
+    if (targeting.type === 'activate-location') {
+      const ids = new Set<string>();
+      const tt = locationNeedsTarget(targeting.cardDef).targetType;
+      if (tt === 'TARGET_MINION') {
+        for (const m of myBoard) ids.add(m.instanceId);
+        for (const m of opBoard) { if (!m.hasStealthUntilAttack) ids.add(m.instanceId); }
+      } else if (tt === 'TARGET_FRIENDLY_MINION') {
+        for (const m of myBoard) ids.add(m.instanceId);
+      } else if (tt === 'TARGET_ENEMY_MINION') {
+        for (const m of opBoard) { if (!m.hasStealthUntilAttack) ids.add(m.instanceId); }
+      } else if (tt === 'TARGET_ANY') {
+        for (const m of myBoard) ids.add(m.instanceId);
+        for (const m of opBoard) { if (!m.hasStealthUntilAttack) ids.add(m.instanceId); }
+        ids.add(`hero-${gs.myPlayerIndex}`);
+        ids.add(`hero-${1 - gs.myPlayerIndex}`);
+      }
+      return ids;
+    }
     // Client-side hero power targeting
     if (targeting.type === 'hero-power') {
       const ids = new Set<string>();
@@ -1044,6 +1190,15 @@ export default function GameBoard({
       // Minions must be dragged to the board, not clicked
       if (def.type === 'MINION') return;
 
+      // Location cards play on click (no positioning needed)
+      if (def.type === 'LOCATION') {
+        pendingPlayRef.current.add(card.instanceId);
+        soundManager.play('CARD_PLAY');
+        actions.playCard(card.instanceId);
+        setSelectedHandCard(null);
+        return;
+      }
+
       if (selectedHandCard === card.instanceId) {
         cancelTargeting();
         return;
@@ -1086,6 +1241,12 @@ export default function GameBoard({
       // Client-side hero-power targeting
       if (targeting.type === 'hero-power' && validTargetIds.has(minion.instanceId)) {
         actions.heroPower(minion.instanceId);
+        cancelTargeting();
+        return;
+      }
+      // Client-side location activation targeting
+      if (targeting.type === 'activate-location' && validTargetIds.has(minion.instanceId)) {
+        actions.activateLocation(targeting.locationInstanceId, minion.instanceId);
         cancelTargeting();
         return;
       }
@@ -1133,6 +1294,12 @@ export default function GameBoard({
       // Client-side hero-power targeting
       if (targeting.type === 'hero-power' && validTargetIds.has(targetId)) {
         actions.heroPower(targetId);
+        cancelTargeting();
+        return;
+      }
+      // Client-side location activation targeting
+      if (targeting.type === 'activate-location' && validTargetIds.has(targetId)) {
+        actions.activateLocation(targeting.locationInstanceId, targetId);
         cancelTargeting();
         return;
       }
@@ -1190,6 +1357,20 @@ export default function GameBoard({
     }
     actions.heroPower();
   }, [isMyTurn, isPlaying, gs.myHeroPowerUsed, gs.myMana, gs.myHeroClass, actions]);
+
+  // ─── Location Click ───
+  const handleLocationClick = useCallback((location: BoardLocation) => {
+    if (!isMyTurn || !isPlaying || isGameOver) return;
+    if (location.cooldownRemaining > 0 || location.activatedThisTurn) return;
+    const def = getCard(location.cardCode);
+    if (!def) return;
+    const { needsTarget } = locationNeedsTarget(def);
+    if (needsTarget) {
+      setTargeting({ type: 'activate-location', locationInstanceId: location.instanceId, cardDef: def });
+    } else {
+      actions.activateLocation(location.instanceId);
+    }
+  }, [isMyTurn, isPlaying, isGameOver, actions]);
 
   // ─── End Turn ───
   const handleEndTurn = useCallback(() => {
@@ -1317,13 +1498,15 @@ export default function GameBoard({
 
     const def = getCard(card.cardCode);
     if (!def || def.manaCost > gs.myMana) return;
-    if (def.type === 'MINION' && myBoard.length >= MAX_BOARD_SIZE) return;
+    const totalBoard = myBoard.length + (gs.myLocations?.length ?? 0);
+    if (def.type === 'MINION' && totalBoard >= MAX_BOARD_SIZE) return;
+    if (def.type === 'LOCATION' && totalBoard >= MAX_BOARD_SIZE) return;
 
     if (pendingPlayRef.current.has(card.instanceId)) return;
     pendingPlayRef.current.add(card.instanceId);
 
     if (def.type === 'MINION') {
-      if (myBoard.length >= MAX_BOARD_SIZE) return;
+      if (totalBoard >= MAX_BOARD_SIZE) return;
       const pos = dropIndex ?? myBoard.length;
       soundManager.play('CARD_PLAY');
       actions.playCard(card.instanceId, pos);
@@ -1457,7 +1640,7 @@ export default function GameBoard({
   ) : null;
 
   // ─── Client-side targeting overlay (play-card / hero-power) ───
-  const ClientTargetingOverlay = (targeting.type === 'play-card' || targeting.type === 'hero-power') ? (
+  const ClientTargetingOverlay = (targeting.type === 'play-card' || targeting.type === 'hero-power' || targeting.type === 'activate-location') ? (
     <div className="fixed left-1/2 top-4 z-40 -translate-x-1/2 rounded-lg bg-amber-900/90 px-6 py-3 text-center shadow-lg">
       <p className="text-lg font-bold text-amber-300">Choose a target</p>
       <p className="text-sm text-amber-200/70">Click a valid target (glowing green)</p>
@@ -1588,6 +1771,27 @@ export default function GameBoard({
         {/* Spacer — pushes board toward center divider */}
         <div className="flex-1" />
 
+        {/* Opponent locations */}
+        {gs.opponent.locations && gs.opponent.locations.length > 0 && (
+          <div className="flex items-center justify-center gap-3 mb-1">
+            {gs.opponent.locations.map((loc) => (
+              <div
+                key={loc.instanceId}
+                onMouseEnter={(e) => setHoveredCard({ cardCode: loc.cardCode, x: e.clientX, y: e.clientY })}
+                onMouseLeave={() => setHoveredCard(null)}
+              >
+                <BoardLocationCard
+                  location={loc}
+                  isMyLocation={false}
+                  canActivate={false}
+                  isSelected={false}
+                  onClick={() => {}}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Opponent board — dynamic scaling */}
         <div className="flex min-h-[7rem] mb-4 items-center justify-center board-field">
           <div
@@ -1677,6 +1881,31 @@ export default function GameBoard({
         onDragLeave={handleBoardDragLeave}
         onDrop={handleBoardDrop}
       >
+        {/* My locations */}
+        {gs.myLocations && gs.myLocations.length > 0 && (
+          <div className="flex items-center justify-center gap-3 mt-2">
+            {gs.myLocations.map((loc) => {
+              const locDef = getCard(loc.cardCode);
+              const canActivate = isMyTurn && isPlaying && !isGameOver && loc.cooldownRemaining === 0 && !loc.activatedThisTurn;
+              return (
+                <div
+                  key={loc.instanceId}
+                  onMouseEnter={(e) => setHoveredCard({ cardCode: loc.cardCode, x: e.clientX, y: e.clientY })}
+                  onMouseLeave={() => setHoveredCard(null)}
+                >
+                  <BoardLocationCard
+                    location={loc}
+                    isMyLocation={true}
+                    canActivate={canActivate}
+                    isSelected={targeting.type === 'activate-location' && targeting.locationInstanceId === loc.instanceId}
+                    onClick={() => handleLocationClick(loc)}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        )}
+
         {/* My board (minion positions) */}
         <div
           className={`flex min-h-[7rem] mt-4 items-center justify-center rounded-lg board-field ${dropZoneActive ? 'drop-zone-active border-2 border-dashed border-green-500/40' : 'border-2 border-transparent'}`}
@@ -1776,8 +2005,9 @@ export default function GameBoard({
         <div className="flex items-end justify-center pb-1" style={{ gap: gs.myHand.length > 6 ? '-0.5rem' : '0.25rem' }}>
           {gs.myHand.map((card, i) => {
             const def = getCard(card.cardCode);
+            const boardFull = myBoard.length + (gs.myLocations?.length ?? 0) >= MAX_BOARD_SIZE;
             const canPlay = isMyTurn && isPlaying && !isGameOver && (def?.manaCost ?? 99) <= gs.myMana
-              && (def?.type !== 'MINION' || myBoard.length < MAX_BOARD_SIZE);
+              && (def?.type !== 'MINION' || !boardFull) && (def?.type !== 'LOCATION' || !boardFull);
             const handSize = gs.myHand.length;
             const maxAngle = Math.min(handSize * 3, 20);
             const angleStep = handSize > 1 ? (maxAngle * 2) / (handSize - 1) : 0;
@@ -1829,6 +2059,8 @@ export default function GameBoard({
         const isMinion = def.type === 'MINION';
         const isWeapon = def.type === 'WEAPON';
         const isSpell = def.type === 'SPELL';
+        const isLoc = def.type === 'LOCATION';
+        const rColor = RARITY_COLORS[def.rarity];
         // Position: show to the left or right of cursor, above if near bottom
         const previewX = hoveredCard.x > window.innerWidth / 2 ? hoveredCard.x - 220 : hoveredCard.x + 20;
         const previewY = Math.min(hoveredCard.y - 60, window.innerHeight - 320);
@@ -1838,9 +2070,11 @@ export default function GameBoard({
             style={{ left: previewX, top: Math.max(8, previewY) }}
           >
             <div className={`w-[200px] rounded-xl border-2 overflow-hidden shadow-2xl
-              ${isSpell ? 'border-violet-500 bg-gradient-to-b from-indigo-900 via-violet-950 to-indigo-900'
-                : isWeapon ? 'border-amber-500 bg-gradient-to-b from-stone-800 via-stone-900 to-stone-800'
-                : 'border-amber-500/70 bg-gradient-to-b from-stone-600 via-stone-700 to-stone-600'}`}
+              ${isSpell ? 'bg-gradient-to-b from-indigo-900 via-violet-950 to-indigo-900'
+                : isWeapon ? 'bg-gradient-to-b from-stone-800 via-stone-900 to-stone-800'
+                : isLoc ? 'bg-gradient-to-b from-green-900 via-green-950 to-green-900'
+                : 'bg-gradient-to-b from-stone-600 via-stone-700 to-stone-600'}`}
+              style={{ borderColor: rColor }}
             >
               {/* Mana gem */}
               <div className="absolute top-1 left-1 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-700 border-2 border-blue-300 text-sm font-extrabold text-white shadow-lg">
@@ -1850,10 +2084,20 @@ export default function GameBoard({
               <div className="w-full h-[120px] overflow-hidden">
                 <CardArt cardCode={hoveredCard.cardCode} className="w-full h-full" />
               </div>
-              {/* Name */}
+              {/* Name + rarity gem */}
               <div className="px-3 py-1.5 bg-black/30 border-y border-gray-600/30">
-                <span className="text-white font-bold text-sm block truncate">{def.name}</span>
-                <span className="text-gray-400 text-[10px]">{def.type}{def.rarity !== 'COMMON' ? ` · ${def.rarity}` : ''}</span>
+                <div className="flex items-center gap-1.5">
+                  {def.rarity !== 'COMMON' && (
+                    <div className="w-2.5 h-2.5 rotate-45 flex-shrink-0" style={{ backgroundColor: rColor, boxShadow: `0 0 4px ${rColor}80` }} />
+                  )}
+                  <span className="text-white font-bold text-sm block truncate">{def.name}</span>
+                </div>
+                <span className="text-gray-400 text-[10px]">
+                  {def.type}
+                  {def.rarity !== 'COMMON' ? ` · ` : ''}
+                  {def.rarity !== 'COMMON' && <span style={{ color: rColor }}>{def.rarity}</span>}
+                  {isMinion && def.minionType ? ` · ${def.minionType}` : ''}
+                </span>
               </div>
               {/* Text */}
               {def.text && (
@@ -1869,6 +2113,14 @@ export default function GameBoard({
                   </span>
                   <span className={`flex h-7 w-7 items-center justify-center rounded-full border text-xs font-extrabold text-white
                     ${isWeapon ? 'bg-gradient-to-br from-emerald-400 to-emerald-700 border-emerald-300' : 'bg-gradient-to-br from-red-500 to-red-800 border-red-400'}`}>
+                    {def.health}
+                  </span>
+                </div>
+              )}
+              {/* Location durability */}
+              {isLoc && (
+                <div className="flex justify-center px-3 py-1.5">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-emerald-700 border border-emerald-300 text-xs font-extrabold text-white">
                     {def.health}
                   </span>
                 </div>

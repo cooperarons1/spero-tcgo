@@ -30,6 +30,11 @@ export const HeroPowerSchema = z.object({
   targetId: z.string().optional().nullable(),
 });
 
+export const ActivateLocationSchema = z.object({
+  locationInstanceId: z.string(),
+  targetId: z.string().optional().nullable(),
+});
+
 export const EmoteSchema = z.object({
   emoteId: z.string().max(20),
 });

@@ -1,4 +1,4 @@
-import type { GameState, PlayerState, BoardMinion, Weapon, EffectDef } from '../shared/types.js';
+import type { GameState, PlayerState, BoardMinion, BoardLocation, Weapon, EffectDef } from '../shared/types.js';
 import { MAX_BOARD_SIZE, MAX_HAND_SIZE, HERO_POWER_COST, MAX_SECRETS } from '../shared/types.js';
 import { checkSecrets } from './secrets.js';
 import { getCardDef } from './cards.js';
@@ -164,6 +164,33 @@ export function playCard(
 
     addLog(game, pIdx as 0 | 1, `${player.playerName} equips ${def.name}`, 'PLAY');
     game.playerStats[pIdx as 0 | 1].weaponsEquipped++;
+
+  } else if (def.type === 'LOCATION') {
+    // Board space check: minions + locations combined
+    if (player.board.length + player.locations.length >= MAX_BOARD_SIZE) {
+      return { success: false, error: 'Board is full (max 7 minions + locations)' };
+    }
+
+    // Deduct mana
+    player.mana -= def.manaCost;
+    game.playerStats[pIdx as 0 | 1].manaSpent += def.manaCost;
+
+    // Remove from hand
+    player.hand.splice(cardIdx, 1);
+
+    // Create BoardLocation
+    const location: BoardLocation = {
+      instanceId: `loc-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      cardCode: cardInst.cardCode,
+      durability: def.health,
+      maxDurability: def.health,
+      cooldownRemaining: 1, // 1-turn cooldown after playing
+      activatedThisTurn: false,
+    };
+
+    player.locations.push(location);
+    addLog(game, pIdx as 0 | 1, `${player.playerName} places ${def.name}`, 'PLAY');
+    game.playerStats[pIdx as 0 | 1].locationsPlayed++;
   }
 
   game.lastAction = `${player.playerName} plays ${def.name}.`;
@@ -351,6 +378,64 @@ export function useHeroPower(
   }
 
   game.lastAction = `${player.playerName} uses hero power.`;
+  checkDeaths(game);
+  checkHeroDeath(game);
+
+  return { success: true };
+}
+
+/** Activate a location card */
+export function activateLocation(
+  game: GameState,
+  playerId: string,
+  locationInstanceId: string,
+  targetId?: string | null
+): { success: boolean; error?: string; needsTarget?: boolean; validTargets?: string[] } {
+  if (game.phase !== 'PLAYING') return { success: false, error: 'Game not in playing phase' };
+  if (game.winner) return { success: false, error: 'Game is over' };
+
+  const pIdx = game.players.findIndex(p => p.playerId === playerId);
+  if (pIdx === -1) return { success: false, error: 'Player not in game' };
+  if (pIdx !== game.currentPlayerIndex) return { success: false, error: 'Not your turn' };
+
+  const player = game.players[pIdx] as PlayerState;
+  const location = player.locations.find(l => l.instanceId === locationInstanceId);
+  if (!location) return { success: false, error: 'Location not found' };
+  if (location.cooldownRemaining > 0) return { success: false, error: 'Location is on cooldown' };
+  if (location.activatedThisTurn) return { success: false, error: 'Location already activated this turn' };
+
+  const def = getCardDef(location.cardCode);
+  const locEffects = def.locationEffects ?? (def.locationEffect ? [def.locationEffect] : []);
+  if (locEffects.length === 0) return { success: false, error: 'Location has no effect' };
+
+  // Check if effects need a target
+  if (effectsNeedTarget(locEffects)) {
+    const targetType = getEffectsTargetType(locEffects);
+    const targets = getValidTargets(game, pIdx as 0 | 1, targetType);
+    if (targets.length > 0 && !targetId) {
+      return { success: false, needsTarget: true, validTargets: targets };
+    }
+    if (targets.length === 0) {
+      return { success: false, error: 'No valid targets for this location' };
+    }
+  }
+
+  // Execute effects
+  addLog(game, pIdx as 0 | 1, `${player.playerName} activates ${def.name}`, 'PLAY');
+  executeEffects(game, pIdx as 0 | 1, locEffects, targetId);
+
+  // Consume durability
+  location.durability--;
+  location.activatedThisTurn = true;
+
+  // Destroy if durability depleted
+  if (location.durability <= 0) {
+    player.locations = player.locations.filter(l => l.instanceId !== locationInstanceId);
+    player.graveyard.push({ instanceId: location.instanceId, cardCode: location.cardCode });
+    addLog(game, pIdx as 0 | 1, `${def.name} is destroyed`, 'EFFECT');
+  }
+
+  game.lastAction = `${player.playerName} activates ${def.name}.`;
   checkDeaths(game);
   checkHeroDeath(game);
 

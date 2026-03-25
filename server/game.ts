@@ -22,6 +22,7 @@ function makePlayerState(id: string, name: string, heroClass: HeroClass): Player
     hand: [],
     board: [],
     weapon: null,
+    locations: [],
     heroPowerUsed: false,
     fatigueDamage: 0,
     graveyard: [],
@@ -191,6 +192,12 @@ export function startTurn(game: GameState): void {
 
   // Reset hero power
   player.heroPowerUsed = false;
+
+  // Reset locations: decrement cooldown, allow activation
+  for (const loc of player.locations) {
+    loc.activatedThisTurn = false;
+    if (loc.cooldownRemaining > 0) loc.cooldownRemaining--;
+  }
 
   // Unfreeze minions that were frozen last turn, enable attacks
   for (const minion of player.board) {

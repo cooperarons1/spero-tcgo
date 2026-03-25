@@ -20,6 +20,7 @@ export function emptyStats(): PlayerStats {
     minionsPlayed: 0,
     spellsCast: 0,
     weaponsEquipped: 0,
+    locationsPlayed: 0,
     heroPowerUses: 0,
     minionsKilled: 0,
     damageDealtToHeroes: 0,

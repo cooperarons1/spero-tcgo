@@ -42,7 +42,7 @@
     "attack": 1,
     "health": 2,
     "text": "Battlecry: Deal 1 damage to a random enemy.",
-    "flavor": "She throws embers like confetti \u2014 but lethal confetti.",
+    "flavor": "She throws embers like confetti — but lethal confetti.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -83,7 +83,8 @@
       "type": "DEAL_DAMAGE_RANDOM_ENEMY",
       "target": "RANDOM_ENEMY",
       "value": 1
-    }
+    },
+    "minionType": "DRAGON"
   },
   {
     "cardCode": "JIM005",
@@ -113,7 +114,8 @@
     "flavor": "Good boy. Very hot boy.",
     "keywords": [
       "CHARGE"
-    ]
+    ],
+    "minionType": "BEAST"
   },
   {
     "cardCode": "JIM007",
@@ -186,7 +188,7 @@
     "attack": 0,
     "health": 0,
     "text": "Deal 1 damage to any target.",
-    "flavor": "Quick, cheap, devastating \u2014 Jimmy's motto.",
+    "flavor": "Quick, cheap, devastating — Jimmy's motto.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE",
@@ -342,7 +344,8 @@
       "type": "DRAW_CARDS",
       "target": "NONE",
       "value": 1
-    }
+    },
+    "minionType": "BEAST"
   },
   {
     "cardCode": "TAL005",
@@ -560,7 +563,7 @@
     "attack": 2,
     "health": 1,
     "text": "Battlecry: Draw a card.",
-    "flavor": "Wind it up and watch it think \u2014 sometimes in the wrong direction.",
+    "flavor": "Wind it up and watch it think — sometimes in the wrong direction.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -642,7 +645,8 @@
     "flavor": "Reliable, affordable, surprisingly sneaky.",
     "keywords": [
       "STEALTH"
-    ]
+    ],
+    "minionType": "MECH"
   },
   {
     "cardCode": "DRK006",
@@ -678,7 +682,8 @@
     "flavor": "You didn't see anything. Because you literally didn't.",
     "keywords": [
       "STEALTH"
-    ]
+    ],
+    "minionType": "MECH"
   },
   {
     "cardCode": "DRK008",
@@ -717,7 +722,8 @@
     "battlecryEffect": {
       "type": "RETURN_TO_HAND",
       "target": "TARGET_ENEMY_MINION"
-    }
+    },
+    "minionType": "MECH"
   },
   {
     "cardCode": "DRK010",
@@ -836,7 +842,8 @@
     "battlecryEffect": {
       "type": "FREEZE_TARGET",
       "target": "TARGET_ENEMY_MINION"
-    }
+    },
+    "minionType": "ELEMENTAL"
   },
   {
     "cardCode": "AND002",
@@ -908,7 +915,8 @@
     "flavor": "It doesn't go with the flow. It IS the flow.",
     "keywords": [
       "FREEZE"
-    ]
+    ],
+    "minionType": "ELEMENTAL"
   },
   {
     "cardCode": "AND006",
@@ -1162,7 +1170,8 @@
     "health": 3,
     "text": "",
     "flavor": "It lurks. It waits. It bites.",
-    "keywords": []
+    "keywords": [],
+    "minionType": "BEAST"
   },
   {
     "cardCode": "NEU005",
@@ -1175,7 +1184,8 @@
     "health": 2,
     "text": "",
     "flavor": "Fast but fragile. Approach from downwind.",
-    "keywords": []
+    "keywords": [],
+    "minionType": "BEAST"
   },
   {
     "cardCode": "NEU006",
@@ -1279,7 +1289,8 @@
       "target": "NONE",
       "summonCardCode": "NEU_TOKEN_01",
       "summonCount": 1
-    }
+    },
+    "minionType": "MECH"
   },
   {
     "cardCode": "NEU012",
@@ -1356,7 +1367,8 @@
     "health": 7,
     "text": "",
     "flavor": "Thick shell. Slow brain. Incredible jaw strength.",
-    "keywords": []
+    "keywords": [],
+    "minionType": "BEAST"
   },
   {
     "cardCode": "NEU017",
@@ -1407,7 +1419,8 @@
     "flavor": "Shimmers with an iridescent ward.",
     "keywords": [
       "DIVINE_SHIELD"
-    ]
+    ],
+    "minionType": "DRAGON"
   },
   {
     "cardCode": "NEU020",
@@ -1496,7 +1509,8 @@
       "type": "DRAW_CARDS",
       "target": "NONE",
       "value": 1
-    }
+    },
+    "minionType": "DRAGON"
   },
   {
     "cardCode": "NEU025",
@@ -1747,7 +1761,8 @@
     "flavor": "Hits you twice because once didn't feel satisfying enough.",
     "keywords": [
       "WINDFURY"
-    ]
+    ],
+    "minionType": "BEAST"
   },
   {
     "cardCode": "NEU040",
@@ -1803,7 +1818,8 @@
       "target": "ALL_FRIENDLY_MINIONS",
       "attackBuff": 1,
       "healthBuff": 0
-    }
+    },
+    "minionType": "BEAST"
   },
   {
     "cardCode": "NEU043",
@@ -1860,7 +1876,8 @@
     "flavor": "Cuddly looking but absolutely not cuddly.",
     "keywords": [
       "TAUNT"
-    ]
+    ],
+    "minionType": "BEAST"
   },
   {
     "cardCode": "NEU046",
@@ -2021,7 +2038,8 @@
         "target": "TARGET_FRIENDLY_MINION",
         "grantKeyword": "TAUNT"
       }
-    ]
+    ],
+    "minionType": "UNDEAD"
   },
   {
     "cardCode": "NEU054",
@@ -2142,7 +2160,8 @@
       "type": "DEAL_DAMAGE_RANDOM_ENEMY",
       "target": "RANDOM_ENEMY_MINION",
       "value": 1
-    }
+    },
+    "minionType": "BEAST"
   },
   {
     "cardCode": "NEU060",
@@ -2174,7 +2193,7 @@
     "attack": 2,
     "health": 2,
     "text": "",
-    "flavor": "The Dominion's lowest rank \u2014 expendable and eager.",
+    "flavor": "The Dominion's lowest rank — expendable and eager.",
     "keywords": []
   },
   {
@@ -2295,7 +2314,7 @@
     "attack": 2,
     "health": 3,
     "text": "",
-    "flavor": "Level 8 control collar \u2014 forged to bend even Alphas.",
+    "flavor": "Level 8 control collar — forged to bend even Alphas.",
     "keywords": []
   },
   {
@@ -2308,7 +2327,7 @@
     "attack": 5,
     "health": 4,
     "text": "Stealth",
-    "flavor": "A Dominion scout cloaked in corrupted Orra \u2014 invisible until it strikes.",
+    "flavor": "A Dominion scout cloaked in corrupted Orra — invisible until it strikes.",
     "keywords": [
       "STEALTH"
     ]
@@ -2355,7 +2374,7 @@
     "attack": 5,
     "health": 4,
     "text": "Taunt. Battlecry: Deal 2 damage to a random enemy.",
-    "flavor": "Once the guardian of Coral Cove \u2014 now it guards the Dominion.",
+    "flavor": "Once the guardian of Coral Cove — now it guards the Dominion.",
     "keywords": [
       "TAUNT",
       "BATTLECRY"
@@ -2447,7 +2466,7 @@
     "attack": 0,
     "health": 0,
     "text": "Deal 3 damage to all minions.",
-    "flavor": "When Des channels the Crucible, nothing is safe \u2014 not even his own forces.",
+    "flavor": "When Des channels the Crucible, nothing is safe — not even his own forces.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE_ALL_MINIONS",
@@ -2652,7 +2671,8 @@
       "target": "TARGET_FRIENDLY_MINION",
       "attackBuff": 1,
       "healthBuff": 1
-    }
+    },
+    "minionType": "BEAST"
   },
   {
     "cardCode": "AST008",
@@ -2818,7 +2838,7 @@
     "attack": 3,
     "health": 10,
     "text": "Taunt. Battlecry: Give all friendly minions +0/+2.",
-    "flavor": "Built from Orragems at the heart of Aster Peak \u2014 nothing passes.",
+    "flavor": "Built from Orragems at the heart of Aster Peak — nothing passes.",
     "keywords": [
       "TAUNT",
       "BATTLECRY"
@@ -2850,7 +2870,8 @@
       "target": "ALL_FRIENDLY_MINIONS",
       "attackBuff": 1,
       "healthBuff": 1
-    }
+    },
+    "minionType": "BEAST"
   },
   {
     "cardCode": "AST019",
@@ -2907,7 +2928,7 @@
     "attack": 1,
     "health": 1,
     "text": "Battlecry: Summon a 1/1 Gadget Drone.",
-    "flavor": "Every great invention starts with a spark \u2014 and a tiny drone.",
+    "flavor": "Every great invention starts with a spark — and a tiny drone.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -2916,7 +2937,8 @@
       "target": "NONE",
       "summonCardCode": "AVA_TOKEN_01",
       "summonCount": 1
-    }
+    },
+    "minionType": "MECH"
   },
   {
     "cardCode": "AVA002",
@@ -2931,7 +2953,8 @@
     "flavor": "Fiona the flying squirrel glides unseen between the treetops.",
     "keywords": [
       "STEALTH"
-    ]
+    ],
+    "minionType": "BEAST"
   },
   {
     "cardCode": "AVA003",
@@ -3024,7 +3047,8 @@
     "flavor": "Cloaking tech borrowed from Derek's reef submersibles.",
     "keywords": [
       "STEALTH"
-    ]
+    ],
+    "minionType": "MECH"
   },
   {
     "cardCode": "AVA008",
@@ -3057,7 +3081,7 @@
     "attack": 3,
     "health": 3,
     "text": "Battlecry: Silence a minion.",
-    "flavor": "Ava can hack any collar \u2014 even Dominion-grade ones.",
+    "flavor": "Ava can hack any collar — even Dominion-grade ones.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -3098,7 +3122,8 @@
       "target": "NONE",
       "summonCardCode": "AVA_TOKEN_01",
       "summonCount": 1
-    }
+    },
+    "minionType": "MECH"
   },
   {
     "cardCode": "AVA012",
@@ -3138,7 +3163,8 @@
       "target": "NONE",
       "summonCardCode": "AVA_TOKEN_01",
       "summonCount": 1
-    }
+    },
+    "minionType": "MECH"
   },
   {
     "cardCode": "AVA014",
@@ -3177,7 +3203,8 @@
       "type": "DEAL_DAMAGE_RANDOM_ENEMY",
       "target": "RANDOM_ENEMY",
       "value": 2
-    }
+    },
+    "minionType": "MECH"
   },
   {
     "cardCode": "AVA016",
@@ -3206,7 +3233,8 @@
         "attackBuff": 1,
         "healthBuff": 0
       }
-    ]
+    ],
+    "minionType": "MECH"
   },
   {
     "cardCode": "AVA017",
@@ -3218,7 +3246,7 @@
     "attack": 4,
     "health": 6,
     "text": "Battlecry: Draw 2 cards.",
-    "flavor": "Full access to Miro's satellite network \u2014 knowledge is power.",
+    "flavor": "Full access to Miro's satellite network — knowledge is power.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -3247,7 +3275,8 @@
       "target": "NONE",
       "summonCardCode": "AVA_TOKEN_01",
       "summonCount": 2
-    }
+    },
+    "minionType": "MECH"
   },
   {
     "cardCode": "AVA019",
@@ -3259,7 +3288,7 @@
     "attack": 6,
     "health": 8,
     "text": "Battlecry: Summon three 1/1 Gadget Drones.",
-    "flavor": "Ava's masterwork assembler \u2014 it builds an army while you watch.",
+    "flavor": "Ava's masterwork assembler — it builds an army while you watch.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -3268,7 +3297,8 @@
       "target": "NONE",
       "summonCardCode": "AVA_TOKEN_01",
       "summonCount": 3
-    }
+    },
+    "minionType": "MECH"
   },
   {
     "cardCode": "AVA020",
@@ -3313,7 +3343,8 @@
     "flavor": "The first coyote pup born on Aster Peak in a generation.",
     "keywords": [
       "CHARGE"
-    ]
+    ],
+    "minionType": "BEAST"
   },
   {
     "cardCode": "LUC002",
@@ -3325,7 +3356,7 @@
     "attack": 0,
     "health": 0,
     "text": "Draw a card.",
-    "flavor": "Lucas fills his sketchbook with owls \u2014 each one carries a secret.",
+    "flavor": "Lucas fills his sketchbook with owls — each one carries a secret.",
     "keywords": [],
     "spellEffect": {
       "type": "DRAW_CARDS",
@@ -3375,7 +3406,7 @@
     "attack": 2,
     "health": 2,
     "text": "Stealth. Battlecry: Draw a card.",
-    "flavor": "Jax sniffs out trouble \u2014 and loot \u2014 with equal enthusiasm.",
+    "flavor": "Jax sniffs out trouble — and loot — with equal enthusiasm.",
     "keywords": [
       "STEALTH",
       "BATTLECRY"
@@ -3384,7 +3415,8 @@
       "type": "DRAW_CARDS",
       "target": "NONE",
       "value": 1
-    }
+    },
+    "minionType": "BEAST"
   },
   {
     "cardCode": "LUC006",
@@ -3413,7 +3445,7 @@
     "attack": 3,
     "health": 2,
     "text": "",
-    "flavor": "The sands of Gavalon teach patience \u2014 then violence.",
+    "flavor": "The sands of Gavalon teach patience — then violence.",
     "keywords": []
   },
   {
@@ -3429,7 +3461,8 @@
     "flavor": "A Gavalon coyote trained to outrun hovercrafts.",
     "keywords": [
       "CHARGE"
-    ]
+    ],
+    "minionType": "BEAST"
   },
   {
     "cardCode": "LUC009",
@@ -3441,7 +3474,7 @@
     "attack": 3,
     "health": 2,
     "text": "Stealth. Battlecry: Return an enemy minion to its owner's hand.",
-    "flavor": "Slipped into Mount Polara unseen \u2014 slipped out with the plans.",
+    "flavor": "Slipped into Mount Polara unseen — slipped out with the plans.",
     "keywords": [
       "STEALTH",
       "BATTLECRY"
@@ -3474,7 +3507,7 @@
     "attack": 0,
     "health": 0,
     "text": "Return an enemy minion to its owner's hand. Draw a card.",
-    "flavor": "Lucas always has a way out \u2014 and a way back in.",
+    "flavor": "Lucas always has a way out — and a way back in.",
     "keywords": [],
     "spellEffects": [
       {
@@ -3605,7 +3638,7 @@
     "attack": 5,
     "health": 5,
     "text": "Stealth. Battlecry: Give a friendly minion Stealth.",
-    "flavor": "The alpha coyote vanishes \u2014 and takes her pack with her.",
+    "flavor": "The alpha coyote vanishes — and takes her pack with her.",
     "keywords": [
       "STEALTH",
       "BATTLECRY"
@@ -3614,7 +3647,8 @@
       "type": "GRANT_KEYWORD",
       "target": "TARGET_FRIENDLY_MINION",
       "grantKeyword": "STEALTH"
-    }
+    },
+    "minionType": "BEAST"
   },
   {
     "cardCode": "LUC019",
@@ -3727,7 +3761,7 @@
     "attack": 2,
     "health": 3,
     "text": "Deathrattle: Summon a 1/1 Sparkle Shard.",
-    "flavor": "Everything must be balanced \u2014 her desk, her notes, and her energy.",
+    "flavor": "Everything must be balanced — her desk, her notes, and her energy.",
     "keywords": [
       "DEATHRATTLE"
     ],
@@ -3748,7 +3782,7 @@
     "attack": 3,
     "health": 3,
     "text": "Battlecry: Gain 2 Armor.",
-    "flavor": "Bling always finds the fastest route \u2014 through sparkle or storm.",
+    "flavor": "Bling always finds the fastest route — through sparkle or storm.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -3756,7 +3790,8 @@
       "type": "GAIN_ARMOR",
       "target": "NONE",
       "value": 2
-    }
+    },
+    "minionType": "BEAST"
   },
   {
     "cardCode": "IZZ006",
@@ -3806,7 +3841,7 @@
     "attack": 0,
     "health": 0,
     "text": "Give all friendly minions +1/+1.",
-    "flavor": "Izzy's sparkle energy surges outward \u2014 it doesn't pick sides.",
+    "flavor": "Izzy's sparkle energy surges outward — it doesn't pick sides.",
     "keywords": [],
     "spellEffect": {
       "type": "BUFF_ALL_FRIENDLY",
@@ -3846,7 +3881,7 @@
     "attack": 3,
     "health": 5,
     "text": "Deathrattle: Summon two 1/1 Sparkle Shards.",
-    "flavor": "Shatters into glittering fragments \u2014 each one still sparkling.",
+    "flavor": "Shatters into glittering fragments — each one still sparkling.",
     "keywords": [
       "DEATHRATTLE"
     ],
@@ -3855,7 +3890,8 @@
       "target": "NONE",
       "summonCardCode": "IZZ_TOKEN_01",
       "summonCount": 2
-    }
+    },
+    "minionType": "ELEMENTAL"
   },
   {
     "cardCode": "IZZ011",
@@ -3935,7 +3971,8 @@
       "target": "NONE",
       "summonCardCode": "IZZ_TOKEN_01",
       "summonCount": 2
-    }
+    },
+    "minionType": "ELEMENTAL"
   },
   {
     "cardCode": "IZZ015",
@@ -4005,7 +4042,8 @@
       "target": "NONE",
       "summonCardCode": "IZZ_TOKEN_01",
       "summonCount": 3
-    }
+    },
+    "minionType": "ELEMENTAL"
   },
   {
     "cardCode": "IZZ018",
@@ -4047,7 +4085,8 @@
       "type": "GAIN_ARMOR",
       "target": "NONE",
       "value": 8
-    }
+    },
+    "minionType": "BEAST"
   },
   {
     "cardCode": "IZZ020",
@@ -4059,7 +4098,7 @@
     "attack": 6,
     "health": 9,
     "text": "Taunt. Battlecry: Gain 10 Armor. Give ALL minions +2/+2.",
-    "flavor": "Where others see chaos, Izzy sees perfect symmetry \u2014 and sparkles it into existence.",
+    "flavor": "Where others see chaos, Izzy sees perfect symmetry — and sparkles it into existence.",
     "keywords": [
       "TAUNT",
       "BATTLECRY"
@@ -4089,7 +4128,8 @@
     "health": 1,
     "text": "",
     "flavor": "Tiny rotors, tinier brain.",
-    "keywords": []
+    "keywords": [],
+    "minionType": "MECH"
   },
   {
     "cardCode": "IZZ_TOKEN_01",
@@ -4115,7 +4155,8 @@
     "health": 1,
     "text": "",
     "flavor": "A golem held together by will and spare bolts.",
-    "keywords": []
+    "keywords": [],
+    "minionType": "MECH"
   },
   {
     "cardCode": "NEU_TOKEN_02",
@@ -4128,7 +4169,8 @@
     "health": 1,
     "text": "",
     "flavor": "Small, angry, and surprisingly loyal.",
-    "keywords": []
+    "keywords": [],
+    "minionType": "BEAST"
   },
   {
     "cardCode": "NEU_TOKEN_03",
@@ -4154,7 +4196,8 @@
     "health": 5,
     "text": "",
     "flavor": "Honor the fallen. Fear the risen.",
-    "keywords": []
+    "keywords": [],
+    "minionType": "SPIRIT"
   },
   {
     "cardCode": "AND_S01",
@@ -4167,9 +4210,14 @@
     "health": 0,
     "text": "Secret: When your opponent casts a spell, Counter it.",
     "flavor": "The runes glow when danger approaches.",
-    "keywords": ["SECRET"],
+    "keywords": [
+      "SECRET"
+    ],
     "secretTrigger": "WHEN_SPELL_CAST",
-    "secretEffect": { "type": "COUNTER_SPELL", "target": "NONE" }
+    "secretEffect": {
+      "type": "COUNTER_SPELL",
+      "target": "NONE"
+    }
   },
   {
     "cardCode": "AND_S02",
@@ -4182,9 +4230,14 @@
     "health": 0,
     "text": "Secret: When your opponent plays a minion, summon a copy of it.",
     "flavor": "Every reflection tells a truth.",
-    "keywords": ["SECRET"],
+    "keywords": [
+      "SECRET"
+    ],
     "secretTrigger": "WHEN_MINION_PLAYED",
-    "secretEffect": { "type": "COPY_MINION", "target": "NONE" }
+    "secretEffect": {
+      "type": "COPY_MINION",
+      "target": "NONE"
+    }
   },
   {
     "cardCode": "AND_S03",
@@ -4197,9 +4250,15 @@
     "health": 0,
     "text": "Secret: When your hero is attacked, gain 8 Armor.",
     "flavor": "Ice thicker than stone.",
-    "keywords": ["SECRET"],
+    "keywords": [
+      "SECRET"
+    ],
     "secretTrigger": "WHEN_HERO_ATTACKED",
-    "secretEffect": { "type": "GAIN_ARMOR", "target": "NONE", "value": 8 }
+    "secretEffect": {
+      "type": "GAIN_ARMOR",
+      "target": "NONE",
+      "value": 8
+    }
   },
   {
     "cardCode": "JIM_S01",
@@ -4212,9 +4271,15 @@
     "health": 0,
     "text": "Secret: When your hero is attacked, deal 2 damage to all enemies.",
     "flavor": "Step closer. I dare you.",
-    "keywords": ["SECRET"],
+    "keywords": [
+      "SECRET"
+    ],
     "secretTrigger": "WHEN_HERO_ATTACKED",
-    "secretEffect": { "type": "DEAL_DAMAGE_ALL_ENEMIES", "target": "ALL_ENEMY_MINIONS", "value": 2 }
+    "secretEffect": {
+      "type": "DEAL_DAMAGE_ALL_ENEMIES",
+      "target": "ALL_ENEMY_MINIONS",
+      "value": 2
+    }
   },
   {
     "cardCode": "JIM_S02",
@@ -4227,9 +4292,14 @@
     "health": 0,
     "text": "Secret: When an enemy minion attacks, return it to its owner's hand.",
     "flavor": "The trap was the easy part.",
-    "keywords": ["SECRET"],
+    "keywords": [
+      "SECRET"
+    ],
     "secretTrigger": "WHEN_ATTACKED",
-    "secretEffect": { "type": "RETURN_TO_HAND", "target": "NONE" }
+    "secretEffect": {
+      "type": "RETURN_TO_HAND",
+      "target": "NONE"
+    }
   },
   {
     "cardCode": "JIM_S03",
@@ -4242,9 +4312,15 @@
     "health": 0,
     "text": "Secret: When your opponent plays a minion, deal 4 damage to it.",
     "flavor": "One shot. One kill.",
-    "keywords": ["SECRET"],
+    "keywords": [
+      "SECRET"
+    ],
     "secretTrigger": "WHEN_MINION_PLAYED",
-    "secretEffect": { "type": "DEAL_DAMAGE", "target": "NONE", "value": 4 }
+    "secretEffect": {
+      "type": "DEAL_DAMAGE",
+      "target": "NONE",
+      "value": 4
+    }
   },
   {
     "cardCode": "AST_S01",
@@ -4257,9 +4333,15 @@
     "health": 0,
     "text": "Secret: When an enemy attacks, summon a 2/1 Defender with Taunt.",
     "flavor": "She always keeps her word.",
-    "keywords": ["SECRET"],
+    "keywords": [
+      "SECRET"
+    ],
     "secretTrigger": "WHEN_ATTACKED",
-    "secretEffect": { "type": "SUMMON_MINION", "target": "NONE", "summonCardCode": "AST_TOKEN_01" }
+    "secretEffect": {
+      "type": "SUMMON_MINION",
+      "target": "NONE",
+      "summonCardCode": "AST_TOKEN_01"
+    }
   },
   {
     "cardCode": "AST_S02",
@@ -4272,9 +4354,14 @@
     "health": 0,
     "text": "Secret: When a friendly minion dies, resummon it with 1 Health.",
     "flavor": "Not all who fall stay fallen.",
-    "keywords": ["SECRET"],
+    "keywords": [
+      "SECRET"
+    ],
     "secretTrigger": "WHEN_FRIENDLY_MINION_DIES",
-    "secretEffect": { "type": "SUMMON_MINION", "target": "NONE" }
+    "secretEffect": {
+      "type": "SUMMON_MINION",
+      "target": "NONE"
+    }
   },
   {
     "cardCode": "AST_S03",
@@ -4287,9 +4374,16 @@
     "health": 0,
     "text": "Secret: When a friendly minion dies, give all other friendly minions +3/+2.",
     "flavor": "Vengeance is its own reward.",
-    "keywords": ["SECRET"],
+    "keywords": [
+      "SECRET"
+    ],
     "secretTrigger": "WHEN_FRIENDLY_MINION_DIES",
-    "secretEffect": { "type": "BUFF_ALL_FRIENDLY", "target": "NONE", "attackBuff": 3, "healthBuff": 2 }
+    "secretEffect": {
+      "type": "BUFF_ALL_FRIENDLY",
+      "target": "NONE",
+      "attackBuff": 3,
+      "healthBuff": 2
+    }
   },
   {
     "cardCode": "DES_S01",
@@ -4302,9 +4396,14 @@
     "health": 0,
     "text": "Secret: When your opponent plays a minion, destroy a random enemy minion.",
     "flavor": "The shadows have teeth.",
-    "keywords": ["SECRET"],
+    "keywords": [
+      "SECRET"
+    ],
     "secretTrigger": "WHEN_MINION_PLAYED",
-    "secretEffect": { "type": "DESTROY_MINION", "target": "NONE" }
+    "secretEffect": {
+      "type": "DESTROY_MINION",
+      "target": "NONE"
+    }
   },
   {
     "cardCode": "DES_S02",
@@ -4317,11 +4416,21 @@
     "health": 0,
     "text": "Secret: When an enemy attacks, deal 3 damage to it and 3 to your hero.",
     "flavor": "Power always has a price.",
-    "keywords": ["SECRET"],
+    "keywords": [
+      "SECRET"
+    ],
     "secretTrigger": "WHEN_ATTACKED",
     "secretEffects": [
-      { "type": "DEAL_DAMAGE", "target": "NONE", "value": 3 },
-      { "type": "DEAL_DAMAGE", "target": "TARGET_HERO", "value": 3 }
+      {
+        "type": "DEAL_DAMAGE",
+        "target": "NONE",
+        "value": 3
+      },
+      {
+        "type": "DEAL_DAMAGE",
+        "target": "TARGET_HERO",
+        "value": 3
+      }
     ]
   },
   {
@@ -4335,9 +4444,15 @@
     "health": 0,
     "text": "Secret: When your opponent casts a spell, draw 2 cards.",
     "flavor": "Your magic feeds my hunger.",
-    "keywords": ["SECRET"],
+    "keywords": [
+      "SECRET"
+    ],
     "secretTrigger": "WHEN_SPELL_CAST",
-    "secretEffect": { "type": "DRAW_CARDS", "target": "NONE", "value": 2 }
+    "secretEffect": {
+      "type": "DRAW_CARDS",
+      "target": "NONE",
+      "value": 2
+    }
   },
   {
     "cardCode": "AST_TOKEN_01",
@@ -4350,7 +4465,9 @@
     "health": 1,
     "text": "Taunt",
     "flavor": "Sworn to protect.",
-    "keywords": ["TAUNT"]
+    "keywords": [
+      "TAUNT"
+    ]
   },
   {
     "cardCode": "DES_NEW_01",
@@ -4365,8 +4482,16 @@
     "flavor": "The darkness always extracts a price. Des pays it gladly.",
     "keywords": [],
     "spellEffects": [
-      { "type": "DEAL_DAMAGE", "target": "SELF", "value": 3 },
-      { "type": "DRAW_CARDS", "target": "NONE", "value": 2 }
+      {
+        "type": "DEAL_DAMAGE",
+        "target": "SELF",
+        "value": 3
+      },
+      {
+        "type": "DRAW_CARDS",
+        "target": "NONE",
+        "value": 2
+      }
     ]
   },
   {
@@ -4397,7 +4522,7 @@
     "attack": 0,
     "health": 0,
     "text": "Draw 2 cards. If you have a minion with Divine Shield, draw 3 instead.",
-    "flavor": "Astrid's shield reflects more than blows \u2014 it reflects wisdom.",
+    "flavor": "Astrid's shield reflects more than blows — it reflects wisdom.",
     "keywords": [],
     "spellEffect": {
       "type": "DRAW_CARDS_CONDITIONAL",
@@ -4417,7 +4542,10 @@
     "health": 5,
     "text": "Divine Shield. Battlecry: Summon a 2/2 with Taunt.",
     "flavor": "Where she stands, others rally.",
-    "keywords": ["DIVINE_SHIELD", "BATTLECRY"],
+    "keywords": [
+      "DIVINE_SHIELD",
+      "BATTLECRY"
+    ],
     "battlecryEffect": {
       "type": "SUMMON_MINION",
       "target": "NONE",
@@ -4435,7 +4563,9 @@
     "health": 2,
     "text": "Taunt",
     "flavor": "Always at the protector's side.",
-    "keywords": ["TAUNT"]
+    "keywords": [
+      "TAUNT"
+    ]
   },
   {
     "cardCode": "DES_NEW_02",
@@ -4448,10 +4578,20 @@
     "health": 4,
     "text": "Battlecry: Deal 2 damage to your hero. Draw a card.",
     "flavor": "It feeds on its master's pain, growing stronger with every drop.",
-    "keywords": ["BATTLECRY"],
+    "keywords": [
+      "BATTLECRY"
+    ],
     "battlecryEffects": [
-      { "type": "DEAL_DAMAGE", "target": "SELF", "value": 2 },
-      { "type": "DRAW_CARDS", "target": "NONE", "value": 1 }
+      {
+        "type": "DEAL_DAMAGE",
+        "target": "SELF",
+        "value": 2
+      },
+      {
+        "type": "DRAW_CARDS",
+        "target": "NONE",
+        "value": 1
+      }
     ]
   },
   {
@@ -4465,7 +4605,9 @@
     "health": 3,
     "text": "At the end of your turn, gain 1 Armor.",
     "flavor": "The Orra flows through her, a steady pulse of protection.",
-    "keywords": ["END_OF_TURN"],
+    "keywords": [
+      "END_OF_TURN"
+    ],
     "endOfTurnEffect": {
       "type": "GAIN_ARMOR",
       "target": "NONE",
@@ -4482,8 +4624,10 @@
     "attack": 2,
     "health": 5,
     "text": "At the end of your turn, restore 2 Health to your hero.",
-    "flavor": "Her prayers are answered by the Ameti \u2014 every single turn.",
-    "keywords": ["END_OF_TURN"],
+    "flavor": "Her prayers are answered by the Ameti — every single turn.",
+    "keywords": [
+      "END_OF_TURN"
+    ],
     "endOfTurnEffect": {
       "type": "RESTORE_HEALTH",
       "target": "TARGET_HERO",
@@ -4501,12 +4645,15 @@
     "health": 4,
     "text": "At the end of your turn, deal 2 damage to the enemy hero.",
     "flavor": "It drains life slowly, savoring every drop.",
-    "keywords": ["END_OF_TURN"],
+    "keywords": [
+      "END_OF_TURN"
+    ],
     "endOfTurnEffect": {
       "type": "DEAL_DAMAGE",
       "target": "NONE",
       "value": 2
-    }
+    },
+    "minionType": "UNDEAD"
   },
   {
     "cardCode": "COMBO_001",
@@ -4519,7 +4666,9 @@
     "health": 0,
     "text": "Deal 2 damage. Combo: Deal 4 instead.",
     "flavor": "The second strike always lands harder.",
-    "keywords": ["COMBO"],
+    "keywords": [
+      "COMBO"
+    ],
     "spellEffect": {
       "type": "DEAL_DAMAGE",
       "target": "TARGET_ANY",
@@ -4542,7 +4691,9 @@
     "health": 0,
     "text": "Draw a card. Combo: Draw 2 instead.",
     "flavor": "Lucas always has another trick up his sleeve.",
-    "keywords": ["COMBO"],
+    "keywords": [
+      "COMBO"
+    ],
     "spellEffect": {
       "type": "DRAW_CARDS",
       "target": "NONE",
@@ -4565,11 +4716,211 @@
     "health": 3,
     "text": "Combo: Summon a copy of this minion.",
     "flavor": "One is a trick. Two is a surprise.",
-    "keywords": ["COMBO"],
+    "keywords": [
+      "COMBO"
+    ],
     "comboEffect": {
       "type": "SUMMON_MINION",
       "target": "NONE",
       "summonCardCode": "COMBO_003"
+    }
+  },
+  {
+    "cardCode": "JIM_LOC01",
+    "name": "Gavalon Forge",
+    "manaCost": 3,
+    "type": "LOCATION",
+    "heroClass": "JIMMY",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 2,
+    "text": "Deal 2 damage to a minion.",
+    "flavor": "The heart of Gavalon burns bright — and so do its enemies.",
+    "keywords": [],
+    "locationEffect": {
+      "type": "DEAL_DAMAGE",
+      "target": "TARGET_MINION",
+      "value": 2
+    }
+  },
+  {
+    "cardCode": "TAL_LOC01",
+    "name": "Verdant Sanctuary",
+    "manaCost": 2,
+    "type": "LOCATION",
+    "heroClass": "TALA",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 3,
+    "text": "Restore 3 health to a friendly character.",
+    "flavor": "Even the wind whispers of healing here.",
+    "keywords": [],
+    "locationEffect": {
+      "type": "RESTORE_HEALTH",
+      "target": "TARGET_ANY",
+      "value": 3
+    }
+  },
+  {
+    "cardCode": "DRK_LOC01",
+    "name": "Coral Cove Workshop",
+    "manaCost": 3,
+    "type": "LOCATION",
+    "heroClass": "DEREK",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 2,
+    "text": "Draw a card.",
+    "flavor": "Every blueprint begins with a scribble on driftwood.",
+    "keywords": [],
+    "locationEffect": {
+      "type": "DRAW_CARDS",
+      "target": "NONE",
+      "value": 1
+    }
+  },
+  {
+    "cardCode": "AND_LOC01",
+    "name": "Frostspire Citadel",
+    "manaCost": 3,
+    "type": "LOCATION",
+    "heroClass": "ANDERS",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 2,
+    "text": "Freeze a minion.",
+    "flavor": "Its towers pierce the sky like frozen daggers.",
+    "keywords": [],
+    "locationEffect": {
+      "type": "FREEZE_TARGET",
+      "target": "TARGET_MINION"
+    }
+  },
+  {
+    "cardCode": "DES_LOC01",
+    "name": "Polara Sanctum",
+    "manaCost": 3,
+    "type": "LOCATION",
+    "heroClass": "DES",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 2,
+    "text": "Deal 2 damage to a random enemy.",
+    "flavor": "Darkness seeps from every stone.",
+    "keywords": [],
+    "locationEffect": {
+      "type": "DEAL_DAMAGE_RANDOM_ENEMY",
+      "target": "RANDOM_ENEMY",
+      "value": 2
+    }
+  },
+  {
+    "cardCode": "AST_LOC01",
+    "name": "Aster Academy",
+    "manaCost": 2,
+    "type": "LOCATION",
+    "heroClass": "ASTRID",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 3,
+    "text": "Give a friendly minion +1/+1.",
+    "flavor": "Where young knights forge their shields and their courage.",
+    "keywords": [],
+    "locationEffect": {
+      "type": "BUFF_MINION",
+      "target": "TARGET_FRIENDLY_MINION",
+      "attackBuff": 1,
+      "healthBuff": 1
+    }
+  },
+  {
+    "cardCode": "AVA_LOC01",
+    "name": "Spark Laboratory",
+    "manaCost": 3,
+    "type": "LOCATION",
+    "heroClass": "AVA",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 2,
+    "text": "Summon a 1/1 Gadget Drone.",
+    "flavor": "Invention never sleeps — but Ava sometimes does.",
+    "keywords": [],
+    "locationEffect": {
+      "type": "SUMMON_MINION",
+      "target": "NONE",
+      "summonCardCode": "AVA_TOKEN_01"
+    }
+  },
+  {
+    "cardCode": "LUC_LOC01",
+    "name": "Smuggler's Hideout",
+    "manaCost": 2,
+    "type": "LOCATION",
+    "heroClass": "LUCAS",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 2,
+    "text": "Return a random enemy minion to hand.",
+    "flavor": "The hideout vanishes as quickly as its visitors.",
+    "keywords": [],
+    "locationEffect": {
+      "type": "RETURN_TO_HAND",
+      "target": "RANDOM_ENEMY_MINION"
+    }
+  },
+  {
+    "cardCode": "IZZ_LOC01",
+    "name": "Navigator's Outpost",
+    "manaCost": 2,
+    "type": "LOCATION",
+    "heroClass": "IZZY",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 3,
+    "text": "Gain 2 armor.",
+    "flavor": "X marks the spot — for armor plating.",
+    "keywords": [],
+    "locationEffect": {
+      "type": "GAIN_ARMOR",
+      "target": "NONE",
+      "value": 2
+    }
+  },
+  {
+    "cardCode": "NEU_LOC01",
+    "name": "Miro Trading Post",
+    "manaCost": 3,
+    "type": "LOCATION",
+    "heroClass": "NEUTRAL",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 3,
+    "text": "Give a friendly minion +1/+1.",
+    "flavor": "All roads in Miro lead to the Trading Post.",
+    "keywords": [],
+    "locationEffect": {
+      "type": "BUFF_MINION",
+      "target": "TARGET_FRIENDLY_MINION",
+      "attackBuff": 1,
+      "healthBuff": 1
+    }
+  },
+  {
+    "cardCode": "NEU_LOC02",
+    "name": "Wanderer's Campfire",
+    "manaCost": 2,
+    "type": "LOCATION",
+    "heroClass": "NEUTRAL",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 2,
+    "text": "Restore 2 health to your hero.",
+    "flavor": "Rest here. Tomorrow we fight again.",
+    "keywords": [],
+    "locationEffect": {
+      "type": "RESTORE_HEALTH",
+      "target": "TARGET_HERO",
+      "value": 2
     }
   }
 ]

@@ -11,7 +11,7 @@ import { TURN_TIMEOUT_MS } from '../shared/types.js';
 import { adminAuth, adminDb } from './firebaseAdmin.js';
 import { createRoom, joinRoom, getRoom, getRoomByPlayer, removePlayer, clearRoomTimer, cleanupStaleRooms, markDisconnected, tryReconnect, isDisconnected } from './room.js';
 import { createGame, confirmMulligan, endTurn } from './game.js';
-import { playCard, useHeroPower } from './actions.js';
+import { playCard, useHeroPower, activateLocation } from './actions.js';
 import { attack } from './combat.js';
 import { getClientState } from './clientState.js';
 import { addLog } from './log.js';
@@ -22,6 +22,7 @@ import {
   PlayCardSchema,
   AttackSchema,
   HeroPowerSchema,
+  ActivateLocationSchema,
   HoverHandSchema,
   ChooseTargetSchema,
   EmoteSchema,
@@ -595,6 +596,25 @@ io.on('connection', (socket) => {
     if (!result.success) {
       if (result.needsTarget) {
         socket.emit('needs-target', { heroPower: true, validTargets: result.validTargets });
+      } else {
+        socket.emit('error', result.error);
+      }
+      return;
+    }
+    broadcastGameState(room.code);
+  }));
+
+  // ── Activate Location ──
+
+  socket.on('activate-location', validated(ActivateLocationSchema, (data) => {
+    if (!gameActionLimiter.allow(uid)) return;
+    const room = getRoomByPlayer(uid);
+    if (!room?.game) return;
+
+    const result = activateLocation(room.game, uid, data.locationInstanceId, data.targetId);
+    if (!result.success) {
+      if (result.needsTarget) {
+        socket.emit('needs-target', { locationInstanceId: data.locationInstanceId, validTargets: result.validTargets });
       } else {
         socket.emit('error', result.error);
       }
