@@ -1589,7 +1589,7 @@ export default function GameBoard({
         <div className="flex-1" />
 
         {/* Opponent board — dynamic scaling */}
-        <div className="flex min-h-[7rem] items-center justify-center board-field">
+        <div className="flex min-h-[7rem] mb-4 items-center justify-center board-field">
           <div
             className="flex items-center justify-center gap-4 max-w-[64rem]"
             style={opBoardScale < 1 ? { transform: `scale(${opBoardScale})`, transformOrigin: 'center center' } : undefined}
@@ -1679,7 +1679,7 @@ export default function GameBoard({
       >
         {/* My board (minion positions) */}
         <div
-          className={`flex min-h-[7rem] items-center justify-center rounded-lg board-field ${dropZoneActive ? 'drop-zone-active border-2 border-dashed border-green-500/40' : 'border-2 border-transparent'}`}
+          className={`flex min-h-[7rem] mt-4 items-center justify-center rounded-lg board-field ${dropZoneActive ? 'drop-zone-active border-2 border-dashed border-green-500/40' : 'border-2 border-transparent'}`}
         >
           <div
             className="flex items-center justify-center gap-4 max-w-[64rem]"

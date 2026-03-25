@@ -50,6 +50,8 @@ import {
 import { addToQueue, removeFromQueue, isInQueue, processQueue, calculateElo } from './matchmaking.js';
 import { scheduleAITurn, generateAIPlayerId, randomAIName, isAIPlayer, getAIMulliganReplacements } from './ai.js';
 import { STARTER_DECKS } from '../shared/starterDecks.js';
+import { validateDeck } from '../shared/deckRules.js';
+import { getCardDef } from './cards.js';
 import { generateDailyQuests, shouldRefreshQuests, updateQuestProgress, calculateXP, getLevel } from './quests.js';
 import { getSpectatorState } from './clientState.js';
 import { getRankTier } from '../shared/types.js';
@@ -143,6 +145,16 @@ function validated<T>(schema: ZodSchema<T>, handler: (data: T) => void) {
     if (!result.success) return;
     handler(result.data);
   };
+}
+
+// ── Deck validation helper ──
+
+function validatePlayerDeck(deckCards: string[], heroClass: HeroClass): string | null {
+  const result = validateDeck(deckCards, heroClass, (code) => {
+    try { return getCardDef(code); } catch { return undefined; }
+  });
+  if (!result.valid) return result.errors.join('; ');
+  return null;
 }
 
 // ── Stale room cleanup ──
@@ -487,6 +499,12 @@ io.on('connection', (socket) => {
       return;
     }
 
+    const deckError = validatePlayerDeck(data.deckCards, data.heroClass);
+    if (deckError) {
+      socket.emit('error', `Invalid deck: ${deckError}`);
+      return;
+    }
+
     const aiId = generateAIPlayerId();
     const aiName = randomAIName();
     const aiDeck = STARTER_DECKS[Math.floor(Math.random() * STARTER_DECKS.length)];
@@ -683,6 +701,13 @@ io.on('connection', (socket) => {
       socket.emit('error', 'Already in a room');
       return;
     }
+
+    const deckError = validatePlayerDeck(data.deckCards, data.heroClass);
+    if (deckError) {
+      socket.emit('error', `Invalid deck: ${deckError}`);
+      return;
+    }
+
     // Fetch ELO for matchmaking
     let elo = 1000;
     try {
@@ -899,6 +924,13 @@ io.on('connection', (socket) => {
 
   socket.on('challenge-friend', validated(ChallengeFriendSchema, async (data) => {
     if (!socialLimiter.allow(uid)) return;
+
+    const deckError = validatePlayerDeck(data.deckCards, data.heroClass);
+    if (deckError) {
+      socket.emit('error', `Invalid deck: ${deckError}`);
+      return;
+    }
+
     const friendSocket = onlineUsers.get(data.friendUid);
     if (!friendSocket) {
       socket.emit('error', 'Friend is not online');
@@ -947,6 +979,12 @@ io.on('connection', (socket) => {
 
     if (!data.deckCards || !data.heroClass || !challengerSocket) {
       socket.emit('error', 'Invalid challenge response');
+      return;
+    }
+
+    const responderDeckError = validatePlayerDeck(data.deckCards, data.heroClass);
+    if (responderDeckError) {
+      socket.emit('error', `Invalid deck: ${responderDeckError}`);
       return;
     }
 

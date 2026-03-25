@@ -15,7 +15,8 @@ const JIMMY_STARTER: string[] = [
   'JIM003', 'JIM003', // Fire Axe 2 mana weapon
   'JIM005', 'JIM005', // Blazing Firehawk 3 mana
   'JIM006', 'JIM006', // Lava Burst 3 mana spell
-  'JIM009', 'JIM009', // Inferno 4 mana spell
+  'JIM009',            // Inferno 4 mana spell (legendary — 1 copy)
+  'JIM004',            // Pyro Whelpling 2 mana
   'JIM_S01',           // Ember Trap (secret)
   'JIM_S02',           // Blaze Snare (secret)
   // Neutral filler (16)
@@ -58,7 +59,8 @@ const DEREK_STARTER: string[] = [
   'DRK005', 'DRK005', // Gadget Goblin 3 mana
   'DRK007', 'DRK007', // Sap 2 mana bounce
   'DRK009', 'DRK009', // Sprint 7 mana draw
-  'DRK010', 'DRK010', // Tinker's Oil 4 mana weapon
+  'DRK010',            // Tinker's Oil 4 mana weapon (legendary — 1 copy)
+  'DRK004',            // Schematic Archivist 3 mana
   // Neutral filler (18)
   'NEU003', 'NEU003', // Scrappy Fighter 1 mana 2/1
   'NEU005', 'NEU005', // Raptor 2 mana 3/2
