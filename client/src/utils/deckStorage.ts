@@ -114,10 +114,14 @@ export async function seedStarterDecks(uid: string): Promise<void> {
   const existing = await loadDecks(uid);
   const starterIds = STARTER_DECKS.map(s => s.id);
 
-  // Check if any starter deck needs fixing (wrong card count or missing)
+  // Check if any starter deck needs fixing (wrong card count, missing, or cards changed)
   const needsReseed = STARTER_DECKS.some(starter => {
     const found = existing.find(d => d.id === starter.id);
-    return !found || found.cards.length !== 30;
+    if (!found || found.cards.length !== 30) return true;
+    // Reseed if card list doesn't match (e.g. legendary fix)
+    const sorted1 = [...found.cards].sort().join(',');
+    const sorted2 = [...starter.cards].sort().join(',');
+    return sorted1 !== sorted2;
   });
 
   // No starters exist and user has no decks — first time setup
