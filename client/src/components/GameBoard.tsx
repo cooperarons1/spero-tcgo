@@ -1571,6 +1571,9 @@ export default function GameBoard({
   const myBoardScale = myBoard.length <= 5 ? 1 : Math.max(0.65, 5.5 / myBoard.length);
   const opBoardScale = opBoard.length <= 5 ? 1 : Math.max(0.65, 5.5 / opBoard.length);
 
+  // ─── Spell effect callback (must be before any early return) ───
+  const clearSpell = useCallback(() => setActiveSpell(null), []);
+
   // ─── Mulligan ───
   if (gs.phase === 'MULLIGAN') {
     const alreadyConfirmed = gs.mulliganConfirmed[gs.myPlayerIndex];
@@ -1671,7 +1674,7 @@ export default function GameBoard({
       {/* ═══ Animation overlays ═══ */}
       <FloatingNumbers numbers={diff.floatingNumbers} />
       <DeathAnimation deadMinions={diff.deadMinions} />
-      <SpellCastEffect spell={activeSpell} onComplete={useCallback(() => setActiveSpell(null), [])} />
+      <SpellCastEffect spell={activeSpell} onComplete={clearSpell} />
 
       {/* Spectator banner */}
       {isSpectator && (
