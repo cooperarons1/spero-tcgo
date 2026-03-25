@@ -151,6 +151,12 @@ function App() {
         state.currentPlayerIndex !== state.myPlayerIndex;
       const isOpponentActing = current && !phaseChanged && !state.winner && isOpponentTurn;
 
+      if (phaseChanged) {
+        console.log('[STATE] Phase changed:', current?.phase, '->', state.phase, 'applying immediately');
+        // Force-sync ref immediately so subsequent events in the same tick see the new phase
+        displayedRef.current = state;
+      }
+
       if (isOpponentActing) {
         stateQueueRef.current.push(state);
         processQueueRef.current?.();
@@ -158,33 +164,52 @@ function App() {
         // My turn, game start, phase transition, or game over — apply immediately
         stateQueueRef.current = [];
         processingRef.current = false;
-        setDisplayedState(state);
+        // Preserve client-side needs-target targeting on displayedState too
+        setDisplayedState(prev => {
+          if (
+            prev?.pendingInteraction?.targetChoice?.interactionId?.startsWith('needs-target-') &&
+            !state.pendingInteraction
+          ) {
+            return { ...state, pendingInteraction: prev.pendingInteraction };
+          }
+          return state;
+        });
       }
     });
 
-    socket.on('needs-target', (data: { cardInstanceId?: string; heroPower?: boolean; validTargets: string[] }) => {
-      console.log('[needs-target]', data.heroPower ? 'hero-power' : data.cardInstanceId, 'targets:', data.validTargets);
+    socket.on('needs-target', (data: { cardInstanceId?: string; heroPower?: boolean; locationInstanceId?: string; validTargets: string[] }) => {
+      console.log('[needs-target]', data.heroPower ? 'hero-power' : data.locationInstanceId ? 'location' : data.cardInstanceId, 'targets:', data.validTargets);
       const isHeroPower = !!data.heroPower;
-      const interactionId = isHeroPower ? 'needs-target-hero-power' : `needs-target-${data.cardInstanceId}`;
-      const context = isHeroPower ? 'hero-power' as const : 'battlecry' as const;
+      const isLocation = !!data.locationInstanceId;
+      const interactionId = isHeroPower ? 'needs-target-hero-power'
+        : isLocation ? `needs-target-location-${data.locationInstanceId}`
+        : `needs-target-${data.cardInstanceId}`;
+      const context = isHeroPower ? 'hero-power' as const
+        : isLocation ? 'location' as const
+        : 'battlecry' as const;
+      const pendingInteraction = {
+        type: 'CHOOSE_TARGET' as const,
+        waitingForPlayerId: '__self__',
+        timeoutAt: null as any,
+        targetChoice: {
+          interactionId,
+          effectSource: data.cardInstanceId ?? data.locationInstanceId ?? 'hero-power',
+          prompt: isHeroPower ? 'Choose a target for Hero Power'
+            : isLocation ? 'Choose a target for Location'
+            : 'Choose a target',
+          validTargets: data.validTargets.map((id: string) => ({ id, label: '' })),
+          allowSkip: false,
+          context,
+        },
+      };
+      // Apply to both gameState AND displayedState so targeting overlay is visible
       setGameState(prev => {
         if (!prev) return prev;
-        return {
-          ...prev,
-          pendingInteraction: {
-            type: 'CHOOSE_TARGET' as const,
-            waitingForPlayerId: prev.myPlayerId,
-            timeoutAt: null as any,
-            targetChoice: {
-              interactionId,
-              effectSource: data.cardInstanceId ?? 'hero-power',
-              prompt: isHeroPower ? 'Choose a target for Hero Power' : 'Choose a target',
-              validTargets: data.validTargets.map((id: string) => ({ id, label: '' })),
-              allowSkip: false,
-              context,
-            },
-          },
-        };
+        return { ...prev, pendingInteraction: { ...pendingInteraction, waitingForPlayerId: prev.myPlayerId } };
+      });
+      setDisplayedState(prev => {
+        if (!prev) return prev;
+        return { ...prev, pendingInteraction: { ...pendingInteraction, waitingForPlayerId: prev.myPlayerId } };
       });
     });
 
