@@ -230,7 +230,7 @@ body {
   70% { transform: translateY(-24px) scale(1.1); }
   100% { transform: translateY(0) scale(1); }
 }
-.animate-attack-lunge-up { animation: attack-lunge-up 0.4s ease-in-out; }
+.animate-attack-lunge-up { animation: attack-lunge-up 0.3s ease-in-out; }
 
 /* Attack lunge (opponent minion lunging downward) */
 @keyframes attack-lunge-down {
@@ -239,7 +239,7 @@ body {
   70% { transform: translateY(24px) scale(1.1); }
   100% { transform: translateY(0) scale(1); }
 }
-.animate-attack-lunge-down { animation: attack-lunge-down 0.4s ease-in-out; }
+.animate-attack-lunge-down { animation: attack-lunge-down 0.3s ease-in-out; }
 
 /* Minion entrance (played from hand) */
 @keyframes minion-entrance {
@@ -365,6 +365,24 @@ body {
   100% { box-shadow: 0 0 0 rgba(34,197,94,0); filter: brightness(1); }
 }
 .animate-buff-pulse { animation: buff-pulse 0.5s ease-out; }
+
+/* ═══ Attacker pulse (pulsing green glow for selected attacker) ═══ */
+@keyframes attacker-pulse {
+  0%, 100% { box-shadow: 0 0 16px 4px rgba(34,197,94,0.4); }
+  50% { box-shadow: 0 0 32px 12px rgba(34,197,94,0.8); }
+}
+.animate-attacker-pulse { animation: attacker-pulse 0.8s ease-in-out infinite; }
+
+/* ═══ Card frame styles (Hearthstone-style parchment) ═══ */
+.card-frame {
+  background: linear-gradient(to bottom, #3d2a14, #4a3520, #2a1a08);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.3);
+}
+.card-name-banner {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.7));
+  border-top: 1px solid rgba(212,165,32,0.4);
+  border-bottom: 1px solid rgba(212,165,32,0.4);
+}
 
 /* Show inspect icon on touch devices without hover */
 @media (hover: none) {

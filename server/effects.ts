@@ -97,6 +97,11 @@ export function executeEffect(
   const opp = game.players[oppIdx];
   const value = effect.value ?? 0;
 
+  // Auto-resolve TARGET_HERO: damage → opponent hero, healing → own hero
+  if (effect.target === 'TARGET_HERO' && !targetId) {
+    targetId = effect.type === 'DEAL_DAMAGE' ? `hero-${oppIdx}` : `hero-${casterIndex}`;
+  }
+
   switch (effect.type) {
     case 'DEAL_DAMAGE': {
       // SELF target = deal damage to caster's own hero (for Life Tap cards)

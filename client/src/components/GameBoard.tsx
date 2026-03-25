@@ -67,6 +67,27 @@ const CLASS_BG: Record<HeroClass, string> = {
   NEUTRAL: 'bg-gray-700/40',
 };
 
+// ─── Card targeting helper ───
+function cardNeedsTarget(def: CardDef): { needsTarget: boolean; targetType: string | null } {
+  const TARGETING_TYPES = ['TARGET_MINION','TARGET_ANY','TARGET_FRIENDLY_MINION','TARGET_ENEMY_MINION'];
+  if (def.type === 'SPELL') {
+    const effects = def.spellEffects ?? (def.spellEffect ? [def.spellEffect] : []);
+    for (const e of effects) {
+      if (TARGETING_TYPES.includes(e.target)) return { needsTarget: true, targetType: e.target };
+    }
+  }
+  return { needsTarget: false, targetType: null };
+}
+
+// ─── Hero powers that need targeting ───
+const HERO_POWER_TARGETING: Partial<Record<HeroClass, string>> = {
+  JIMMY: 'TARGET_ANY',
+  TALA: 'TARGET_ANY',
+  ANDERS: 'TARGET_MINION',
+  DES: 'TARGET_ANY',
+  ASTRID: 'TARGET_FRIENDLY_MINION',
+};
+
 // ─── Hero Power Descriptions ───
 const HERO_POWER_DESC: Record<HeroClass, string> = {
   JIMMY: 'Fireblast: Deal 2 damage to any target',
@@ -408,7 +429,7 @@ function BoardMinionCard({
   return (
     <button
       onClick={onClick}
-      className={`relative w-[8rem] h-[9.5rem] select-none transition-all
+      className={`relative w-[9rem] h-[10.5rem] select-none transition-all
         ${hasTaunt ? 'minion-oval-taunt' : 'minion-oval'}
         ${hasDivine && !isSilenced ? 'ring-[3px] ring-yellow-300 ring-offset-1 ring-offset-transparent animate-divine-sparkle' : ''}
         ${isFrozen ? 'brightness-75 saturate-50' : ''}
@@ -416,7 +437,7 @@ function BoardMinionCard({
         ${canAct && isMyMinion ? 'shadow-[0_0_20px_6px_rgba(34,197,94,0.7)] cursor-pointer hover:scale-110 ring-[3px] ring-green-400/80' : ''}
         ${isMyMinion && !canAct && !isFrozen ? 'opacity-80' : ''}
         ${isValidTarget ? 'shadow-[0_0_12px_2px_rgba(34,197,94,0.7)] cursor-crosshair' : ''}
-        ${isSelected ? 'ring-2 ring-green-400' : ''}
+        ${isSelected ? 'ring-[3px] ring-green-400 shadow-[0_0_24px_8px_rgba(34,197,94,0.6)] -translate-y-2 scale-110 z-30 animate-attacker-pulse' : ''}
         ${isBuffed ? 'animate-buff-pulse' : ''}
         ${animationClass ?? ''}
       `}
@@ -452,6 +473,12 @@ function BoardMinionCard({
         ${isDamaged ? 'bg-gradient-to-br from-red-500 to-red-700 border-red-300' : 'bg-gradient-to-br from-red-700 to-red-900 border-red-400'}
       `}>
         {minion.currentHealth}
+      </div>
+      {/* Name label */}
+      <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap z-20">
+        <span className="text-[8px] font-semibold text-amber-200/70 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
+          {def?.name}
+        </span>
       </div>
     </button>
   );
@@ -600,41 +627,48 @@ function HandCard({
   const def = getCard(card.cardCode);
   if (!def) return null;
 
+  const classColor = CLASS_COLORS[def.heroClass] ?? '#d4a520';
+
   return (
     <button
       onClick={onClick}
       draggable={canPlay}
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
-      className={`group relative flex h-48 w-32 flex-shrink-0 flex-col items-center rounded-lg border-2 p-1 transition-all overflow-hidden
+      className={`group relative flex h-52 w-[8.5rem] flex-shrink-0 flex-col items-center rounded-xl border-2 p-1 transition-all overflow-hidden card-frame
         ${isSelected
-          ? 'border-green-400 bg-stone-600 -translate-y-6 scale-110 z-20 shadow-[0_0_20px_4px_rgba(34,197,94,0.5)]'
+          ? 'border-green-400 -translate-y-6 scale-110 z-20 shadow-[0_0_20px_4px_rgba(34,197,94,0.5)]'
           : canPlay
-            ? 'border-amber-500/70 bg-stone-700 hover:-translate-y-4 hover:scale-105 hover:z-10 cursor-pointer'
-            : 'border-stone-500 bg-stone-700/60 opacity-60 cursor-not-allowed'}
+            ? 'border-amber-500/70 hover:-translate-y-4 hover:scale-105 hover:z-10 cursor-pointer hover:shadow-[0_0_16px_rgba(245,158,11,0.3)]'
+            : 'border-stone-500 opacity-60 cursor-not-allowed'}
         ${isDragging ? 'dragging-card' : ''}
         ${isNew ? 'animate-card-draw-in' : ''}
       `}
+      style={{ borderTopColor: classColor, borderTopWidth: '3px' }}
     >
-      {/* Mana cost */}
-      <div className="absolute -left-1 -top-1 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white shadow">
+      {/* Mana gem */}
+      <div className="absolute -left-1.5 -top-1.5 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-700 border-2 border-blue-300 text-sm font-extrabold text-white shadow-lg">
         {def.manaCost}
       </div>
-      {/* Card Art */}
-      <div className="w-full h-16 mt-4 rounded overflow-hidden bg-stone-600/60 flex-shrink-0">
+      {/* Card Art — larger */}
+      <div className="w-full h-24 mt-3 rounded overflow-hidden bg-stone-600/60 flex-shrink-0">
         <CardArt cardCode={card.cardCode!} className="w-full h-full" />
       </div>
-      {/* Name */}
-      <span className="text-[9px] font-semibold text-white leading-tight truncate w-full text-center mt-0.5 px-0.5">
-        {def.name}
-      </span>
-      {/* Text */}
-      <span className="text-[7px] text-stone-400 text-center leading-tight line-clamp-2 px-0.5 flex-1 min-h-0 overflow-hidden">
-        {def.text}
-      </span>
+      {/* Name banner */}
+      <div className="w-full card-name-banner px-1 py-0.5 mt-0.5">
+        <span className="text-[10px] font-bold text-amber-100 leading-tight truncate w-full text-center block">
+          {def.name}
+        </span>
+      </div>
+      {/* Text area with subtle inner frame */}
+      <div className="w-full px-1 flex-1 min-h-0 overflow-hidden bg-black/10 rounded-sm mt-0.5">
+        <span className="text-[7px] text-amber-200/60 text-center leading-tight line-clamp-3 block px-0.5">
+          {def.text}
+        </span>
+      </div>
       {/* Stats */}
       {def.type === 'MINION' && (
-        <div className="flex w-full justify-between px-0.5 shrink-0">
+        <div className="flex w-full justify-between px-0.5 shrink-0 mt-0.5">
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-yellow-700 border border-yellow-300 text-xs font-extrabold text-white shadow">
             {def.attack}
           </span>
@@ -644,7 +678,7 @@ function HandCard({
         </div>
       )}
       {def.type === 'WEAPON' && (
-        <div className="flex w-full justify-between px-0.5 shrink-0">
+        <div className="flex w-full justify-between px-0.5 shrink-0 mt-0.5">
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-yellow-700 border border-yellow-300 text-xs font-extrabold text-white shadow">
             {def.attack}
           </span>
@@ -757,9 +791,12 @@ function AttackArrow({ from, to }: { from: { x: number; y: number }; to: { x: nu
   return (
     <svg className="pointer-events-none fixed inset-0 z-40" style={{ width: '100vw', height: '100vh' }}>
       <defs>
-        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
-          <polygon points="0 0, 10 3.5, 0 7" fill="#ef4444" />
+        <marker id="arrowhead" markerWidth="14" markerHeight="10" refX="14" refY="5" orient="auto">
+          <polygon points="0 0, 14 5, 0 10" fill="#ef4444" />
         </marker>
+        <filter id="arrow-shadow">
+          <feDropShadow dx="0" dy="0" stdDeviation="3" floodColor="#ef4444" floodOpacity="0.6" />
+        </filter>
       </defs>
       <line
         x1={from.x}
@@ -767,9 +804,10 @@ function AttackArrow({ from, to }: { from: { x: number; y: number }; to: { x: nu
         x2={to.x}
         y2={to.y}
         stroke="#ef4444"
-        strokeWidth="3"
-        strokeDasharray="8 4"
+        strokeWidth="4"
+        strokeDasharray="10 5"
         markerEnd="url(#arrowhead)"
+        filter="url(#arrow-shadow)"
       />
     </svg>
   );
@@ -802,6 +840,7 @@ export default function GameBoard({
   const [entranceIds, setEntranceIds] = useState<Set<string>>(new Set());
   const [damageIds, setDamageIds] = useState<Set<string>>(new Set());
   const [lungeId, setLungeId] = useState<string | null>(null);
+  const [defenderLungeId, setDefenderLungeId] = useState<string | null>(null);
   const [myHeroDamage, setMyHeroDamage] = useState(false);
   const [opHeroDamage, setOpHeroDamage] = useState(false);
   const [newCardIds, setNewCardIds] = useState<Set<string>>(new Set());
@@ -811,6 +850,7 @@ export default function GameBoard({
   // ─── Drag-and-drop state ───
   const [draggingCardId, setDraggingCardId] = useState<string | null>(null);
   const [draggingCardType, setDraggingCardType] = useState<string | null>(null);
+  const [draggingTargetType, setDraggingTargetType] = useState<string | null>(null);
   const [dropZoneActive, setDropZoneActive] = useState(false);
   const [dropIndex, setDropIndex] = useState<number | null>(null);
   const justDraggedRef = useRef(false);
@@ -926,8 +966,44 @@ export default function GameBoard({
       }
       return ids;
     }
+    // Client-side spell targeting
+    if (targeting.type === 'play-card') {
+      const ids = new Set<string>();
+      const tt = targeting.cardDef ? cardNeedsTarget(targeting.cardDef).targetType : null;
+      if (tt === 'TARGET_ENEMY_MINION') {
+        for (const m of opBoard) { if (!m.hasStealthUntilAttack) ids.add(m.instanceId); }
+      } else if (tt === 'TARGET_FRIENDLY_MINION') {
+        for (const m of myBoard) ids.add(m.instanceId);
+      } else if (tt === 'TARGET_MINION') {
+        for (const m of myBoard) ids.add(m.instanceId);
+        for (const m of opBoard) { if (!m.hasStealthUntilAttack) ids.add(m.instanceId); }
+      } else if (tt === 'TARGET_ANY') {
+        for (const m of myBoard) ids.add(m.instanceId);
+        for (const m of opBoard) { if (!m.hasStealthUntilAttack) ids.add(m.instanceId); }
+        ids.add(`hero-${gs.myPlayerIndex}`);
+        ids.add(`hero-${1 - gs.myPlayerIndex}`);
+      }
+      return ids;
+    }
+    // Client-side hero power targeting
+    if (targeting.type === 'hero-power') {
+      const ids = new Set<string>();
+      const tt = HERO_POWER_TARGETING[gs.myHeroClass];
+      if (tt === 'TARGET_MINION') {
+        for (const m of myBoard) ids.add(m.instanceId);
+        for (const m of opBoard) { if (!m.hasStealthUntilAttack) ids.add(m.instanceId); }
+      } else if (tt === 'TARGET_FRIENDLY_MINION') {
+        for (const m of myBoard) { if (!m.hasDivineShield) ids.add(m.instanceId); }
+      } else if (tt === 'TARGET_ANY') {
+        for (const m of myBoard) ids.add(m.instanceId);
+        for (const m of opBoard) { if (!m.hasStealthUntilAttack) ids.add(m.instanceId); }
+        ids.add(`hero-${gs.myPlayerIndex}`);
+        ids.add(`hero-${1 - gs.myPlayerIndex}`);
+      }
+      return ids;
+    }
     return new Set();
-  }, [targeting, pendingTarget, opBoard, gs.myPlayerIndex]);
+  }, [targeting, pendingTarget, opBoard, myBoard, gs.myPlayerIndex, gs.myHeroClass]);
 
   // ─── Cancel targeting ───
   const cancelTargeting = useCallback(() => {
@@ -975,7 +1051,17 @@ export default function GameBoard({
 
       setSelectedHandCard(card.instanceId);
 
-      // Spells and weapons play on click — server may respond with needs-target
+      // Check if spell needs client-side targeting
+      if (def.type === 'SPELL') {
+        const { needsTarget, targetType } = cardNeedsTarget(def);
+        if (needsTarget) {
+          // Enter client-side targeting mode instead of round-tripping to server
+          setTargeting({ type: 'play-card', cardInstanceId: card.instanceId, cardDef: def, position: 0 });
+          return;
+        }
+      }
+
+      // Non-targeted spells and weapons play immediately — server may respond with needs-target
       pendingPlayRef.current.add(card.instanceId);
       if (def.type === 'SPELL') soundManager.play('SPELL_CAST');
       else soundManager.play('CARD_PLAY');
@@ -988,6 +1074,21 @@ export default function GameBoard({
   const handleMyMinionClick = useCallback(
     (minion: BoardMinion, e: React.MouseEvent) => {
       if (!isMyTurn || !isPlaying || isGameOver) return;
+
+      // Client-side play-card targeting
+      if (targeting.type === 'play-card' && validTargetIds.has(minion.instanceId)) {
+        pendingPlayRef.current.add(targeting.cardInstanceId);
+        soundManager.play('SPELL_CAST');
+        actions.playCard(targeting.cardInstanceId, undefined, minion.instanceId);
+        cancelTargeting();
+        return;
+      }
+      // Client-side hero-power targeting
+      if (targeting.type === 'hero-power' && validTargetIds.has(minion.instanceId)) {
+        actions.heroPower(minion.instanceId);
+        cancelTargeting();
+        return;
+      }
 
       // If in targeting mode from interaction, select this as target
       if (pendingTarget && validTargetIds.has(minion.instanceId)) {
@@ -1021,6 +1122,21 @@ export default function GameBoard({
   // ─── Handle enemy target click ───
   const handleEnemyTargetClick = useCallback(
     (targetId: string) => {
+      // Client-side play-card targeting
+      if (targeting.type === 'play-card' && validTargetIds.has(targetId)) {
+        pendingPlayRef.current.add(targeting.cardInstanceId);
+        soundManager.play('SPELL_CAST');
+        actions.playCard(targeting.cardInstanceId, undefined, targetId);
+        cancelTargeting();
+        return;
+      }
+      // Client-side hero-power targeting
+      if (targeting.type === 'hero-power' && validTargetIds.has(targetId)) {
+        actions.heroPower(targetId);
+        cancelTargeting();
+        return;
+      }
+
       if (pendingTarget && validTargetIds.has(targetId)) {
         if (pendingTarget.interactionId === 'needs-target-hero-power') {
           // Hero power targeting
@@ -1049,14 +1165,16 @@ export default function GameBoard({
           cancelTargeting();
           return;
         }
-        // Show lunge animation, then send attack after short delay
+        // Show lunge animation on both attacker and defender, then send attack
         soundManager.play('ATTACK_WHOOSH');
         setLungeId(attackerId);
+        setDefenderLungeId(targetId);
         cancelTargeting();
         setTimeout(() => {
           actions.attackTarget(attackerId, targetId);
           setLungeId(null);
-        }, 250);
+          setDefenderLungeId(null);
+        }, 180);
       }
     },
     [targeting, pendingTarget, validTargetIds, actions, cancelTargeting]
@@ -1065,9 +1183,13 @@ export default function GameBoard({
   // ─── Hero Power ───
   const handleHeroPower = useCallback(() => {
     if (!isMyTurn || !isPlaying || gs.myHeroPowerUsed || gs.myMana < HERO_POWER_COST) return;
+    // Heroes with targeting enter client-side targeting mode
+    if (HERO_POWER_TARGETING[gs.myHeroClass]) {
+      setTargeting({ type: 'hero-power' });
+      return;
+    }
     actions.heroPower();
-    // Server may respond with pendingInteraction if it needs a target
-  }, [isMyTurn, isPlaying, gs.myHeroPowerUsed, gs.myMana, actions]);
+  }, [isMyTurn, isPlaying, gs.myHeroPowerUsed, gs.myMana, gs.myHeroClass, actions]);
 
   // ─── End Turn ───
   const handleEndTurn = useCallback(() => {
@@ -1088,20 +1210,63 @@ export default function GameBoard({
     e.dataTransfer.setData('text/plain', card.instanceId);
     e.dataTransfer.setData('card-type', def?.type ?? '');
     e.dataTransfer.effectAllowed = 'move';
-    // Use a minimal transparent drag image to avoid text/number ghost
+
+    // Create styled card ghost
     const ghost = document.createElement('div');
-    ghost.style.width = '60px';
-    ghost.style.height = '80px';
-    ghost.style.background = 'rgba(212,165,32,0.4)';
-    ghost.style.borderRadius = '8px';
-    ghost.style.border = '2px solid rgba(212,165,32,0.8)';
+    ghost.style.width = '100px';
+    ghost.style.height = '140px';
+    ghost.style.background = 'linear-gradient(to bottom, #3d2a14, #4a3520, #2a1a08)';
+    ghost.style.borderRadius = '10px';
+    ghost.style.border = `3px solid ${def ? CLASS_COLORS[def.heroClass] || '#d4a520' : '#d4a520'}`;
     ghost.style.position = 'absolute';
     ghost.style.top = '-1000px';
+    ghost.style.boxShadow = '0 4px 16px rgba(0,0,0,0.5)';
+    ghost.style.padding = '4px';
+    ghost.style.display = 'flex';
+    ghost.style.flexDirection = 'column';
+    ghost.style.alignItems = 'center';
+    ghost.style.overflow = 'hidden';
+
+    // Mana gem
+    const mana = document.createElement('div');
+    mana.style.cssText = 'position:absolute;top:-2px;left:-2px;width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#60a5fa,#1d4ed8);border:2px solid #93c5fd;color:white;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;z-index:1;';
+    mana.textContent = String(def?.manaCost ?? '?');
+    ghost.appendChild(mana);
+
+    // Name
+    const name = document.createElement('div');
+    name.style.cssText = 'margin-top:26px;font-size:10px;font-weight:700;color:#fef3c7;text-align:center;width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding:0 4px;';
+    name.textContent = def?.name ?? 'Card';
+    ghost.appendChild(name);
+
+    // Attack/Health for minions
+    if (def?.type === 'MINION') {
+      const stats = document.createElement('div');
+      stats.style.cssText = 'position:absolute;bottom:4px;left:4px;right:4px;display:flex;justify-content:space-between;';
+      const atk = document.createElement('div');
+      atk.style.cssText = 'width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#facc15,#a16207);border:2px solid #fde047;color:white;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;';
+      atk.textContent = String(def.attack);
+      const hp = document.createElement('div');
+      hp.style.cssText = 'width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#ef4444,#7f1d1d);border:2px solid #fca5a5;color:white;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;';
+      hp.textContent = String(def.health);
+      stats.appendChild(atk);
+      stats.appendChild(hp);
+      ghost.appendChild(stats);
+    }
+
     document.body.appendChild(ghost);
-    e.dataTransfer.setDragImage(ghost, 30, 40);
+    e.dataTransfer.setDragImage(ghost, 50, 70);
     setTimeout(() => document.body.removeChild(ghost), 0);
+
     setDraggingCardId(card.instanceId);
     setDraggingCardType(def?.type ?? null);
+    // Track spell targeting type for Phase 5
+    if (def?.type === 'SPELL') {
+      const { targetType } = cardNeedsTarget(def);
+      setDraggingTargetType(targetType);
+    } else {
+      setDraggingTargetType(null);
+    }
   }, []);
 
   const handleDragEnd = useCallback(() => {
@@ -1109,6 +1274,7 @@ export default function GameBoard({
     setTimeout(() => { justDraggedRef.current = false; }, 100);
     setDraggingCardId(null);
     setDraggingCardType(null);
+    setDraggingTargetType(null);
     setDropZoneActive(false);
     setDropIndex(null);
   }, []);
@@ -1214,12 +1380,13 @@ export default function GameBoard({
     if (entranceIds.has(instanceId)) return 'animate-minion-entrance';
     if (damageIds.has(instanceId)) return 'animate-damage-shake';
     if (lungeId === instanceId) return isMyMinion ? 'animate-attack-lunge-up' : 'animate-attack-lunge-down';
+    if (defenderLungeId === instanceId) return isMyMinion ? 'animate-attack-lunge-down' : 'animate-attack-lunge-up';
     return undefined;
-  }, [entranceIds, damageIds, lungeId]);
+  }, [entranceIds, damageIds, lungeId, defenderLungeId]);
 
   // ─── Dynamic board scaling ───
-  const myBoardScale = myBoard.length <= 4 ? 1 : Math.max(0.65, 4.5 / myBoard.length);
-  const opBoardScale = opBoard.length <= 4 ? 1 : Math.max(0.65, 4.5 / opBoard.length);
+  const myBoardScale = myBoard.length <= 5 ? 1 : Math.max(0.65, 5.5 / myBoard.length);
+  const opBoardScale = opBoard.length <= 5 ? 1 : Math.max(0.65, 5.5 / opBoard.length);
 
   // ─── Mulligan ───
   if (gs.phase === 'MULLIGAN') {
@@ -1289,6 +1456,20 @@ export default function GameBoard({
     </div>
   ) : null;
 
+  // ─── Client-side targeting overlay (play-card / hero-power) ───
+  const ClientTargetingOverlay = (targeting.type === 'play-card' || targeting.type === 'hero-power') ? (
+    <div className="fixed left-1/2 top-4 z-40 -translate-x-1/2 rounded-lg bg-amber-900/90 px-6 py-3 text-center shadow-lg">
+      <p className="text-lg font-bold text-amber-300">Choose a target</p>
+      <p className="text-sm text-amber-200/70">Click a valid target (glowing green)</p>
+      <button
+        onClick={cancelTargeting}
+        className="mt-2 rounded bg-stone-600 px-4 py-1 text-sm text-white hover:bg-stone-500"
+      >
+        Cancel
+      </button>
+    </div>
+  ) : null;
+
   // ─── Drop zone placeholder ───
   const dropPlaceholder = (
     <div className="w-4 h-[5.5rem] rounded-lg bg-green-500/20 border-2 border-dashed border-green-400/60 animate-pulse flex-shrink-0" />
@@ -1302,6 +1483,7 @@ export default function GameBoard({
     >
       {GameOverOverlay}
       {InteractionOverlay}
+      {ClientTargetingOverlay}
 
       {/* ═══ Animation overlays ═══ */}
       <FloatingNumbers numbers={diff.floatingNumbers} />
@@ -1409,14 +1591,19 @@ export default function GameBoard({
         {/* Opponent board — dynamic scaling */}
         <div className="flex min-h-[7rem] items-center justify-center board-field">
           <div
-            className="flex items-center justify-center gap-3 max-w-[64rem]"
+            className="flex items-center justify-center gap-4 max-w-[64rem]"
             style={opBoardScale < 1 ? { transform: `scale(${opBoardScale})`, transformOrigin: 'center center' } : undefined}
           >
-            {opBoard.map((m) => (
+            {opBoard.map((m, idx) => {
+              const count = opBoard.length;
+              const mid = (count - 1) / 2;
+              const arcAngle = count > 1 ? (idx - mid) * 3 : 0;
+              const arcY = Math.abs(idx - mid) * 3;
+              return (
               <div
                 key={m.instanceId}
                 data-entity-id={m.instanceId}
-                style={{ flex: '0 1 9rem' }}
+                style={{ flex: '0 1 9rem', transform: `rotate(${arcAngle}deg) translateY(${arcY}px)` }}
                 onDragOver={handleTargetDragOver}
                 onDrop={(e) => handleTargetDrop(e, m.instanceId)}
                 onMouseEnter={(e) => setHoveredCard({ cardCode: m.cardCode, x: e.clientX, y: e.clientY })}
@@ -1427,14 +1614,15 @@ export default function GameBoard({
                   isMyMinion={false}
                   canAct={false}
                   hasSummoningSickness={false}
-                  isValidTarget={validTargetIds.has(m.instanceId) || (draggingCardType === 'SPELL' && !!draggingCardId)}
+                  isValidTarget={validTargetIds.has(m.instanceId) || (draggingCardType === 'SPELL' && !!draggingCardId && (!draggingTargetType || draggingTargetType === 'TARGET_ENEMY_MINION' || draggingTargetType === 'TARGET_MINION' || draggingTargetType === 'TARGET_ANY'))}
                   isSelected={false}
                   onClick={() => handleEnemyTargetClick(m.instanceId)}
                   animationClass={getMinionAnim(m.instanceId, false)}
                   isBuffed={buffedIds.has(m.instanceId)}
                 />
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
@@ -1494,16 +1682,21 @@ export default function GameBoard({
           className={`flex min-h-[7rem] items-center justify-center rounded-lg board-field ${dropZoneActive ? 'drop-zone-active border-2 border-dashed border-green-500/40' : 'border-2 border-transparent'}`}
         >
           <div
-            className="flex items-center justify-center gap-3 max-w-[64rem]"
+            className="flex items-center justify-center gap-4 max-w-[64rem]"
             style={myBoardScale < 1 ? { transform: `scale(${myBoardScale})`, transformOrigin: 'bottom center' } : undefined}
           >
-            {myBoard.map((m, i) => (
+            {myBoard.map((m, i) => {
+              const count = myBoard.length;
+              const mid = (count - 1) / 2;
+              const arcAngle = count > 1 ? (i - mid) * 3 : 0;
+              const arcY = Math.abs(i - mid) * 3;
+              return (
               <Fragment key={m.instanceId}>
                 {dropIndex === i && dropPlaceholder}
                 <div
                   data-minion-index={i}
                   data-entity-id={m.instanceId}
-                  style={{ flex: '0 1 9rem' }}
+                  style={{ flex: '0 1 9rem', transform: `rotate(${arcAngle}deg) translateY(${arcY}px)` }}
                   onDragOver={draggingCardType === 'SPELL' ? handleTargetDragOver : undefined}
                   onDrop={draggingCardType === 'SPELL' ? (e) => handleTargetDrop(e, m.instanceId) : undefined}
                   onMouseEnter={(e) => setHoveredCard({ cardCode: m.cardCode, x: e.clientX, y: e.clientY })}
@@ -1514,7 +1707,7 @@ export default function GameBoard({
                     isMyMinion={true}
                     canAct={isMyTurn && m.canAttack && m.attacksRemaining > 0 && m.currentAttack > 0}
                     hasSummoningSickness={isMyTurn && !m.canAttack && m.currentAttack > 0 && !m.isFrozen}
-                    isValidTarget={validTargetIds.has(m.instanceId) || (draggingCardType === 'SPELL' && !!draggingCardId)}
+                    isValidTarget={validTargetIds.has(m.instanceId) || (draggingCardType === 'SPELL' && !!draggingCardId && (!draggingTargetType || draggingTargetType === 'TARGET_FRIENDLY_MINION' || draggingTargetType === 'TARGET_MINION' || draggingTargetType === 'TARGET_ANY'))}
                     isSelected={targeting.type === 'attack' && targeting.attackerInstanceId === m.instanceId}
                     onClick={(e?: any) => handleMyMinionClick(m, e)}
                     animationClass={getMinionAnim(m.instanceId, true)}
@@ -1522,7 +1715,8 @@ export default function GameBoard({
                   />
                 </div>
               </Fragment>
-            ))}
+              );
+            })}
             {dropIndex === myBoard.length && dropPlaceholder}
           </div>
         </div>
