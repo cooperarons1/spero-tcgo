@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, Component } from 'react';
+import type { ReactNode } from 'react';
 import { socket } from './socket';
 import type { ClientGameState, LobbyState } from '../../shared/types';
 import { useAuth } from './hooks/useAuth';
@@ -11,6 +12,25 @@ import { DeckPicker } from './components/DeckPicker';
 import { MatchHistory } from './components/MatchHistory';
 import { Friends } from './components/Friends';
 import { ReconnectionOverlay } from './components/ReconnectionOverlay';
+
+class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+  state = { error: null as Error | null };
+  static getDerivedStateFromError(error: Error) { return { error }; }
+  componentDidCatch(error: Error, info: any) { console.error('[CRASH]', error, info); }
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="fixed inset-0 bg-black text-white flex flex-col items-center justify-center p-8">
+          <h1 className="text-2xl font-bold text-red-400 mb-4">Something went wrong</h1>
+          <pre className="text-sm text-gray-300 max-w-lg overflow-auto">{this.state.error.message}</pre>
+          <button onClick={() => { this.setState({ error: null }); window.location.reload(); }}
+            className="mt-4 bg-amber-500 text-black px-6 py-2 rounded font-bold">Reload</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 type View = 'lobby' | 'game' | 'collection' | 'deckpicker' | 'deckpicker-ai' | 'matchhistory' | 'friends';
 type _RematchState = 'default' | 'proposed' | 'received' | 'declined'; // kept for server compat
@@ -287,6 +307,7 @@ function App() {
   }
 
   return (
+    <ErrorBoundary>
     <>
       {connectionStatus !== 'connected' && view === 'game' && (
         <ReconnectionOverlay status={connectionStatus} />
@@ -349,6 +370,7 @@ function App() {
         />
       )}
     </>
+    </ErrorBoundary>
   );
 }
 
