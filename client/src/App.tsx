@@ -44,6 +44,7 @@ function App() {
     if (processingRef.current || stateQueueRef.current.length === 0) return;
     processingRef.current = true;
     const next = stateQueueRef.current.shift()!;
+    displayedRef.current = next;
     setDisplayedState(next);
     setTimeout(() => {
       processingRef.current = false;
@@ -165,15 +166,17 @@ function App() {
         stateQueueRef.current = [];
         processingRef.current = false;
         // Preserve client-side needs-target targeting on displayedState too
-        setDisplayedState(prev => {
-          if (
-            prev?.pendingInteraction?.targetChoice?.interactionId?.startsWith('needs-target-') &&
-            !state.pendingInteraction
-          ) {
-            return { ...state, pendingInteraction: prev.pendingInteraction };
-          }
-          return state;
-        });
+        let finalState = state;
+        const prevDisplayed = displayedRef.current;
+        if (
+          prevDisplayed?.pendingInteraction?.targetChoice?.interactionId?.startsWith('needs-target-') &&
+          !state.pendingInteraction
+        ) {
+          finalState = { ...state, pendingInteraction: prevDisplayed.pendingInteraction };
+        }
+        // Sync ref immediately so subsequent events in same tick see fresh state
+        displayedRef.current = finalState;
+        setDisplayedState(finalState);
       }
     });
 
