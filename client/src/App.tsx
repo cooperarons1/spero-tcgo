@@ -51,7 +51,7 @@ function App() {
   const [rematchState, setRematchState] = useState<RematchState>('default');
   const introShownRef = useRef(false);
   const matchSavedRef = useRef(false);
-  const errorTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const errorTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [incomingChallenge, setIncomingChallenge] = useState<{ challengeId: string; fromUid: string; fromName: string } | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('connected');
 

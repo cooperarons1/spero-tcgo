@@ -661,6 +661,8 @@ function HeroPortrait({
   mySecretCodes,
   heroPowerFlash,
   entityId,
+  heroPowerUpgraded,
+  upgradeProgress,
 }: {
   heroClass: HeroClass;
   health: number;
