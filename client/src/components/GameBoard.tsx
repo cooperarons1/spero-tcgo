@@ -1171,16 +1171,12 @@ export default function GameBoard({
   // ─── Sound effects ───
   useSoundEffects(diff, gs);
 
-  // Track mouse for attack arrows (mousemove for click-targeting, dragover for drag-targeting)
+  // Track mouse for attack arrows during drag
   useEffect(() => {
     if (targeting.type !== 'attack') return;
     const handler = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY });
-    window.addEventListener('mousemove', handler);
     window.addEventListener('dragover', handler);
-    return () => {
-      window.removeEventListener('mousemove', handler);
-      window.removeEventListener('dragover', handler);
-    };
+    return () => window.removeEventListener('dragover', handler);
   }, [targeting.type]);
 
   // ─── Pending interaction (server-side targeting) ───
@@ -1400,16 +1396,10 @@ export default function GameBoard({
       }
 
       if (targeting.type === 'attack') {
-        // Can't attack own minion
         cancelTargeting();
         return;
       }
-
-      if (minion.canAttack && minion.attacksRemaining > 0 && minion.currentAttack > 0) {
-        const rect = (e.target as HTMLElement).getBoundingClientRect();
-        setAttackerPos({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
-        setTargeting({ type: 'attack', attackerInstanceId: minion.instanceId });
-      }
+      // Attack is drag-only — no click-to-select-attacker
     },
     [isMyTurn, isPlaying, isGameOver, targeting, pendingTarget, validTargetIds, actions, cancelTargeting]
   );
@@ -1461,25 +1451,7 @@ export default function GameBoard({
         return;
       }
 
-      if (targeting.type === 'attack' && validTargetIds.has(targetId)) {
-        const attackerId = targeting.attackerInstanceId;
-        // Validate attacker still exists (minion on board or hero with weapon)
-        const isHeroAttack = attackerId.startsWith('hero-');
-        if (!isHeroAttack && !myBoard.find(m => m.instanceId === attackerId)) {
-          cancelTargeting();
-          return;
-        }
-        // Show lunge animation on both attacker and defender, then send attack
-        soundManager.play('ATTACK_WHOOSH');
-        setLungeId(attackerId);
-        setDefenderLungeId(targetId);
-        cancelTargeting();
-        setTimeout(() => {
-          actions.attackTarget(attackerId, targetId);
-          setLungeId(null);
-          setDefenderLungeId(null);
-        }, 180);
-      }
+      // Attack is drag-only — no click-to-complete-attack
     },
     [targeting, pendingTarget, validTargetIds, actions, cancelTargeting]
   );
@@ -2203,24 +2175,12 @@ export default function GameBoard({
             isValidTarget={validTargetIds.has(`hero-${gs.myPlayerIndex}`) || (draggingCardType === 'SPELL' && !!draggingCardId && (!draggingTargetType || draggingTargetType === 'TARGET_ANY'))}
             onHeroPowerClick={handleHeroPower}
             onHeroClick={(e?: React.MouseEvent) => {
-              // If being targeted by a spell/attack interaction, handle as target
+              // If being targeted by a spell/interaction, handle as target
               if (validTargetIds.has(`hero-${gs.myPlayerIndex}`)) {
                 handleEnemyTargetClick(`hero-${gs.myPlayerIndex}`);
                 return;
               }
-              // If I have a weapon and it's my turn, initiate hero attack
-              if (isMyTurn && isPlaying && ((gs.myWeapon && gs.myWeapon.currentAttack > 0) || (gs.myHeroAttackThisTurn ?? 0) > 0)) {
-                if (targeting.type === 'attack') {
-                  cancelTargeting();
-                  return;
-                }
-                const el = e?.currentTarget as HTMLElement | undefined;
-                if (el) {
-                  const rect = el.getBoundingClientRect();
-                  setAttackerPos({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
-                }
-                setTargeting({ type: 'attack', attackerInstanceId: `hero-${gs.myPlayerIndex}` });
-              }
+              // Hero attack is drag-only
             }}
             heroDamage={myHeroDamage}
             secretCount={gs.mySecrets?.length ?? 0}
