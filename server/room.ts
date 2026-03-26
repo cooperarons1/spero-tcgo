@@ -59,16 +59,21 @@ export function getRoomByPlayer(uid: string): Room | null {
   return null;
 }
 
-/** Mark a player as disconnected with a reconnect grace period */
-export function markDisconnected(uid: string): Room | null {
+/** Mark a player as disconnected with a reconnect grace period.
+ *  `onGracePeriodExpired` is called if the player doesn't reconnect in time —
+ *  use it to set a winner, write match history, and notify the remaining player. */
+export function markDisconnected(uid: string, onGracePeriodExpired?: (room: Room, disconnectedUid: string) => void): Room | null {
   const room = getRoomByPlayer(uid);
   if (!room) return null;
 
   // If game is in progress, set grace period instead of removing
   if (room.game && !room.game.winner) {
     const timer = setTimeout(() => {
-      // Grace period expired — actually remove the player
+      // Grace period expired — notify caller, then remove the player
       disconnectedPlayers.delete(uid);
+      if (onGracePeriodExpired && room.game && !room.game.winner) {
+        onGracePeriodExpired(room, uid);
+      }
       removePlayer(uid);
     }, RECONNECT_GRACE_MS);
     disconnectedPlayers.set(uid, { roomCode: room.code, timer });

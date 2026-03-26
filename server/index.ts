@@ -1195,7 +1195,21 @@ io.on('connection', (socket) => {
     if (room) {
       const code = room.code;
       if (room.game && !room.game.winner) {
-        markDisconnected(uid);
+        markDisconnected(uid, (expiredRoom, dcUid) => {
+          // Grace period expired — opponent wins by disconnect
+          if (!expiredRoom.game || expiredRoom.game.winner) return;
+          const dcIdx = expiredRoom.game.players.findIndex(p => p.playerId === dcUid);
+          if (dcIdx === -1) return;
+          const winnerIdx = dcIdx === 0 ? 1 : 0;
+          expiredRoom.game.winner = expiredRoom.game.players[winnerIdx].playerId;
+          expiredRoom.game.winReason = 'disconnect';
+          expiredRoom.game.pendingInteraction = null;
+          expiredRoom.game.turnStartedAt = null;
+          expiredRoom.game.lastAction = `${expiredRoom.game.players[dcIdx].playerName} disconnected`;
+          addLog(expiredRoom.game, dcIdx as 0 | 1, `${expiredRoom.game.players[dcIdx].playerName} disconnected — opponent wins`, 'GAME');
+          clearRoomTimer(expiredRoom);
+          broadcastGameState(expiredRoom.code);
+        });
         for (const [pUid, sid] of room.sockets) {
           if (pUid !== uid && sid !== '__ai__') {
             io.to(sid).emit('opponent-disconnected', { gracePeriodMs: 120000 });

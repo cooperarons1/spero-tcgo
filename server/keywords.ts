@@ -18,12 +18,12 @@ export function minionHasKeyword(minion: BoardMinion, keyword: Keyword): boolean
 
 /** Check if any enemy minion has Taunt */
 export function hasActiveTaunt(board: BoardMinion[]): boolean {
-  return board.some(m => minionHasKeyword(m, 'TAUNT') && !minionHasKeyword(m, 'STEALTH'));
+  return board.some(m => minionHasKeyword(m, 'TAUNT') && !m.hasStealthUntilAttack);
 }
 
 /** Get all Taunt minions on a board */
 export function getTauntMinions(board: BoardMinion[]): BoardMinion[] {
-  return board.filter(m => minionHasKeyword(m, 'TAUNT') && !minionHasKeyword(m, 'STEALTH'));
+  return board.filter(m => minionHasKeyword(m, 'TAUNT') && !m.hasStealthUntilAttack);
 }
 
 /** Check if a minion can be targeted (not Stealthed) */

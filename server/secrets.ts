@@ -75,70 +75,71 @@ export function checkSecrets(
   // Set re-entrancy guard
   (game as any)._secretResolving = true;
 
-  // Log the reveal
-  addLog(
-    game,
-    secretOwnerIndex,
-    `Secret revealed: ${def.name}`,
-    'PLAY'
-  );
-
-  // Gather the secret's effects
-  const effects = def.secretEffects ?? (def.secretEffect ? [def.secretEffect] : []);
-
-  let countered = false;
-
-  // Check for COUNTER_SPELL effect
-  if (effects.some((e) => e.type === 'COUNTER_SPELL')) {
-    countered = true;
-    // Still execute any remaining non-counter effects
-    const nonCounterEffects = effects.filter((e) => e.type !== 'COUNTER_SPELL');
-    if (nonCounterEffects.length > 0) {
-      executeEffects(game, secretOwnerIndex, nonCounterEffects);
-    }
-    (game as any)._secretResolving = false;
-    return { triggered: true, countered: true };
-  }
-
-  // Check for COPY_MINION effect
-  const copyEffect = effects.find((e) => e.type === 'COPY_MINION');
-  if (copyEffect && context.minionInstanceId) {
-    // Find the minion that triggered the secret (on opponent's board)
-    const oppIdx = (secretOwnerIndex === 0 ? 1 : 0) as 0 | 1;
-    const sourceBoardMinion = game.players[oppIdx].board.find(
-      (m) => m.instanceId === context.minionInstanceId
+  try {
+    // Log the reveal
+    addLog(
+      game,
+      secretOwnerIndex,
+      `Secret revealed: ${def.name}`,
+      'PLAY'
     );
 
-    if (sourceBoardMinion && owner.board.length < MAX_BOARD_SIZE) {
-      const copy = createBoardMinion(sourceBoardMinion.cardCode);
-      owner.board.push(copy);
-      addLog(
-        game,
-        secretOwnerIndex,
-        `Secret copies ${def.name}: summoned a copy of ${getCardDef(sourceBoardMinion.cardCode).name}`,
-        'PLAY'
+    // Gather the secret's effects
+    const effects = def.secretEffects ?? (def.secretEffect ? [def.secretEffect] : []);
+
+    let countered = false;
+
+    // Check for COUNTER_SPELL effect
+    if (effects.some((e) => e.type === 'COUNTER_SPELL')) {
+      countered = true;
+      // Still execute any remaining non-counter effects
+      const nonCounterEffects = effects.filter((e) => e.type !== 'COUNTER_SPELL');
+      if (nonCounterEffects.length > 0) {
+        executeEffects(game, secretOwnerIndex, nonCounterEffects);
+      }
+      return { triggered: true, countered: true };
+    }
+
+    // Check for COPY_MINION effect
+    const copyEffect = effects.find((e) => e.type === 'COPY_MINION');
+    if (copyEffect && context.minionInstanceId) {
+      // Find the minion that triggered the secret (on opponent's board)
+      const oppIdx = (secretOwnerIndex === 0 ? 1 : 0) as 0 | 1;
+      const sourceBoardMinion = game.players[oppIdx].board.find(
+        (m) => m.instanceId === context.minionInstanceId
       );
+
+      if (sourceBoardMinion && owner.board.length < MAX_BOARD_SIZE) {
+        const copy = createBoardMinion(sourceBoardMinion.cardCode);
+        owner.board.push(copy);
+        addLog(
+          game,
+          secretOwnerIndex,
+          `Secret copies ${def.name}: summoned a copy of ${getCardDef(sourceBoardMinion.cardCode).name}`,
+          'PLAY'
+        );
+      }
+
+      // Execute remaining non-copy effects
+      const otherEffects = effects.filter((e) => e.type !== 'COPY_MINION');
+      if (otherEffects.length > 0) {
+        const targetId = resolveTargetForTrigger(trigger, context);
+        executeEffects(game, secretOwnerIndex, otherEffects, targetId);
+      }
+
+      checkDeaths(game);
+      return { triggered: true };
     }
 
-    // Execute remaining non-copy effects
-    const otherEffects = effects.filter((e) => e.type !== 'COPY_MINION');
-    if (otherEffects.length > 0) {
-      const targetId = resolveTargetForTrigger(trigger, context);
-      executeEffects(game, secretOwnerIndex, otherEffects, targetId);
-    }
-
+    // Standard effect resolution — determine target based on trigger type
+    const targetId = resolveTargetForTrigger(trigger, context);
+    executeEffects(game, secretOwnerIndex, effects, targetId);
     checkDeaths(game);
+
+    return { triggered: true, countered };
+  } finally {
     (game as any)._secretResolving = false;
-    return { triggered: true };
   }
-
-  // Standard effect resolution — determine target based on trigger type
-  const targetId = resolveTargetForTrigger(trigger, context);
-  executeEffects(game, secretOwnerIndex, effects, targetId);
-  checkDeaths(game);
-
-  (game as any)._secretResolving = false;
-  return { triggered: true, countered };
 }
 
 /**
