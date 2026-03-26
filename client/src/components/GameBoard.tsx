@@ -1264,6 +1264,7 @@ export default function GameBoard({
       }
       // Client-side hero-power targeting
       if (targeting.type === 'hero-power' && validTargetIds.has(minion.instanceId)) {
+        soundManager.play('AP_GAIN');
         setHeroPowerFlash(true);
         setTimeout(() => setHeroPowerFlash(false), 400);
         actions.heroPower(minion.instanceId);
@@ -1319,6 +1320,7 @@ export default function GameBoard({
       }
       // Client-side hero-power targeting
       if (targeting.type === 'hero-power' && validTargetIds.has(targetId)) {
+        soundManager.play('AP_GAIN');
         setHeroPowerFlash(true);
         setTimeout(() => setHeroPowerFlash(false), 400);
         actions.heroPower(targetId);
@@ -1383,6 +1385,7 @@ export default function GameBoard({
       setTargeting({ type: 'hero-power' });
       return;
     }
+    soundManager.play('AP_GAIN');
     setHeroPowerFlash(true);
     setTimeout(() => setHeroPowerFlash(false), 400);
     actions.heroPower();

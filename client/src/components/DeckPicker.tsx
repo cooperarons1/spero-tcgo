@@ -172,9 +172,9 @@ export function DeckPicker({ mode, uid, onBack }: DeckPickerProps) {
         </div>
       )}
 
-      <div className="flex-1 flex min-h-0">
+      <div className="flex-1 flex flex-col md:flex-row min-h-0">
         {/* Left — Deck list (70%) */}
-        <div className="flex-[7] flex flex-col p-6">
+        <div className="flex-[7] flex flex-col p-4 md:p-6">
           <h2 className="text-sm uppercase tracking-wider text-gray-500 font-bold mb-4">Choose a Deck</h2>
           {loading ? (
             <div className="flex-1 flex items-center justify-center">
@@ -226,7 +226,7 @@ export function DeckPicker({ mode, uid, onBack }: DeckPickerProps) {
         </div>
 
         {/* Right — Selected deck preview (30%) */}
-        <div className="flex-[3] flex flex-col border-l border-slate-700/30 bg-slate-800/30">
+        <div className="flex-[3] flex flex-col border-t md:border-t-0 md:border-l border-slate-700/30 bg-slate-800/30">
           {selectedDeck ? (
             <>
               {/* Deck info */}

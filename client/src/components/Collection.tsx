@@ -268,7 +268,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
 
       <div className="flex-1 flex min-h-0">
         {/* Left sidebar — My Decks */}
-        <div className="w-[200px] flex flex-col border-r border-slate-700/30 bg-slate-800/30 shrink-0">
+        <div className="w-48 md:w-[200px] flex flex-col border-r border-slate-700/30 bg-slate-800/30 shrink-0">
           <div className="p-3 border-b border-slate-700/30">
             <h2 className="text-xs uppercase tracking-wider text-gray-500 font-bold mb-2">My Decks</h2>
           </div>
@@ -433,7 +433,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
 
           {/* Card grid */}
           <div className="flex-1 overflow-y-auto p-2 bg-slate-900/80">
-            <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-1.5">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-1.5">
               {filteredCards.map(c => {
                 const count = editingCounts.get(c.cardCode) || 0;
                 const max = c.rarity === 'LEGENDARY' ? MAX_COPIES_LEGENDARY : MAX_COPIES_PER_CARD;
@@ -475,7 +475,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
 
         {/* Right panel — Deck Editor (visible when editing) */}
         {editingDeck && (
-          <div className="w-[260px] flex flex-col border-l border-slate-700/30 bg-slate-800/30 shrink-0">
+          <div className="hidden md:flex md:w-[260px] flex-col border-l border-slate-700/30 bg-slate-800/30 shrink-0">
             {/* Deck header */}
             <div className={`p-3 border-b border-slate-700/30 ${HERO_BG_MAP[editingDeck.heroClass] || ''}`}>
               <input

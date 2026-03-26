@@ -46,6 +46,20 @@ try {
   // Weights file missing or invalid — use defaults
 }
 
+/** Reload weights from disk (used by learn mode between cycles) */
+export function reloadAIWeights(): void {
+  try {
+    const __dir = path.dirname(fileURLToPath(import.meta.url));
+    const weightsPath = path.join(__dir, '..', 'data', 'ai-weights.json');
+    if (fs.existsSync(weightsPath)) {
+      aiWeights = JSON.parse(fs.readFileSync(weightsPath, 'utf-8'));
+      console.log('[AI] Reloaded simulation weights from ai-weights.json');
+    }
+  } catch {
+    // Weights file missing or invalid — keep existing
+  }
+}
+
 /** Get opponent's class profile from weights */
 function getOpponentProfile(oppClass: HeroClass): string {
   if (aiWeights?.classProfile?.[oppClass]) return aiWeights.classProfile[oppClass];
@@ -589,7 +603,7 @@ function playCardsPhase(
  * Priority score for deciding which card to play first.
  * Higher = play first. Uses simulation weights for matchup-aware scoring.
  */
-function cardPlayPriority(def: CardDef, me: PlayerState, opp: PlayerState): number {
+export function cardPlayPriority(def: CardDef, me: PlayerState, opp: PlayerState): number {
   let score = def.manaCost; // base: prefer expensive cards
 
   const oppProfile = getOpponentProfile(opp.heroClass);
@@ -750,7 +764,7 @@ function executeAIAttacks(
  * Smart attack targeting using threat scores.
  * Priority: taunts > exact kills on high-threats > favorable trades > go face.
  */
-function pickSmartAttackTarget(
+export function pickSmartAttackTarget(
   attacker: BoardMinion,
   me: PlayerState,
   opp: PlayerState,
@@ -1002,7 +1016,7 @@ function pickDamageHeroPowerTarget(opp: PlayerState, oppIdx: 0 | 1, damage: numb
 
 // ── Smart Targeting for Spells & Battlecries ──
 
-function pickSmartTarget(
+export function pickSmartTarget(
   game: GameState,
   myIdx: 0 | 1,
   def: CardDef
@@ -1179,7 +1193,7 @@ function pickSmartTarget(
   }
 }
 
-function pickTargetFromList(
+export function pickTargetFromList(
   game: GameState,
   myIdx: 0 | 1,
   def: CardDef,

@@ -17,8 +17,11 @@ import { playCard, useHeroPower } from './actions.js';
 import { attack } from './combat.js';
 import { getCardDef } from './cards.js';
 import { STARTER_DECKS } from '../shared/starterDecks.js';
-import { minionHasKeyword, hasActiveTaunt, getTauntMinions } from './keywords.js';
 import { secretTriggerCount, resetSecretTriggerCount } from './secrets.js';
+import {
+  reloadAIWeights, getAIMulliganReplacements, cardPlayPriority,
+  pickSmartAttackTarget, pickSmartTarget, pickTargetFromList,
+} from './ai.js';
 import type { GameState, BoardMinion, PlayerState, HeroClass } from '../shared/types.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -107,19 +110,20 @@ for (let g = 0; g < gameCount && Date.now() < endTime; g++) {
       { deckLists: [deck1.cards, deck2.cards] }
     );
 
-    // Auto-mulligan: keep all
-    confirmMulligan(game, 'ai-1', game.players[0].hand.map(() => false));
-    confirmMulligan(game, 'ai-2', game.players[1].hand.map(() => false));
+    // Smart mulligan using AI logic
+    confirmMulligan(game, 'ai-1', getAIMulliganReplacements(game.players[0].hand, deck1.heroClass, deck2.heroClass));
+    confirmMulligan(game, 'ai-2', getAIMulliganReplacements(game.players[1].hand, deck2.heroClass, deck1.heroClass));
 
     let turnCount = 0;
     while (!game.winner && turnCount < MAX_TURNS) {
       turnCount++;
       const pIdx = game.currentPlayerIndex;
       const me = game.players[pIdx];
+      const myIdx = pIdx as 0 | 1;
       const oppIdx = (pIdx === 0 ? 1 : 0) as 0 | 1;
       const opp = game.players[oppIdx];
 
-      // Play cards
+      // Play cards using smart priority ordering
       let played = true;
       let safety = 0;
       while (played && !game.winner && safety < 30) {
@@ -131,27 +135,35 @@ for (let g = 0; g < gameCount && Date.now() < endTime; g++) {
             const def = getCardDef(c.cardCode);
             return def.manaCost <= me.mana && c.cardCode !== 'COIN';
           })
-          .sort((a, b) => getCardDef(b.cardCode).manaCost - getCardDef(a.cardCode).manaCost);
+          .sort((a, b) => cardPlayPriority(getCardDef(b.cardCode), me, opp) - cardPlayPriority(getCardDef(a.cardCode), me, opp));
 
         for (const card of playable) {
           if (game.winner) break;
           const def = getCardDef(card.cardCode);
           if (def.type === 'MINION' && me.board.length >= 7) continue;
+          if (def.type === 'LOCATION' && (me.board.length + me.locations.length) >= 7) continue;
 
-          // Track secrets played
           if (def.secretTrigger) {
+            if (me.secrets.some(s => s.cardCode === card.cardCode)) continue;
+            if (me.secrets.length >= 5) continue;
             totalSecretsPlayed++;
           }
 
+          // Smart targeting for spells and battlecries
           let targetId: string | null = null;
+          if (def.type === 'MINION' && def.keywords.includes('BATTLECRY') && def.battlecryEffect) {
+            targetId = pickSmartTarget(game, myIdx, def);
+          } else if (def.type === 'SPELL' && def.spellEffect) {
+            targetId = pickSmartTarget(game, myIdx, def);
+          }
+
           const result = playCard(game, me.playerId, card.instanceId, undefined, targetId);
           if (result.success) {
             played = true;
             break;
           } else if (result.needsTarget && result.validTargets && result.validTargets.length > 0) {
-            // Pick first enemy target for damage, first friendly for buffs
-            const target = result.validTargets[0];
-            const retry = playCard(game, me.playerId, card.instanceId, undefined, target);
+            const retryTarget = pickTargetFromList(game, myIdx, def, result.validTargets);
+            const retry = playCard(game, me.playerId, card.instanceId, undefined, retryTarget);
             if (retry.success) {
               played = true;
               break;
@@ -162,75 +174,30 @@ for (let g = 0; g < gameCount && Date.now() < endTime; g++) {
 
       if (game.winner) break;
 
-      // Attacks
+      // Smart attacks using threat scoring
       for (const minion of [...me.board]) {
         if (game.winner) break;
         if (!minion.canAttack || minion.attacksRemaining <= 0 || minion.isFrozen || minion.currentAttack <= 0) continue;
 
-        const taunts = getTauntMinions(opp.board);
-        let target: string;
-        if (taunts.length > 0) {
-          target = taunts[0].instanceId;
-        } else if (opp.board.length > 0) {
-          const killable = opp.board.filter(m => m.currentHealth <= minion.currentAttack && !m.hasStealthUntilAttack);
-          if (killable.length > 0) {
-            target = killable.sort((a, b) => b.currentAttack - a.currentAttack)[0].instanceId;
-          } else {
-            target = `hero-${oppIdx}`;
-          }
-        } else {
-          target = `hero-${oppIdx}`;
-        }
-
+        const target = pickSmartAttackTarget(minion, me, opp, oppIdx);
+        if (!target) continue;
         attack(game, me.playerId, minion.instanceId, target);
+
+        // Windfury second attack
+        if (minion.attacksRemaining > 0 && !game.winner) {
+          const target2 = pickSmartAttackTarget(minion, me, opp, oppIdx);
+          if (target2) attack(game, me.playerId, minion.instanceId, target2);
+        }
       }
 
       if (game.winner) break;
 
-      // Hero power
+      // Smart hero power
       if (!me.heroPowerUsed && me.mana >= 2) {
-        let hpTarget: string | null = null;
-        let shouldUse = true;
-        switch (me.heroClass) {
-          case 'JIMMY':
-            hpTarget = opp.board.length > 0 ? opp.board[0].instanceId : `hero-${oppIdx}`;
-            break;
-          case 'TALA':
-            hpTarget = `hero-${pIdx}`;
-            break;
-          case 'DEREK':
-          case 'DES':
-          case 'IZZY':
-            hpTarget = null; // no target needed
-            break;
-          case 'ANDERS':
-            if (opp.board.length > 0) hpTarget = opp.board[0].instanceId;
-            else shouldUse = false;
-            break;
-          case 'ASTRID':
-            {
-              const candidates = me.board.filter(m => !m.hasDivineShield);
-              if (candidates.length > 0) hpTarget = candidates[0].instanceId;
-              else shouldUse = false;
-            }
-            break;
-          case 'AVA':
-            if (me.board.length < 7) hpTarget = null;
-            else shouldUse = false;
-            break;
-          case 'LUCAS':
-            if (opp.board.length > 0) hpTarget = null;
-            else shouldUse = false;
-            break;
-        }
-        if (shouldUse) {
-          useHeroPower(game, me.playerId, hpTarget);
-        }
+        simUseHeroPower(game, me, opp, myIdx, oppIdx);
       }
 
       if (game.winner) break;
-
-      // End turn
       endTurn(game, me.playerId);
     }
 
@@ -273,6 +240,72 @@ for (let g = 0; g < gameCount && Date.now() < endTime; g++) {
   } catch (err) {
     errors++;
     if (verbose) console.error(`Game ${g + 1}: ERROR:`, (err as Error).message);
+  }
+}
+
+// ─── Smart hero power for simulation ───
+
+function simUseHeroPower(game: GameState, me: PlayerState, opp: PlayerState, myIdx: 0 | 1, oppIdx: 0 | 1) {
+  let hpTarget: string | null = null;
+  let shouldUse = true;
+
+  switch (me.heroClass) {
+    case 'JIMMY': {
+      // Prefer exact kills, then any kill, then high-threat chip, then face
+      const targetable = opp.board.filter(m => !m.hasStealthUntilAttack);
+      if (targetable.length > 0) {
+        const exactKill = targetable.find(m => !m.hasDivineShield && m.currentHealth === 2);
+        const anyKill = targetable.find(m => !m.hasDivineShield && m.currentHealth <= 2);
+        hpTarget = (exactKill ?? anyKill)?.instanceId ?? `hero-${oppIdx}`;
+      } else {
+        hpTarget = `hero-${oppIdx}`;
+      }
+      break;
+    }
+    case 'TALA': {
+      if (me.board.length > 0) {
+        // Buff highest-attack minion
+        const best = [...me.board].sort((a, b) => b.currentAttack - a.currentAttack);
+        hpTarget = best[0].instanceId;
+      } else {
+        shouldUse = false;
+      }
+      break;
+    }
+    case 'DEREK':
+    case 'DES':
+    case 'IZZY':
+    case 'LUCAS':
+      hpTarget = null;
+      break;
+    case 'ANDERS': {
+      const targetable = opp.board.filter(m => !m.hasStealthUntilAttack);
+      if (targetable.length > 0) {
+        hpTarget = targetable.sort((a, b) => b.currentAttack - a.currentAttack)[0].instanceId;
+      } else {
+        shouldUse = false;
+      }
+      break;
+    }
+    case 'ASTRID': {
+      const candidates = me.board.filter(m => !m.hasDivineShield);
+      if (candidates.length > 0) {
+        hpTarget = candidates.sort((a, b) => b.currentAttack - a.currentAttack)[0].instanceId;
+      } else {
+        shouldUse = false;
+      }
+      break;
+    }
+    case 'AVA':
+      if (me.board.length < 7) hpTarget = null;
+      else shouldUse = false;
+      break;
+    default:
+      shouldUse = false;
+  }
+
+  if (shouldUse) {
+    useHeroPower(game, me.playerId, hpTarget);
   }
 }
 
@@ -429,6 +462,9 @@ if (learnMode && learnCycles > 1) {
   for (let cycle = 2; cycle <= learnCycles; cycle++) {
     console.log(`\n═══ Cycle ${cycle}/${learnCycles} ═══`);
 
+    // Reload weights from previous cycle so AI decisions use updated data
+    reloadAIWeights();
+
     // Reset counters
     wins = [0, 0];
     totalTurns = 0;
@@ -468,14 +504,15 @@ if (learnMode && learnCycles > 1) {
           { deckLists: [deck1.cards, deck2.cards] }
         );
 
-        confirmMulligan(game, 'ai-1', game.players[0].hand.map(() => false));
-        confirmMulligan(game, 'ai-2', game.players[1].hand.map(() => false));
+        confirmMulligan(game, 'ai-1', getAIMulliganReplacements(game.players[0].hand, deck1.heroClass, deck2.heroClass));
+        confirmMulligan(game, 'ai-2', getAIMulliganReplacements(game.players[1].hand, deck2.heroClass, deck1.heroClass));
 
         let turnCount = 0;
         while (!game.winner && turnCount < MAX_TURNS) {
           turnCount++;
           const pIdx = game.currentPlayerIndex;
           const me = game.players[pIdx];
+          const myIdx = pIdx as 0 | 1;
           const oppIdx = (pIdx === 0 ? 1 : 0) as 0 | 1;
           const opp = game.players[oppIdx];
 
@@ -486,16 +523,28 @@ if (learnMode && learnCycles > 1) {
             safety++;
             const playable = me.hand
               .filter(c => { const def = getCardDef(c.cardCode); return def.manaCost <= me.mana && c.cardCode !== 'COIN'; })
-              .sort((a, b) => getCardDef(b.cardCode).manaCost - getCardDef(a.cardCode).manaCost);
+              .sort((a, b) => cardPlayPriority(getCardDef(b.cardCode), me, opp) - cardPlayPriority(getCardDef(a.cardCode), me, opp));
             for (const card of playable) {
               if (game.winner) break;
               const def = getCardDef(card.cardCode);
               if (def.type === 'MINION' && me.board.length >= 7) continue;
-              if (def.secretTrigger) totalSecretsPlayed++;
-              const result = playCard(game, me.playerId, card.instanceId, undefined, null);
+              if (def.type === 'LOCATION' && (me.board.length + me.locations.length) >= 7) continue;
+              if (def.secretTrigger) {
+                if (me.secrets.some(s => s.cardCode === card.cardCode)) continue;
+                if (me.secrets.length >= 5) continue;
+                totalSecretsPlayed++;
+              }
+              let targetId: string | null = null;
+              if (def.type === 'MINION' && def.keywords.includes('BATTLECRY') && def.battlecryEffect) {
+                targetId = pickSmartTarget(game, myIdx, def);
+              } else if (def.type === 'SPELL' && def.spellEffect) {
+                targetId = pickSmartTarget(game, myIdx, def);
+              }
+              const result = playCard(game, me.playerId, card.instanceId, undefined, targetId);
               if (result.success) { played = true; break; }
               else if (result.needsTarget && result.validTargets?.length) {
-                const retry = playCard(game, me.playerId, card.instanceId, undefined, result.validTargets[0]);
+                const retryTarget = pickTargetFromList(game, myIdx, def, result.validTargets);
+                const retry = playCard(game, me.playerId, card.instanceId, undefined, retryTarget);
                 if (retry.success) { played = true; break; }
               }
             }
@@ -505,30 +554,18 @@ if (learnMode && learnCycles > 1) {
           for (const minion of [...me.board]) {
             if (game.winner) break;
             if (!minion.canAttack || minion.attacksRemaining <= 0 || minion.isFrozen || minion.currentAttack <= 0) continue;
-            const taunts = getTauntMinions(opp.board);
-            let target: string;
-            if (taunts.length > 0) target = taunts[0].instanceId;
-            else if (opp.board.length > 0) {
-              const killable = opp.board.filter(m => m.currentHealth <= minion.currentAttack && !m.hasStealthUntilAttack);
-              target = killable.length > 0 ? killable.sort((a, b) => b.currentAttack - a.currentAttack)[0].instanceId : `hero-${oppIdx}`;
-            } else target = `hero-${oppIdx}`;
+            const target = pickSmartAttackTarget(minion, me, opp, oppIdx);
+            if (!target) continue;
             attack(game, me.playerId, minion.instanceId, target);
+            if (minion.attacksRemaining > 0 && !game.winner) {
+              const target2 = pickSmartAttackTarget(minion, me, opp, oppIdx);
+              if (target2) attack(game, me.playerId, minion.instanceId, target2);
+            }
           }
           if (game.winner) break;
 
           if (!me.heroPowerUsed && me.mana >= 2) {
-            let hpTarget: string | null = null;
-            let shouldUse = true;
-            switch (me.heroClass) {
-              case 'JIMMY': hpTarget = opp.board.length > 0 ? opp.board[0].instanceId : `hero-${oppIdx}`; break;
-              case 'TALA': hpTarget = `hero-${pIdx}`; break;
-              case 'DEREK': case 'DES': case 'IZZY': hpTarget = null; break;
-              case 'ANDERS': if (opp.board.length > 0) hpTarget = opp.board[0].instanceId; else shouldUse = false; break;
-              case 'ASTRID': { const c = me.board.filter(m => !m.hasDivineShield); if (c.length > 0) hpTarget = c[0].instanceId; else shouldUse = false; break; }
-              case 'AVA': if (me.board.length < 7) hpTarget = null; else shouldUse = false; break;
-              case 'LUCAS': hpTarget = null; break;
-            }
-            if (shouldUse) useHeroPower(game, me.playerId, hpTarget);
+            simUseHeroPower(game, me, opp, myIdx, oppIdx);
           }
           if (game.winner) break;
           endTurn(game, me.playerId);

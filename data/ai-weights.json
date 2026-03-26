@@ -1,0 +1,175 @@
+{
+  "version": 1,
+  "generatedAt": "2026-03-26T16:36:56.994Z",
+  "totalGames": 100,
+  "classWinRates": {
+    "JIMMY": 0.7619047619047619,
+    "TALA": 0.9130434782608695,
+    "DEREK": 0.5833333333333334,
+    "ANDERS": 0.6666666666666666,
+    "DES": 0.4642857142857143,
+    "ASTRID": 0.26666666666666666,
+    "AVA": 0.23076923076923078,
+    "LUCAS": 0.39285714285714285,
+    "IZZY": 0.17647058823529413
+  },
+  "matchupMatrix": {
+    "JIMMY": {
+      "JIMMY": 0.5,
+      "TALA": 1,
+      "DEREK": 0,
+      "ANDERS": 0.5,
+      "DES": 1,
+      "ASTRID": 0.6666666666666666,
+      "AVA": 1,
+      "LUCAS": 1,
+      "IZZY": 0.6666666666666666
+    },
+    "TALA": {
+      "JIMMY": 0,
+      "TALA": 0.5,
+      "DEREK": 0.5,
+      "ANDERS": 1,
+      "DES": 1,
+      "ASTRID": 1,
+      "AVA": 1,
+      "LUCAS": 1,
+      "IZZY": 1
+    },
+    "DEREK": {
+      "JIMMY": 1,
+      "TALA": 0.5,
+      "DEREK": 0.5,
+      "ANDERS": 0.5,
+      "DES": 0.5,
+      "ASTRID": 0.5,
+      "AVA": 0.75,
+      "LUCAS": 0.5,
+      "IZZY": 1
+    },
+    "ANDERS": {
+      "JIMMY": 0.5,
+      "TALA": 0,
+      "DEREK": 0.5,
+      "ANDERS": 0.5,
+      "DES": 0.3333333333333333,
+      "ASTRID": 0.5,
+      "AVA": 1,
+      "LUCAS": 1,
+      "IZZY": 1
+    },
+    "DES": {
+      "JIMMY": 0,
+      "TALA": 0,
+      "DEREK": 0.5,
+      "ANDERS": 0.6666666666666666,
+      "DES": 0.5,
+      "ASTRID": 0.75,
+      "AVA": 0,
+      "LUCAS": 0.3333333333333333,
+      "IZZY": 0.6666666666666666
+    },
+    "ASTRID": {
+      "JIMMY": 0.3333333333333333,
+      "TALA": 0,
+      "DEREK": 0.5,
+      "ANDERS": 0.5,
+      "DES": 0.25,
+      "ASTRID": 0.5,
+      "AVA": 0,
+      "LUCAS": 0.5,
+      "IZZY": 1
+    },
+    "AVA": {
+      "JIMMY": 0,
+      "TALA": 0,
+      "DEREK": 0.25,
+      "ANDERS": 0,
+      "DES": 1,
+      "ASTRID": 1,
+      "AVA": 0.5,
+      "LUCAS": 0.5,
+      "IZZY": 0
+    },
+    "LUCAS": {
+      "JIMMY": 0,
+      "TALA": 0,
+      "DEREK": 0.5,
+      "ANDERS": 0,
+      "DES": 0.6666666666666666,
+      "ASTRID": 0.5,
+      "AVA": 0.5,
+      "LUCAS": 0.5,
+      "IZZY": 1
+    },
+    "IZZY": {
+      "JIMMY": 0.3333333333333333,
+      "TALA": 0,
+      "DEREK": 0,
+      "ANDERS": 0,
+      "DES": 0.3333333333333333,
+      "ASTRID": 0,
+      "AVA": 1,
+      "LUCAS": 0,
+      "IZZY": 0.5
+    }
+  },
+  "classProfile": {
+    "JIMMY": "aggro",
+    "TALA": "control",
+    "DEREK": "midrange",
+    "ANDERS": "control",
+    "DES": "aggro",
+    "ASTRID": "midrange",
+    "AVA": "midrange",
+    "LUCAS": "aggro",
+    "IZZY": "control"
+  },
+  "classAvgStats": {
+    "JIMMY": {
+      "minionsPerGame": 14.2,
+      "spellsPerGame": 2.145,
+      "heroPowerPerGame": 2.58
+    },
+    "TALA": {
+      "minionsPerGame": 14.2,
+      "spellsPerGame": 2.145,
+      "heroPowerPerGame": 2.58
+    },
+    "DEREK": {
+      "minionsPerGame": 14.2,
+      "spellsPerGame": 2.145,
+      "heroPowerPerGame": 2.58
+    },
+    "ANDERS": {
+      "minionsPerGame": 14.2,
+      "spellsPerGame": 2.145,
+      "heroPowerPerGame": 2.58
+    },
+    "DES": {
+      "minionsPerGame": 14.2,
+      "spellsPerGame": 2.145,
+      "heroPowerPerGame": 2.58
+    },
+    "ASTRID": {
+      "minionsPerGame": 14.2,
+      "spellsPerGame": 2.145,
+      "heroPowerPerGame": 2.58
+    },
+    "AVA": {
+      "minionsPerGame": 14.2,
+      "spellsPerGame": 2.145,
+      "heroPowerPerGame": 2.58
+    },
+    "LUCAS": {
+      "minionsPerGame": 14.2,
+      "spellsPerGame": 2.145,
+      "heroPowerPerGame": 2.58
+    },
+    "IZZY": {
+      "minionsPerGame": 14.2,
+      "spellsPerGame": 2.145,
+      "heroPowerPerGame": 2.58
+    }
+  }
+}

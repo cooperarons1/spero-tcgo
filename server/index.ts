@@ -221,10 +221,14 @@ function startRoomTimer(room: ReturnType<typeof getRoom>) {
       if (room.game.phase === 'PLAYING' && room.game.turnStartedAt) {
         const now = Date.now();
         if (now - room.game.turnStartedAt > TURN_TIMEOUT_MS) {
-          // Auto end turn
-          const currentPlayer = room.game.players[room.game.currentPlayerIndex];
+          // Guard against race with player's end-turn event in same tick
+          const idxBefore = room.game.currentPlayerIndex;
+          const currentPlayer = room.game.players[idxBefore];
           endTurn(room.game, currentPlayer.playerId);
-          broadcastGameState(room.code);
+          // Only broadcast if the turn actually changed (wasn't already ended)
+          if (room.game.currentPlayerIndex !== idxBefore || room.game.winner) {
+            broadcastGameState(room.code);
+          }
         }
       }
     } catch (err) {
