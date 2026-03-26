@@ -604,6 +604,8 @@ function HeroPortrait({
   onHeroClick,
   heroDamage,
   secretCount,
+  mySecretCodes,
+  heroPowerFlash,
   entityId,
 }: {
   heroClass: HeroClass;
