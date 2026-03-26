@@ -216,7 +216,7 @@ export interface GameState {
   mulliganChoices: [boolean[] | null, boolean[] | null];
   mulliganConfirmed: [boolean, boolean];
   winner: string | null;
-  winReason: 'kill' | 'fatigue' | 'concede' | null;
+  winReason: 'kill' | 'fatigue' | 'concede' | 'disconnect' | null;
   lastAction: string | null;
   log: LogEntry[];
   turnStartedAt: number | null;
@@ -338,7 +338,7 @@ export interface ClientGameState {
   phase: 'MULLIGAN' | 'PLAYING';
   mulliganConfirmed: [boolean, boolean];
   winner: string | null;
-  winReason: 'kill' | 'fatigue' | 'concede' | null;
+  winReason: 'kill' | 'fatigue' | 'concede' | 'disconnect' | null;
   lastAction: string | null;
   log: LogEntry[];
   pendingInteraction: PendingInteraction | null;
