@@ -182,6 +182,7 @@ export interface PlayerState {
   weapon: Weapon | null;
   locations: BoardLocation[];
   heroPowerUsed: boolean;
+  heroAttackThisTurn: number; // temporary hero attack (e.g. Lucas hero power)
   fatigueDamage: number;   // increments each draw from empty deck
   graveyard: CardInstance[];
   secrets: ActiveSecret[];
@@ -283,6 +284,7 @@ export interface ClientPlayerInfo {
   locations: BoardLocation[];
   weapon: Weapon | null;
   heroPowerUsed: boolean;
+  heroAttackThisTurn: number;
   fatigueDamage: number;
   graveyardCount: number;
   secretCount: number;
@@ -303,6 +305,7 @@ export interface ClientGameState {
   myLocations: BoardLocation[];
   myWeapon: Weapon | null;
   myHeroPowerUsed: boolean;
+  myHeroAttackThisTurn: number;
   myFatigueDamage: number;
   myGraveyardCount: number;
   mySecrets: ActiveSecret[];

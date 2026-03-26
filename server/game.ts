@@ -24,6 +24,7 @@ function makePlayerState(id: string, name: string, heroClass: HeroClass): Player
     weapon: null,
     locations: [],
     heroPowerUsed: false,
+    heroAttackThisTurn: 0,
     fatigueDamage: 0,
     graveyard: [],
     secrets: [],
@@ -235,10 +236,8 @@ export function endTurn(
 
   addLog(game, pIdx as 0 | 1, `${player.playerName} ends their turn`, 'TURN');
 
-  // Remove hero power weapon (Lucas Coyote's Veil)
-  if (player.weapon && player.weapon.cardCode === 'HERO_POWER_LUCAS') {
-    player.weapon = null;
-  }
+  // Clear temporary hero attack (Lucas Coyote's Veil)
+  player.heroAttackThisTurn = 0;
 
   // Reset combo counter
   game.cardsPlayedThisTurn = 0;

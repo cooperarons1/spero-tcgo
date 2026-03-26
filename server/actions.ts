@@ -344,11 +344,7 @@ export function useHeroPower(
       player.heroPowerUsed = true;
       game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
       game.playerStats[pIdx as 0 | 1].heroPowerUses++;
-      if (!player.weapon) {
-        player.weapon = { cardCode: 'HERO_POWER_LUCAS', currentAttack: 1, durability: 1 };
-      } else {
-        player.weapon.currentAttack += 1;
-      }
+      player.heroAttackThisTurn += 1;
       addLog(game, pIdx as 0 | 1, `${player.playerName} uses Coyote's Veil`, 'PLAY');
       break;
     }

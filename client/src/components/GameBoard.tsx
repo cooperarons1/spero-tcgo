@@ -2003,7 +2003,7 @@ export default function GameBoard({
             mana={gs.myMana}
             maxMana={gs.myMaxMana}
             canUseHeroPower={isMyTurn && !gs.myHeroPowerUsed && gs.myMana >= HERO_POWER_COST}
-            canHeroAttack={isMyTurn && isPlaying && !!gs.myWeapon && gs.myWeapon.currentAttack > 0}
+            canHeroAttack={isMyTurn && isPlaying && ((!!gs.myWeapon && gs.myWeapon.currentAttack > 0) || (gs.myHeroAttackThisTurn ?? 0) > 0)}
             isValidTarget={validTargetIds.has(`hero-${gs.myPlayerIndex}`)}
             onHeroPowerClick={handleHeroPower}
             onHeroClick={(e?: React.MouseEvent) => {
@@ -2013,7 +2013,7 @@ export default function GameBoard({
                 return;
               }
               // If I have a weapon and it's my turn, initiate hero attack
-              if (isMyTurn && isPlaying && gs.myWeapon && gs.myWeapon.currentAttack > 0) {
+              if (isMyTurn && isPlaying && ((gs.myWeapon && gs.myWeapon.currentAttack > 0) || (gs.myHeroAttackThisTurn ?? 0) > 0)) {
                 if (targeting.type === 'attack') {
                   cancelTargeting();
                   return;

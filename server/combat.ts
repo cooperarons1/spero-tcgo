@@ -52,8 +52,8 @@ export function attack(
   let attackerMinion: BoardMinion | null = null;
 
   if (isHeroAttack) {
-    if (!me.weapon) return { success: false, error: 'No weapon equipped' };
-    if (me.weapon.currentAttack <= 0) return { success: false, error: 'Weapon has 0 attack' };
+    const heroAtk = (me.weapon?.currentAttack ?? 0) + (me.heroAttackThisTurn ?? 0);
+    if (heroAtk <= 0) return { success: false, error: 'No weapon equipped' };
   } else {
     attackerMinion = me.board.find(m => m.instanceId === attackerInstanceId) ?? null;
     if (!attackerMinion) return { success: false, error: 'Attacker not found on your board' };
@@ -115,25 +115,30 @@ export function attack(
   }
 
   if (isHeroAttack) {
-    const weaponAtk = me.weapon!.currentAttack;
+    const totalHeroAtk = (me.weapon?.currentAttack ?? 0) + (me.heroAttackThisTurn ?? 0);
 
     if (isTargetHero) {
-      applyDamageToHero(opp, weaponAtk);
-      game.playerStats[myIdx as 0 | 1].damageDealtToHeroes += weaponAtk;
-      addLog(game, myIdx as 0 | 1, `${me.playerName} attacks ${opp.playerName} for ${weaponAtk}`, 'COMBAT');
+      applyDamageToHero(opp, totalHeroAtk);
+      game.playerStats[myIdx as 0 | 1].damageDealtToHeroes += totalHeroAtk;
+      addLog(game, myIdx as 0 | 1, `${me.playerName} attacks ${opp.playerName} for ${totalHeroAtk}`, 'COMBAT');
     } else {
       const targetDef = getCardDef(targetMinion!.cardCode);
-      applyDamageToMinion(targetMinion!, weaponAtk);
+      applyDamageToMinion(targetMinion!, totalHeroAtk);
       applyDamageToHero(me, targetMinion!.currentAttack);
-      game.playerStats[myIdx as 0 | 1].damageDealtToMinions += weaponAtk;
-      addLog(game, myIdx as 0 | 1, `${me.playerName} attacks ${targetDef.name} for ${weaponAtk}`, 'COMBAT');
+      game.playerStats[myIdx as 0 | 1].damageDealtToMinions += totalHeroAtk;
+      addLog(game, myIdx as 0 | 1, `${me.playerName} attacks ${targetDef.name} for ${totalHeroAtk}`, 'COMBAT');
     }
 
-    me.weapon!.durability--;
-    if (me.weapon!.durability <= 0) {
-      addLog(game, myIdx as 0 | 1, `${me.playerName}'s weapon breaks!`, 'COMBAT');
-      me.weapon = null;
+    // Consume weapon durability
+    if (me.weapon) {
+      me.weapon.durability--;
+      if (me.weapon.durability <= 0) {
+        addLog(game, myIdx as 0 | 1, `${me.playerName}'s weapon breaks!`, 'COMBAT');
+        me.weapon = null;
+      }
     }
+    // Hero attack from hero power is one-use per turn
+    me.heroAttackThisTurn = 0;
   } else {
     // Remove stealth when attacking
     if (attackerMinion!.hasStealthUntilAttack) {
