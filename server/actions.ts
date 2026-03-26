@@ -339,12 +339,13 @@ export function useHeroPower(
       break;
     }
     case 'LUCAS': {
-      // Coyote's Veil: Give your hero +1 Attack this turn
+      // Coyote's Veil: Give your hero +1 Attack this turn and gain 1 Armor
       player.mana -= HERO_POWER_COST;
       player.heroPowerUsed = true;
       game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
       game.playerStats[pIdx as 0 | 1].heroPowerUses++;
       player.heroAttackThisTurn += 1;
+      player.armor = (player.armor ?? 0) + 1;
       addLog(game, pIdx as 0 | 1, `${player.playerName} uses Coyote's Veil`, 'PLAY');
       break;
     }

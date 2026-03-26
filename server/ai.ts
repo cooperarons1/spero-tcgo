@@ -1,3 +1,6 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import type { GameState, BoardMinion, PlayerState, CardDef, HeroClass, CardInstance } from '../shared/types.js';
 import { getCardDef } from './cards.js';
 import { playCard, useHeroPower, activateLocation } from './actions.js';
@@ -21,6 +24,54 @@ const DELAYS = {
 
 const AGGRO_CLASSES: HeroClass[] = ['JIMMY', 'LUCAS', 'DES'];
 
+// ── AI Weights (loaded from simulation data) ──
+
+interface AIWeights {
+  version: number;
+  classWinRates: Record<string, number>;
+  matchupMatrix: Record<string, Record<string, number>>;
+  classProfile: Record<string, string>; // 'aggro' | 'control' | 'midrange'
+}
+
+let aiWeights: AIWeights | null = null;
+
+try {
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  const weightsPath = path.join(__dirname, '..', 'data', 'ai-weights.json');
+  if (fs.existsSync(weightsPath)) {
+    aiWeights = JSON.parse(fs.readFileSync(weightsPath, 'utf-8'));
+    console.log('[AI] Loaded simulation weights from ai-weights.json');
+  }
+} catch {
+  // Weights file missing or invalid — use defaults
+}
+
+/** Get opponent's class profile from weights */
+function getOpponentProfile(oppClass: HeroClass): string {
+  if (aiWeights?.classProfile?.[oppClass]) return aiWeights.classProfile[oppClass];
+  if (AGGRO_CLASSES.includes(oppClass)) return 'aggro';
+  return 'midrange';
+}
+
+/** Get matchup-aware priority adjustment */
+function matchupPriorityAdjust(myClass: HeroClass, oppClass: HeroClass, effectType: string): number {
+  const oppProfile = getOpponentProfile(oppClass);
+
+  if (oppProfile === 'aggro') {
+    // vs aggro: prioritize taunt, healing, cheap removal
+    if (effectType === 'TAUNT') return 10;
+    if (effectType === 'RESTORE_HEALTH' || effectType === 'GAIN_ARMOR') return 5;
+    if (effectType === 'DEAL_DAMAGE' || effectType === 'DEAL_DAMAGE_ALL_ENEMIES') return 5;
+  } else if (oppProfile === 'control') {
+    // vs control: prioritize tempo, card draw, big threats
+    if (effectType === 'DRAW_CARDS') return 5;
+    if (effectType === 'CHARGE') return 3;
+    if (effectType === 'TEMPO') return 5;
+  }
+
+  return 0;
+}
+
 // ── Exports ──
 
 export function generateAIPlayerId(): string {
@@ -37,17 +88,32 @@ export function isAIPlayer(playerId: string): boolean {
 
 /**
  * Mulligan strategy: replace expensive cards, keep cheap ones.
- * Aggro classes (JIMMY, LUCAS, DES) keep only 1-2 mana cards.
- * Other classes keep 1-3 mana cards.
+ * Uses simulation weights when available for matchup-aware mulligan.
+ * vs aggro: keep 1-2 mana cards (cheap removal, taunts)
+ * vs control: keep 3-4 mana tempo plays
  */
-export function getAIMulliganReplacements(hand: CardInstance[], heroClass: HeroClass): boolean[] {
-  const isAggro = AGGRO_CLASSES.includes(heroClass);
-  const keepThreshold = isAggro ? 2 : 3; // keep cards at or below this cost
+export function getAIMulliganReplacements(hand: CardInstance[], heroClass: HeroClass, opponentClass?: HeroClass): boolean[] {
+  const oppProfile = opponentClass ? getOpponentProfile(opponentClass) : null;
+
+  let keepThreshold: number;
+  if (oppProfile === 'aggro') {
+    // vs aggro: keep cheap cards to survive early game
+    keepThreshold = 2;
+  } else if (oppProfile === 'control') {
+    // vs control: keep mid-cost tempo plays
+    keepThreshold = 4;
+  } else {
+    // Default: aggro classes keep cheap, others keep mid
+    const isAggro = AGGRO_CLASSES.includes(heroClass);
+    keepThreshold = isAggro ? 2 : 3;
+  }
 
   return hand.map(card => {
     const def = getCardDef(card.cardCode);
     // Always keep The Coin
     if (card.cardCode === 'COIN') return false;
+    // vs aggro: always keep taunt minions even if expensive (up to 5 mana)
+    if (oppProfile === 'aggro' && def.keywords.includes('TAUNT') && def.manaCost <= 5) return false;
     // Replace cards above the threshold
     return def.manaCost > keepThreshold;
   });
@@ -521,10 +587,12 @@ function playCardsPhase(
 
 /**
  * Priority score for deciding which card to play first.
- * Higher = play first.
+ * Higher = play first. Uses simulation weights for matchup-aware scoring.
  */
 function cardPlayPriority(def: CardDef, me: PlayerState, opp: PlayerState): number {
   let score = def.manaCost; // base: prefer expensive cards
+
+  const oppProfile = getOpponentProfile(opp.heroClass);
 
   // Removal spells get high priority when opponent has threats
   const effects = def.type === 'SPELL'
@@ -533,18 +601,29 @@ function cardPlayPriority(def: CardDef, me: PlayerState, opp: PlayerState): numb
 
   for (const eff of effects) {
     if (eff.type === 'DESTROY_MINION') score += 15;
-    if (eff.type === 'DEAL_DAMAGE' && opp.board.length > 0) score += 10;
-    if (eff.type === 'DEAL_DAMAGE_ALL_ENEMIES' && opp.board.length >= 2) score += 12;
+    if (eff.type === 'DEAL_DAMAGE' && opp.board.length > 0) score += 10 + matchupPriorityAdjust(me.heroClass, opp.heroClass, 'DEAL_DAMAGE');
+    if (eff.type === 'DEAL_DAMAGE_ALL_ENEMIES' && opp.board.length >= 2) score += 12 + matchupPriorityAdjust(me.heroClass, opp.heroClass, 'DEAL_DAMAGE_ALL_ENEMIES');
     if (eff.type === 'DEAL_DAMAGE_ALL_MINIONS' && opp.board.length > me.board.length) score += 10;
     if (eff.type === 'FREEZE_TARGET' && opp.board.length > 0) score += 8;
     if (eff.type === 'RETURN_TO_HAND') score += 8;
+    if (eff.type === 'DRAW_CARDS') score += matchupPriorityAdjust(me.heroClass, opp.heroClass, 'DRAW_CARDS');
+    if (eff.type === 'RESTORE_HEALTH') score += matchupPriorityAdjust(me.heroClass, opp.heroClass, 'RESTORE_HEALTH');
+    if (eff.type === 'GAIN_ARMOR') score += matchupPriorityAdjust(me.heroClass, opp.heroClass, 'GAIN_ARMOR');
   }
 
-  // Taunt minions get bonus when we're behind on health
-  if (def.keywords.includes('TAUNT') && me.health <= 15) score += 5;
+  // Taunt minions: base bonus when low HP, extra bonus vs aggro from weights
+  if (def.keywords.includes('TAUNT')) {
+    if (me.health <= 15) score += 5;
+    score += matchupPriorityAdjust(me.heroClass, opp.heroClass, 'TAUNT');
+  }
+
+  // Charge minions get bonus vs control (tempo matters)
+  if (def.keywords.includes('CHARGE')) {
+    score += matchupPriorityAdjust(me.heroClass, opp.heroClass, 'CHARGE');
+  }
 
   // Weapons are strong tempo plays
-  if (def.type === 'WEAPON') score += 3;
+  if (def.type === 'WEAPON') score += 3 + matchupPriorityAdjust(me.heroClass, opp.heroClass, 'TEMPO');
 
   // Locations are moderate priority
   if (def.type === 'LOCATION') score += 5;

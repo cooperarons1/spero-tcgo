@@ -93,7 +93,7 @@
     "type": "MINION",
     "heroClass": "JIMMY",
     "rarity": "COMMON",
-    "attack": 3,
+    "attack": 2,
     "health": 2,
     "text": "Charge",
     "flavor": "Leaves nothing but scorch marks in her wake.",
@@ -199,7 +199,7 @@
   {
     "cardCode": "JIM011",
     "name": "Eruption Salvo",
-    "manaCost": 3,
+    "manaCost": 4,
     "type": "SPELL",
     "heroClass": "JIMMY",
     "rarity": "RARE",
@@ -2219,19 +2219,19 @@
   {
     "cardCode": "DES003",
     "name": "Dark Orra Siphon",
-    "manaCost": 2,
+    "manaCost": 1,
     "type": "SPELL",
     "heroClass": "DES",
     "rarity": "COMMON",
     "attack": 0,
     "health": 0,
-    "text": "Deal 3 damage to a minion.",
+    "text": "Deal 2 damage to a minion.",
     "flavor": "Des found that Orra could take just as easily as it could give.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE",
       "target": "TARGET_MINION",
-      "value": 3
+      "value": 2
     }
   },
   {
@@ -4478,14 +4478,14 @@
     "rarity": "RARE",
     "attack": 0,
     "health": 0,
-    "text": "Deal 3 damage to your hero. Draw 2 cards.",
+    "text": "Deal 2 damage to your hero. Draw 2 cards.",
     "flavor": "The darkness always extracts a price. Des pays it gladly.",
     "keywords": [],
     "spellEffects": [
       {
         "type": "DEAL_DAMAGE",
         "target": "SELF",
-        "value": 3
+        "value": 2
       },
       {
         "type": "DRAW_CARDS",
@@ -4497,7 +4497,7 @@
   {
     "cardCode": "IZZ_NEW_01",
     "name": "Sparkle Avalanche",
-    "manaCost": 7,
+    "manaCost": 6,
     "type": "SPELL",
     "heroClass": "IZZY",
     "rarity": "EPIC",
@@ -4521,20 +4521,19 @@
     "rarity": "RARE",
     "attack": 0,
     "health": 0,
-    "text": "Draw 2 cards. If you have a minion with Divine Shield, draw 3 instead.",
+    "text": "Draw 2 cards.",
     "flavor": "Astrid's shield reflects more than blows — it reflects wisdom.",
     "keywords": [],
     "spellEffect": {
-      "type": "DRAW_CARDS_CONDITIONAL",
+      "type": "DRAW_CARDS",
       "target": "NONE",
-      "value": 2,
-      "condition": "HAS_DIVINE_SHIELD_MINION"
+      "value": 2
     }
   },
   {
     "cardCode": "AST_NEW_02",
     "name": "Radiant Protector",
-    "manaCost": 6,
+    "manaCost": 7,
     "type": "MINION",
     "heroClass": "ASTRID",
     "rarity": "RARE",
@@ -4570,7 +4569,7 @@
   {
     "cardCode": "DES_NEW_02",
     "name": "Void Siphon",
-    "manaCost": 3,
+    "manaCost": 2,
     "type": "MINION",
     "heroClass": "DES",
     "rarity": "RARE",

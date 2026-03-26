@@ -120,9 +120,24 @@ export function removePlayer(uid: string): Room | null {
   return room;
 }
 
+/** Check if any player in this room has an active disconnect grace period */
+export function hasActiveGracePeriod(room: Room): boolean {
+  for (const uid of room.players.keys()) {
+    if (disconnectedPlayers.has(uid)) return true;
+  }
+  return false;
+}
+
 export function cleanupStaleRooms(): void {
   for (const [code, room] of rooms) {
     if (room.players.size === 0) {
+      // Skip rooms where disconnected players still have active grace periods
+      // (their uid may no longer be in players but the timer references this room)
+      let hasGrace = false;
+      for (const [, dc] of disconnectedPlayers) {
+        if (dc.roomCode === code) { hasGrace = true; break; }
+      }
+      if (hasGrace) continue;
       clearRoomTimer(room);
       rooms.delete(code);
     }

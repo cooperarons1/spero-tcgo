@@ -115,7 +115,7 @@ const HERO_POWER_DESC: Record<HeroClass, string> = {
   DES: 'Orra Siphon: Deal 2 damage to the enemy hero',
   ASTRID: 'Mighty Guard: Give a friendly minion Divine Shield',
   AVA: 'Deploy Drone: Summon a 1/1 Gadget Drone',
-  LUCAS: "Coyote's Veil: Give your hero +1 Attack this turn",
+  LUCAS: "Coyote's Veil: +1 Attack this turn and gain 1 Armor",
   IZZY: 'Chart Course: Gain 2 Armor',
   NEUTRAL: 'Hero Power',
 };
@@ -1792,7 +1792,7 @@ export default function GameBoard({
             mana={gs.opponent.mana}
             maxMana={gs.opponent.maxMana}
             canUseHeroPower={false}
-            isValidTarget={validTargetIds.has(`hero-${1 - gs.myPlayerIndex}`)}
+            isValidTarget={validTargetIds.has(`hero-${1 - gs.myPlayerIndex}`) || (draggingCardType === 'SPELL' && !!draggingCardId && (!draggingTargetType || draggingTargetType === 'TARGET_ANY'))}
             onHeroPowerClick={() => {}}
             onHeroClick={() => handleEnemyTargetClick(`hero-${1 - gs.myPlayerIndex}`)}
             heroDamage={opHeroDamage}
@@ -1870,6 +1870,15 @@ export default function GameBoard({
       <div className="absolute left-0 right-24 top-1/2 -translate-y-1/2 z-10 px-8">
         <div className="h-[3px] bg-gradient-to-r from-amber-700/20 via-amber-500/80 to-amber-700/20 shadow-[0_0_6px_rgba(245,158,11,0.3)]" />
       </div>
+
+      {/* Spell drag-to-target hint */}
+      {draggingCardType === 'SPELL' && draggingTargetType && (
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none">
+          <div className="bg-green-600/90 text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg animate-pulse">
+            Drag to a target
+          </div>
+        </div>
+      )}
 
       {/* ═══ Right sidebar: Deck → End Turn → Timer → Deck (absolutely positioned) ═══ */}
       <div className="absolute right-2 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-2">
@@ -2006,7 +2015,7 @@ export default function GameBoard({
             maxMana={gs.myMaxMana}
             canUseHeroPower={isMyTurn && !gs.myHeroPowerUsed && gs.myMana >= HERO_POWER_COST}
             canHeroAttack={isMyTurn && isPlaying && ((!!gs.myWeapon && gs.myWeapon.currentAttack > 0) || (gs.myHeroAttackThisTurn ?? 0) > 0)}
-            isValidTarget={validTargetIds.has(`hero-${gs.myPlayerIndex}`)}
+            isValidTarget={validTargetIds.has(`hero-${gs.myPlayerIndex}`) || (draggingCardType === 'SPELL' && !!draggingCardId && (!draggingTargetType || draggingTargetType === 'TARGET_ANY'))}
             onHeroPowerClick={handleHeroPower}
             onHeroClick={(e?: React.MouseEvent) => {
               // If being targeted by a spell/attack interaction, handle as target

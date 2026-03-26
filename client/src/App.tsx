@@ -294,7 +294,16 @@ function App() {
     <ErrorBoundary>
     <>
       {connectionStatus !== 'connected' && view === 'game' && (
-        <ReconnectionOverlay status={connectionStatus} />
+        <ReconnectionOverlay
+          status={connectionStatus}
+          onReturnToLobby={() => {
+            socket.emit('leave-game');
+            setGameState(null);
+            setView('lobby');
+            setConnectionStatus('connected');
+            sessionStorage.removeItem('spero-room-code');
+          }}
+        />
       )}
       {error && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-red-600 text-white px-6 py-3 rounded-full shadow-lg animate-bounce-in">

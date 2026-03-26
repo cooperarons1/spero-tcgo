@@ -267,7 +267,9 @@ function broadcastGameState(roomCode: string) {
       if (aiIdx >= 0 && !room.game.mulliganConfirmed[aiIdx as 0 | 1]) {
         const hand = room.game.players[aiIdx].hand;
         const heroClass = room.game.players[aiIdx].heroClass;
-        confirmMulligan(room.game, room.aiPlayerId!, getAIMulliganReplacements(hand, heroClass));
+        const oppIdx = aiIdx === 0 ? 1 : 0;
+        const oppClass = room.game.players[oppIdx].heroClass;
+        confirmMulligan(room.game, room.aiPlayerId!, getAIMulliganReplacements(hand, heroClass, oppClass));
         broadcastGameState(roomCode);
       }
     } else if (room.game.phase === 'PLAYING') {
@@ -440,10 +442,54 @@ io.on('connection', (socket) => {
     console.log(`Reconnected: ${uid} to room ${reconnectedRoom.code}`);
     socket.join(reconnectedRoom.code);
     socket.emit('reconnected', { roomCode: reconnectedRoom.code });
+    // Notify opponent that this player reconnected
+    for (const [pUid, sid] of reconnectedRoom.sockets) {
+      if (pUid !== uid && sid !== '__ai__') {
+        io.to(sid).emit('opponent-reconnected');
+      }
+    }
     if (reconnectedRoom.game) {
       broadcastGameState(reconnectedRoom.code);
     }
   }
+
+  // ── Rejoin room (client-initiated reconnection) ──
+
+  socket.on('rejoin-room', (data: { roomCode?: string }) => {
+    if (!data?.roomCode) return;
+    // Try the standard reconnect path first
+    const room = tryReconnect(uid, socket.id);
+    if (room) {
+      console.log(`Rejoin-room: ${uid} rejoined ${room.code}`);
+      socket.join(room.code);
+      socket.emit('reconnected', { roomCode: room.code });
+      // Notify opponent
+      for (const [pUid, sid] of room.sockets) {
+        if (pUid !== uid && sid !== '__ai__') {
+          io.to(sid).emit('opponent-reconnected');
+        }
+      }
+      if (room.game) {
+        broadcastGameState(room.code);
+      }
+    } else {
+      // Check if player is still in the room (e.g. socket refreshed but not disconnected)
+      const existingRoom = getRoomByPlayer(uid);
+      if (existingRoom && existingRoom.code === data.roomCode.toUpperCase()) {
+        existingRoom.sockets.set(uid, socket.id);
+        socket.join(existingRoom.code);
+        socket.emit('reconnected', { roomCode: existingRoom.code });
+        for (const [pUid, sid] of existingRoom.sockets) {
+          if (pUid !== uid && sid !== '__ai__') {
+            io.to(sid).emit('opponent-reconnected');
+          }
+        }
+        if (existingRoom.game) {
+          broadcastGameState(existingRoom.code);
+        }
+      }
+    }
+  });
 
   // ── Lobby ──
 
