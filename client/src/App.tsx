@@ -36,7 +36,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { errorMsg: strin
 }
 
 type View = 'lobby' | 'game' | 'collection' | 'deckpicker' | 'deckpicker-ai' | 'matchhistory' | 'friends';
-type _RematchState = 'default' | 'proposed' | 'received' | 'declined'; // kept for server compat
+type RematchState = 'default' | 'proposed' | 'received' | 'declined';
 type ConnectionStatus = 'connected' | 'disconnected' | 'opponent-disconnected';
 
 function App() {
@@ -48,7 +48,7 @@ function App() {
   const [opponentHovering, setOpponentHovering] = useState(false);
   const [showIntro, setShowIntro] = useState(false);
   const [opponentEmote, setOpponentEmote] = useState<string | null>(null);
-  const [rematchState, setRematchState] = useState<_RematchState>('default');
+  const [rematchState, setRematchState] = useState<RematchState>('default');
   const introShownRef = useRef(false);
   const matchSavedRef = useRef(false);
   const errorTimerRef = useRef<ReturnType<typeof setTimeout>>();
@@ -330,6 +330,9 @@ function App() {
             opponentEmote={opponentEmote}
             onLeaveGame={() => { socket.emit('leave-game'); setGameState(null); setView('lobby'); sessionStorage.removeItem('spero-room-code'); }}
             uid={user.uid}
+            rematchState={rematchState}
+            onRequestRematch={() => { setRematchState('proposed'); socket.emit('request-rematch'); }}
+            onDeclineRematch={() => socket.emit('decline-rematch')}
           />
           {showIntro && (
             <GameIntro

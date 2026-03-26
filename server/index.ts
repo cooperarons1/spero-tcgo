@@ -101,6 +101,13 @@ interface RateBucket {
 
 function createRateLimiter(maxEvents: number, windowMs: number) {
   const buckets = new Map<string, RateBucket>();
+  // Purge expired buckets every 60s to prevent memory leak from ghost UIDs
+  setInterval(() => {
+    const now = Date.now();
+    for (const [key, bucket] of buckets) {
+      if (now > bucket.resetAt) buckets.delete(key);
+    }
+  }, 60_000);
   return {
     allow(key: string): boolean {
       const now = Date.now();

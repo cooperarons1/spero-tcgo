@@ -21,6 +21,8 @@ import { FloatingNumbers } from './FloatingNumbers';
 import { Settings } from './Settings';
 import { DeathAnimation } from './DeathAnimation';
 import { SpellCastEffect } from './SpellCastEffect';
+import { GameOver } from './GameOver';
+import { TurnBanner } from './TurnBanner';
 import cardsJson from '../../../data/cards.json';
 
 // ─── Card lookup ───
@@ -307,6 +309,9 @@ interface GameBoardProps {
   opponentEmote: string | null;
   onLeaveGame: () => void;
   uid: string;
+  rematchState: 'default' | 'proposed' | 'received' | 'declined';
+  onRequestRematch: () => void;
+  onDeclineRematch: () => void;
 }
 
 // ─── Targeting modes ───
@@ -974,6 +979,9 @@ export default function GameBoard({
   opponentEmote,
   onLeaveGame,
   uid,
+  rematchState,
+  onRequestRematch,
+  onDeclineRematch,
 }: GameBoardProps) {
   const actions = useGameActions();
 
@@ -1020,6 +1028,16 @@ export default function GameBoard({
   const isGameOver = gs.winner !== null;
   const myBoard = gs.myBoard;
   const opBoard = gs.opponent.board;
+
+  // ─── Turn banner (remount on turn change) ───
+  const [turnBannerKey, setTurnBannerKey] = useState(0);
+  const prevTurnRef = useRef(gs.turnNumber);
+  useEffect(() => {
+    if (gs.turnNumber !== prevTurnRef.current) {
+      prevTurnRef.current = gs.turnNumber;
+      setTurnBannerKey(k => k + 1);
+    }
+  }, [gs.turnNumber]);
 
   // ─── Turn timer warning (last 20 seconds) ───
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
@@ -1627,28 +1645,16 @@ export default function GameBoard({
 
   // ─── Game Over overlay ───
   const GameOverOverlay = isGameOver ? (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/70 backdrop-blur-sm">
-      <h1
-        className={`mb-4 text-5xl font-bold animate-victory-title ${gs.winner === gs.myPlayerId ? 'text-amber-400' : 'text-red-500'}`}
-      >
-        {gs.winner === gs.myPlayerId ? 'VICTORY' : 'DEFEAT'}
-      </h1>
-      <p className="mb-2 text-stone-300">
-        {gs.winReason === 'concede'
-          ? 'Opponent conceded'
-          : gs.winReason === 'fatigue'
-            ? 'Death by fatigue'
-            : 'Hero destroyed'}
-      </p>
-      <div className="mt-6">
-        <button
-          onClick={onLeaveGame}
-          className="rounded-lg bg-amber-500 px-8 py-3 font-bold text-black hover:bg-amber-400 transition-all hover:scale-105"
-        >
-          Leave
-        </button>
-      </div>
-    </div>
+    <GameOver
+      winnerName={gs.winner === gs.myPlayerId ? gs.myPlayerName : gs.opponent.playerName}
+      isMe={gs.winner === gs.myPlayerId}
+      onPlayAgain={onLeaveGame}
+      onRequestRematch={onRequestRematch}
+      onDeclineRematch={onDeclineRematch}
+      gameState={gs}
+      rematchState={rematchState}
+      onLeaveGame={onLeaveGame}
+    />
   ) : null;
 
   // ─── Interaction overlay (pending target) ───
@@ -1701,6 +1707,7 @@ export default function GameBoard({
       style={{ background: 'linear-gradient(to bottom, #1a0f05, #2d1e0e 6%, #4a3520 15%, #5c4528 30%, #6b5232 45%, #725838 50%, #6b5232 55%, #5c4528 70%, #4a3520 85%, #2d1e0e 94%, #1a0f05)' }}
     >
       {GameOverOverlay}
+      {isPlaying && !isGameOver && <TurnBanner key={turnBannerKey} isMyTurn={isMyTurn} />}
       {InteractionOverlay}
       {ClientTargetingOverlay}
 
