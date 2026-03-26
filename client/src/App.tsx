@@ -51,6 +51,7 @@ function App() {
   const [rematchState, setRematchState] = useState<_RematchState>('default');
   const introShownRef = useRef(false);
   const matchSavedRef = useRef(false);
+  const errorTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const [incomingChallenge, setIncomingChallenge] = useState<{ challengeId: string; fromUid: string; fromName: string } | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('connected');
 
@@ -221,8 +222,13 @@ function App() {
     });
 
     socket.on('error', (msg: string) => {
-      setError(msg);
-      setTimeout(() => setError(null), 3000);
+      setError(prev => {
+        // If same message, just extend visibility (timer reset below handles it)
+        if (prev === msg) return prev;
+        return msg;
+      });
+      clearTimeout(errorTimerRef.current);
+      errorTimerRef.current = setTimeout(() => setError(null), 5000);
     });
 
     socket.on('opponent-hovering', (data: { isHovering: boolean }) => {
@@ -248,7 +254,8 @@ function App() {
 
     socket.on('queue-timeout', () => {
       setError('Matchmaking timed out. Try again!');
-      setTimeout(() => setError(null), 3000);
+      clearTimeout(errorTimerRef.current);
+      errorTimerRef.current = setTimeout(() => setError(null), 5000);
     });
 
     socket.on('duel-challenge', (data: { challengeId: string; fromUid: string; fromName: string }) => {
@@ -306,8 +313,12 @@ function App() {
         />
       )}
       {error && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-red-600 text-white px-6 py-3 rounded-full shadow-lg animate-bounce-in">
+        <div
+          onClick={() => { setError(null); clearTimeout(errorTimerRef.current); }}
+          className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-red-600 text-white px-6 py-3 rounded-full shadow-lg animate-bounce-in cursor-pointer flex items-center gap-2"
+        >
           {error}
+          <span className="text-white/70 text-xs">×</span>
         </div>
       )}
 

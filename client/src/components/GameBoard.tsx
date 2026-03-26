@@ -18,6 +18,7 @@ import { useSoundEffects } from '../hooks/useSoundEffects';
 import { soundManager } from '../utils/soundManager';
 import { CardArt } from '../utils/cardArt';
 import { FloatingNumbers } from './FloatingNumbers';
+import { Settings } from './Settings';
 import { DeathAnimation } from './DeathAnimation';
 import { SpellCastEffect } from './SpellCastEffect';
 import cardsJson from '../../../data/cards.json';
@@ -979,9 +980,7 @@ export default function GameBoard({
   // ─── State ───
   const [targeting, setTargeting] = useState<TargetingMode>({ type: 'none' });
   const [selectedHandCard, setSelectedHandCard] = useState<string | null>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [concedePending, setConcedePending] = useState(false);
-  const [muted, setMuted] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [attackerPos, setAttackerPos] = useState<{ x: number; y: number } | null>(null);
   const boardRef = useRef<HTMLDivElement>(null);
@@ -1067,7 +1066,7 @@ export default function GameBoard({
   }, [diff]);
 
   // ─── Sound effects ───
-  useSoundEffects(diff, gs, muted);
+  useSoundEffects(diff, gs);
 
   // Track mouse for attack arrows
   useEffect(() => {
@@ -1415,14 +1414,9 @@ export default function GameBoard({
 
   // ─── Concede ───
   const handleConcede = useCallback(() => {
-    if (!concedePending) {
-      setConcedePending(true);
-      return;
-    }
     actions.concede();
-    setConcedePending(false);
-    setMenuOpen(false);
-  }, [actions, concedePending]);
+    setSettingsOpen(false);
+  }, [actions]);
 
   // ─── Drag-and-drop handlers (with position tracking) ───
   const handleDragStart = useCallback((e: React.DragEvent, card: ClientCardInstance) => {
@@ -1741,47 +1735,18 @@ export default function GameBoard({
         </div>
       )}
 
-      {/* ═══ Top-right controls: Menu ═══ */}
+      {/* ═══ Top-right controls: Settings ═══ */}
       <div className="absolute right-4 top-4 z-30">
-        <div className="relative">
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="rounded-lg bg-stone-800/80 px-3 py-2 text-sm text-stone-300 hover:bg-stone-700"
-          >
-            Menu
-          </button>
-          {menuOpen && (
-            <div className="absolute right-0 mt-1 w-40 rounded-lg border border-stone-700 bg-stone-800 py-1 shadow-xl">
-              <button
-                onClick={() => { setMuted(!muted); }}
-                className="w-full px-4 py-2 text-left text-sm text-stone-300 hover:bg-stone-700"
-              >
-                {muted ? '\uD83D\uDD07 Unmute' : '\uD83D\uDD0A Mute'}
-              </button>
-              <button
-                onClick={handleConcede}
-                className={`w-full px-4 py-2 text-left text-sm hover:bg-stone-700 ${concedePending ? 'text-red-300 font-bold' : 'text-red-400'}`}
-              >
-                {concedePending ? 'Confirm Concede?' : 'Concede'}
-              </button>
-              {concedePending && (
-                <button
-                  onClick={() => setConcedePending(false)}
-                  className="w-full px-4 py-2 text-left text-sm text-stone-400 hover:bg-stone-700"
-                >
-                  Cancel
-                </button>
-              )}
-              <button
-                onClick={() => { setMenuOpen(false); setConcedePending(false); }}
-                className="w-full px-4 py-2 text-left text-sm text-stone-400 hover:bg-stone-700"
-              >
-                Close
-              </button>
-            </div>
-          )}
-        </div>
+        <button
+          onClick={() => setSettingsOpen(!settingsOpen)}
+          className="rounded-lg bg-stone-800/80 px-3 py-2 text-sm text-stone-300 hover:bg-stone-700"
+        >
+          ⚙️
+        </button>
       </div>
+      {settingsOpen && (
+        <Settings onConcede={handleConcede} onClose={() => setSettingsOpen(false)} />
+      )}
 
       {/* ═══════════════════════════════════════════ */}
       {/* OPPONENT AREA (top half) */}

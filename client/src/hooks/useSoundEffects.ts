@@ -3,17 +3,13 @@ import { soundManager } from '../utils/soundManager';
 import type { StateDiff } from './useStateDiff';
 import type { ClientGameState } from '../../../shared/types';
 
-export function useSoundEffects(diff: StateDiff, gs: ClientGameState, muted: boolean) {
+export function useSoundEffects(diff: StateDiff, gs: ClientGameState) {
   const prevTurnRef = useRef<number>(gs.turnNumber);
   const prevWinnerRef = useRef<string | null>(gs.winner);
   const isMyTurn = gs.currentPlayerIndex === gs.myPlayerIndex;
 
   useEffect(() => {
-    soundManager.muted = muted;
-  }, [muted]);
-
-  useEffect(() => {
-    if (muted) return;
+    if (soundManager.muted) return;
 
     // Card draw
     if (diff.newCardIds.size > 0) {
@@ -45,5 +41,5 @@ export function useSoundEffects(diff: StateDiff, gs: ClientGameState, muted: boo
       }
     }
     prevWinnerRef.current = gs.winner;
-  }, [diff, gs.turnNumber, gs.winner, gs.myPlayerId, isMyTurn, muted]);
+  }, [diff, gs.turnNumber, gs.winner, gs.myPlayerId, isMyTurn]);
 }
