@@ -85,7 +85,8 @@ export type EffectType =
   | 'COUNTER_SPELL'
   | 'COPY_MINION'
   | 'DEAL_DAMAGE_BASED_ON_ARMOR'
-  | 'DRAW_CARDS_CONDITIONAL';
+  | 'DRAW_CARDS_CONDITIONAL'
+  | 'SWAP_ATTACK_HEALTH';
 
 export type EffectTarget =
   | 'NONE'

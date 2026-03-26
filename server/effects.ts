@@ -316,6 +316,9 @@ export function executeEffect(
         if (effect.grantKeyword === 'DIVINE_SHIELD') {
           target.hasDivineShield = true;
         }
+        if (effect.grantKeyword === 'STEALTH') {
+          target.hasStealthUntilAttack = true;
+        }
         target.enchantments.push({
           source: 'grant-keyword',
           attackMod: 0,
@@ -343,6 +346,20 @@ export function executeEffect(
       }
       addLog(game, casterIndex, `Deals ${armorDmg} damage to all enemy minions (from Armor)`, 'EFFECT');
       checkDeaths(game);
+      break;
+    }
+    case 'SWAP_ATTACK_HEALTH': {
+      if (!targetId) break;
+      const target = findMinion(game, targetId);
+      if (target) {
+        const oldAtk = target.currentAttack;
+        const oldHp = target.currentHealth;
+        target.currentAttack = oldHp;
+        target.currentHealth = oldAtk;
+        target.maxHealth = oldAtk;
+        addLog(game, casterIndex, `Swaps a minion's Attack and Health (${oldAtk}/${oldHp} → ${target.currentAttack}/${target.currentHealth})`, 'EFFECT');
+        checkDeaths(game);
+      }
       break;
     }
     case 'DRAW_CARDS_CONDITIONAL': {

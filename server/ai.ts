@@ -802,31 +802,21 @@ function usePostAttackHeroPower(
 
   switch (me.heroClass) {
     case 'JIMMY':
-      // Fireblast: 2 damage targeted — prefer killing a minion exactly, else hit face
+      // Orra Arrow: 2 damage targeted — prefer killing a minion exactly, else hit face
       hpTarget = pickDamageHeroPowerTarget(opp, oppIdx, 2);
       break;
 
     case 'DES':
-      // Dark Command is now TARGETED like Jimmy — pick optimal target
-      hpTarget = pickDamageHeroPowerTarget(opp, oppIdx, 2);
+      // Orra Siphon: 2 damage to enemy hero (no targeting needed)
+      hpTarget = null;
       break;
 
     case 'TALA': {
-      // Heal 3 — prefer damaged friendly minions with high attack, then self if damaged
-      const damaged = me.board
-        .filter(m => m.currentHealth < m.maxHealth)
-        .sort((a, b) => {
-          // Prefer healing minions with higher attack (more value preserved)
-          const aValue = a.currentAttack * (a.maxHealth - a.currentHealth);
-          const bValue = b.currentAttack * (b.maxHealth - b.currentHealth);
-          return bValue - aValue;
-        });
-      if (damaged.length > 0) {
-        hpTarget = damaged[0].instanceId;
-      } else if (me.health < me.maxHealth) {
-        hpTarget = `hero-${myIdx}`;
+      // Nature's Touch: +1/+1 to a friendly minion — prefer highest-attack minion
+      if (me.board.length > 0) {
+        const best = [...me.board].sort((a, b) => threatScore(b) - threatScore(a));
+        hpTarget = best[0].instanceId;
       } else {
-        // Full health everywhere — skip
         shouldUse = false;
       }
       break;
@@ -874,31 +864,13 @@ function usePostAttackHeroPower(
       break;
 
     case 'LUCAS':
-      // Coyote Trick: random bounce — only use if enemy has minions, prefer when they have big minions
-      if (opp.board.length > 0) {
-        // Worth using if opponent has minions with high mana cost / threat
-        const highestThreat = Math.max(...opp.board.map(m => threatScore(m)));
-        if (highestThreat >= 5) {
-          hpTarget = null;
-        } else {
-          // Low-value targets: still use if we have mana to spare
-          hpTarget = null;
-        }
-      } else {
-        shouldUse = false;
-      }
+      // Coyote's Veil: +1 Attack and 1 Armor — always worth using
+      hpTarget = null;
       break;
 
     case 'IZZY':
-      // Chart Course: gain 2 armor (draws a card at 5+ armor)
-      // Use aggressively to build toward card draw threshold
-      if (me.armor >= 3) {
-        // At 3+ armor, next use hits 5+ and draws a card — high priority
-        hpTarget = null;
-      } else {
-        // Building armor; still worth using for the armor + eventual draw
-        hpTarget = null;
-      }
+      // Chart Course: gain 2 armor — always worth using
+      hpTarget = null;
       break;
 
     default:
@@ -907,9 +879,8 @@ function usePostAttackHeroPower(
 
   if (!shouldUse) return;
 
-  const noTargetNeeded = ['DEREK', 'IZZY'].includes(me.heroClass) ||
-    (me.heroClass === 'AVA' && me.board.length < 7) ||
-    (me.heroClass === 'LUCAS' && opp.board.length > 0);
+  const noTargetNeeded = ['DEREK', 'IZZY', 'DES', 'LUCAS'].includes(me.heroClass) ||
+    (me.heroClass === 'AVA' && me.board.length < 7);
 
   if (hpTarget !== null || noTargetNeeded) {
     useHeroPower(game, aiPlayerId, hpTarget);
@@ -918,7 +889,7 @@ function usePostAttackHeroPower(
 }
 
 /**
- * Pick target for a 2-damage hero power (Jimmy Fireblast, Des Dark Command).
+ * Pick target for a 2-damage hero power (Jimmy Orra Arrow).
  * Prefer: exact kill on highest-threat > any kill > face.
  */
 function pickDamageHeroPowerTarget(opp: PlayerState, oppIdx: 0 | 1, damage: number): string {

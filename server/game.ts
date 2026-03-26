@@ -235,6 +235,11 @@ export function endTurn(
 
   addLog(game, pIdx as 0 | 1, `${player.playerName} ends their turn`, 'TURN');
 
+  // Remove hero power weapon (Lucas Coyote's Veil)
+  if (player.weapon && player.weapon.cardCode === 'HERO_POWER_LUCAS') {
+    player.weapon = null;
+  }
+
   // Reset combo counter
   game.cardsPlayedThisTurn = 0;
 

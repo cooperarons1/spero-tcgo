@@ -1210,7 +1210,7 @@
     "heroClass": "NEUTRAL",
     "rarity": "COMMON",
     "attack": 1,
-    "health": 1,
+    "health": 2,
     "text": "Battlecry: Draw a card.",
     "flavor": "She's still mapping, but at least she brought notes.",
     "keywords": [
@@ -1351,7 +1351,7 @@
     "heroClass": "NEUTRAL",
     "rarity": "COMMON",
     "attack": 4,
-    "health": 5,
+    "health": 4,
     "text": "",
     "flavor": "The brute questions nothing and smashes everything.",
     "keywords": []
@@ -1539,8 +1539,8 @@
     "type": "MINION",
     "heroClass": "NEUTRAL",
     "rarity": "COMMON",
-    "attack": 6,
-    "health": 7,
+    "attack": 7,
+    "health": 6,
     "text": "",
     "flavor": "Big. Strong. Not exactly a philosopher.",
     "keywords": []
@@ -1580,11 +1580,11 @@
   {
     "cardCode": "NEU029",
     "name": "Reckless Rocketeer",
-    "manaCost": 6,
+    "manaCost": 5,
     "type": "MINION",
     "heroClass": "NEUTRAL",
     "rarity": "COMMON",
-    "attack": 5,
+    "attack": 4,
     "health": 2,
     "text": "Charge",
     "flavor": "Safety goggles? Never heard of them.",

@@ -13,6 +13,7 @@ import {
   getValidTargets,
   checkHeroDeath,
   drawCard,
+  applyDamageToHero,
 } from './effects.js';
 import { minionHasKeyword } from './keywords.js';
 
@@ -232,7 +233,7 @@ export function useHeroPower(
 
   switch (player.heroClass) {
     case 'JIMMY': {
-      // Fireblast: Deal 2 damage to any target
+      // Orra Arrow: Deal 2 damage to any target
       if (!targetId) {
         const targets = [
           ...game.players[0].board.filter(m => !m.hasStealthUntilAttack).map(m => m.instanceId),
@@ -246,24 +247,23 @@ export function useHeroPower(
       game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
       game.playerStats[pIdx as 0 | 1].heroPowerUses++;
       executeEffect(game, pIdx as 0 | 1, { type: 'DEAL_DAMAGE', target: 'TARGET_ANY', value: 2 }, targetId);
-      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Fireblast`, 'PLAY');
+      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Orra Arrow`, 'PLAY');
       break;
     }
     case 'TALA': {
-      // Nature's Touch: Restore 2 health to any target
+      // Nature's Touch: Give a friendly minion +1/+1
+      const friendlyMinionsTala = game.players[pIdx].board;
       if (!targetId) {
-        const targets = [
-          ...game.players[0].board.map(m => m.instanceId),
-          ...game.players[1].board.map(m => m.instanceId),
-          'hero-0', 'hero-1',
-        ];
-        return { success: false, needsTarget: true, validTargets: targets };
+        if (friendlyMinionsTala.length === 0) return { success: false, error: 'No friendly minions to target' };
+        return { success: false, needsTarget: true, validTargets: friendlyMinionsTala.map(m => m.instanceId) };
       }
+      const isMyMinionTala = game.players[pIdx].board.some(m => m.instanceId === targetId);
+      if (!isMyMinionTala) return { success: false, error: 'Must target a friendly minion' };
       player.mana -= HERO_POWER_COST;
       player.heroPowerUsed = true;
       game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
       game.playerStats[pIdx as 0 | 1].heroPowerUses++;
-      executeEffect(game, pIdx as 0 | 1, { type: 'RESTORE_HEALTH', target: 'TARGET_ANY', value: 2 }, targetId);
+      executeEffect(game, pIdx as 0 | 1, { type: 'BUFF_MINION', target: 'TARGET_FRIENDLY_MINION', attackBuff: 1, healthBuff: 1 }, targetId);
       addLog(game, pIdx as 0 | 1, `${player.playerName} uses Nature's Touch`, 'PLAY');
       break;
     }
@@ -278,7 +278,7 @@ export function useHeroPower(
       break;
     }
     case 'ANDERS': {
-      // Frost Bolt: Deal 1 damage to a minion and Freeze it
+      // Hockbandy Strike: Deal 1 damage to a minion and Freeze it
       const allMinions = [
         ...game.players[0].board.filter(m => !m.hasStealthUntilAttack).map(m => m.instanceId),
         ...game.players[1].board.filter(m => !m.hasStealthUntilAttack).map(m => m.instanceId),
@@ -294,25 +294,19 @@ export function useHeroPower(
       game.playerStats[pIdx as 0 | 1].heroPowerUses++;
       executeEffect(game, pIdx as 0 | 1, { type: 'DEAL_DAMAGE', target: 'TARGET_MINION', value: 1 }, targetId);
       executeEffect(game, pIdx as 0 | 1, { type: 'FREEZE_TARGET', target: 'TARGET_MINION' }, targetId);
-      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Frost Bolt`, 'PLAY');
+      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Hockbandy Strike`, 'PLAY');
       break;
     }
     case 'DES': {
-      // Dark Command: Deal 2 damage to any target (targeted, like Fireblast)
-      if (!targetId) {
-        const targets = [
-          ...game.players[0].board.filter(m => !m.hasStealthUntilAttack).map(m => m.instanceId),
-          ...game.players[1].board.filter(m => !m.hasStealthUntilAttack).map(m => m.instanceId),
-          'hero-0', 'hero-1',
-        ];
-        return { success: false, needsTarget: true, validTargets: targets };
-      }
+      // Orra Siphon: Deal 2 damage to the enemy hero (no targeting)
       player.mana -= HERO_POWER_COST;
       player.heroPowerUsed = true;
       game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
       game.playerStats[pIdx as 0 | 1].heroPowerUses++;
-      executeEffect(game, pIdx as 0 | 1, { type: 'DEAL_DAMAGE', target: 'TARGET_ANY', value: 2 }, targetId);
-      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Dark Command`, 'PLAY');
+      applyDamageToHero(game.players[oppIdx], 2);
+      game.playerStats[pIdx as 0 | 1].damageDealtToHeroes += 2;
+      checkHeroDeath(game);
+      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Orra Siphon`, 'PLAY');
       break;
     }
     case 'ASTRID': {
@@ -345,32 +339,27 @@ export function useHeroPower(
       break;
     }
     case 'LUCAS': {
-      // Coyote Trick: Return a random enemy minion to its owner's hand
-      const oppBoard = game.players[oppIdx].board;
-      if (oppBoard.length === 0) return { success: false, error: 'No enemy minions to bounce' };
+      // Coyote's Veil: Give your hero +1 Attack this turn
       player.mana -= HERO_POWER_COST;
       player.heroPowerUsed = true;
       game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
       game.playerStats[pIdx as 0 | 1].heroPowerUses++;
-      // Pick a random enemy minion and bounce it
-      const randomMinion = oppBoard[Math.floor(Math.random() * oppBoard.length)];
-      executeEffect(game, pIdx as 0 | 1, { type: 'RETURN_TO_HAND', target: 'TARGET_ENEMY_MINION' }, randomMinion.instanceId);
-      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Coyote Trick`, 'PLAY');
+      if (!player.weapon) {
+        player.weapon = { cardCode: 'HERO_POWER_LUCAS', currentAttack: 1, durability: 1 };
+      } else {
+        player.weapon.currentAttack += 1;
+      }
+      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Coyote's Veil`, 'PLAY');
       break;
     }
     case 'IZZY': {
-      // Chart Course: Gain 2 Armor. Draw a card if you have 5+ Armor.
+      // Chart Course: Gain 2 Armor
       player.mana -= HERO_POWER_COST;
       player.heroPowerUsed = true;
       game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
       game.playerStats[pIdx as 0 | 1].heroPowerUses++;
       executeEffect(game, pIdx as 0 | 1, { type: 'GAIN_ARMOR', target: 'NONE', value: 2 });
-      if (player.armor >= 5) {
-        drawCard(game, pIdx as 0 | 1);
-        addLog(game, pIdx as 0 | 1, `${player.playerName} uses Chart Course — gains Armor and draws a card!`, 'PLAY');
-      } else {
-        addLog(game, pIdx as 0 | 1, `${player.playerName} uses Chart Course`, 'PLAY');
-      }
+      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Chart Course`, 'PLAY');
       break;
     }
     default:

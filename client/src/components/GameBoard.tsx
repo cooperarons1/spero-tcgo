@@ -101,23 +101,22 @@ function locationNeedsTarget(def: CardDef): { needsTarget: boolean; targetType: 
 // ─── Hero powers that need targeting ───
 const HERO_POWER_TARGETING: Partial<Record<HeroClass, string>> = {
   JIMMY: 'TARGET_ANY',
-  TALA: 'TARGET_ANY',
+  TALA: 'TARGET_FRIENDLY_MINION',
   ANDERS: 'TARGET_MINION',
-  DES: 'TARGET_ANY',
   ASTRID: 'TARGET_FRIENDLY_MINION',
 };
 
 // ─── Hero Power Descriptions ───
 const HERO_POWER_DESC: Record<HeroClass, string> = {
-  JIMMY: 'Fireblast: Deal 2 damage to any target',
-  TALA: "Nature's Touch: Restore 2 health to any target",
+  JIMMY: 'Orra Arrow: Deal 2 damage to any target',
+  TALA: "Nature's Touch: Give a friendly minion +1/+1",
   DEREK: 'Tinker: Draw a card',
-  ANDERS: 'Frost Bolt: Deal 1 damage to a minion and Freeze it',
-  DES: 'Dark Command: Deal 2 damage to any target',
+  ANDERS: 'Hockbandy Strike: Deal 1 damage to a minion and Freeze it',
+  DES: 'Orra Siphon: Deal 2 damage to the enemy hero',
   ASTRID: 'Mighty Guard: Give a friendly minion Divine Shield',
   AVA: 'Deploy Drone: Summon a 1/1 Gadget Drone',
-  LUCAS: 'Coyote Trick: Return a random enemy minion to hand',
-  IZZY: 'Chart Course: Gain 2 Armor. Draw a card if 5+ Armor',
+  LUCAS: "Coyote's Veil: Give your hero +1 Attack this turn",
+  IZZY: 'Chart Course: Gain 2 Armor',
   NEUTRAL: 'Hero Power',
 };
 
