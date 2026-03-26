@@ -397,6 +397,19 @@ export interface Room {
   aiPlayerId?: string;
 }
 
+// ─── Post-Game Rewards ───
+
+export interface PostGameRewards {
+  xpGain: number;
+  newXp: number;
+  newLevel: number;
+  eloChange: number;
+  newElo: number;
+  rankTier: RankTier;
+  questsCompleted: { description: string; reward: number }[];
+  goldEarned: number;
+}
+
 // ─── User Profile ───
 
 export type RankTier = 'BRONZE' | 'SILVER' | 'GOLD' | 'DIAMOND' | 'LEGEND';

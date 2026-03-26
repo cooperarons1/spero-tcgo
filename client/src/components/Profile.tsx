@@ -1,0 +1,196 @@
+import { useState, useEffect } from 'react';
+import { socket } from '../socket';
+import { getHistory, type MatchRecord } from '../utils/matchHistory';
+import type { RankTier } from '../../../shared/types';
+
+interface ProfileProps {
+  uid: string;
+  displayName: string;
+  onBack: () => void;
+}
+
+const RANK_COLORS: Record<string, string> = {
+  BRONZE: 'text-amber-500',
+  SILVER: 'text-gray-300',
+  GOLD: 'text-yellow-400',
+  DIAMOND: 'text-cyan-400',
+  LEGEND: 'text-purple-400',
+};
+
+const RANK_BG: Record<string, string> = {
+  BRONZE: 'bg-amber-900/30 border-amber-600/50',
+  SILVER: 'bg-gray-700/30 border-gray-400/50',
+  GOLD: 'bg-yellow-900/30 border-yellow-500/50',
+  DIAMOND: 'bg-cyan-900/30 border-cyan-400/50',
+  LEGEND: 'bg-purple-900/30 border-purple-400/50',
+};
+
+const RANK_BAR_COLOR: Record<string, string> = {
+  BRONZE: 'bg-amber-500',
+  SILVER: 'bg-gray-300',
+  GOLD: 'bg-yellow-400',
+  DIAMOND: 'bg-cyan-400',
+  LEGEND: 'bg-purple-400',
+};
+
+const RANK_THRESHOLDS: Record<string, { min: number; max: number }> = {
+  BRONZE: { min: 0, max: 1200 },
+  SILVER: { min: 1200, max: 1500 },
+  GOLD: { min: 1500, max: 1800 },
+  DIAMOND: { min: 1800, max: 2100 },
+  LEGEND: { min: 2100, max: 3000 },
+};
+
+interface RankData {
+  elo: number;
+  rankTier: RankTier;
+  gamesPlayed: number;
+  gamesWon: number;
+}
+
+interface QuestsData {
+  quests: any[];
+  gold: number;
+  xp: number;
+  level: number;
+}
+
+export function Profile({ uid, displayName, onBack }: ProfileProps) {
+  const [rank, setRank] = useState<RankData | null>(null);
+  const [quests, setQuests] = useState<QuestsData | null>(null);
+  const [history, setHistory] = useState<MatchRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    socket.emit('get-rank');
+    socket.emit('get-quests');
+
+    const onRank = (data: RankData) => setRank(data);
+    const onQuests = (data: QuestsData) => setQuests(data);
+    socket.on('rank-update', onRank);
+    socket.on('quests-update', onQuests);
+
+    getHistory(uid).then(h => {
+      setHistory(h);
+      setLoading(false);
+    });
+
+    return () => {
+      socket.off('rank-update', onRank);
+      socket.off('quests-update', onQuests);
+    };
+  }, [uid]);
+
+  const gamesPlayed = rank?.gamesPlayed ?? 0;
+  const gamesWon = rank?.gamesWon ?? 0;
+  const gamesLost = gamesPlayed - gamesWon;
+  const winRate = gamesPlayed > 0 ? ((gamesWon / gamesPlayed) * 100).toFixed(1) : '0.0';
+  const tier = rank?.rankTier ?? 'BRONZE';
+  const elo = rank?.elo ?? 1000;
+  const threshold = RANK_THRESHOLDS[tier];
+  const eloInTier = elo - threshold.min;
+  const tierRange = threshold.max - threshold.min;
+
+  // Calculate current streak from recent match history
+  let streak = 0;
+  if (history.length > 0) {
+    const streakType = history[0].isWin;
+    for (const m of history) {
+      if (m.isWin === streakType) streak++;
+      else break;
+    }
+    if (!streakType) streak = -streak;
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen p-4">
+      <div className="bg-slate-800 rounded-2xl p-6 shadow-xl max-w-lg w-full border border-slate-700">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-white">Profile</h2>
+          <button onClick={onBack} className="text-gray-400 hover:text-white text-sm underline cursor-pointer">Back</button>
+        </div>
+
+        {/* Player Identity */}
+        <div className="text-center mb-6">
+          <h3 className="text-2xl font-bold text-white mb-1">{displayName}</h3>
+          <div className="flex items-center justify-center gap-2">
+            <span className={`text-lg font-bold ${RANK_COLORS[tier]}`}>{tier}</span>
+            <span className="text-gray-400 text-sm">({elo} ELO)</span>
+          </div>
+          {quests && <span className="text-xs text-gray-500">Level {quests.level}</span>}
+        </div>
+
+        {/* Rank Progress */}
+        <div className={`rounded-xl p-3 border mb-4 ${RANK_BG[tier]}`}>
+          <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
+            <span>{tier}</span>
+            <span>{elo}/{threshold.max}</span>
+          </div>
+          <div className="bg-slate-900 rounded-full h-2 overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all ${RANK_BAR_COLOR[tier]}`}
+              style={{ width: `${Math.min(100, (eloInTier / tierRange) * 100)}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <StatCard label="Games Played" value={gamesPlayed} />
+          <StatCard label="Win Rate" value={`${winRate}%`} />
+          <StatCard label="Wins" value={gamesWon} color="text-green-400" />
+          <StatCard label="Losses" value={gamesLost} color="text-red-400" />
+          <StatCard
+            label="Current Streak"
+            value={streak > 0 ? `${streak}W` : streak < 0 ? `${Math.abs(streak)}L` : '-'}
+            color={streak > 0 ? 'text-green-400' : streak < 0 ? 'text-red-400' : 'text-gray-400'}
+          />
+          {quests && <StatCard label="Gold" value={quests.gold} color="text-yellow-400" />}
+        </div>
+
+        {/* Recent Matches */}
+        <div>
+          <h4 className="font-bold text-sm text-gray-300 mb-2">Recent Matches</h4>
+          {loading ? (
+            <p className="text-gray-500 text-center py-4 text-sm">Loading...</p>
+          ) : history.length === 0 ? (
+            <p className="text-gray-500 text-center py-4 text-sm">No matches played yet.</p>
+          ) : (
+            <div className="space-y-1.5 max-h-[30vh] overflow-y-auto">
+              {history.slice(0, 20).map(m => {
+                const date = new Date(m.date);
+                const dateStr = `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
+                return (
+                  <div
+                    key={m.id}
+                    className={`flex items-center justify-between rounded-lg px-3 py-2 text-sm ${
+                      m.isWin ? 'bg-green-900/15 border border-green-700/20' : 'bg-red-900/15 border border-red-700/20'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${m.isWin ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`}>
+                        {m.isWin ? 'W' : 'L'}
+                      </span>
+                      <span className="text-white text-sm">vs {m.opponentName}</span>
+                    </div>
+                    <span className="text-xs text-gray-500">{dateStr}</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StatCard({ label, value, color }: { label: string; value: string | number; color?: string }) {
+  return (
+    <div className="bg-slate-700/50 rounded-lg p-3 text-center">
+      <div className={`text-xl font-bold ${color ?? 'text-white'}`}>{value}</div>
+      <div className="text-xs text-gray-500">{label}</div>
+    </div>
+  );
+}

@@ -396,3 +396,23 @@ body {
 @media (hover: none) {
   .inspect-icon { opacity: 0.6; }
 }
+
+/* ═══ Touch device overrides ═══ */
+.touch-none {
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Responsive card scaling breakpoints */
+@media (max-width: 767px) {
+  .minion-oval,
+  .minion-oval-taunt {
+    border-width: 2px;
+  }
+  .minion-oval-taunt {
+    outline-width: 2px;
+    outline-offset: 1px;
+  }
+}

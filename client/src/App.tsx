@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef, Component } from 'react';
 import type { ReactNode } from 'react';
 import { socket } from './socket';
-import type { ClientGameState, LobbyState } from '../../shared/types';
+import type { ClientGameState, LobbyState, PostGameRewards } from '../../shared/types';
 import { useAuth } from './hooks/useAuth';
 import { AuthScreen } from './components/AuthScreen';
 import { Lobby } from './components/Lobby';
@@ -11,6 +11,7 @@ import { Collection } from './components/Collection';
 import { DeckPicker } from './components/DeckPicker';
 import { MatchHistory } from './components/MatchHistory';
 import { Friends } from './components/Friends';
+import { Profile } from './components/Profile';
 import { ReconnectionOverlay } from './components/ReconnectionOverlay';
 
 class ErrorBoundary extends Component<{ children: ReactNode }, { errorMsg: string | null }> {
@@ -35,7 +36,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { errorMsg: strin
   }
 }
 
-type View = 'lobby' | 'game' | 'collection' | 'deckpicker' | 'deckpicker-ai' | 'matchhistory' | 'friends';
+type View = 'lobby' | 'game' | 'collection' | 'deckpicker' | 'deckpicker-ai' | 'matchhistory' | 'friends' | 'profile';
 type RematchState = 'default' | 'proposed' | 'received' | 'declined';
 type ConnectionStatus = 'connected' | 'disconnected' | 'opponent-disconnected';
 
@@ -54,6 +55,7 @@ function App() {
   const errorTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [incomingChallenge, setIncomingChallenge] = useState<{ challengeId: string; fromUid: string; fromName: string } | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('connected');
+  const [postGameRewards, setPostGameRewards] = useState<PostGameRewards | null>(null);
 
   // Opponent action animation queue
   const [displayedState, setDisplayedState] = useState<ClientGameState | null>(null);
@@ -136,6 +138,7 @@ function App() {
       introShownRef.current = false;
       matchSavedRef.current = false;
       setRematchState('default');
+      setPostGameRewards(null);
       sessionStorage.setItem('spero-room-code', data.code);
     });
 
@@ -263,6 +266,10 @@ function App() {
       setView('friends');
     });
 
+    socket.on('post-game-rewards', (data: PostGameRewards) => {
+      setPostGameRewards(data);
+    });
+
     return () => {
       socket.off('lobby-update');
       socket.off('game-state');
@@ -274,6 +281,7 @@ function App() {
       socket.off('match-found');
       socket.off('queue-timeout');
       socket.off('duel-challenge');
+      socket.off('post-game-rewards');
     };
   }, []);
 
@@ -328,11 +336,12 @@ function App() {
             gameState={displayedState ?? gameState!}
             opponentHovering={opponentHovering}
             opponentEmote={opponentEmote}
-            onLeaveGame={() => { socket.emit('leave-game'); setGameState(null); setView('lobby'); sessionStorage.removeItem('spero-room-code'); }}
+            onLeaveGame={() => { socket.emit('leave-game'); setGameState(null); setView('lobby'); setPostGameRewards(null); sessionStorage.removeItem('spero-room-code'); }}
             uid={user.uid}
             rematchState={rematchState}
             onRequestRematch={() => { setRematchState('proposed'); socket.emit('request-rematch'); }}
             onDeclineRematch={() => socket.emit('decline-rematch')}
+            postGameRewards={postGameRewards}
           />
           {showIntro && (
             <GameIntro
@@ -364,6 +373,8 @@ function App() {
         <MatchHistory uid={user.uid} onBack={() => setView('lobby')} />
       ) : view === 'friends' ? (
         <Friends uid={user.uid} onBack={() => setView('lobby')} incomingChallenge={incomingChallenge} onChallengeHandled={() => setIncomingChallenge(null)} />
+      ) : view === 'profile' ? (
+        <Profile uid={user.uid} displayName={user.displayName || 'Player'} onBack={() => setView('lobby')} />
       ) : (
         <Lobby
           lobby={lobby}
@@ -371,6 +382,7 @@ function App() {
           onCollection={() => setView('collection')}
           onMatchHistory={() => setView('matchhistory')}
           onFriends={() => setView('friends')}
+          onProfile={() => setView('profile')}
           onPlayOnline={() => setView('deckpicker')}
           onPlayAI={() => setView('deckpicker-ai')}
           onSignOut={signOut}

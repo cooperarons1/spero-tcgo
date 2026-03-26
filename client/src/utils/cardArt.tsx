@@ -3903,6 +3903,461 @@ const cardArtMap: Record<string, () => React.ReactNode> = {
     </>
   ),
 
+  // ==================== JIMMY SECRETS & EXTRAS ====================
+  JIM_S01: () => (
+    <>
+      <defs>{jimmyGradients}</defs>
+      {fireBg}
+      {/* Secret - amber ? with fire mist */}
+      <rect x="0" y="0" width="100" height="80" fill="#1a0800" opacity="0.5" />
+      <circle cx="50" cy="40" r="22" fill="none" stroke="#ff6600" strokeWidth="2" opacity="0.4" />
+      <circle cx="50" cy="40" r="28" fill="none" stroke="#ff4400" strokeWidth="1" opacity="0.2" />
+      <text x="50" y="52" textAnchor="middle" fill="#ffaa00" fontSize="36" fontWeight="bold" opacity="0.9">?</text>
+      <circle cx="35" cy="25" r="3" fill="#ff6600" opacity="0.3" />
+      <circle cx="65" cy="55" r="2" fill="#ff4400" opacity="0.2" />
+    </>
+  ),
+  JIM_S02: () => (
+    <>
+      <defs>{jimmyGradients}</defs>
+      {fireBg}
+      {/* Secret - fire trap variant */}
+      <rect x="0" y="0" width="100" height="80" fill="#1a0800" opacity="0.5" />
+      <circle cx="50" cy="40" r="24" fill="none" stroke="#ff4400" strokeWidth="1.5" opacity="0.35" />
+      <circle cx="50" cy="40" r="30" fill="none" stroke="#cc3300" strokeWidth="1" opacity="0.15" />
+      <text x="50" y="52" textAnchor="middle" fill="#ff8800" fontSize="36" fontWeight="bold" opacity="0.85">?</text>
+      <circle cx="30" cy="30" r="2" fill="#ff6600" opacity="0.25" />
+      <circle cx="70" cy="50" r="3" fill="#ff4400" opacity="0.2" />
+      <circle cx="60" cy="20" r="2" fill="#ffaa00" opacity="0.15" />
+    </>
+  ),
+  JIM_S03: () => (
+    <>
+      <defs>{jimmyGradients}</defs>
+      {fireBg}
+      {/* Secret - ember ward variant */}
+      <rect x="0" y="0" width="100" height="80" fill="#1a0800" opacity="0.5" />
+      <circle cx="50" cy="40" r="20" fill="none" stroke="#ffaa00" strokeWidth="2" opacity="0.3" />
+      <circle cx="50" cy="40" r="26" fill="none" stroke="#ff6600" strokeWidth="1" opacity="0.2" />
+      <text x="50" y="52" textAnchor="middle" fill="#ffcc00" fontSize="36" fontWeight="bold" opacity="0.9">?</text>
+      <circle cx="40" cy="60" r="2" fill="#ff4400" opacity="0.3" />
+      <circle cx="25" cy="35" r="2" fill="#ff6600" opacity="0.2" />
+      <circle cx="72" cy="28" r="3" fill="#ffaa00" opacity="0.15" />
+    </>
+  ),
+  JIM016: () => (
+    <>
+      <defs>{jimmyGradients}</defs>
+      {fireBg}
+      {/* Fire Warrior - armored flame soldier */}
+      {humanoid(50, 50, '#cc4400')}
+      <polygon points="50,18 44,32 56,32" fill="url(#fireGrad)" opacity="0.7" />
+      {flames(50, 16, 0.8)}
+      {flames(42, 22, 0.5)}
+      {flames(58, 22, 0.5)}
+      <rect x="60" y="32" width="4" height="22" rx="1" fill="#ff6600" />
+      <ellipse cx="50" cy="68" rx="12" ry="3" fill="#ff4400" opacity="0.2" />
+    </>
+  ),
+  JIM_LORE_01: () => (
+    <>
+      <defs>{jimmyGradients}</defs>
+      {fireBg}
+      {/* Ancient Fire Tome - burning scroll */}
+      <rect x="30" y="20" width="40" height="50" rx="4" fill="#663300" />
+      <rect x="34" y="24" width="32" height="42" rx="2" fill="#884422" />
+      <line x1="38" y1="32" x2="62" y2="32" stroke="#ffaa00" strokeWidth="1" opacity="0.5" />
+      <line x1="38" y1="38" x2="58" y2="38" stroke="#ffaa00" strokeWidth="1" opacity="0.4" />
+      <line x1="38" y1="44" x2="60" y2="44" stroke="#ffaa00" strokeWidth="1" opacity="0.3" />
+      <circle cx="50" cy="55" r="5" fill="url(#fireGrad)" opacity="0.5" />
+      {flames(50, 50, 0.5)}
+      {flames(32, 18, 0.4)}
+      {flames(68, 18, 0.4)}
+    </>
+  ),
+  JIM_LORE_02: () => (
+    <>
+      <defs>{jimmyGradients}</defs>
+      {fireBg}
+      {/* Fire Legend Scene - volcano with ancient fire runes */}
+      <polygon points="50,10 20,65 80,65" fill="#882200" />
+      <polygon points="50,10 35,55 65,55" fill="url(#lavaGrad)" opacity="0.4" />
+      <ellipse cx="50" cy="14" rx="8" ry="5" fill="#ff4400" opacity="0.6" />
+      {flames(50, 8, 0.7)}
+      {flames(44, 12, 0.5)}
+      {flames(56, 12, 0.5)}
+      <rect x="15" y="65" width="70" height="10" rx="2" fill="#331100" />
+      <circle cx="30" cy="58" r="2" fill="#ffaa00" opacity="0.3" />
+      <circle cx="70" cy="58" r="2" fill="#ffaa00" opacity="0.3" />
+    </>
+  ),
+
+  // ==================== ANDERS SECRETS ====================
+  AND_S01: () => (
+    <>
+      <defs>{andersGradients}</defs>
+      {iceBg}
+      {/* Secret - icy ? with frost mist */}
+      <rect x="0" y="0" width="100" height="80" fill="#030818" opacity="0.5" />
+      <circle cx="50" cy="40" r="22" fill="none" stroke="#66aaff" strokeWidth="2" opacity="0.4" />
+      <circle cx="50" cy="40" r="28" fill="none" stroke="#4488dd" strokeWidth="1" opacity="0.2" />
+      <text x="50" y="52" textAnchor="middle" fill="#88ccff" fontSize="36" fontWeight="bold" opacity="0.9">?</text>
+      <circle cx="35" cy="25" r="3" fill="#66aaff" opacity="0.3" />
+      <circle cx="65" cy="55" r="2" fill="#4488dd" opacity="0.2" />
+    </>
+  ),
+  AND_S02: () => (
+    <>
+      <defs>{andersGradients}</defs>
+      {iceBg}
+      {/* Secret - ice trap variant */}
+      <rect x="0" y="0" width="100" height="80" fill="#030818" opacity="0.5" />
+      <circle cx="50" cy="40" r="24" fill="none" stroke="#4488dd" strokeWidth="1.5" opacity="0.35" />
+      <circle cx="50" cy="40" r="30" fill="none" stroke="#3366bb" strokeWidth="1" opacity="0.15" />
+      <text x="50" y="52" textAnchor="middle" fill="#aaddff" fontSize="36" fontWeight="bold" opacity="0.85">?</text>
+      <circle cx="30" cy="30" r="2" fill="#66aaff" opacity="0.25" />
+      <circle cx="70" cy="50" r="3" fill="#4488dd" opacity="0.2" />
+      <circle cx="60" cy="20" r="2" fill="#88ccff" opacity="0.15" />
+    </>
+  ),
+  AND_S03: () => (
+    <>
+      <defs>{andersGradients}</defs>
+      {iceBg}
+      {/* Secret - frost ward variant */}
+      <rect x="0" y="0" width="100" height="80" fill="#030818" opacity="0.5" />
+      <circle cx="50" cy="40" r="20" fill="none" stroke="#88ccff" strokeWidth="2" opacity="0.3" />
+      <circle cx="50" cy="40" r="26" fill="none" stroke="#66aaff" strokeWidth="1" opacity="0.2" />
+      <text x="50" y="52" textAnchor="middle" fill="#bbddff" fontSize="36" fontWeight="bold" opacity="0.9">?</text>
+      <circle cx="40" cy="60" r="2" fill="#4488dd" opacity="0.3" />
+      <circle cx="25" cy="35" r="2" fill="#66aaff" opacity="0.2" />
+      <circle cx="72" cy="28" r="3" fill="#88ccff" opacity="0.15" />
+    </>
+  ),
+
+  // ==================== ASTRID SECRETS & TOKENS ====================
+  AST_S01: () => (
+    <>
+      <defs>{astridGradients}</defs>
+      {astridBg}
+      {/* Secret - golden ? with divine glow */}
+      <rect x="0" y="0" width="100" height="80" fill="#0d0a00" opacity="0.5" />
+      <circle cx="50" cy="40" r="22" fill="none" stroke="#daa520" strokeWidth="2" opacity="0.4" />
+      <circle cx="50" cy="40" r="28" fill="none" stroke="#cc9900" strokeWidth="1" opacity="0.2" />
+      <text x="50" y="52" textAnchor="middle" fill="#ffd700" fontSize="36" fontWeight="bold" opacity="0.9">?</text>
+      <circle cx="35" cy="25" r="3" fill="#daa520" opacity="0.3" />
+      <circle cx="65" cy="55" r="2" fill="#cc9900" opacity="0.2" />
+    </>
+  ),
+  AST_S02: () => (
+    <>
+      <defs>{astridGradients}</defs>
+      {astridBg}
+      {/* Secret - divine trap variant */}
+      <rect x="0" y="0" width="100" height="80" fill="#0d0a00" opacity="0.5" />
+      <circle cx="50" cy="40" r="24" fill="none" stroke="#cc9900" strokeWidth="1.5" opacity="0.35" />
+      <circle cx="50" cy="40" r="30" fill="none" stroke="#aa7700" strokeWidth="1" opacity="0.15" />
+      <text x="50" y="52" textAnchor="middle" fill="#ffcc33" fontSize="36" fontWeight="bold" opacity="0.85">?</text>
+      <circle cx="30" cy="30" r="2" fill="#daa520" opacity="0.25" />
+      <circle cx="70" cy="50" r="3" fill="#cc9900" opacity="0.2" />
+      <circle cx="60" cy="20" r="2" fill="#ffd700" opacity="0.15" />
+    </>
+  ),
+  AST_S03: () => (
+    <>
+      <defs>{astridGradients}</defs>
+      {astridBg}
+      {/* Secret - holy ward variant */}
+      <rect x="0" y="0" width="100" height="80" fill="#0d0a00" opacity="0.5" />
+      <circle cx="50" cy="40" r="20" fill="none" stroke="#ffd700" strokeWidth="2" opacity="0.3" />
+      <circle cx="50" cy="40" r="26" fill="none" stroke="#daa520" strokeWidth="1" opacity="0.2" />
+      <text x="50" y="52" textAnchor="middle" fill="#ffe066" fontSize="36" fontWeight="bold" opacity="0.9">?</text>
+      <circle cx="40" cy="60" r="2" fill="#cc9900" opacity="0.3" />
+      <circle cx="25" cy="35" r="2" fill="#daa520" opacity="0.2" />
+      <circle cx="72" cy="28" r="3" fill="#ffd700" opacity="0.15" />
+    </>
+  ),
+  AST_TOKEN_01: () => (
+    <>
+      <defs>{astridGradients}</defs>
+      <rect x="0" y="0" width="100" height="80" fill="#1a1408" />
+      {/* Small golden guardian */}
+      <circle cx="50" cy="30" r="8" fill="url(#shieldGrad)" />
+      <rect x="44" y="36" width="12" height="16" rx="2" fill="#cc9900" />
+      <rect x="40" y="38" width="6" height="10" rx="2" fill="#cc9900" />
+      <rect x="54" y="38" width="6" height="10" rx="2" fill="#cc9900" />
+      <circle cx="47" cy="28" r="1.5" fill="#fff" />
+      <circle cx="53" cy="28" r="1.5" fill="#fff" />
+      <ellipse cx="50" cy="60" rx="8" ry="2" fill="#daa520" opacity="0.2" />
+    </>
+  ),
+  AST_TOKEN_02: () => (
+    <>
+      <defs>{astridGradients}</defs>
+      <rect x="0" y="0" width="100" height="80" fill="#1a1408" />
+      {/* Small shield bearer */}
+      <circle cx="50" cy="28" r="7" fill="#cc9900" />
+      <rect x="44" y="33" width="12" height="14" rx="2" fill="#aa8800" />
+      <rect x="40" y="35" width="6" height="10" rx="2" fill="#aa8800" />
+      <rect x="54" y="35" width="6" height="10" rx="2" fill="#aa8800" />
+      <circle cx="47" cy="26" r="1.5" fill="#fff" />
+      <circle cx="53" cy="26" r="1.5" fill="#fff" />
+      <rect x="56" y="34" width="10" height="14" rx="3" fill="url(#shieldGrad)" opacity="0.8" />
+      <ellipse cx="50" cy="56" rx="8" ry="2" fill="#daa520" opacity="0.2" />
+    </>
+  ),
+
+  // ==================== DES SECRETS & EXTRAS ====================
+  DES_S01: () => (
+    <>
+      <defs>{desGradients}</defs>
+      {desBg}
+      {/* Secret - purple ? with shadow mist */}
+      <rect x="0" y="0" width="100" height="80" fill="#0a0015" opacity="0.5" />
+      <circle cx="50" cy="40" r="22" fill="none" stroke="#9933cc" strokeWidth="2" opacity="0.4" />
+      <circle cx="50" cy="40" r="28" fill="none" stroke="#7722aa" strokeWidth="1" opacity="0.2" />
+      <text x="50" y="52" textAnchor="middle" fill="#bb66ff" fontSize="36" fontWeight="bold" opacity="0.9">?</text>
+      <circle cx="35" cy="25" r="3" fill="#9933cc" opacity="0.3" />
+      <circle cx="65" cy="55" r="2" fill="#7722aa" opacity="0.2" />
+    </>
+  ),
+  DES_S02: () => (
+    <>
+      <defs>{desGradients}</defs>
+      {desBg}
+      {/* Secret - dark trap variant */}
+      <rect x="0" y="0" width="100" height="80" fill="#0a0015" opacity="0.5" />
+      <circle cx="50" cy="40" r="24" fill="none" stroke="#7722aa" strokeWidth="1.5" opacity="0.35" />
+      <circle cx="50" cy="40" r="30" fill="none" stroke="#551188" strokeWidth="1" opacity="0.15" />
+      <text x="50" y="52" textAnchor="middle" fill="#aa55ee" fontSize="36" fontWeight="bold" opacity="0.85">?</text>
+      <circle cx="30" cy="30" r="2" fill="#9933cc" opacity="0.25" />
+      <circle cx="70" cy="50" r="3" fill="#7722aa" opacity="0.2" />
+      <circle cx="60" cy="20" r="2" fill="#bb66ff" opacity="0.15" />
+    </>
+  ),
+  DES_S03: () => (
+    <>
+      <defs>{desGradients}</defs>
+      {desBg}
+      {/* Secret - void ward variant */}
+      <rect x="0" y="0" width="100" height="80" fill="#0a0015" opacity="0.5" />
+      <circle cx="50" cy="40" r="20" fill="none" stroke="#bb66ff" strokeWidth="2" opacity="0.3" />
+      <circle cx="50" cy="40" r="26" fill="none" stroke="#9933cc" strokeWidth="1" opacity="0.2" />
+      <text x="50" y="52" textAnchor="middle" fill="#cc88ff" fontSize="36" fontWeight="bold" opacity="0.9">?</text>
+      <circle cx="40" cy="60" r="2" fill="#7722aa" opacity="0.3" />
+      <circle cx="25" cy="35" r="2" fill="#9933cc" opacity="0.2" />
+      <circle cx="72" cy="28" r="3" fill="#bb66ff" opacity="0.15" />
+    </>
+  ),
+  DES_LORE_01: () => (
+    <>
+      <defs>{desGradients}</defs>
+      {desBg}
+      {/* Dark Tome - shadow-bound grimoire */}
+      <rect x="30" y="20" width="40" height="50" rx="4" fill="#220033" />
+      <rect x="34" y="24" width="32" height="42" rx="2" fill="#331144" />
+      <line x1="38" y1="32" x2="62" y2="32" stroke="#9933cc" strokeWidth="1" opacity="0.5" />
+      <line x1="38" y1="38" x2="58" y2="38" stroke="#9933cc" strokeWidth="1" opacity="0.4" />
+      <line x1="38" y1="44" x2="60" y2="44" stroke="#9933cc" strokeWidth="1" opacity="0.3" />
+      <circle cx="50" cy="55" r="5" fill="url(#darkOrraGrad)" opacity="0.5" />
+      <circle cx="50" cy="55" r="3" fill="#bb66ff" opacity="0.3" />
+      <circle cx="32" cy="18" r="2" fill="#9933cc" opacity="0.2" />
+      <circle cx="68" cy="18" r="2" fill="#9933cc" opacity="0.2" />
+    </>
+  ),
+  EOT_003: () => (
+    <>
+      <defs>{desGradients}</defs>
+      {desBg}
+      {/* Dark Swirl Countdown - shadow timer */}
+      <circle cx="50" cy="40" r="20" fill="none" stroke="#9933cc" strokeWidth="2" opacity="0.5" />
+      <circle cx="50" cy="40" r="16" fill="url(#darkOrraGrad)" opacity="0.3" />
+      <path d="M50,24 A16,16 0 0,1 66,40" fill="none" stroke="#bb66ff" strokeWidth="3" opacity="0.7" />
+      <path d="M50,24 A16,16 0 0,0 34,40" fill="none" stroke="#7722aa" strokeWidth="2" opacity="0.4" />
+      <circle cx="50" cy="40" r="4" fill="#bb66ff" opacity="0.5" />
+      <line x1="50" y1="40" x2="50" y2="28" stroke="#cc88ff" strokeWidth="1.5" opacity="0.6" />
+      <circle cx="38" cy="55" r="2" fill="#9933cc" opacity="0.2" />
+      <circle cx="62" cy="55" r="2" fill="#9933cc" opacity="0.2" />
+    </>
+  ),
+
+  // ==================== LUCAS COMBOS ====================
+  COMBO_002: () => (
+    <>
+      <defs>{lucasGradients}</defs>
+      {lucasBg}
+      {/* Shadowy Dual-Strike - linked teal blades */}
+      <line x1="25" y1="20" x2="50" y2="55" stroke="#33ccaa" strokeWidth="3" opacity="0.7" />
+      <line x1="75" y1="20" x2="50" y2="55" stroke="#33ccaa" strokeWidth="3" opacity="0.7" />
+      <circle cx="50" cy="55" r="6" fill="#22aa88" opacity="0.5" />
+      <circle cx="25" cy="20" r="4" fill="#33ccaa" opacity="0.6" />
+      <circle cx="75" cy="20" r="4" fill="#33ccaa" opacity="0.6" />
+      <line x1="25" y1="20" x2="75" y2="20" stroke="#22aa88" strokeWidth="1" opacity="0.3" strokeDasharray="4,3" />
+      <circle cx="50" cy="38" r="2" fill="#55eedd" opacity="0.3" />
+    </>
+  ),
+  COMBO_003: () => (
+    <>
+      <defs>{lucasGradients}</defs>
+      {lucasBg}
+      {/* Teal Shadow Combo - connected energy streams */}
+      <path d="M20,40 Q35,20 50,40 Q65,60 80,40" fill="none" stroke="#33ccaa" strokeWidth="3" opacity="0.6" />
+      <path d="M20,40 Q35,60 50,40 Q65,20 80,40" fill="none" stroke="#22aa88" strokeWidth="2" opacity="0.4" />
+      <circle cx="20" cy="40" r="5" fill="#33ccaa" opacity="0.5" />
+      <circle cx="80" cy="40" r="5" fill="#33ccaa" opacity="0.5" />
+      <circle cx="50" cy="40" r="6" fill="#55eedd" opacity="0.4" />
+      <circle cx="50" cy="40" r="3" fill="#ffffff" opacity="0.2" />
+    </>
+  ),
+
+  // ==================== AVA TOKEN ====================
+  AVA_TOKEN_02: () => (
+    <>
+      <defs>{avaGradients}</defs>
+      {avaBg}
+      {/* Small mechanical drone */}
+      <ellipse cx="50" cy="36" rx="12" ry="6" fill="#ff69b4" opacity="0.7" />
+      <rect x="44" y="30" width="12" height="8" rx="3" fill="#ff99cc" />
+      <circle cx="47" cy="33" r="1.5" fill="#fff" />
+      <circle cx="53" cy="33" r="1.5" fill="#fff" />
+      <line x1="38" y1="34" x2="30" y2="30" stroke="#ff69b4" strokeWidth="1.5" opacity="0.5" />
+      <line x1="62" y1="34" x2="70" y2="30" stroke="#ff69b4" strokeWidth="1.5" opacity="0.5" />
+      <circle cx="30" cy="30" r="2" fill="#ff99cc" opacity="0.4" />
+      <circle cx="70" cy="30" r="2" fill="#ff99cc" opacity="0.4" />
+      <ellipse cx="50" cy="48" rx="6" ry="2" fill="#ff69b4" opacity="0.2" />
+    </>
+  ),
+
+  // ==================== NEUTRAL EOT & LORE ====================
+  EOT_001: () => (
+    <>
+      <defs>{neutralGradients}</defs>
+      {neutralBg}
+      {/* Generic Hourglass Timer */}
+      <rect x="36" y="15" width="28" height="4" rx="1" fill="#888888" />
+      <rect x="36" y="61" width="28" height="4" rx="1" fill="#888888" />
+      <polygon points="40,19 60,19 55,40 45,40" fill="url(#grayGrad)" opacity="0.5" />
+      <polygon points="40,61 60,61 55,40 45,40" fill="url(#grayGrad)" opacity="0.5" />
+      <circle cx="50" cy="40" r="3" fill="#ffcc33" opacity="0.5" />
+      <line x1="50" y1="30" x2="50" y2="38" stroke="#ffcc33" strokeWidth="1" opacity="0.4" />
+      <circle cx="48" cy="52" r="1" fill="#ccaa33" opacity="0.3" />
+      <circle cx="52" cy="54" r="1" fill="#ccaa33" opacity="0.3" />
+    </>
+  ),
+  EOT_002: () => (
+    <>
+      <defs>{neutralGradients}</defs>
+      {neutralBg}
+      {/* Countdown Gear */}
+      <circle cx="50" cy="40" r="20" fill="url(#grayGrad)" opacity="0.4" />
+      <circle cx="50" cy="40" r="16" fill="none" stroke="#888888" strokeWidth="2" opacity="0.6" />
+      <circle cx="50" cy="40" r="12" fill="none" stroke="#aaaaaa" strokeWidth="1" opacity="0.4" />
+      <line x1="50" y1="40" x2="50" y2="28" stroke="#ffcc33" strokeWidth="2" opacity="0.7" />
+      <line x1="50" y1="40" x2="60" y2="40" stroke="#ccaa33" strokeWidth="1.5" opacity="0.5" />
+      <circle cx="50" cy="40" r="3" fill="#ffcc33" opacity="0.5" />
+      <rect x="48" y="18" width="4" height="4" rx="1" fill="#aaaaaa" opacity="0.5" />
+      <rect x="48" y="58" width="4" height="4" rx="1" fill="#aaaaaa" opacity="0.5" />
+      <rect x="28" y="38" width="4" height="4" rx="1" fill="#aaaaaa" opacity="0.5" />
+      <rect x="68" y="38" width="4" height="4" rx="1" fill="#aaaaaa" opacity="0.5" />
+    </>
+  ),
+  NEU_LORE_01: () => (
+    <>
+      <defs>{neutralGradients}</defs>
+      {neutralBg}
+      {/* Ancient Neutral Scroll */}
+      <rect x="30" y="18" width="40" height="48" rx="3" fill="#666655" />
+      <rect x="34" y="22" width="32" height="40" rx="2" fill="#777766" />
+      <ellipse cx="50" cy="18" rx="16" ry="4" fill="#888877" />
+      <ellipse cx="50" cy="66" rx="16" ry="4" fill="#888877" />
+      <line x1="38" y1="30" x2="62" y2="30" stroke="#ccccaa" strokeWidth="1" opacity="0.5" />
+      <line x1="38" y1="36" x2="58" y2="36" stroke="#ccccaa" strokeWidth="1" opacity="0.4" />
+      <line x1="38" y1="42" x2="60" y2="42" stroke="#ccccaa" strokeWidth="1" opacity="0.3" />
+      <line x1="38" y1="48" x2="56" y2="48" stroke="#ccccaa" strokeWidth="1" opacity="0.25" />
+    </>
+  ),
+  NEU_LORE_02: () => (
+    <>
+      <defs>{neutralGradients}</defs>
+      {neutralBg}
+      {/* World Map / Atlas */}
+      <rect x="18" y="18" width="64" height="48" rx="3" fill="#555544" />
+      <rect x="22" y="22" width="56" height="40" rx="2" fill="#666655" />
+      <ellipse cx="40" cy="38" rx="12" ry="10" fill="#557755" opacity="0.4" />
+      <ellipse cx="62" cy="34" rx="8" ry="7" fill="#557755" opacity="0.35" />
+      <ellipse cx="55" cy="50" rx="6" ry="4" fill="#557755" opacity="0.3" />
+      <line x1="22" y1="42" x2="78" y2="42" stroke="#888877" strokeWidth="0.5" opacity="0.3" />
+      <line x1="50" y1="22" x2="50" y2="62" stroke="#888877" strokeWidth="0.5" opacity="0.3" />
+      <circle cx="40" cy="35" r="2" fill="#ffcc33" opacity="0.4" />
+    </>
+  ),
+  NEU_LORE_03: () => (
+    <>
+      <defs>{neutralGradients}</defs>
+      {neutralBg}
+      {/* Crystal Shard */}
+      <polygon points="50,12 60,35 55,42 58,65 50,70 42,65 45,42 40,35" fill="url(#grayGrad)" opacity="0.6" />
+      <polygon points="50,18 56,35 53,40 55,58 50,62 45,58 47,40 44,35" fill="#aaaaaa" opacity="0.3" />
+      <line x1="50" y1="20" x2="50" y2="60" stroke="#ffffff" strokeWidth="1" opacity="0.15" />
+      <circle cx="50" cy="38" r="3" fill="#ffffff" opacity="0.2" />
+      <ellipse cx="50" cy="72" rx="10" ry="3" fill="#666666" opacity="0.2" />
+    </>
+  ),
+  NEU_LORE_04: () => (
+    <>
+      <defs>{neutralGradients}</defs>
+      {neutralBg}
+      {/* Ancient Ruin - crumbled stone pillars */}
+      <rect x="18" y="30" width="8" height="38" rx="1" fill="#666655" />
+      <rect x="18" y="26" width="8" height="6" rx="1" fill="#777766" />
+      <rect x="74" y="35" width="8" height="33" rx="1" fill="#666655" />
+      <rect x="74" y="31" width="8" height="6" rx="1" fill="#777766" />
+      <rect x="40" y="42" width="8" height="26" rx="1" fill="#555544" />
+      <rect x="52" y="38" width="8" height="30" rx="1" fill="#555544" />
+      <line x1="18" y1="28" x2="82" y2="33" stroke="#777766" strokeWidth="2" opacity="0.3" />
+      <polygon points="46,25 54,25 50,15" fill="url(#goldGrad)" opacity="0.3" />
+      <circle cx="50" cy="22" r="3" fill="#ffcc33" opacity="0.2" />
+      <rect x="10" y="68" width="80" height="4" rx="1" fill="#444433" />
+    </>
+  ),
+  NEU_LORE_05: () => (
+    <>
+      <defs>{neutralGradients}</defs>
+      {neutralBg}
+      {/* Star Chart - constellation map */}
+      <rect x="15" y="12" width="70" height="56" rx="4" fill="#111122" />
+      <circle cx="30" cy="28" r="2" fill="#ffffcc" opacity="0.7" />
+      <circle cx="55" cy="22" r="2.5" fill="#ffffcc" opacity="0.8" />
+      <circle cx="70" cy="35" r="1.5" fill="#ffffcc" opacity="0.6" />
+      <circle cx="40" cy="45" r="2" fill="#ffffcc" opacity="0.7" />
+      <circle cx="65" cy="55" r="1.5" fill="#ffffcc" opacity="0.5" />
+      <circle cx="25" cy="52" r="2" fill="#ffffcc" opacity="0.6" />
+      <line x1="30" y1="28" x2="55" y2="22" stroke="#ffffcc" strokeWidth="0.5" opacity="0.3" />
+      <line x1="55" y1="22" x2="70" y2="35" stroke="#ffffcc" strokeWidth="0.5" opacity="0.3" />
+      <line x1="70" y1="35" x2="65" y2="55" stroke="#ffffcc" strokeWidth="0.5" opacity="0.3" />
+      <line x1="40" y1="45" x2="25" y2="52" stroke="#ffffcc" strokeWidth="0.5" opacity="0.3" />
+      <line x1="30" y1="28" x2="40" y2="45" stroke="#ffffcc" strokeWidth="0.5" opacity="0.3" />
+      <circle cx="50" cy="40" r="8" fill="none" stroke="#ccccaa" strokeWidth="0.5" opacity="0.2" />
+    </>
+  ),
+
+  // ==================== COMBO (Neutral) ====================
+  COMBO_001: () => (
+    <>
+      <defs>{neutralGradients}</defs>
+      {neutralBg}
+      {/* Neutral Combo - dual swords crossed */}
+      <line x1="25" y1="15" x2="75" y2="65" stroke="#aaaaaa" strokeWidth="3" opacity="0.7" />
+      <line x1="75" y1="15" x2="25" y2="65" stroke="#aaaaaa" strokeWidth="3" opacity="0.7" />
+      <circle cx="50" cy="40" r="8" fill="url(#goldGrad)" opacity="0.4" />
+      <circle cx="50" cy="40" r="4" fill="#ffcc33" opacity="0.3" />
+      <rect x="22" y="12" width="6" height="8" rx="2" fill="#888888" />
+      <rect x="72" y="12" width="6" height="8" rx="2" fill="#888888" />
+      <rect x="22" y="60" width="6" height="8" rx="2" fill="#888888" />
+      <rect x="72" y="60" width="6" height="8" rx="2" fill="#888888" />
+    </>
+  ),
+
   // ==================== SPECIAL ====================
   COIN: () => (
     <>

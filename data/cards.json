@@ -24,7 +24,7 @@
     "type": "MINION",
     "heroClass": "JIMMY",
     "rarity": "COMMON",
-    "attack": 2,
+    "attack": 1,
     "health": 1,
     "text": "Charge",
     "flavor": "First to charge, first to smolder.",
@@ -42,7 +42,7 @@
     "attack": 1,
     "health": 2,
     "text": "Battlecry: Deal 1 damage to a random enemy.",
-    "flavor": "She throws embers like confetti — but lethal confetti.",
+    "flavor": "She throws embers like confetti \u2014 but lethal confetti.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -59,7 +59,7 @@
     "type": "MINION",
     "heroClass": "JIMMY",
     "rarity": "COMMON",
-    "attack": 3,
+    "attack": 2,
     "health": 2,
     "text": "",
     "flavor": "Born in a furnace, raised in a fight pit.",
@@ -188,7 +188,7 @@
     "attack": 0,
     "health": 0,
     "text": "Deal 1 damage to any target.",
-    "flavor": "Quick, cheap, devastating — Jimmy's motto.",
+    "flavor": "Quick, cheap, devastating \u2014 Jimmy's motto.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE",
@@ -199,7 +199,7 @@
   {
     "cardCode": "JIM011",
     "name": "Eruption Salvo",
-    "manaCost": 5,
+    "manaCost": 6,
     "type": "SPELL",
     "heroClass": "JIMMY",
     "rarity": "RARE",
@@ -355,7 +355,7 @@
     "heroClass": "TALA",
     "rarity": "COMMON",
     "attack": 2,
-    "health": 6,
+    "health": 5,
     "text": "Taunt",
     "flavor": "It remembers when the Everbloom was a sapling.",
     "keywords": [
@@ -369,9 +369,9 @@
     "type": "MINION",
     "heroClass": "TALA",
     "rarity": "RARE",
-    "attack": 3,
+    "attack": 2,
     "health": 4,
-    "text": "Battlecry: Restore 4 health to any target.",
+    "text": "Battlecry: Restore 3 health to any target.",
     "flavor": "Her petals carry the scent of renewal.",
     "keywords": [
       "BATTLECRY"
@@ -379,7 +379,7 @@
     "battlecryEffect": {
       "type": "RESTORE_HEALTH",
       "target": "TARGET_ANY",
-      "value": 4
+      "value": 3
     }
   },
   {
@@ -410,8 +410,8 @@
     "type": "MINION",
     "heroClass": "TALA",
     "rarity": "EPIC",
-    "attack": 5,
-    "health": 8,
+    "attack": 4,
+    "health": 7,
     "text": "Taunt. Battlecry: Draw a card.",
     "flavor": "Libraries wish they had this much presence.",
     "keywords": [
@@ -434,7 +434,7 @@
     "attack": 4,
     "health": 9,
     "text": "Taunt. Battlecry: Restore 5 health to all friendly minions and give them +0/+2.",
-    "flavor": "The ancient tree at the heart of Miro's forests — Tala can feel its pulse.",
+    "flavor": "The ancient tree at the heart of Miro's forests \u2014 Tala can feel its pulse.",
     "keywords": [
       "TAUNT",
       "BATTLECRY"
@@ -462,14 +462,14 @@
     "rarity": "COMMON",
     "attack": 0,
     "health": 0,
-    "text": "Give a friendly minion +1/+2.",
+    "text": "Give a friendly minion +1/+1.",
     "flavor": "The forest shares its strength freely.",
     "keywords": [],
     "spellEffect": {
       "type": "BUFF_MINION",
       "target": "TARGET_FRIENDLY_MINION",
       "attackBuff": 1,
-      "healthBuff": 2
+      "healthBuff": 1
     }
   },
   {
@@ -511,7 +511,7 @@
   {
     "cardCode": "TAL013",
     "name": "Verdant Surge",
-    "manaCost": 4,
+    "manaCost": 5,
     "type": "SPELL",
     "heroClass": "TALA",
     "rarity": "EPIC",
@@ -563,7 +563,7 @@
     "attack": 2,
     "health": 1,
     "text": "Battlecry: Draw a card.",
-    "flavor": "Wind it up and watch it think — sometimes in the wrong direction.",
+    "flavor": "Wind it up and watch it think \u2014 sometimes in the wrong direction.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -910,7 +910,7 @@
     "heroClass": "ANDERS",
     "rarity": "RARE",
     "attack": 3,
-    "health": 6,
+    "health": 5,
     "text": "Freeze any character damaged by this minion.",
     "flavor": "It doesn't go with the flow. It IS the flow.",
     "keywords": [
@@ -925,7 +925,7 @@
     "type": "MINION",
     "heroClass": "ANDERS",
     "rarity": "COMMON",
-    "attack": 4,
+    "attack": 3,
     "health": 5,
     "text": "Battlecry: Gain 4 armor.",
     "flavor": "Trains the Rumblers to take hits and dish them back.",
@@ -965,7 +965,7 @@
     "type": "MINION",
     "heroClass": "ANDERS",
     "rarity": "EPIC",
-    "attack": 7,
+    "attack": 6,
     "health": 7,
     "text": "Battlecry: Gain 5 armor.",
     "flavor": "It has waited since the first winter. It is not in a hurry.",
@@ -988,7 +988,7 @@
     "attack": 6,
     "health": 8,
     "text": "Battlecry: Deal 3 damage to all enemies and Freeze them.",
-    "flavor": "The best hockbandy player Aster Peak has ever seen — on ice and in battle.",
+    "flavor": "The best hockbandy player Aster Peak has ever seen \u2014 on ice and in battle.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1212,7 +1212,7 @@
     "attack": 1,
     "health": 2,
     "text": "Battlecry: Draw a card.",
-    "flavor": "Every Aster student maps their own path — literally.",
+    "flavor": "Every Aster student maps their own path \u2014 literally.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1522,7 +1522,7 @@
     "attack": 3,
     "health": 5,
     "text": "Battlecry: Deal 2 damage to a random enemy minion.",
-    "flavor": "Des's shock troops — fast and ruthless.",
+    "flavor": "Des's shock troops \u2014 fast and ruthless.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1655,7 +1655,7 @@
     "attack": 6,
     "health": 6,
     "text": "Battlecry: Give all friendly minions +1/+1.",
-    "flavor": "Keeps the students in line — barely.",
+    "flavor": "Keeps the students in line \u2014 barely.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1831,7 +1831,7 @@
     "attack": 1,
     "health": 3,
     "text": "Taunt. Deathrattle: Deal 1 damage to all minions.",
-    "flavor": "Twisted by dark Orra — mindless and volatile.",
+    "flavor": "Twisted by dark Orra \u2014 mindless and volatile.",
     "keywords": [
       "TAUNT",
       "DEATHRATTLE"
@@ -2193,7 +2193,7 @@
     "attack": 2,
     "health": 2,
     "text": "",
-    "flavor": "The Dominion's lowest rank — expendable and eager.",
+    "flavor": "The Dominion's lowest rank \u2014 expendable and eager.",
     "keywords": []
   },
   {
@@ -2314,7 +2314,7 @@
     "attack": 2,
     "health": 3,
     "text": "",
-    "flavor": "Level 8 control collar — forged to bend even Alphas.",
+    "flavor": "Level 8 control collar \u2014 forged to bend even Alphas.",
     "keywords": []
   },
   {
@@ -2327,7 +2327,7 @@
     "attack": 5,
     "health": 4,
     "text": "Stealth",
-    "flavor": "A Dominion scout cloaked in corrupted Orra — invisible until it strikes.",
+    "flavor": "A Dominion scout cloaked in corrupted Orra \u2014 invisible until it strikes.",
     "keywords": [
       "STEALTH"
     ]
@@ -2374,7 +2374,7 @@
     "attack": 5,
     "health": 4,
     "text": "Taunt. Battlecry: Deal 2 damage to a random enemy.",
-    "flavor": "Once the guardian of Coral Cove — now it guards the Dominion.",
+    "flavor": "Once the guardian of Coral Cove \u2014 now it guards the Dominion.",
     "keywords": [
       "TAUNT",
       "BATTLECRY"
@@ -2466,7 +2466,7 @@
     "attack": 0,
     "health": 0,
     "text": "Deal 3 damage to all minions.",
-    "flavor": "When Des channels the Crucible, nothing is safe — not even his own forces.",
+    "flavor": "When Des channels the Crucible, nothing is safe \u2014 not even his own forces.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE_ALL_MINIONS",
@@ -2838,7 +2838,7 @@
     "attack": 3,
     "health": 10,
     "text": "Taunt. Battlecry: Give all friendly minions +0/+2.",
-    "flavor": "Built from Orragems at the heart of Aster Peak — nothing passes.",
+    "flavor": "Built from Orragems at the heart of Aster Peak \u2014 nothing passes.",
     "keywords": [
       "TAUNT",
       "BATTLECRY"
@@ -2898,7 +2898,7 @@
     "attack": 6,
     "health": 10,
     "text": "Taunt. Divine Shield. Battlecry: Give all friendly minions Divine Shield and +0/+3.",
-    "flavor": "Black hair streaked with blue — the nicest Rumbler, and the fiercest shield.",
+    "flavor": "Black hair streaked with blue \u2014 the nicest Rumbler, and the fiercest shield.",
     "keywords": [
       "TAUNT",
       "DIVINE_SHIELD",
@@ -2928,7 +2928,7 @@
     "attack": 1,
     "health": 1,
     "text": "Battlecry: Summon a 1/1 Gadget Drone.",
-    "flavor": "Every great invention starts with a spark — and a tiny drone.",
+    "flavor": "Every great invention starts with a spark \u2014 and a tiny drone.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -3081,7 +3081,7 @@
     "attack": 3,
     "health": 3,
     "text": "Battlecry: Silence a minion.",
-    "flavor": "Ava can hack any collar — even Dominion-grade ones.",
+    "flavor": "Ava can hack any collar \u2014 even Dominion-grade ones.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -3246,7 +3246,7 @@
     "attack": 4,
     "health": 6,
     "text": "Battlecry: Draw 2 cards.",
-    "flavor": "Full access to Miro's satellite network — knowledge is power.",
+    "flavor": "Full access to Miro's satellite network \u2014 knowledge is power.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -3288,7 +3288,7 @@
     "attack": 6,
     "health": 8,
     "text": "Battlecry: Summon three 1/1 Gadget Drones.",
-    "flavor": "Ava's masterwork assembler — it builds an army while you watch.",
+    "flavor": "Ava's masterwork assembler \u2014 it builds an army while you watch.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -3310,7 +3310,7 @@
     "attack": 6,
     "health": 7,
     "text": "Stealth. Battlecry: Summon three 1/1 Gadget Drones and give all friendly minions +2/+1.",
-    "flavor": "Fiona by her side, Luna Device in hand — Ava builds the future.",
+    "flavor": "Fiona by her side, Luna Device in hand \u2014 Ava builds the future.",
     "keywords": [
       "STEALTH",
       "BATTLECRY"
@@ -3338,7 +3338,7 @@
     "heroClass": "LUCAS",
     "rarity": "COMMON",
     "attack": 2,
-    "health": 1,
+    "health": 2,
     "text": "Charge",
     "flavor": "The first coyote pup born on Aster Peak in a generation.",
     "keywords": [
@@ -3356,7 +3356,7 @@
     "attack": 0,
     "health": 0,
     "text": "Draw a card.",
-    "flavor": "Lucas fills his sketchbook with owls — each one carries a secret.",
+    "flavor": "Lucas fills his sketchbook with owls \u2014 each one carries a secret.",
     "keywords": [],
     "spellEffect": {
       "type": "DRAW_CARDS",
@@ -3371,8 +3371,8 @@
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "COMMON",
-    "attack": 2,
-    "health": 1,
+    "attack": 3,
+    "health": 2,
     "text": "Stealth",
     "flavor": "Learned his trade in the dusty markets of Gavalon.",
     "keywords": [
@@ -3403,10 +3403,10 @@
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "RARE",
-    "attack": 2,
+    "attack": 3,
     "health": 2,
     "text": "Stealth. Battlecry: Draw a card.",
-    "flavor": "Jax sniffs out trouble — and loot — with equal enthusiasm.",
+    "flavor": "Jax sniffs out trouble \u2014 and loot \u2014 with equal enthusiasm.",
     "keywords": [
       "STEALTH",
       "BATTLECRY"
@@ -3443,9 +3443,9 @@
     "heroClass": "LUCAS",
     "rarity": "COMMON",
     "attack": 3,
-    "health": 2,
+    "health": 4,
     "text": "",
-    "flavor": "The sands of Gavalon teach patience — then violence.",
+    "flavor": "The sands of Gavalon teach patience \u2014 then violence.",
     "keywords": []
   },
   {
@@ -3455,8 +3455,8 @@
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "COMMON",
-    "attack": 3,
-    "health": 3,
+    "attack": 4,
+    "health": 4,
     "text": "Charge",
     "flavor": "A Gavalon coyote trained to outrun hovercrafts.",
     "keywords": [
@@ -3471,10 +3471,10 @@
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "RARE",
-    "attack": 3,
-    "health": 2,
+    "attack": 4,
+    "health": 3,
     "text": "Stealth. Battlecry: Return an enemy minion to its owner's hand.",
-    "flavor": "Slipped into Mount Polara unseen — slipped out with the plans.",
+    "flavor": "Slipped into Mount Polara unseen \u2014 slipped out with the plans.",
     "keywords": [
       "STEALTH",
       "BATTLECRY"
@@ -3507,7 +3507,7 @@
     "attack": 0,
     "health": 0,
     "text": "Return an enemy minion to its owner's hand. Draw a card.",
-    "flavor": "Lucas always has a way out — and a way back in.",
+    "flavor": "Lucas always has a way out \u2014 and a way back in.",
     "keywords": [],
     "spellEffects": [
       {
@@ -3529,7 +3529,7 @@
     "heroClass": "LUCAS",
     "rarity": "COMMON",
     "attack": 5,
-    "health": 3,
+    "health": 4,
     "text": "Stealth",
     "flavor": "She moves like heat shimmer on Gavalon's dunes.",
     "keywords": [
@@ -3543,7 +3543,7 @@
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "RARE",
-    "attack": 3,
+    "attack": 4,
     "health": 3,
     "text": "Battlecry: Return an enemy minion to its owner's hand.",
     "flavor": "He sold a hovercraft to the same buyer three times.",
@@ -3604,8 +3604,8 @@
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "COMMON",
-    "attack": 5,
-    "health": 4,
+    "attack": 6,
+    "health": 5,
     "text": "Stealth",
     "flavor": "Gavalon's ghosts are just very good at hiding.",
     "keywords": [
@@ -3619,7 +3619,7 @@
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "EPIC",
-    "attack": 5,
+    "attack": 6,
     "health": 4,
     "text": "Charge. Stealth",
     "flavor": "Trained in the canyons where Gavalon's sun never reaches.",
@@ -3635,10 +3635,10 @@
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "RARE",
-    "attack": 5,
+    "attack": 6,
     "health": 5,
     "text": "Stealth. Battlecry: Give a friendly minion Stealth.",
-    "flavor": "The alpha coyote vanishes — and takes her pack with her.",
+    "flavor": "The alpha coyote vanishes \u2014 and takes her pack with her.",
     "keywords": [
       "STEALTH",
       "BATTLECRY"
@@ -3657,7 +3657,7 @@
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "COMMON",
-    "attack": 7,
+    "attack": 8,
     "health": 5,
     "text": "Charge",
     "flavor": "He rode out of the desert with a coyote army at his heels.",
@@ -3672,8 +3672,8 @@
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "LEGENDARY",
-    "attack": 6,
-    "health": 6,
+    "attack": 7,
+    "health": 7,
     "text": "Charge. Stealth. Battlecry: Return two random enemy minions to their owner's hand.",
     "flavor": "He chose his father over his friends at Mount Polara. He chose wrong.",
     "keywords": [
@@ -3700,7 +3700,7 @@
     "heroClass": "IZZY",
     "rarity": "COMMON",
     "attack": 2,
-    "health": 2,
+    "health": 3,
     "text": "Battlecry: Gain 1 Armor.",
     "flavor": "First lesson at Aster Academy: sparkle responsibly.",
     "keywords": [
@@ -3758,10 +3758,10 @@
     "type": "MINION",
     "heroClass": "IZZY",
     "rarity": "COMMON",
-    "attack": 2,
+    "attack": 3,
     "health": 3,
     "text": "Deathrattle: Summon a 1/1 Sparkle Shard.",
-    "flavor": "Everything must be balanced — her desk, her notes, and her energy.",
+    "flavor": "Everything must be balanced \u2014 her desk, her notes, and her energy.",
     "keywords": [
       "DEATHRATTLE"
     ],
@@ -3782,7 +3782,7 @@
     "attack": 3,
     "health": 3,
     "text": "Battlecry: Gain 2 Armor.",
-    "flavor": "Bling always finds the fastest route — through sparkle or storm.",
+    "flavor": "Bling always finds the fastest route \u2014 through sparkle or storm.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -3841,7 +3841,7 @@
     "attack": 0,
     "health": 0,
     "text": "Give all friendly minions +1/+1.",
-    "flavor": "Izzy's sparkle energy surges outward — it doesn't pick sides.",
+    "flavor": "Izzy's sparkle energy surges outward \u2014 it doesn't pick sides.",
     "keywords": [],
     "spellEffect": {
       "type": "BUFF_ALL_FRIENDLY",
@@ -3881,7 +3881,7 @@
     "attack": 3,
     "health": 5,
     "text": "Deathrattle: Summon two 1/1 Sparkle Shards.",
-    "flavor": "Shatters into glittering fragments — each one still sparkling.",
+    "flavor": "Shatters into glittering fragments \u2014 each one still sparkling.",
     "keywords": [
       "DEATHRATTLE"
     ],
@@ -4522,7 +4522,7 @@
     "attack": 0,
     "health": 0,
     "text": "Draw 2 cards.",
-    "flavor": "Astrid's shield reflects more than blows — it reflects wisdom.",
+    "flavor": "Astrid's shield reflects more than blows \u2014 it reflects wisdom.",
     "keywords": [],
     "spellEffect": {
       "type": "DRAW_CARDS",
@@ -4623,7 +4623,7 @@
     "attack": 2,
     "health": 5,
     "text": "At the end of your turn, restore 2 Health to your hero.",
-    "flavor": "Her prayers are answered by the Ameti — every single turn.",
+    "flavor": "Her prayers are answered by the Ameti \u2014 every single turn.",
     "keywords": [
       "END_OF_TURN"
     ],
@@ -4734,7 +4734,7 @@
     "attack": 0,
     "health": 2,
     "text": "Deal 2 damage to a minion.",
-    "flavor": "The heart of Gavalon burns bright — and so do its enemies.",
+    "flavor": "The heart of Gavalon burns bright \u2014 and so do its enemies.",
     "keywords": [],
     "locationEffect": {
       "type": "DEAL_DAMAGE",
@@ -4842,7 +4842,7 @@
     "attack": 0,
     "health": 2,
     "text": "Summon a 1/1 Gadget Drone.",
-    "flavor": "Invention never sleeps — but Ava sometimes does.",
+    "flavor": "Invention never sleeps \u2014 but Ava sometimes does.",
     "keywords": [],
     "locationEffect": {
       "type": "SUMMON_MINION",
@@ -4877,7 +4877,7 @@
     "attack": 0,
     "health": 3,
     "text": "Gain 2 armor.",
-    "flavor": "X marks the spot — for armor plating.",
+    "flavor": "X marks the spot \u2014 for armor plating.",
     "keywords": [],
     "locationEffect": {
       "type": "GAIN_ARMOR",
@@ -4932,7 +4932,7 @@
     "attack": 5,
     "health": 6,
     "text": "Battlecry: Deal 3 damage to all enemy minions.",
-    "flavor": "Born from the ashes of Gavalon — like Jimmy himself.",
+    "flavor": "Born from the ashes of Gavalon \u2014 like Jimmy himself.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -5016,7 +5016,7 @@
     "attack": 3,
     "health": 2,
     "text": "Stealth. Bond: If you control Rosie, draw 2 cards.",
-    "flavor": "The leopard moves like a reef shadow — silent, patient, lethal.",
+    "flavor": "The leopard moves like a reef shadow \u2014 silent, patient, lethal.",
     "keywords": [
       "STEALTH",
       "BOND"
@@ -5039,7 +5039,7 @@
     "attack": 1,
     "health": 3,
     "text": "Bond: If you control Sengo, draw 2 cards.",
-    "flavor": "She nudges lost things back to shore — including hope.",
+    "flavor": "She nudges lost things back to shore \u2014 including hope.",
     "keywords": [
       "BOND"
     ],
@@ -5061,7 +5061,7 @@
     "attack": 2,
     "health": 3,
     "text": "Bond: If you control Tala's Ice Orb, both get +1/+2 and gain Taunt.",
-    "flavor": "She always finds Tala first — small paws, big heart.",
+    "flavor": "She always finds Tala first \u2014 small paws, big heart.",
     "keywords": [
       "BOND"
     ],
@@ -5198,7 +5198,7 @@
     "attack": 3,
     "health": 6,
     "text": "Orra Charge (2): Draw 3 cards.",
-    "flavor": "Derek's most dangerous experiment — a self-charging intelligence.",
+    "flavor": "Derek's most dangerous experiment \u2014 a self-charging intelligence.",
     "keywords": [
       "ORRA_CHARGE"
     ],
@@ -5241,7 +5241,7 @@
     "attack": 1,
     "health": 4,
     "text": "Orra Charge (2): Gain 4 Armor.",
-    "flavor": "Izzy's mobile power source — steady, reliable, explosive.",
+    "flavor": "Izzy's mobile power source \u2014 steady, reliable, explosive.",
     "keywords": [
       "ORRA_CHARGE"
     ],
@@ -5341,7 +5341,7 @@
     "attack": 2,
     "health": 3,
     "text": "Bond: If you control Fiona, both get +1/+1.",
-    "flavor": "Ava's masterwork — half scanner, half best friend.",
+    "flavor": "Ava's masterwork \u2014 half scanner, half best friend.",
     "keywords": [
       "BOND"
     ],
@@ -5361,10 +5361,10 @@
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "RARE",
-    "attack": 2,
+    "attack": 3,
     "health": 1,
     "text": "Stealth. Bond: If you control Owl Sketch, both get +2/+2.",
-    "flavor": "Jax trusts no one — except the boy who draws owls.",
+    "flavor": "Jax trusts no one \u2014 except the boy who draws owls.",
     "keywords": [
       "STEALTH",
       "BOND"
@@ -5385,7 +5385,7 @@
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "RARE",
-    "attack": 3,
+    "attack": 4,
     "health": 2,
     "text": "Bond: If you control Jax, both get +2/+2.",
     "flavor": "Lucas's drawings have a way of coming to life.",
@@ -5481,7 +5481,7 @@
     "attack": 1,
     "health": 4,
     "text": "Bond: If you control Bling, both get +1/+2.",
-    "flavor": "Points toward balance — and buried treasure.",
+    "flavor": "Points toward balance \u2014 and buried treasure.",
     "keywords": [
       "BOND"
     ],
@@ -5504,7 +5504,7 @@
     "attack": 2,
     "health": 5,
     "text": "Orra Charge (3): Deal 3 damage to all minions and draw 2 cards.",
-    "flavor": "A shard of the stolen Crucible — still pulsing with raw Orra.",
+    "flavor": "A shard of the stolen Crucible \u2014 still pulsing with raw Orra.",
     "keywords": [
       "ORRA_CHARGE"
     ],
@@ -5590,7 +5590,7 @@
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "RARE",
-    "attack": 2,
+    "attack": 3,
     "health": 3,
     "text": "Orra Charge (2): Return ALL enemy minions with 2 or less Attack to their hand.",
     "flavor": "The desert swallows what it does not want.",
@@ -5778,7 +5778,7 @@
     "attack": 2,
     "health": 4,
     "text": "Battlecry: Give a friendly minion +1/+1.",
-    "flavor": "Every student at Aster Peak earns their stripes — and their bruises.",
+    "flavor": "Every student at Aster Peak earns their stripes \u2014 and their bruises.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -5819,7 +5819,7 @@
     "attack": 3,
     "health": 5,
     "text": "Taunt",
-    "flavor": "Made from crystallized Orra — beautiful and nearly unbreakable.",
+    "flavor": "Made from crystallized Orra \u2014 beautiful and nearly unbreakable.",
     "keywords": [
       "TAUNT"
     ]

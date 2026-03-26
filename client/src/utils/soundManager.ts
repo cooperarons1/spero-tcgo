@@ -10,7 +10,8 @@ type SoundName =
   | 'TIMER_WARNING'
   | 'MINION_DEATH'
   | 'SPELL_CAST'
-  | 'ATTACK_WHOOSH';
+  | 'ATTACK_WHOOSH'
+  | 'RANK_UP';
 
 const STORAGE_KEY = 'spero-sound-settings';
 
@@ -171,6 +172,12 @@ class SoundManager {
           // Fast descending sweep before combat hit
           this.sweep(800, 200, 100);
           break;
+        case 'RANK_UP': {
+          // Triumphant ascending arpeggio (C-E-G-B-C)
+          const rankNotes = [523, 659, 784, 988, 1047];
+          rankNotes.forEach((hz, i) => setTimeout(() => this.tone(hz, 400), i * 100));
+          break;
+        }
       }
     } catch { /* audio errors are non-critical */ }
   }

@@ -9,6 +9,7 @@ interface LobbyProps {
   onCollection: () => void;
   onMatchHistory: () => void;
   onFriends: () => void;
+  onProfile: () => void;
   onPlayOnline: () => void;
   onPlayAI: () => void;
   onSignOut: () => void;
@@ -22,7 +23,7 @@ const RANK_COLORS: Record<string, string> = {
   LEGEND: 'text-purple-400',
 };
 
-export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, onPlayOnline, onPlayAI, onSignOut }: LobbyProps) {
+export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, onProfile, onPlayOnline, onPlayAI, onSignOut }: LobbyProps) {
   const [joinCode, setJoinCode] = useState('');
   const [mode, setMode] = useState<'menu' | 'join'>('menu');
   const [rank, setRank] = useState<{ elo: number; rankTier: string } | null>(null);
@@ -186,6 +187,12 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
 
             <div className="flex gap-3 mt-2">
               <button
+                onClick={onProfile}
+                className="flex-1 bg-slate-700 text-gray-300 font-bold py-2.5 px-4 rounded-xl text-sm hover:bg-slate-700/80 active:scale-95 transition-all cursor-pointer"
+              >
+                Profile
+              </button>
+              <button
                 onClick={onCollection}
                 className="flex-1 bg-slate-700 text-gray-300 font-bold py-2.5 px-4 rounded-xl text-sm hover:bg-slate-700/80 active:scale-95 transition-all cursor-pointer"
               >
@@ -195,7 +202,7 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
                 onClick={onMatchHistory}
                 className="flex-1 bg-slate-700 text-gray-300 font-bold py-2.5 px-4 rounded-xl text-sm hover:bg-slate-700/80 active:scale-95 transition-all cursor-pointer"
               >
-                Match History
+                History
               </button>
             </div>
           </div>
