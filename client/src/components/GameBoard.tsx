@@ -482,6 +482,11 @@ function BoardMinionCard({
   return (
     <button
       onClick={onClick}
+      draggable={!!onDragStart && canAct && isMyMinion}
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      onDrop={onDrop}
+      onDragOver={onDragOver}
       className={`relative w-[9rem] h-[10.5rem] select-none transition-all
         ${hasTaunt ? 'minion-oval-taunt' : 'minion-oval'}
         ${hasDivine && !isSilenced ? 'ring-[3px] ring-yellow-300 ring-offset-1 ring-offset-transparent animate-divine-sparkle' : ''}
@@ -663,6 +668,8 @@ function HeroPortrait({
   entityId,
   heroPowerUpgraded,
   upgradeProgress,
+  onHeroDragStart,
+  onHeroDragEnd,
 }: {
   heroClass: HeroClass;
   health: number;
@@ -686,6 +693,8 @@ function HeroPortrait({
   entityId?: string;
   heroPowerUpgraded?: boolean;
   upgradeProgress?: number;
+  onHeroDragStart?: (e: React.DragEvent) => void;
+  onHeroDragEnd?: (e: React.DragEvent) => void;
 }) {
   const borderClass = CLASS_BORDER[heroClass];
   const bgClass = CLASS_BG[heroClass];
@@ -733,6 +742,9 @@ function HeroPortrait({
       <div className="relative">
         <button
           onClick={onHeroClick}
+          draggable={!!onHeroDragStart && !!canHeroAttack}
+          onDragStart={onHeroDragStart}
+          onDragEnd={onHeroDragEnd}
           data-entity-id={entityId}
           className={`relative flex h-24 w-24 items-center justify-center rounded-full border-4 ${borderClass} ${bgClass} transition-all overflow-hidden
             ${isValidTarget ? 'shadow-[0_0_16px_4px_rgba(34,197,94,0.6)] cursor-crosshair' : ''}
@@ -1086,6 +1098,7 @@ export default function GameBoard({
   const [dropIndex, setDropIndex] = useState<number | null>(null);
   const justDraggedRef = useRef(false);
   const pendingPlayRef = useRef<Set<string>>(new Set());
+  const [draggingAttackerId, setDraggingAttackerId] = useState<string | null>(null);
 
   // ─── Card hover preview state ───
   const [hoveredCard, setHoveredCard] = useState<{ cardCode: string; x: number; y: number } | null>(null);
@@ -1158,12 +1171,16 @@ export default function GameBoard({
   // ─── Sound effects ───
   useSoundEffects(diff, gs);
 
-  // Track mouse for attack arrows
+  // Track mouse for attack arrows (mousemove for click-targeting, dragover for drag-targeting)
   useEffect(() => {
     if (targeting.type !== 'attack') return;
     const handler = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY });
     window.addEventListener('mousemove', handler);
-    return () => window.removeEventListener('mousemove', handler);
+    window.addEventListener('dragover', handler);
+    return () => {
+      window.removeEventListener('mousemove', handler);
+      window.removeEventListener('dragover', handler);
+    };
   }, [targeting.type]);
 
   // ─── Pending interaction (server-side targeting) ───
@@ -1583,6 +1600,92 @@ export default function GameBoard({
     setDropIndex(null);
   }, []);
 
+  // ─── Drag-to-attack: board minion drag handlers ───
+  const handleMinionDragStart = useCallback((e: React.DragEvent, minion: BoardMinion) => {
+    if (!isMyTurn || !isPlaying || isGameOver) return;
+    if (!minion.canAttack || minion.attacksRemaining <= 0 || minion.currentAttack <= 0) {
+      e.preventDefault();
+      return;
+    }
+    e.dataTransfer.setData('attacker-id', minion.instanceId);
+    e.dataTransfer.effectAllowed = 'move';
+
+    // Create attack ghost — sword/fist icon
+    const ghost = document.createElement('div');
+    ghost.style.cssText = 'width:60px;height:60px;border-radius:50%;background:radial-gradient(circle,#22c55e,#166534);border:3px solid #4ade80;display:flex;align-items:center;justify-content:center;font-size:28px;position:absolute;top:-1000px;box-shadow:0 0 20px rgba(34,197,94,0.6);';
+    ghost.textContent = '⚔';
+    document.body.appendChild(ghost);
+    e.dataTransfer.setDragImage(ghost, 30, 30);
+    setTimeout(() => document.body.removeChild(ghost), 0);
+
+    // Enter attack targeting mode
+    const rect = (e.target as HTMLElement).getBoundingClientRect();
+    setAttackerPos({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+    setTargeting({ type: 'attack', attackerInstanceId: minion.instanceId });
+    setDraggingAttackerId(minion.instanceId);
+  }, [isMyTurn, isPlaying, isGameOver]);
+
+  const handleHeroDragStart = useCallback((e: React.DragEvent) => {
+    if (!isMyTurn || !isPlaying || isGameOver) return;
+    const heroId = `hero-${gs.myPlayerIndex}`;
+    e.dataTransfer.setData('attacker-id', heroId);
+    e.dataTransfer.effectAllowed = 'move';
+
+    const ghost = document.createElement('div');
+    ghost.style.cssText = 'width:60px;height:60px;border-radius:50%;background:radial-gradient(circle,#22c55e,#166534);border:3px solid #4ade80;display:flex;align-items:center;justify-content:center;font-size:28px;position:absolute;top:-1000px;box-shadow:0 0 20px rgba(34,197,94,0.6);';
+    ghost.textContent = '⚔';
+    document.body.appendChild(ghost);
+    e.dataTransfer.setDragImage(ghost, 30, 30);
+    setTimeout(() => document.body.removeChild(ghost), 0);
+
+    const rect = (e.target as HTMLElement).getBoundingClientRect();
+    setAttackerPos({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+    setTargeting({ type: 'attack', attackerInstanceId: heroId });
+    setDraggingAttackerId(heroId);
+  }, [isMyTurn, isPlaying, isGameOver, gs.myPlayerIndex]);
+
+  const handleMinionDragEnd = useCallback(() => {
+    if (draggingAttackerId) {
+      setDraggingAttackerId(null);
+      // Only cancel targeting if we didn't already complete an attack via drop
+      setTargeting(prev => prev.type === 'attack' ? { type: 'none' } : prev);
+      setAttackerPos(null);
+    }
+  }, [draggingAttackerId]);
+
+  // ─── Drag-to-attack: drop on enemy target ───
+  const handleAttackDragOver = useCallback((e: React.DragEvent) => {
+    if (!draggingAttackerId) return;
+    if (!e.dataTransfer.types.includes('attacker-id')) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  }, [draggingAttackerId]);
+
+  const handleAttackDrop = useCallback((e: React.DragEvent, targetId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const attackerId = e.dataTransfer.getData('attacker-id');
+    if (!attackerId) return;
+    if (!validTargetIds.has(targetId)) return;
+
+    // Validate attacker still exists
+    const isHeroAttack = attackerId.startsWith('hero-');
+    if (!isHeroAttack && !myBoard.find(m => m.instanceId === attackerId)) return;
+
+    // Lunge animation + attack
+    soundManager.play('ATTACK_WHOOSH');
+    setLungeId(attackerId);
+    setDefenderLungeId(targetId);
+    setTargeting({ type: 'none' });
+    setDraggingAttackerId(null);
+    setAttackerPos(null);
+    setTimeout(() => {
+      actions.attackTarget(attackerId, targetId);
+      setLungeId(null);
+      setDefenderLungeId(null);
+    }, 180);
+  }, [validTargetIds, myBoard, actions]);
+
   const handleBoardDragOver = useCallback((e: React.DragEvent) => {
     if (!draggingCardId) return;
     e.preventDefault();
@@ -1646,10 +1749,18 @@ export default function GameBoard({
 
   // ─── Drop spell/weapon on a target (minion or hero) ───
   const handleTargetDragOver = useCallback((e: React.DragEvent) => {
-    if (!draggingCardId || draggingCardType === 'MINION') return;
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-  }, [draggingCardId, draggingCardType]);
+    // Allow spell/weapon drag-to-target
+    if (draggingCardId && draggingCardType !== 'MINION') {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      return;
+    }
+    // Allow minion attack drag-to-target
+    if (draggingAttackerId) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+    }
+  }, [draggingCardId, draggingCardType, draggingAttackerId]);
 
   const handleTargetDrop = useCallback((e: React.DragEvent, targetId: string) => {
     e.preventDefault();
@@ -1837,8 +1948,8 @@ export default function GameBoard({
         {/* Opponent hero row: [Mana] [Hero+Power] — right under hand */}
         <div
           className="flex items-center justify-center w-full gap-4"
-          onDragOver={handleTargetDragOver}
-          onDrop={(e) => handleTargetDrop(e, `hero-${1 - gs.myPlayerIndex}`)}
+          onDragOver={(e) => { handleTargetDragOver(e); handleAttackDragOver(e); }}
+          onDrop={(e) => { if (draggingAttackerId) { handleAttackDrop(e, `hero-${1 - gs.myPlayerIndex}`); } else { handleTargetDrop(e, `hero-${1 - gs.myPlayerIndex}`); } }}
         >
           <ManaCrystals current={gs.opponent.mana} max={gs.opponent.maxMana} />
           <HeroPortrait
@@ -1853,7 +1964,7 @@ export default function GameBoard({
             mana={gs.opponent.mana}
             maxMana={gs.opponent.maxMana}
             canUseHeroPower={false}
-            isValidTarget={validTargetIds.has(`hero-${1 - gs.myPlayerIndex}`) || (draggingCardType === 'SPELL' && !!draggingCardId && (!draggingTargetType || draggingTargetType === 'TARGET_ANY'))}
+            isValidTarget={validTargetIds.has(`hero-${1 - gs.myPlayerIndex}`) || !!draggingAttackerId || (draggingCardType === 'SPELL' && !!draggingCardId && (!draggingTargetType || draggingTargetType === 'TARGET_ANY'))}
             onHeroPowerClick={() => {}}
             onHeroClick={() => handleEnemyTargetClick(`hero-${1 - gs.myPlayerIndex}`)}
             heroDamage={opHeroDamage}
@@ -1904,8 +2015,8 @@ export default function GameBoard({
                 key={m.instanceId}
                 data-entity-id={m.instanceId}
                 style={{ flex: '0 1 9rem', transform: `rotate(${arcAngle}deg) translateY(${arcY}px)` }}
-                onDragOver={handleTargetDragOver}
-                onDrop={(e) => handleTargetDrop(e, m.instanceId)}
+                onDragOver={(e) => { handleTargetDragOver(e); handleAttackDragOver(e); }}
+                onDrop={(e) => { if (draggingAttackerId) { handleAttackDrop(e, m.instanceId); } else { handleTargetDrop(e, m.instanceId); } }}
                 onMouseEnter={(e) => setHoveredCard({ cardCode: m.cardCode, x: e.clientX, y: e.clientY })}
                 onMouseLeave={() => setHoveredCard(null)}
               >
@@ -1914,7 +2025,7 @@ export default function GameBoard({
                   isMyMinion={false}
                   canAct={false}
                   hasSummoningSickness={false}
-                  isValidTarget={validTargetIds.has(m.instanceId) || (draggingCardType === 'SPELL' && !!draggingCardId && (!draggingTargetType || draggingTargetType === 'TARGET_ENEMY_MINION' || draggingTargetType === 'TARGET_MINION' || draggingTargetType === 'TARGET_ANY'))}
+                  isValidTarget={validTargetIds.has(m.instanceId) || !!draggingAttackerId || (draggingCardType === 'SPELL' && !!draggingCardId && (!draggingTargetType || draggingTargetType === 'TARGET_ENEMY_MINION' || draggingTargetType === 'TARGET_MINION' || draggingTargetType === 'TARGET_ANY'))}
                   isSelected={false}
                   onClick={() => handleEnemyTargetClick(m.instanceId)}
                   animationClass={getMinionAnim(m.instanceId, false)}
@@ -1939,6 +2050,15 @@ export default function GameBoard({
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none">
           <div className="bg-green-600/90 text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg animate-pulse">
             Drag to a target
+          </div>
+        </div>
+      )}
+
+      {/* Minion attack drag hint */}
+      {draggingAttackerId && (
+        <div className="absolute left-1/2 top-[45%] -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none">
+          <div className="bg-red-600/90 text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg animate-pulse">
+            Drop on enemy to attack
           </div>
         </div>
       )}
@@ -2046,6 +2166,8 @@ export default function GameBoard({
                     onClick={(e?: any) => handleMyMinionClick(m, e)}
                     animationClass={getMinionAnim(m.instanceId, true)}
                     isBuffed={buffedIds.has(m.instanceId)}
+                    onDragStart={(e) => handleMinionDragStart(e, m)}
+                    onDragEnd={handleMinionDragEnd}
                   />
                 </div>
               </Fragment>
@@ -2107,6 +2229,8 @@ export default function GameBoard({
             entityId={`hero-${gs.myPlayerIndex}`}
             heroPowerUpgraded={gs.myHeroPowerUpgraded}
             upgradeProgress={gs.myUpgradeProgress}
+            onHeroDragStart={handleHeroDragStart}
+            onHeroDragEnd={handleMinionDragEnd}
           />
         </div>
 

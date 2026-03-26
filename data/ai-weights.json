@@ -1,116 +1,116 @@
 {
   "version": 1,
-  "generatedAt": "2026-03-26T16:36:56.994Z",
-  "totalGames": 100,
+  "generatedAt": "2026-03-26T19:57:52.710Z",
+  "totalGames": 32616916,
   "classWinRates": {
-    "JIMMY": 0.7619047619047619,
-    "TALA": 0.9130434782608695,
-    "DEREK": 0.5833333333333334,
-    "ANDERS": 0.6666666666666666,
-    "DES": 0.4642857142857143,
-    "ASTRID": 0.26666666666666666,
-    "AVA": 0.23076923076923078,
-    "LUCAS": 0.39285714285714285,
-    "IZZY": 0.17647058823529413
+    "JIMMY": 0.6710750850298476,
+    "TALA": 0.6446050093283054,
+    "DEREK": 0.44545583438888864,
+    "ANDERS": 0.6478668876782719,
+    "DES": 0.4247838176226919,
+    "ASTRID": 0.5289429725303064,
+    "AVA": 0.5108259748318132,
+    "LUCAS": 0.22024846146755214,
+    "IZZY": 0.4061553120822731
   },
   "matchupMatrix": {
     "JIMMY": {
       "JIMMY": 0.5,
-      "TALA": 1,
-      "DEREK": 0,
-      "ANDERS": 0.5,
-      "DES": 1,
-      "ASTRID": 0.6666666666666666,
-      "AVA": 1,
-      "LUCAS": 1,
-      "IZZY": 0.6666666666666666
+      "TALA": 0.47734720964560823,
+      "DEREK": 0.759760695130759,
+      "ANDERS": 0.6374456064684669,
+      "DES": 0.8015018154905301,
+      "ASTRID": 0.6239214652655869,
+      "AVA": 0.617791102956897,
+      "LUCAS": 0.8839935332427855,
+      "IZZY": 0.7380065643965312
     },
     "TALA": {
-      "JIMMY": 0,
+      "JIMMY": 0.5226527903543917,
       "TALA": 0.5,
-      "DEREK": 0.5,
-      "ANDERS": 1,
-      "DES": 1,
-      "ASTRID": 1,
-      "AVA": 1,
-      "LUCAS": 1,
-      "IZZY": 1
+      "DEREK": 0.605821044379168,
+      "ANDERS": 0.34970184898315854,
+      "DES": 0.5754800114185005,
+      "ASTRID": 0.5872905730078911,
+      "AVA": 0.886372479671411,
+      "LUCAS": 0.9509804531137112,
+      "IZZY": 0.8240542142235469
     },
     "DEREK": {
-      "JIMMY": 1,
-      "TALA": 0.5,
+      "JIMMY": 0.24023930486924105,
+      "TALA": 0.394178955620832,
       "DEREK": 0.5,
-      "ANDERS": 0.5,
-      "DES": 0.5,
-      "ASTRID": 0.5,
-      "AVA": 0.75,
-      "LUCAS": 0.5,
-      "IZZY": 1
+      "ANDERS": 0.37588589202619727,
+      "DES": 0.6038562577324321,
+      "ASTRID": 0.479652299567609,
+      "AVA": 0.3815384844491106,
+      "LUCAS": 0.5969299912796547,
+      "IZZY": 0.4371633049458368
     },
     "ANDERS": {
-      "JIMMY": 0.5,
-      "TALA": 0,
-      "DEREK": 0.5,
+      "JIMMY": 0.362554393531533,
+      "TALA": 0.6502981510168414,
+      "DEREK": 0.6241141079738027,
       "ANDERS": 0.5,
-      "DES": 0.3333333333333333,
-      "ASTRID": 0.5,
-      "AVA": 1,
-      "LUCAS": 1,
-      "IZZY": 1
+      "DES": 0.534633663390966,
+      "ASTRID": 0.7024854436429999,
+      "AVA": 0.7089851071594371,
+      "LUCAS": 0.8842804686568351,
+      "IZZY": 0.8631214495021707
     },
     "DES": {
-      "JIMMY": 0,
-      "TALA": 0,
-      "DEREK": 0.5,
-      "ANDERS": 0.6666666666666666,
+      "JIMMY": 0.19849818450946985,
+      "TALA": 0.42451998858149953,
+      "DEREK": 0.3961437422675679,
+      "ANDERS": 0.4653663366090341,
       "DES": 0.5,
-      "ASTRID": 0.75,
-      "AVA": 0,
-      "LUCAS": 0.3333333333333333,
-      "IZZY": 0.6666666666666666
+      "ASTRID": 0.5498944578564875,
+      "AVA": 0.2730076712899371,
+      "LUCAS": 0.5521904161381053,
+      "IZZY": 0.4638002199040464
     },
     "ASTRID": {
-      "JIMMY": 0.3333333333333333,
-      "TALA": 0,
-      "DEREK": 0.5,
-      "ANDERS": 0.5,
-      "DES": 0.25,
+      "JIMMY": 0.37607853473441316,
+      "TALA": 0.4127094269921089,
+      "DEREK": 0.520347700432391,
+      "ANDERS": 0.2975145563570001,
+      "DES": 0.45010554214351245,
       "ASTRID": 0.5,
-      "AVA": 0,
-      "LUCAS": 0.5,
-      "IZZY": 1
+      "AVA": 0.5598486127385752,
+      "LUCAS": 0.8759143220600073,
+      "IZZY": 0.7677823774383545
     },
     "AVA": {
-      "JIMMY": 0,
-      "TALA": 0,
-      "DEREK": 0.25,
-      "ANDERS": 0,
-      "DES": 1,
-      "ASTRID": 1,
+      "JIMMY": 0.38220889704310296,
+      "TALA": 0.11362752032858907,
+      "DEREK": 0.6184615155508895,
+      "ANDERS": 0.2910148928405629,
+      "DES": 0.7269923287100629,
+      "ASTRID": 0.4401513872614248,
       "AVA": 0.5,
-      "LUCAS": 0.5,
-      "IZZY": 0
+      "LUCAS": 0.8902647766118134,
+      "IZZY": 0.6340581106396944
     },
     "LUCAS": {
-      "JIMMY": 0,
-      "TALA": 0,
-      "DEREK": 0.5,
-      "ANDERS": 0,
-      "DES": 0.6666666666666666,
-      "ASTRID": 0.5,
-      "AVA": 0.5,
+      "JIMMY": 0.11600646675721452,
+      "TALA": 0.049019546886288824,
+      "DEREK": 0.40307000872034526,
+      "ANDERS": 0.11571953134316493,
+      "DES": 0.4478095838618947,
+      "ASTRID": 0.12408567793999264,
+      "AVA": 0.10973522338818666,
       "LUCAS": 0.5,
-      "IZZY": 1
+      "IZZY": 0.11582254899525572
     },
     "IZZY": {
-      "JIMMY": 0.3333333333333333,
-      "TALA": 0,
-      "DEREK": 0,
-      "ANDERS": 0,
-      "DES": 0.3333333333333333,
-      "ASTRID": 0,
-      "AVA": 1,
-      "LUCAS": 0,
+      "JIMMY": 0.2619934356034687,
+      "TALA": 0.17594578577645312,
+      "DEREK": 0.5628366950541632,
+      "ANDERS": 0.13687855049782924,
+      "DES": 0.5361997800959536,
+      "ASTRID": 0.23221762256164546,
+      "AVA": 0.3659418893603056,
+      "LUCAS": 0.8841774510047443,
       "IZZY": 0.5
     }
   },
@@ -127,49 +127,49 @@
   },
   "classAvgStats": {
     "JIMMY": {
-      "minionsPerGame": 14.2,
-      "spellsPerGame": 2.145,
-      "heroPowerPerGame": 2.58
+      "minionsPerGame": 15.864751284272247,
+      "spellsPerGame": 1.9718681404458962,
+      "heroPowerPerGame": 3.8958951851855033
     },
     "TALA": {
-      "minionsPerGame": 14.2,
-      "spellsPerGame": 2.145,
-      "heroPowerPerGame": 2.58
+      "minionsPerGame": 15.864751284272247,
+      "spellsPerGame": 1.9718681404458962,
+      "heroPowerPerGame": 3.8958951851855033
     },
     "DEREK": {
-      "minionsPerGame": 14.2,
-      "spellsPerGame": 2.145,
-      "heroPowerPerGame": 2.58
+      "minionsPerGame": 15.864751284272247,
+      "spellsPerGame": 1.9718681404458962,
+      "heroPowerPerGame": 3.8958951851855033
     },
     "ANDERS": {
-      "minionsPerGame": 14.2,
-      "spellsPerGame": 2.145,
-      "heroPowerPerGame": 2.58
+      "minionsPerGame": 15.864751284272247,
+      "spellsPerGame": 1.9718681404458962,
+      "heroPowerPerGame": 3.8958951851855033
     },
     "DES": {
-      "minionsPerGame": 14.2,
-      "spellsPerGame": 2.145,
-      "heroPowerPerGame": 2.58
+      "minionsPerGame": 15.864751284272247,
+      "spellsPerGame": 1.9718681404458962,
+      "heroPowerPerGame": 3.8958951851855033
     },
     "ASTRID": {
-      "minionsPerGame": 14.2,
-      "spellsPerGame": 2.145,
-      "heroPowerPerGame": 2.58
+      "minionsPerGame": 15.864751284272247,
+      "spellsPerGame": 1.9718681404458962,
+      "heroPowerPerGame": 3.8958951851855033
     },
     "AVA": {
-      "minionsPerGame": 14.2,
-      "spellsPerGame": 2.145,
-      "heroPowerPerGame": 2.58
+      "minionsPerGame": 15.864751284272247,
+      "spellsPerGame": 1.9718681404458962,
+      "heroPowerPerGame": 3.8958951851855033
     },
     "LUCAS": {
-      "minionsPerGame": 14.2,
-      "spellsPerGame": 2.145,
-      "heroPowerPerGame": 2.58
+      "minionsPerGame": 15.864751284272247,
+      "spellsPerGame": 1.9718681404458962,
+      "heroPowerPerGame": 3.8958951851855033
     },
     "IZZY": {
-      "minionsPerGame": 14.2,
-      "spellsPerGame": 2.145,
-      "heroPowerPerGame": 2.58
+      "minionsPerGame": 15.864751284272247,
+      "spellsPerGame": 1.9718681404458962,
+      "heroPowerPerGame": 3.8958951851855033
     }
   }
 }

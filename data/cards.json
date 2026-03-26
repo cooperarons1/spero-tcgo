@@ -164,8 +164,8 @@
     "type": "MINION",
     "heroClass": "JIMMY",
     "rarity": "LEGENDARY",
-    "attack": 7,
-    "health": 7,
+    "attack": 6,
+    "health": 6,
     "text": "Charge. Battlecry: Deal 3 damage to all enemy minions.",
     "flavor": "The desert king from Jimmy's home planet. Everything ignites in his wake.",
     "keywords": [
@@ -199,7 +199,7 @@
   {
     "cardCode": "JIM011",
     "name": "Eruption Salvo",
-    "manaCost": 4,
+    "manaCost": 5,
     "type": "SPELL",
     "heroClass": "JIMMY",
     "rarity": "RARE",
@@ -431,8 +431,8 @@
     "type": "MINION",
     "heroClass": "TALA",
     "rarity": "LEGENDARY",
-    "attack": 5,
-    "health": 10,
+    "attack": 4,
+    "health": 9,
     "text": "Taunt. Battlecry: Restore 5 health to all friendly minions and give them +0/+2.",
     "flavor": "The ancient tree at the heart of Miro's forests — Tala can feel its pulse.",
     "keywords": [
@@ -517,13 +517,13 @@
     "rarity": "EPIC",
     "attack": 0,
     "health": 0,
-    "text": "Give all friendly minions +2/+2.",
+    "text": "Give all friendly minions +1/+2.",
     "flavor": "The canopy thickens, and the army swells with life.",
     "keywords": [],
     "spellEffect": {
       "type": "BUFF_ALL_FRIENDLY",
       "target": "ALL_FRIENDLY_MINIONS",
-      "attackBuff": 2,
+      "attackBuff": 1,
       "healthBuff": 2
     }
   },
@@ -639,7 +639,7 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 3,
+    "attack": 4,
     "health": 4,
     "text": "Stealth",
     "flavor": "Reliable, affordable, surprisingly sneaky.",
@@ -676,7 +676,7 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 4,
+    "attack": 5,
     "health": 3,
     "text": "Stealth",
     "flavor": "You didn't see anything. Because you literally didn't.",
@@ -728,7 +728,7 @@
   {
     "cardCode": "DRK010",
     "name": "Reef-Forged Toolkit",
-    "manaCost": 7,
+    "manaCost": 6,
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "LEGENDARY",
@@ -945,8 +945,8 @@
     "type": "MINION",
     "heroClass": "ANDERS",
     "rarity": "RARE",
-    "attack": 4,
-    "health": 7,
+    "attack": 3,
+    "health": 6,
     "text": "Taunt. Battlecry: Freeze all enemy minions.",
     "flavor": "When the mountain moves, nothing else does.",
     "keywords": [
@@ -965,8 +965,8 @@
     "type": "MINION",
     "heroClass": "ANDERS",
     "rarity": "EPIC",
-    "attack": 8,
-    "health": 8,
+    "attack": 7,
+    "health": 7,
     "text": "Battlecry: Gain 5 armor.",
     "flavor": "It has waited since the first winter. It is not in a hurry.",
     "keywords": [
@@ -2512,7 +2512,7 @@
   {
     "cardCode": "DES020",
     "name": "Des Aster, Crucible Lord",
-    "manaCost": 10,
+    "manaCost": 9,
     "type": "MINION",
     "heroClass": "DES",
     "rarity": "LEGENDARY",
@@ -3337,7 +3337,7 @@
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "COMMON",
-    "attack": 1,
+    "attack": 2,
     "health": 1,
     "text": "Charge",
     "flavor": "The first coyote pup born on Aster Peak in a generation.",
@@ -3528,7 +3528,7 @@
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "COMMON",
-    "attack": 4,
+    "attack": 5,
     "health": 3,
     "text": "Stealth",
     "flavor": "She moves like heat shimmer on Gavalon's dunes.",
@@ -3558,7 +3558,7 @@
   {
     "cardCode": "LUC014",
     "name": "Sandstorm Strike",
-    "manaCost": 4,
+    "manaCost": 3,
     "type": "SPELL",
     "heroClass": "LUCAS",
     "rarity": "EPIC",
@@ -3619,7 +3619,7 @@
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "EPIC",
-    "attack": 4,
+    "attack": 5,
     "health": 4,
     "text": "Charge. Stealth",
     "flavor": "Trained in the canyons where Gavalon's sun never reaches.",
@@ -3668,7 +3668,7 @@
   {
     "cardCode": "LUC020",
     "name": "Lucas, The Betrayer",
-    "manaCost": 8,
+    "manaCost": 7,
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "LEGENDARY",
@@ -4052,7 +4052,7 @@
     "type": "MINION",
     "heroClass": "IZZY",
     "rarity": "COMMON",
-    "attack": 4,
+    "attack": 5,
     "health": 8,
     "text": "Taunt. Battlecry: Gain 5 Armor.",
     "flavor": "Built from polar ice and reinforced with sparkle-hardened Orragems.",
@@ -4073,7 +4073,7 @@
     "type": "MINION",
     "heroClass": "IZZY",
     "rarity": "EPIC",
-    "attack": 5,
+    "attack": 6,
     "health": 8,
     "text": "Taunt. Deathrattle: Gain 8 Armor.",
     "flavor": "Bling's collar glows orange as he channels Izzy's full sparkle reserves.",
@@ -4138,7 +4138,7 @@
     "type": "MINION",
     "heroClass": "IZZY",
     "rarity": "COMMON",
-    "attack": 1,
+    "attack": 2,
     "health": 2,
     "text": "",
     "flavor": "A fragment of pure sparkle energy, still glowing.",
@@ -4497,7 +4497,7 @@
   {
     "cardCode": "IZZ_NEW_01",
     "name": "Sparkle Avalanche",
-    "manaCost": 6,
+    "manaCost": 4,
     "type": "SPELL",
     "heroClass": "IZZY",
     "rarity": "EPIC",
@@ -4636,7 +4636,7 @@
   {
     "cardCode": "EOT_003",
     "name": "Shadow Leech",
-    "manaCost": 5,
+    "manaCost": 4,
     "type": "MINION",
     "heroClass": "DES",
     "rarity": "EPIC",
@@ -4925,7 +4925,7 @@
   {
     "cardCode": "JIM016",
     "name": "Emberstorm Phoenix",
-    "manaCost": 6,
+    "manaCost": 7,
     "type": "MINION",
     "heroClass": "JIMMY",
     "rarity": "LEGENDARY",
@@ -5175,7 +5175,7 @@
     "rarity": "EPIC",
     "attack": 0,
     "health": 4,
-    "text": "Orra Charge (2): Restore 6 health to your hero and draw a card.",
+    "text": "Orra Charge (2): Restore 4 health to your hero and draw a card.",
     "flavor": "Patience yields the sweetest nectar.",
     "keywords": [
       "ORRA_CHARGE"
@@ -5185,7 +5185,7 @@
     "orraChargeEffect": {
       "type": "RESTORE_HEALTH",
       "target": "TARGET_HERO",
-      "value": 6
+      "value": 4
     }
   },
   {
@@ -5219,13 +5219,13 @@
     "rarity": "EPIC",
     "attack": 2,
     "health": 6,
-    "text": "Orra Charge (3): Freeze ALL enemy minions.",
+    "text": "Orra Charge (4): Freeze ALL enemy minions.",
     "flavor": "Glacial patience, catastrophic release.",
     "keywords": [
       "ORRA_CHARGE"
     ],
     "minionType": "ELEMENTAL",
-    "orraChargeMax": 3,
+    "orraChargeMax": 4,
     "orraChargeEffect": {
       "type": "FREEZE_TARGET",
       "target": "ALL_ENEMY_MINIONS"
@@ -5256,7 +5256,7 @@
   {
     "cardCode": "DES_COLLAR_01",
     "name": "Dominion Handler",
-    "manaCost": 4,
+    "manaCost": 3,
     "type": "MINION",
     "heroClass": "DES",
     "rarity": "RARE",
@@ -5272,7 +5272,7 @@
   {
     "cardCode": "DES_COLLAR_02",
     "name": "Collar Drone",
-    "manaCost": 3,
+    "manaCost": 2,
     "type": "MINION",
     "heroClass": "DES",
     "rarity": "RARE",
@@ -5690,7 +5690,7 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "EPIC",
-    "attack": 3,
+    "attack": 4,
     "health": 6,
     "text": "Taunt. Battlecry: Draw a card.",
     "flavor": "The reef chose its own protector. Derek just helped.",
