@@ -980,6 +980,7 @@ export default function GameBoard({
   const [targeting, setTargeting] = useState<TargetingMode>({ type: 'none' });
   const [selectedHandCard, setSelectedHandCard] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [concedePending, setConcedePending] = useState(false);
   const [muted, setMuted] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [attackerPos, setAttackerPos] = useState<{ x: number; y: number } | null>(null);
@@ -1414,9 +1415,14 @@ export default function GameBoard({
 
   // ─── Concede ───
   const handleConcede = useCallback(() => {
+    if (!concedePending) {
+      setConcedePending(true);
+      return;
+    }
     actions.concede();
+    setConcedePending(false);
     setMenuOpen(false);
-  }, [actions]);
+  }, [actions, concedePending]);
 
   // ─── Drag-and-drop handlers (with position tracking) ───
   const handleDragStart = useCallback((e: React.DragEvent, card: ClientCardInstance) => {
@@ -1754,12 +1760,20 @@ export default function GameBoard({
               </button>
               <button
                 onClick={handleConcede}
-                className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-stone-700"
+                className={`w-full px-4 py-2 text-left text-sm hover:bg-stone-700 ${concedePending ? 'text-red-300 font-bold' : 'text-red-400'}`}
               >
-                Concede
+                {concedePending ? 'Confirm Concede?' : 'Concede'}
               </button>
+              {concedePending && (
+                <button
+                  onClick={() => setConcedePending(false)}
+                  className="w-full px-4 py-2 text-left text-sm text-stone-400 hover:bg-stone-700"
+                >
+                  Cancel
+                </button>
+              )}
               <button
-                onClick={() => setMenuOpen(false)}
+                onClick={() => { setMenuOpen(false); setConcedePending(false); }}
                 className="w-full px-4 py-2 text-left text-sm text-stone-400 hover:bg-stone-700"
               >
                 Close

@@ -589,7 +589,7 @@ io.on('connection', (socket) => {
   // ── Mulligan ──
 
   socket.on('mulligan-confirm', validated(MulliganConfirmSchema, (data) => {
-    if (!gameActionLimiter.allow(uid)) return;
+    if (!gameActionLimiter.allow(uid)) { socket.emit('error', 'Too many actions, slow down'); return; }
     const room = getRoomByPlayer(uid);
     if (!room?.game) return;
 
@@ -604,7 +604,7 @@ io.on('connection', (socket) => {
   // ── Play Card ──
 
   socket.on('play-card', validated(PlayCardSchema, (data) => {
-    if (!gameActionLimiter.allow(uid)) return;
+    if (!gameActionLimiter.allow(uid)) { socket.emit('error', 'Too many actions, slow down'); return; }
     const room = getRoomByPlayer(uid);
     if (!room?.game) return;
 
@@ -623,7 +623,7 @@ io.on('connection', (socket) => {
   // ── Attack ──
 
   socket.on('attack', validated(AttackSchema, (data) => {
-    if (!gameActionLimiter.allow(uid)) return;
+    if (!gameActionLimiter.allow(uid)) { socket.emit('error', 'Too many actions, slow down'); return; }
     const room = getRoomByPlayer(uid);
     if (!room?.game) return;
 
@@ -638,7 +638,7 @@ io.on('connection', (socket) => {
   // ── Hero Power ──
 
   socket.on('hero-power', validated(HeroPowerSchema, (data) => {
-    if (!gameActionLimiter.allow(uid)) return;
+    if (!gameActionLimiter.allow(uid)) { socket.emit('error', 'Too many actions, slow down'); return; }
     const room = getRoomByPlayer(uid);
     if (!room?.game) return;
 
@@ -657,7 +657,7 @@ io.on('connection', (socket) => {
   // ── Activate Location ──
 
   socket.on('activate-location', validated(ActivateLocationSchema, (data) => {
-    if (!gameActionLimiter.allow(uid)) return;
+    if (!gameActionLimiter.allow(uid)) { socket.emit('error', 'Too many actions, slow down'); return; }
     const room = getRoomByPlayer(uid);
     if (!room?.game) return;
 
@@ -676,7 +676,7 @@ io.on('connection', (socket) => {
   // ── End Turn ──
 
   socket.on('end-turn', () => {
-    if (!gameActionLimiter.allow(uid)) return;
+    if (!gameActionLimiter.allow(uid)) { socket.emit('error', 'Too many actions, slow down'); return; }
     const room = getRoomByPlayer(uid);
     if (!room?.game) return;
 
@@ -692,7 +692,7 @@ io.on('connection', (socket) => {
   // ── Concede ──
 
   socket.on('concede', () => {
-    if (!gameActionLimiter.allow(uid)) return;
+    if (!gameActionLimiter.allow(uid)) { socket.emit('error', 'Too many actions, slow down'); return; }
     const room = getRoomByPlayer(uid);
     if (!room?.game || room.game.winner) return;
     const myIdx = room.game.players.findIndex(p => p.playerId === uid);
@@ -719,7 +719,7 @@ io.on('connection', (socket) => {
   // ── Hover Hand ──
 
   socket.on('hover-hand', validated(HoverHandSchema, (data) => {
-    if (!gameActionLimiter.allow(uid)) return;
+    if (!gameActionLimiter.allow(uid)) { socket.emit('error', 'Too many actions, slow down'); return; }
     const room = getRoomByPlayer(uid);
     if (!room?.game) return;
     for (const [pUid, sid] of room.sockets) {
@@ -730,7 +730,7 @@ io.on('connection', (socket) => {
   // ── Choose Target ──
 
   socket.on('choose-target', validated(ChooseTargetSchema, (data) => {
-    if (!gameActionLimiter.allow(uid)) return;
+    if (!gameActionLimiter.allow(uid)) { socket.emit('error', 'Too many actions, slow down'); return; }
     const room = getRoomByPlayer(uid);
     if (!room?.game) return;
     // Target is resolved inline during card play — this is for any async targeting
@@ -740,7 +740,7 @@ io.on('connection', (socket) => {
   // ── Emote ──
 
   socket.on('emit-emote', validated(EmoteSchema, (data) => {
-    if (!gameActionLimiter.allow(uid)) return;
+    if (!gameActionLimiter.allow(uid)) { socket.emit('error', 'Too many actions, slow down'); return; }
     const room = getRoomByPlayer(uid);
     if (!room?.game) return;
     for (const [pUid, sid] of room.sockets) {

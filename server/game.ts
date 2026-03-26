@@ -194,6 +194,9 @@ export function startTurn(game: GameState): void {
   // Reset hero power
   player.heroPowerUsed = false;
 
+  // Reset temporary hero attack (guard against skipped endTurn cleanup)
+  player.heroAttackThisTurn = 0;
+
   // Reset locations: decrement cooldown, allow activation
   for (const loc of player.locations) {
     loc.activatedThisTurn = false;

@@ -266,8 +266,12 @@ export function executeEffect(
           const minion = p.board.splice(idx, 1)[0];
           if (p.hand.length < MAX_HAND_SIZE) {
             p.hand.push({ instanceId: minion.instanceId, cardCode: minion.cardCode });
+            addLog(game, casterIndex, `Returns a minion to hand`, 'EFFECT');
+          } else {
+            const def = getCardDef(minion.cardCode);
+            p.graveyard.push({ instanceId: minion.instanceId, cardCode: minion.cardCode });
+            addLog(game, casterIndex, `Hand full! ${def.name} is burned`, 'EFFECT');
           }
-          addLog(game, casterIndex, `Returns a minion to hand`, 'EFFECT');
           break;
         }
       }

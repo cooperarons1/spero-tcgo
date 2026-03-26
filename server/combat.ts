@@ -177,9 +177,16 @@ export function attack(
 }
 
 /** Check all boards for dead minions, remove them, and trigger Deathrattles */
+const MAX_DEATH_ITERATIONS = 100;
+
 export function checkDeaths(game: GameState): void {
   let hadDeath = true;
+  let iterations = 0;
   while (hadDeath) {
+    if (++iterations > MAX_DEATH_ITERATIONS) {
+      console.warn('checkDeaths: hit iteration cap — possible infinite deathrattle loop');
+      break;
+    }
     hadDeath = false;
 
     for (let pi = 0; pi < 2; pi++) {

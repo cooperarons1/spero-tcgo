@@ -51,7 +51,10 @@ export function playCard(
     if (def.keywords.includes('BATTLECRY') && bcEffects.length > 0 && effectsNeedTarget(bcEffects)) {
       const targetType = getEffectsTargetType(bcEffects);
       const targets = getValidTargets(game, pIdx as 0 | 1, targetType);
-      if (targets.length > 0 && !targetId) {
+      if (targets.length === 0) {
+        return { success: false, error: 'No valid targets for this battlecry' };
+      }
+      if (!targetId) {
         return { success: false, needsTarget: true, validTargets: targets };
       }
     }

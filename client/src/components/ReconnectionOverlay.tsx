@@ -9,15 +9,27 @@ const RECONNECT_TIMEOUT_MS = 30_000;
 
 export function ReconnectionOverlay({ status, onReturnToLobby }: ReconnectionOverlayProps) {
   const [timedOut, setTimedOut] = useState(false);
+  const [secondsRemaining, setSecondsRemaining] = useState(Math.ceil(RECONNECT_TIMEOUT_MS / 1000));
 
   useEffect(() => {
-    if (status !== 'disconnected') {
-      setTimedOut(false);
-      return;
-    }
     setTimedOut(false);
-    const timer = setTimeout(() => setTimedOut(true), RECONNECT_TIMEOUT_MS);
-    return () => clearTimeout(timer);
+    setSecondsRemaining(Math.ceil(
+      (status === 'disconnected' ? RECONNECT_TIMEOUT_MS : 120_000) / 1000
+    ));
+
+    if (status === 'disconnected') {
+      const timer = setTimeout(() => setTimedOut(true), RECONNECT_TIMEOUT_MS);
+      const interval = setInterval(() => {
+        setSecondsRemaining(prev => Math.max(0, prev - 1));
+      }, 1000);
+      return () => { clearTimeout(timer); clearInterval(interval); };
+    }
+
+    // opponent-disconnected: countdown only (no timeout action)
+    const interval = setInterval(() => {
+      setSecondsRemaining(prev => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(interval);
   }, [status]);
 
   return (
@@ -43,13 +55,14 @@ export function ReconnectionOverlay({ status, onReturnToLobby }: ReconnectionOve
               <div className="w-10 h-10 border-4 border-spero-blue border-t-transparent rounded-full animate-spin mx-auto mb-4" />
               <h2 className="text-white font-bold text-lg mb-2">Reconnecting...</h2>
               <p className="text-gray-400 text-sm">Lost connection to server. Attempting to reconnect.</p>
+              <p className="text-gray-500 text-xs mt-2">{secondsRemaining}s remaining</p>
             </>
           )
         ) : (
           <>
             <div className="w-10 h-10 border-4 border-spero-yellow border-t-transparent rounded-full animate-spin mx-auto mb-4" />
             <h2 className="text-white font-bold text-lg mb-2">Opponent Disconnected</h2>
-            <p className="text-gray-400 text-sm">Waiting up to 2 minutes for opponent to reconnect...</p>
+            <p className="text-gray-400 text-sm">Waiting for opponent to reconnect... ({secondsRemaining}s)</p>
           </>
         )}
       </div>
