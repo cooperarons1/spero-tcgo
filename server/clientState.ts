@@ -38,6 +38,8 @@ export function getClientState(game: GameState, playerId: string): ClientGameSta
     fatigueDamage: opp.fatigueDamage,
     graveyardCount: opp.graveyard.length,
     secretCount: opp.secrets.length,
+    heroPowerUpgraded: opp.heroPowerUpgraded,
+    upgradeProgress: opp.upgradeProgress,
   };
 
   const turnDeadline = game.turnStartedAt && !game.winner
@@ -63,6 +65,8 @@ export function getClientState(game: GameState, playerId: string): ClientGameSta
     myFatigueDamage: me.fatigueDamage,
     myGraveyardCount: me.graveyard.length,
     mySecrets: me.secrets,
+    myHeroPowerUpgraded: me.heroPowerUpgraded,
+    myUpgradeProgress: me.upgradeProgress,
     opponent,
     deckCount: game.decks[myIdx].length,
     opponentDeckCount: game.decks[oppIdx].length,
@@ -104,6 +108,8 @@ export function getSpectatorState(game: GameState): ClientGameState {
     fatigueDamage: p1.fatigueDamage,
     graveyardCount: p1.graveyard.length,
     secretCount: p1.secrets.length,
+    heroPowerUpgraded: p1.heroPowerUpgraded,
+    upgradeProgress: p1.upgradeProgress,
   };
 
   const turnDeadline = game.turnStartedAt && !game.winner
@@ -129,6 +135,8 @@ export function getSpectatorState(game: GameState): ClientGameState {
     myFatigueDamage: p0.fatigueDamage,
     myGraveyardCount: p0.graveyard.length,
     mySecrets: [],
+    myHeroPowerUpgraded: p0.heroPowerUpgraded,
+    myUpgradeProgress: p0.upgradeProgress,
     opponent,
     deckCount: game.decks[0].length,
     opponentDeckCount: game.decks[1].length,

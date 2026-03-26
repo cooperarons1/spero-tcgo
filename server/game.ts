@@ -28,6 +28,8 @@ function makePlayerState(id: string, name: string, heroClass: HeroClass): Player
     fatigueDamage: 0,
     graveyard: [],
     secrets: [],
+    heroPowerUpgraded: false,
+    upgradeProgress: 0,
   };
 }
 
@@ -203,6 +205,22 @@ export function startTurn(game: GameState): void {
     if (loc.cooldownRemaining > 0) loc.cooldownRemaining--;
   }
 
+  // Orra Charge: increment charge on all minions with the keyword
+  for (const minion of [...player.board]) {
+    if (game.winner) break;
+    if (minion.isSilenced) continue;
+    const mDef = getCardDef(minion.cardCode);
+    if (mDef.keywords.includes('ORRA_CHARGE') && mDef.orraChargeMax && mDef.orraChargeEffect) {
+      minion.currentOrraCharge = (minion.currentOrraCharge ?? 0) + 1;
+      if (minion.currentOrraCharge >= mDef.orraChargeMax) {
+        addLog(game, pIdx, `${mDef.name}'s Orra Charge fires!`, 'EFFECT');
+        executeEffect(game, pIdx, mDef.orraChargeEffect);
+        minion.currentOrraCharge = 0;
+        checkDeaths(game);
+      }
+    }
+  }
+
   // Unfreeze minions that were frozen last turn, enable attacks
   for (const minion of player.board) {
     // Frozen minions: unfreeze but can't attack this turn (standard freeze mechanic)
@@ -260,6 +278,22 @@ function resolveEndOfTurnEffects(game: GameState, playerIndex: 0 | 1): void {
   if (game.winner) return;
   const player = game.players[playerIndex];
   const oppIdx = (playerIndex === 0 ? 1 : 0) as 0 | 1;
+
+  // Collar: transfer collared minions to the collar owner at end of their owner's turn
+  const collaredMinions = player.board.filter(m => m.isCollared && m.collarOwnerIndex !== undefined && m.collarOwnerIndex !== playerIndex);
+  for (const minion of collaredMinions) {
+    const newOwner = game.players[minion.collarOwnerIndex!];
+    if (newOwner.board.length >= 7) continue; // board full, can't transfer
+    const idx = player.board.indexOf(minion);
+    if (idx < 0) continue;
+    player.board.splice(idx, 1);
+    minion.isCollared = false;
+    minion.collarOwnerIndex = undefined;
+    minion.canAttack = false; // summoning sickness on new side
+    newOwner.board.push(minion);
+    const mDef = getCardDef(minion.cardCode);
+    addLog(game, minion.collarOwnerIndex ?? oppIdx, `${mDef.name} switches sides (Collar)!`, 'EFFECT');
+  }
 
   for (const minion of [...player.board]) {
     if (game.winner) break;

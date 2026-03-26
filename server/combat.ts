@@ -7,6 +7,7 @@ import { minionHasKeyword, hasActiveTaunt, getTauntMinions } from './keywords.js
 import { applyDamageToMinion, applyDamageToHero, checkHeroDeath, executeEffect, findMinion } from './effects.js';
 import { applySummonRules } from './keywords.js';
 import { checkSecrets } from './secrets.js';
+import { checkHeroPowerUpgrade } from './upgrade.js';
 
 /** Create a BoardMinion from a card code */
 export function createBoardMinion(cardCode: string): BoardMinion {
@@ -162,6 +163,16 @@ export function attack(
 
       const targetName = getCardDef(targetMinion!.cardCode).name;
       addLog(game, myIdx as 0 | 1, `${attackerName} attacks ${targetName}`, 'COMBAT');
+
+      // Collar: if attacker has Collar keyword and target survived, apply Collar debuff
+      if (!attackerMinion!.isSilenced && targetMinion!.currentHealth > 0) {
+        const atkDef = getCardDef(attackerMinion!.cardCode);
+        if (atkDef.keywords.includes('COLLAR') && !targetMinion!.isCollared) {
+          targetMinion!.isCollared = true;
+          targetMinion!.collarOwnerIndex = myIdx as 0 | 1;
+          addLog(game, myIdx as 0 | 1, `${targetName} has been Collared!`, 'EFFECT');
+        }
+      }
     }
 
     attackerMinion!.attacksRemaining--;
@@ -170,6 +181,10 @@ export function attack(
   // Process deaths
   checkDeaths(game);
   checkHeroDeath(game);
+
+  // Check hero power upgrade for both players
+  checkHeroPowerUpgrade(game, 0);
+  checkHeroPowerUpgrade(game, 1);
 
   game.lastAction = `${attackerName} attacks!`;
 
@@ -211,7 +226,20 @@ export function checkDeaths(game: GameState): void {
 
         if (!minion.isSilenced && def.keywords.includes('DEATHRATTLE') && def.deathrattleEffect) {
           addLog(game, ownerIdx, `${def.name}'s Deathrattle triggers!`, 'EFFECT');
-          executeEffect(game, ownerIdx, def.deathrattleEffect);
+          // Special: Collar Drone — collar a random enemy minion
+          if (def.cardCode === 'DES_COLLAR_02') {
+            const enemyIdx = (ownerIdx === 0 ? 1 : 0) as 0 | 1;
+            const uncollared = game.players[enemyIdx].board.filter(m => !m.isCollared);
+            if (uncollared.length > 0) {
+              const target = uncollared[Math.floor(Math.random() * uncollared.length)];
+              target.isCollared = true;
+              target.collarOwnerIndex = ownerIdx;
+              const targetDef = getCardDef(target.cardCode);
+              addLog(game, ownerIdx, `${targetDef.name} has been Collared!`, 'EFFECT');
+            }
+          } else {
+            executeEffect(game, ownerIdx, def.deathrattleEffect);
+          }
         }
 
         // Check WHEN_FRIENDLY_MINION_DIES secrets

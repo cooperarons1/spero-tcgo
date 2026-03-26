@@ -123,6 +123,33 @@ const HERO_POWER_DESC: Record<HeroClass, string> = {
   NEUTRAL: 'Hero Power',
 };
 
+const HERO_POWER_DESC_UPGRADED: Record<HeroClass, string> = {
+  JIMMY: 'Orra Barrage: Deal 3 damage to any target',
+  TALA: "Nature's Embrace: Give a friendly minion +2/+2",
+  DEREK: 'Master Tinker: Draw a card (1 mana refunded)',
+  ANDERS: 'Avalanche Strike: Deal 2 damage + Freeze target and adjacents',
+  DES: 'Dark Siphon: Deal 3 damage + random enemy gets -1 Attack',
+  ASTRID: 'Radiant Guard: Divine Shield + 0/+2',
+  AVA: 'Deploy Guardian: Summon a 2/2 Taunt Drone',
+  LUCAS: "Shadow Veil: +2 Attack this turn and gain 2 Armor",
+  IZZY: 'Master Navigator: Gain 3 Armor and draw 1',
+  NEUTRAL: 'Hero Power',
+};
+
+// Upgrade conditions shown to players
+const HERO_UPGRADE_CONDITIONS: Record<HeroClass, { description: string; target: number }> = {
+  JIMMY: { description: 'Kill enemy minions', target: 3 },
+  TALA: { description: 'Total HP healed', target: 10 },
+  DEREK: { description: 'Cards drawn from effects', target: 5 },
+  ANDERS: { description: 'Minions frozen', target: 4 },
+  DES: { description: 'Enemy minions destroyed', target: 2 },
+  ASTRID: { description: 'Divine Shield minions at once', target: 3 },
+  AVA: { description: 'Minions summoned', target: 5 },
+  LUCAS: { description: 'Enemy minions returned', target: 2 },
+  IZZY: { description: 'Armor gained', target: 10 },
+  NEUTRAL: { description: '', target: 0 },
+};
+
 // ─── Hero Power SVG Icons ───
 const HERO_POWER_SVG: Record<HeroClass, React.ReactNode> = {
   JIMMY: ( // fire arrow
@@ -494,6 +521,27 @@ function BoardMinionCard({
         </div>
       )}
 
+      {/* Orra Charge counter — blue crystal, top-left */}
+      {!isSilenced && def?.keywords.includes('ORRA_CHARGE') && def.orraChargeMax != null && (
+        <div className="absolute top-0 left-0 z-20 flex items-center gap-0.5 pointer-events-none">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 border-2 border-cyan-300 text-[10px] font-extrabold text-white shadow-lg animate-pulse">
+            {minion.currentOrraCharge ?? 0}/{def.orraChargeMax}
+          </div>
+        </div>
+      )}
+
+      {/* Collar indicator — purple chain icon, top-right */}
+      {minion.isCollared && (
+        <div className="absolute top-0 right-0 z-20 pointer-events-none">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-purple-800 border-2 border-purple-300 shadow-lg animate-pulse">
+            <svg viewBox="0 0 16 16" className="w-4 h-4 text-white" fill="currentColor">
+              <circle cx="8" cy="8" r="5" fill="none" stroke="currentColor" strokeWidth="2"/>
+              <circle cx="8" cy="8" r="2" fill="currentColor"/>
+            </svg>
+          </div>
+        </div>
+      )}
+
       {/* Attack circle — bottom-left */}
       <div className="absolute -bottom-2 -left-2 flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-yellow-700 border-2 border-yellow-300 text-base font-extrabold text-white shadow-lg z-20">
         {minion.currentAttack}
@@ -634,6 +682,8 @@ function HeroPortrait({
   mySecretCodes?: string[];
   heroPowerFlash?: boolean;
   entityId?: string;
+  heroPowerUpgraded?: boolean;
+  upgradeProgress?: number;
 }) {
   const borderClass = CLASS_BORDER[heroClass];
   const bgClass = CLASS_BG[heroClass];
@@ -713,22 +763,42 @@ function HeroPortrait({
           onClick={onHeroPowerClick}
           disabled={!canUseHeroPower}
           className={`relative flex h-14 w-14 items-center justify-center rounded-lg border-2 transition-all
-            ${canUseHeroPower
-              ? 'border-amber-500 bg-amber-900/40 hover:bg-amber-800/60 hover:scale-110 cursor-pointer'
-              : 'border-stone-600 bg-stone-800 opacity-40 cursor-not-allowed'}
+            ${heroPowerUpgraded
+              ? (canUseHeroPower
+                ? 'border-amber-300 bg-gradient-to-br from-amber-700/60 to-amber-500/40 hover:from-amber-600/80 hover:to-amber-400/60 hover:scale-110 cursor-pointer shadow-[0_0_12px_2px_rgba(245,158,11,0.5)]'
+                : 'border-amber-600 bg-amber-800/40 opacity-50 cursor-not-allowed')
+              : (canUseHeroPower
+                ? 'border-amber-500 bg-amber-900/40 hover:bg-amber-800/60 hover:scale-110 cursor-pointer'
+                : 'border-stone-600 bg-stone-800 opacity-40 cursor-not-allowed')}
             ${heroPowerFlash ? 'animate-hero-power-flash' : ''}
           `}
         >
-          <span className={`pointer-events-none ${canUseHeroPower ? 'text-amber-300' : 'text-stone-500'}`}>
+          <span className={`pointer-events-none ${canUseHeroPower ? (heroPowerUpgraded ? 'text-amber-200' : 'text-amber-300') : 'text-stone-500'}`}>
             {HERO_POWER_SVG[heroClass]}
           </span>
           <span className="pointer-events-none absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white shadow">
             {HERO_POWER_COST}
           </span>
+          {/* Upgraded star badge */}
+          {heroPowerUpgraded && (
+            <span className="pointer-events-none absolute -top-1.5 -left-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br from-amber-300 to-amber-500 text-[10px] font-bold text-amber-900 shadow-lg">
+              {'★'}
+            </span>
+          )}
         </button>
         {/* Styled tooltip on hover */}
-        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover/hp:block bg-stone-900 text-amber-200 text-[11px] px-3 py-1.5 rounded-lg whitespace-nowrap z-50 border border-amber-600/40 shadow-lg pointer-events-none">
-          {HERO_POWER_DESC[heroClass]}
+        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover/hp:block bg-stone-900 text-amber-200 text-[11px] px-3 py-1.5 rounded-lg whitespace-nowrap z-50 border border-amber-600/40 shadow-lg pointer-events-none max-w-[250px]">
+          {heroPowerUpgraded
+            ? HERO_POWER_DESC_UPGRADED[heroClass]
+            : (<>
+                {HERO_POWER_DESC[heroClass]}
+                {HERO_UPGRADE_CONDITIONS[heroClass].target > 0 && (
+                  <span className="block text-[9px] text-amber-400/60 mt-0.5">
+                    Upgrade: {HERO_UPGRADE_CONDITIONS[heroClass].description} ({upgradeProgress ?? 0}/{HERO_UPGRADE_CONDITIONS[heroClass].target})
+                  </span>
+                )}
+              </>)
+          }
         </div>
       </div>
     </div>
@@ -1787,6 +1857,8 @@ export default function GameBoard({
             heroDamage={opHeroDamage}
             secretCount={gs.opponent.secretCount}
             entityId={`hero-${1 - gs.myPlayerIndex}`}
+            heroPowerUpgraded={gs.opponent.heroPowerUpgraded}
+            upgradeProgress={gs.opponent.upgradeProgress}
           />
         </div>
 
@@ -2031,6 +2103,8 @@ export default function GameBoard({
             mySecretCodes={gs.mySecrets?.map(s => s.cardCode)}
             heroPowerFlash={heroPowerFlash}
             entityId={`hero-${gs.myPlayerIndex}`}
+            heroPowerUpgraded={gs.myHeroPowerUpgraded}
+            upgradeProgress={gs.myUpgradeProgress}
           />
         </div>
 

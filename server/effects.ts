@@ -181,18 +181,25 @@ export function executeEffect(
     case 'FREEZE_TARGET': {
       // Handle AoE freeze targets
       if (effect.target === 'ALL_ENEMY_MINIONS') {
+        let frozenCount = 0;
         for (const m of opp.board) {
           m.isFrozen = true;
+          frozenCount++;
         }
+        // Track for Anders upgrade
+        if (me.heroClass === 'ANDERS') me.upgradeProgress += frozenCount;
         if (opp.board.length > 0) {
           addLog(game, casterIndex, `Freezes all enemy minions`, 'EFFECT');
         }
         break;
       }
       if (effect.target === 'ALL_MINIONS') {
+        let frozenCount = 0;
         for (const m of [...me.board, ...opp.board]) {
           m.isFrozen = true;
+          frozenCount++;
         }
+        if (me.heroClass === 'ANDERS') me.upgradeProgress += frozenCount;
         addLog(game, casterIndex, `Freezes all minions`, 'EFFECT');
         break;
       }
@@ -200,6 +207,7 @@ export function executeEffect(
       const target = findMinion(game, targetId);
       if (target) {
         target.isFrozen = true;
+        if (me.heroClass === 'ANDERS') me.upgradeProgress++;
         addLog(game, casterIndex, `Freezes a minion`, 'EFFECT');
       }
       break;
@@ -215,6 +223,8 @@ export function executeEffect(
     }
     case 'GAIN_ARMOR': {
       me.armor += value;
+      // Track for Izzy upgrade
+      if (me.heroClass === 'IZZY') me.upgradeProgress += value;
       addLog(game, casterIndex, `Gains ${value} Armor`, 'EFFECT');
       break;
     }
@@ -264,6 +274,8 @@ export function executeEffect(
         const idx = p.board.findIndex(m => m.instanceId === targetId);
         if (idx >= 0) {
           const minion = p.board.splice(idx, 1)[0];
+          // Track for Lucas upgrade: returning enemy minions
+          if (pi !== casterIndex && me.heroClass === 'LUCAS') me.upgradeProgress++;
           if (p.hand.length < MAX_HAND_SIZE) {
             p.hand.push({ instanceId: minion.instanceId, cardCode: minion.cardCode });
             addLog(game, casterIndex, `Returns a minion to hand`, 'EFFECT');
@@ -481,6 +493,10 @@ export function silenceMinion(minion: BoardMinion): void {
   minion.currentHealth = Math.min(minion.currentHealth, def.health);
   minion.enchantments = [];
   minion.attacksRemaining = 1;
+  // Clear Orra Charge and Collar
+  minion.currentOrraCharge = 0;
+  minion.isCollared = false;
+  minion.collarOwnerIndex = undefined;
 }
 
 export function drawCard(game: GameState, playerIndex: 0 | 1): void {

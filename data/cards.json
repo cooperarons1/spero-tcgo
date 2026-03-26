@@ -159,7 +159,7 @@
   },
   {
     "cardCode": "JIM009",
-    "name": "Volcanus, Pyromancer King",
+    "name": "Volcanus, Gavalon King",
     "manaCost": 9,
     "type": "MINION",
     "heroClass": "JIMMY",
@@ -167,7 +167,7 @@
     "attack": 7,
     "health": 7,
     "text": "Charge. Battlecry: Deal 3 damage to all enemy minions.",
-    "flavor": "When Jimmy's fury reaches its zenith, everything ignites.",
+    "flavor": "The desert king from Jimmy's home planet. Everything ignites in his wake.",
     "keywords": [
       "CHARGE",
       "BATTLECRY"
@@ -426,7 +426,7 @@
   },
   {
     "cardCode": "TAL009",
-    "name": "Gaia, the World Root",
+    "name": "Everbloom, the World Root",
     "manaCost": 10,
     "type": "MINION",
     "heroClass": "TALA",
@@ -434,7 +434,7 @@
     "attack": 5,
     "health": 10,
     "text": "Taunt. Battlecry: Restore 5 health to all friendly minions and give them +0/+2.",
-    "flavor": "The world breathes through her ancient roots.",
+    "flavor": "The ancient tree at the heart of Miro's forests — Tala can feel its pulse.",
     "keywords": [
       "TAUNT",
       "BATTLECRY"
@@ -727,7 +727,7 @@
   },
   {
     "cardCode": "DRK010",
-    "name": "Derek, the Grand Inventor",
+    "name": "Reef-Forged Toolkit",
     "manaCost": 7,
     "type": "MINION",
     "heroClass": "DEREK",
@@ -735,7 +735,7 @@
     "attack": 5,
     "health": 7,
     "text": "Stealth. Battlecry: Draw 3 cards.",
-    "flavor": "His greatest invention? A way to stay hidden while stealing ideas.",
+    "flavor": "Built from coral-bonded alloys. Derek never works with inferior parts.",
     "keywords": [
       "STEALTH",
       "BATTLECRY"
@@ -920,7 +920,7 @@
   },
   {
     "cardCode": "AND006",
-    "name": "Tidal Sage",
+    "name": "Rumbler Coach",
     "manaCost": 5,
     "type": "MINION",
     "heroClass": "ANDERS",
@@ -928,7 +928,7 @@
     "attack": 4,
     "health": 5,
     "text": "Battlecry: Gain 4 armor.",
-    "flavor": "He reads the tides and armors himself with their wisdom.",
+    "flavor": "Trains the Rumblers to take hits and dish them back.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -980,7 +980,7 @@
   },
   {
     "cardCode": "AND009",
-    "name": "Anders, Warden of the Depths",
+    "name": "Anders, Star Striker",
     "manaCost": 8,
     "type": "MINION",
     "heroClass": "ANDERS",
@@ -988,7 +988,7 @@
     "attack": 6,
     "health": 8,
     "text": "Battlecry: Deal 3 damage to all enemies and Freeze them.",
-    "flavor": "The ocean bends to his will. So should you.",
+    "flavor": "The best hockbandy player Aster Peak has ever seen — on ice and in battle.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1115,7 +1115,7 @@
   },
   {
     "cardCode": "NEU001",
-    "name": "Wandering Bowyer",
+    "name": "Wandering Ameti",
     "manaCost": 1,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1123,7 +1123,7 @@
     "attack": 1,
     "health": 1,
     "text": "Battlecry: Deal 1 damage to any target.",
-    "flavor": "One shot, one... minor inconvenience.",
+    "flavor": "Not all who wander have lost their Orra.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1135,7 +1135,7 @@
   },
   {
     "cardCode": "NEU002",
-    "name": "Eager Apprentice",
+    "name": "Aster Recruit",
     "manaCost": 1,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1143,12 +1143,12 @@
     "attack": 1,
     "health": 2,
     "text": "",
-    "flavor": "Ready for duty. Not quite ready for combat.",
+    "flavor": "Fresh off the shuttle to Aster Peak.",
     "keywords": []
   },
   {
     "cardCode": "NEU003",
-    "name": "Scrappy Brawler",
+    "name": "Gavalon Scrapper",
     "manaCost": 1,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1156,12 +1156,12 @@
     "attack": 2,
     "health": 1,
     "text": "",
-    "flavor": "What he lacks in durability, he makes up for in enthusiasm.",
+    "flavor": "Anything is a weapon when you grow up on a desert planet.",
     "keywords": []
   },
   {
     "cardCode": "NEU004",
-    "name": "Marsh Lurker",
+    "name": "Riptide Lurker",
     "manaCost": 2,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1169,13 +1169,13 @@
     "attack": 2,
     "health": 3,
     "text": "",
-    "flavor": "It lurks. It waits. It bites.",
+    "flavor": "It waits where the reef meets the deep.",
     "keywords": [],
     "minionType": "BEAST"
   },
   {
     "cardCode": "NEU005",
-    "name": "Razor Raptor",
+    "name": "Snowfield Raptor",
     "manaCost": 2,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1183,13 +1183,13 @@
     "attack": 3,
     "health": 2,
     "text": "",
-    "flavor": "Fast but fragile. Approach from downwind.",
+    "flavor": "Fast enough to hunt on frozen tundra.",
     "keywords": [],
     "minionType": "BEAST"
   },
   {
     "cardCode": "NEU006",
-    "name": "Blessed Recruit",
+    "name": "Orraglass Trainee",
     "manaCost": 2,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1197,14 +1197,14 @@
     "attack": 2,
     "health": 2,
     "text": "Divine Shield",
-    "flavor": "The shield is borrowed. Don't ask from whom.",
+    "flavor": "The first lesson: shield up, eyes forward.",
     "keywords": [
       "DIVINE_SHIELD"
     ]
   },
   {
     "cardCode": "NEU007",
-    "name": "Novice Cartographer",
+    "name": "Academy Cartographer",
     "manaCost": 2,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1212,7 +1212,7 @@
     "attack": 1,
     "health": 2,
     "text": "Battlecry: Draw a card.",
-    "flavor": "She's still mapping, but at least she brought notes.",
+    "flavor": "Every Aster student maps their own path — literally.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1224,7 +1224,7 @@
   },
   {
     "cardCode": "NEU008",
-    "name": "Rallying Shieldmaiden",
+    "name": "Aster Shieldmaiden",
     "manaCost": 2,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1232,7 +1232,7 @@
     "attack": 2,
     "health": 3,
     "text": "Battlecry: Give a friendly minion Taunt.",
-    "flavor": "She inspires defense in others simply by standing firm.",
+    "flavor": "Top of her class in defensive arts.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1244,7 +1244,7 @@
   },
   {
     "cardCode": "NEU009",
-    "name": "Ironhide Patroller",
+    "name": "Aster Patroller",
     "manaCost": 3,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1252,12 +1252,12 @@
     "attack": 3,
     "health": 4,
     "text": "",
-    "flavor": "Stands guard without complaint. That's the gig.",
+    "flavor": "The Academy grounds are never unguarded.",
     "keywords": []
   },
   {
     "cardCode": "NEU010",
-    "name": "Fernwood Protector",
+    "name": "Everbloom Warden",
     "manaCost": 3,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1265,14 +1265,14 @@
     "attack": 2,
     "health": 4,
     "text": "Taunt",
-    "flavor": "A stubborn protector of all things living.",
+    "flavor": "The forest trusts those who protect it.",
     "keywords": [
       "TAUNT"
     ]
   },
   {
     "cardCode": "NEU011",
-    "name": "Patchwork Golem",
+    "name": "Orra-Forged Golem",
     "manaCost": 3,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1280,7 +1280,7 @@
     "attack": 2,
     "health": 3,
     "text": "Deathrattle: Summon a 2/1 Scrap Golem.",
-    "flavor": "Hard to keep down. Harder to keep assembled.",
+    "flavor": "Built from scrap Orra tech, loyal to the last gear.",
     "keywords": [
       "DEATHRATTLE"
     ],
@@ -1294,7 +1294,7 @@
   },
   {
     "cardCode": "NEU012",
-    "name": "Shadowpaw Stalker",
+    "name": "Polara Stalker",
     "manaCost": 3,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1302,14 +1302,14 @@
     "attack": 4,
     "health": 2,
     "text": "Stealth",
-    "flavor": "You hear it before you see it. Actually, you never see it.",
+    "flavor": "Hunts in the shadow of Mount Polara.",
     "keywords": [
       "STEALTH"
     ]
   },
   {
     "cardCode": "NEU013",
-    "name": "Gilded Templar",
+    "name": "Orra Templar",
     "manaCost": 3,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1317,14 +1317,14 @@
     "attack": 3,
     "health": 1,
     "text": "Divine Shield",
-    "flavor": "One free hit. Make it count.",
+    "flavor": "An ancient order sworn to defend Orragems.",
     "keywords": [
       "DIVINE_SHIELD"
     ]
   },
   {
     "cardCode": "NEU014",
-    "name": "Tuskwood Handler",
+    "name": "Miro Beastkeeper",
     "manaCost": 3,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1332,7 +1332,7 @@
     "attack": 2,
     "health": 3,
     "text": "Battlecry: Summon a 1/1 Tuskling.",
-    "flavor": "She and her tuskling are a package deal.",
+    "flavor": "Every creature on Miro deserves a friend.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1345,7 +1345,7 @@
   },
   {
     "cardCode": "NEU015",
-    "name": "Summit Brute",
+    "name": "Summit Yeti",
     "manaCost": 4,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1353,12 +1353,12 @@
     "attack": 4,
     "health": 4,
     "text": "",
-    "flavor": "The brute questions nothing and smashes everything.",
+    "flavor": "Roams the frozen peaks above Aster Academy.",
     "keywords": []
   },
   {
     "cardCode": "NEU016",
-    "name": "Shellback Tortoise",
+    "name": "Glacial Shellback",
     "manaCost": 4,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1366,13 +1366,13 @@
     "attack": 2,
     "health": 7,
     "text": "",
-    "flavor": "Thick shell. Slow brain. Incredible jaw strength.",
+    "flavor": "Its shell is cold enough to freeze saltwater.",
     "keywords": [],
     "minionType": "BEAST"
   },
   {
     "cardCode": "NEU017",
-    "name": "Frontline Charger",
+    "name": "Hoverboard Charger",
     "manaCost": 4,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1380,7 +1380,7 @@
     "attack": 2,
     "health": 5,
     "text": "Charge",
-    "flavor": "For glory! And the element of surprise!",
+    "flavor": "Academy rules say no hoverboards indoors. Nobody listens.",
     "keywords": [
       "CHARGE"
     ]
@@ -1408,7 +1408,7 @@
   },
   {
     "cardCode": "NEU019",
-    "name": "Prism Drake",
+    "name": "Orra Drake",
     "manaCost": 4,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1416,7 +1416,7 @@
     "attack": 4,
     "health": 4,
     "text": "Divine Shield",
-    "flavor": "Shimmers with an iridescent ward.",
+    "flavor": "Born from crystallized Orra deposits in the deep caves.",
     "keywords": [
       "DIVINE_SHIELD"
     ],
@@ -1443,7 +1443,7 @@
   },
   {
     "cardCode": "NEU021",
-    "name": "Mirewalker Brute",
+    "name": "Tundra Behemoth",
     "manaCost": 5,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1451,14 +1451,14 @@
     "attack": 3,
     "health": 6,
     "text": "Taunt",
-    "flavor": "It creeps from the swamp. It blocks the path.",
+    "flavor": "It moves slow, but nothing stops it.",
     "keywords": [
       "TAUNT"
     ]
   },
   {
     "cardCode": "NEU022",
-    "name": "Gloomveil Predator",
+    "name": "Polar Predator",
     "manaCost": 5,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1466,14 +1466,14 @@
     "attack": 5,
     "health": 5,
     "text": "Stealth",
-    "flavor": "Lurks in the shadows. Strikes without warning or remorse.",
+    "flavor": "Patient, invisible, and always hungry.",
     "keywords": [
       "STEALTH"
     ]
   },
   {
     "cardCode": "NEU023",
-    "name": "Duskfang Assassin",
+    "name": "Dominion Assassin",
     "manaCost": 5,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1481,7 +1481,7 @@
     "attack": 4,
     "health": 4,
     "text": "Battlecry: Deal 3 damage to the enemy hero.",
-    "flavor": "Sneaks past defenses and strikes where it hurts most.",
+    "flavor": "Des sends his best when words fail.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1493,7 +1493,7 @@
   },
   {
     "cardCode": "NEU024",
-    "name": "Cerulean Wyrm",
+    "name": "Miro Skywyrm",
     "manaCost": 5,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1501,7 +1501,7 @@
     "attack": 4,
     "health": 4,
     "text": "Battlecry: Draw a card.",
-    "flavor": "Wise, ancient, and conveniently helpful in a card game.",
+    "flavor": "Rides the thermals above Aster Peak.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1514,7 +1514,7 @@
   },
   {
     "cardCode": "NEU025",
-    "name": "Rumbling Charger",
+    "name": "Dominion Charger",
     "manaCost": 5,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1522,7 +1522,7 @@
     "attack": 3,
     "health": 5,
     "text": "Battlecry: Deal 2 damage to a random enemy minion.",
-    "flavor": "It charges first and asks questions never.",
+    "flavor": "Des's shock troops — fast and ruthless.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1534,7 +1534,7 @@
   },
   {
     "cardCode": "NEU026",
-    "name": "Stonefist Ogre",
+    "name": "Frostpeak Ogre",
     "manaCost": 6,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1542,12 +1542,12 @@
     "attack": 7,
     "health": 6,
     "text": "",
-    "flavor": "Big. Strong. Not exactly a philosopher.",
+    "flavor": "Even ogres know to respect the cold.",
     "keywords": []
   },
   {
     "cardCode": "NEU027",
-    "name": "Lightsworn Guardian",
+    "name": "Orra Guardian",
     "manaCost": 6,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1555,7 +1555,7 @@
     "attack": 4,
     "health": 5,
     "text": "Taunt. Divine Shield",
-    "flavor": "The light shields her. The shield taunts you.",
+    "flavor": "Sworn to protect the Orragems at any cost.",
     "keywords": [
       "TAUNT",
       "DIVINE_SHIELD"
@@ -1563,7 +1563,7 @@
   },
   {
     "cardCode": "NEU028",
-    "name": "Vanguard Lancer",
+    "name": "Aster Lancer",
     "manaCost": 6,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1571,7 +1571,7 @@
     "attack": 4,
     "health": 2,
     "text": "Charge. Divine Shield",
-    "flavor": "Charges in, protected by faith and audacity.",
+    "flavor": "The Academy's mounted vanguard.",
     "keywords": [
       "CHARGE",
       "DIVINE_SHIELD"
@@ -1579,7 +1579,7 @@
   },
   {
     "cardCode": "NEU029",
-    "name": "Reckless Rocketeer",
+    "name": "Gavalon Rocketeer",
     "manaCost": 5,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1587,14 +1587,14 @@
     "attack": 4,
     "health": 2,
     "text": "Charge",
-    "flavor": "Safety goggles? Never heard of them.",
+    "flavor": "Built her own jetpack from Gavalon scrap metal.",
     "keywords": [
       "CHARGE"
     ]
   },
   {
     "cardCode": "NEU030",
-    "name": "Moonwell Priestess",
+    "name": "Orra Priestess",
     "manaCost": 6,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1602,7 +1602,7 @@
     "attack": 5,
     "health": 4,
     "text": "Battlecry: Restore 4 health to your hero.",
-    "flavor": "The moonlight mends what battle breaks.",
+    "flavor": "She communes with the Orra in its purest form.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1614,7 +1614,7 @@
   },
   {
     "cardCode": "NEU031",
-    "name": "Warforged Titan",
+    "name": "Miro War Titan",
     "manaCost": 7,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1622,12 +1622,12 @@
     "attack": 7,
     "health": 7,
     "text": "",
-    "flavor": "Built for war. Used for war. It's all in the name.",
+    "flavor": "A relic of ancient Miro conflicts.",
     "keywords": []
   },
   {
     "cardCode": "NEU032",
-    "name": "Sovereign Protector",
+    "name": "Ameti Protector",
     "manaCost": 7,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1635,7 +1635,7 @@
     "attack": 5,
     "health": 6,
     "text": "Battlecry: Restore 6 health to your hero.",
-    "flavor": "Protects the realm and your health bar.",
+    "flavor": "The highest honor: defending those who cannot.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1647,7 +1647,7 @@
   },
   {
     "cardCode": "NEU033",
-    "name": "Warband Marshal",
+    "name": "Academy Marshal",
     "manaCost": 7,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1655,7 +1655,7 @@
     "attack": 6,
     "health": 6,
     "text": "Battlecry: Give all friendly minions +1/+1.",
-    "flavor": "A true leader makes everyone around them stronger.",
+    "flavor": "Keeps the students in line — barely.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1668,7 +1668,7 @@
   },
   {
     "cardCode": "NEU034",
-    "name": "Nighthollow Assassin",
+    "name": "Dominion Shadow",
     "manaCost": 7,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1676,14 +1676,14 @@
     "attack": 7,
     "health": 5,
     "text": "Stealth",
-    "flavor": "No one sees it coming. That's the entire point.",
+    "flavor": "Trained in Des's personal guard. Deadly quiet.",
     "keywords": [
       "STEALTH"
     ]
   },
   {
     "cardCode": "NEU035",
-    "name": "Ironclad Behemoth",
+    "name": "Polar Colossus",
     "manaCost": 8,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1691,12 +1691,12 @@
     "attack": 8,
     "health": 8,
     "text": "",
-    "flavor": "When diplomacy fails, send the behemoth.",
+    "flavor": "Ancient. Massive. Very cold.",
     "keywords": []
   },
   {
     "cardCode": "NEU036",
-    "name": "Earthbound Sentinel",
+    "name": "Everbloom Sentinel",
     "manaCost": 8,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1704,7 +1704,7 @@
     "attack": 7,
     "health": 7,
     "text": "Taunt. Battlecry: Gain 5 armor.",
-    "flavor": "The earth itself rises to defend the worthy.",
+    "flavor": "Rooted in place but never idle.",
     "keywords": [
       "TAUNT",
       "BATTLECRY"
@@ -1717,7 +1717,7 @@
   },
   {
     "cardCode": "NEU037",
-    "name": "Emberheart Champion",
+    "name": "Gavalon Champion",
     "manaCost": 9,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1725,7 +1725,7 @@
     "attack": 8,
     "health": 8,
     "text": "Battlecry: Deal 4 damage to the enemy hero.",
-    "flavor": "Champions of Spero don't knock. They kick the door down.",
+    "flavor": "The desert forged him. Battle refined him.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1737,7 +1737,7 @@
   },
   {
     "cardCode": "NEU038",
-    "name": "Colossal Earthshaper",
+    "name": "Orra Earthshaper",
     "manaCost": 10,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1745,12 +1745,12 @@
     "attack": 10,
     "health": 10,
     "text": "",
-    "flavor": "So massive it takes 10 mana just to get its attention.",
+    "flavor": "Bends the very ground with crystalline Orra.",
     "keywords": []
   },
   {
     "cardCode": "NEU039",
-    "name": "Galefeather Harpy",
+    "name": "Snowfield Harpy",
     "manaCost": 5,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1758,7 +1758,7 @@
     "attack": 4,
     "health": 3,
     "text": "Windfury",
-    "flavor": "Hits you twice because once didn't feel satisfying enough.",
+    "flavor": "Nests in the crags above Aster Peak.",
     "keywords": [
       "WINDFURY"
     ],
@@ -1766,7 +1766,7 @@
   },
   {
     "cardCode": "NEU040",
-    "name": "Fledgling Swiftwing",
+    "name": "Miro Swiftwing",
     "manaCost": 1,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1774,14 +1774,14 @@
     "attack": 1,
     "health": 1,
     "text": "Windfury",
-    "flavor": "Young, hungry, and attacks twice per turn.",
+    "flavor": "The fastest courier on planet Miro.",
     "keywords": [
       "WINDFURY"
     ]
   },
   {
     "cardCode": "NEU041",
-    "name": "Treasure Scavenger",
+    "name": "Orra Scavenger",
     "manaCost": 2,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1789,7 +1789,7 @@
     "attack": 2,
     "health": 1,
     "text": "Deathrattle: Draw a card.",
-    "flavor": "He hoards information, not gold.",
+    "flavor": "Finds forgotten Orragems in the strangest places.",
     "keywords": [
       "DEATHRATTLE"
     ],
@@ -1801,7 +1801,7 @@
   },
   {
     "cardCode": "NEU042",
-    "name": "Howling Packleader",
+    "name": "Tundra Packleader",
     "manaCost": 2,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1809,7 +1809,7 @@
     "attack": 2,
     "health": 2,
     "text": "Battlecry: Give all friendly minions +1 Attack.",
-    "flavor": "The pack follows. The pack fights harder.",
+    "flavor": "Where one howls, the whole pack follows.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1823,7 +1823,7 @@
   },
   {
     "cardCode": "NEU043",
-    "name": "Volatile Wretch",
+    "name": "Corrupted Orrawretch",
     "manaCost": 2,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1831,7 +1831,7 @@
     "attack": 1,
     "health": 3,
     "text": "Taunt. Deathrattle: Deal 1 damage to all minions.",
-    "flavor": "It's volatile. The name is a warning label.",
+    "flavor": "Twisted by dark Orra — mindless and volatile.",
     "keywords": [
       "TAUNT",
       "DEATHRATTLE"
@@ -1844,7 +1844,7 @@
   },
   {
     "cardCode": "NEU044",
-    "name": "Dawnlight Cleric",
+    "name": "Orra Cleric",
     "manaCost": 3,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1852,7 +1852,7 @@
     "attack": 3,
     "health": 2,
     "text": "Battlecry: Give a friendly minion +1/+1.",
-    "flavor": "She lifts others up, one blessing at a time.",
+    "flavor": "Channels healing Orra through prayer and patience.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1865,7 +1865,7 @@
   },
   {
     "cardCode": "NEU045",
-    "name": "Bristleback Bear",
+    "name": "Snowpeak Bear",
     "manaCost": 3,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1873,7 +1873,7 @@
     "attack": 3,
     "health": 3,
     "text": "Taunt",
-    "flavor": "Cuddly looking but absolutely not cuddly.",
+    "flavor": "Territorial, cranky, and covered in frost.",
     "keywords": [
       "TAUNT"
     ],
@@ -1881,7 +1881,7 @@
   },
   {
     "cardCode": "NEU046",
-    "name": "Wellspring Soothsayer",
+    "name": "Orra Wellspring Healer",
     "manaCost": 3,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1889,7 +1889,7 @@
     "attack": 3,
     "health": 3,
     "text": "Battlecry: Restore 3 health to any target.",
-    "flavor": "She sees far into the future and heals the present.",
+    "flavor": "She draws healing power from underground Orra springs.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1901,7 +1901,7 @@
   },
   {
     "cardCode": "NEU047",
-    "name": "Sworn Cavalier",
+    "name": "Ameti Knight",
     "manaCost": 5,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1909,7 +1909,7 @@
     "attack": 4,
     "health": 4,
     "text": "Battlecry: Summon a 2/2 Squire.",
-    "flavor": "He always brings his squire. It's a two-for-one deal.",
+    "flavor": "An Orra master who chose the path of the sword.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1922,7 +1922,7 @@
   },
   {
     "cardCode": "NEU048",
-    "name": "Shield Warden",
+    "name": "Aster Shield Warden",
     "manaCost": 4,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1930,7 +1930,7 @@
     "attack": 2,
     "health": 3,
     "text": "Battlecry: Give all friendly minions +1/+1.",
-    "flavor": "He defends by making everyone else better at fighting.",
+    "flavor": "Last line of defense at the Academy gates.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1943,7 +1943,7 @@
   },
   {
     "cardCode": "NEU049",
-    "name": "Voidmask Executioner",
+    "name": "Dominion Executioner",
     "manaCost": 5,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1951,7 +1951,7 @@
     "attack": 4,
     "health": 4,
     "text": "Battlecry: Destroy an enemy minion.",
-    "flavor": "No face. No mercy. No exceptions.",
+    "flavor": "Des does not forgive. He assigns.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1962,7 +1962,7 @@
   },
   {
     "cardCode": "NEU050",
-    "name": "Walking Detonation",
+    "name": "Orra Detonation Golem",
     "manaCost": 5,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1970,7 +1970,7 @@
     "attack": 4,
     "health": 4,
     "text": "Taunt. Deathrattle: Deal 2 damage to all minions.",
-    "flavor": "Messy in life. Messier in death.",
+    "flavor": "Packed with unstable Orragems. Handle with care.",
     "keywords": [
       "TAUNT",
       "DEATHRATTLE"
@@ -1983,7 +1983,7 @@
   },
   {
     "cardCode": "NEU051",
-    "name": "Steelspine Bastion",
+    "name": "Frozen Bastion",
     "manaCost": 5,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -1991,12 +1991,12 @@
     "attack": 4,
     "health": 6,
     "text": "",
-    "flavor": "A walking fortress with no doors and no patience.",
+    "flavor": "An ice fortress from the age of the first Ameti.",
     "keywords": []
   },
   {
     "cardCode": "NEU052",
-    "name": "Rimebinder Sorcerer",
+    "name": "Polara Sorcerer",
     "manaCost": 6,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -2004,7 +2004,7 @@
     "attack": 5,
     "health": 5,
     "text": "Battlecry: Freeze an enemy minion.",
-    "flavor": "Cold as ice and twice as slippery.",
+    "flavor": "Draws power from Mount Polara's frozen core.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -2015,7 +2015,7 @@
   },
   {
     "cardCode": "NEU053",
-    "name": "Echobane, the Revenant",
+    "name": "Echobane, the Lost Ameti",
     "manaCost": 4,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -2023,7 +2023,7 @@
     "attack": 1,
     "health": 7,
     "text": "Battlecry: Give a friendly minion Divine Shield and Taunt.",
-    "flavor": "He lingers between worlds, granting protection to those who linger with him.",
+    "flavor": "Once a master. Now a warning.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -2043,7 +2043,7 @@
   },
   {
     "cardCode": "NEU054",
-    "name": "Seraphina, the Dawnbringer",
+    "name": "Seraphina, Orra's Light",
     "manaCost": 6,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -2051,7 +2051,7 @@
     "attack": 5,
     "health": 5,
     "text": "Deathrattle: Deal 3 damage to a random enemy.",
-    "flavor": "Even in death, she brings radiant vengeance.",
+    "flavor": "She carries the dawn wherever darkness spreads.",
     "keywords": [
       "DEATHRATTLE"
     ],
@@ -2063,7 +2063,7 @@
   },
   {
     "cardCode": "NEU055",
-    "name": "Infernax, the Cinder Tyrant",
+    "name": "Infernax, Gavalon's Fury",
     "manaCost": 8,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -2071,7 +2071,7 @@
     "attack": 8,
     "health": 8,
     "text": "Battlecry: Deal 8 damage to a random enemy.",
-    "flavor": "BY CINDER AND ASH, YOU SHALL KNEEL!",
+    "flavor": "The desert planet's rage given form.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -2083,7 +2083,7 @@
   },
   {
     "cardCode": "NEU056",
-    "name": "Thorn, the Undying",
+    "name": "Thornveil, the Undying",
     "manaCost": 6,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -2091,7 +2091,7 @@
     "attack": 4,
     "health": 5,
     "text": "Deathrattle: Summon a 4/5 Spirit of Thorn.",
-    "flavor": "He dies. He returns. He is still not happy about it.",
+    "flavor": "The forest will not let him fall.",
     "keywords": [
       "DEATHRATTLE"
     ],
@@ -2104,7 +2104,7 @@
   },
   {
     "cardCode": "NEU057",
-    "name": "Lirael, the Dreaming Star",
+    "name": "Lirael, Aster's Dream",
     "manaCost": 9,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -2112,7 +2112,7 @@
     "attack": 4,
     "health": 12,
     "text": "Battlecry: Draw 2 cards.",
-    "flavor": "She dreams of a world without aggro decks.",
+    "flavor": "She sees the future in frozen starlight.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -2124,7 +2124,7 @@
   },
   {
     "cardCode": "NEU058",
-    "name": "Woe Acolyte",
+    "name": "Dominion Acolyte",
     "manaCost": 3,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -2132,7 +2132,7 @@
     "attack": 1,
     "health": 3,
     "text": "Battlecry: Draw a card.",
-    "flavor": "He thrives on misery. Also, card advantage.",
+    "flavor": "Serves Des with blind devotion.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -2144,7 +2144,7 @@
   },
   {
     "cardCode": "NEU059",
-    "name": "Corrosive Slimekin",
+    "name": "Orra Slimekin",
     "manaCost": 2,
     "type": "MINION",
     "heroClass": "NEUTRAL",
@@ -2152,7 +2152,7 @@
     "attack": 3,
     "health": 2,
     "text": "Battlecry: Deal 1 damage to a random enemy minion.",
-    "flavor": "It dissolves everything. Including your opponent's plans.",
+    "flavor": "A byproduct of unstable Orra experiments.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -2173,7 +2173,7 @@
     "attack": 12,
     "health": 12,
     "text": "Battlecry: Deal 5 damage to all other minions.",
-    "flavor": "When all else fails, end everything.",
+    "flavor": "When all Orra fails, only Oblivion remains.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -2519,7 +2519,7 @@
     "attack": 8,
     "health": 8,
     "text": "Battlecry: Destroy an enemy minion and deal 3 damage to all other enemy minions.",
-    "flavor": "The Orra Crucible bends to his will. Soon, all of Miro will follow.",
+    "flavor": "With the Orra Crucible in hand, Jimmy's uncle became unstoppable.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -2860,7 +2860,7 @@
     "attack": 5,
     "health": 7,
     "text": "Divine Shield. Battlecry: Give all friendly minions +1/+1.",
-    "flavor": "Mighty's collar glows white-gold as Astrid channels her full Orra through him.",
+    "flavor": "When Mighty stands tall, even the Dominion thinks twice.",
     "keywords": [
       "DIVINE_SHIELD",
       "BATTLECRY"
@@ -2898,7 +2898,7 @@
     "attack": 6,
     "health": 10,
     "text": "Taunt. Divine Shield. Battlecry: Give all friendly minions Divine Shield and +0/+3.",
-    "flavor": "She stood alone at the gates when the Dominion came. She was enough.",
+    "flavor": "Black hair streaked with blue — the nicest Rumbler, and the fiercest shield.",
     "keywords": [
       "TAUNT",
       "DIVINE_SHIELD",
@@ -3310,7 +3310,7 @@
     "attack": 6,
     "health": 7,
     "text": "Stealth. Battlecry: Summon three 1/1 Gadget Drones and give all friendly minions +2/+1.",
-    "flavor": "Her inventions changed Aster Academy. Her drones might change all of Miro.",
+    "flavor": "Fiona by her side, Luna Device in hand — Ava builds the future.",
     "keywords": [
       "STEALTH",
       "BATTLECRY"
@@ -3675,7 +3675,7 @@
     "attack": 6,
     "health": 6,
     "text": "Charge. Stealth. Battlecry: Return two random enemy minions to their owner's hand.",
-    "flavor": "He chose his father's side at Mount Polara. Jimmy never saw it coming.",
+    "flavor": "He chose his father over his friends at Mount Polara. He chose wrong.",
     "keywords": [
       "CHARGE",
       "STEALTH",
@@ -4098,7 +4098,7 @@
     "attack": 6,
     "health": 9,
     "text": "Taunt. Battlecry: Gain 10 Armor. Give ALL minions +2/+2.",
-    "flavor": "Where others see chaos, Izzy sees perfect symmetry — and sparkles it into existence.",
+    "flavor": "Perfect balance. Perfect symmetry. Perfect sparkle. That's Izzy.",
     "keywords": [
       "TAUNT",
       "BATTLECRY"
@@ -4744,7 +4744,7 @@
   },
   {
     "cardCode": "TAL_LOC01",
-    "name": "Verdant Sanctuary",
+    "name": "Everbloom Sanctuary",
     "manaCost": 2,
     "type": "LOCATION",
     "heroClass": "TALA",
@@ -4762,7 +4762,7 @@
   },
   {
     "cardCode": "DRK_LOC01",
-    "name": "Coral Cove Workshop",
+    "name": "Riptide Reef Workshop",
     "manaCost": 3,
     "type": "LOCATION",
     "heroClass": "DEREK",
@@ -4780,7 +4780,7 @@
   },
   {
     "cardCode": "AND_LOC01",
-    "name": "Frostspire Citadel",
+    "name": "Aster Peak Rink",
     "manaCost": 3,
     "type": "LOCATION",
     "heroClass": "ANDERS",
@@ -4797,7 +4797,7 @@
   },
   {
     "cardCode": "DES_LOC01",
-    "name": "Polara Sanctum",
+    "name": "Dominion Outpost",
     "manaCost": 3,
     "type": "LOCATION",
     "heroClass": "DES",
@@ -4815,7 +4815,7 @@
   },
   {
     "cardCode": "AST_LOC01",
-    "name": "Aster Academy",
+    "name": "Rumbler Barracks",
     "manaCost": 2,
     "type": "LOCATION",
     "heroClass": "ASTRID",
@@ -4834,7 +4834,7 @@
   },
   {
     "cardCode": "AVA_LOC01",
-    "name": "Spark Laboratory",
+    "name": "Ava's Workshop",
     "manaCost": 3,
     "type": "LOCATION",
     "heroClass": "AVA",
@@ -4852,7 +4852,7 @@
   },
   {
     "cardCode": "LUC_LOC01",
-    "name": "Smuggler's Hideout",
+    "name": "Polara Hideout",
     "manaCost": 2,
     "type": "LOCATION",
     "heroClass": "LUCAS",
@@ -4869,7 +4869,7 @@
   },
   {
     "cardCode": "IZZ_LOC01",
-    "name": "Navigator's Outpost",
+    "name": "Navigator's Chart Room",
     "manaCost": 2,
     "type": "LOCATION",
     "heroClass": "IZZY",
@@ -4906,7 +4906,7 @@
   },
   {
     "cardCode": "NEU_LOC02",
-    "name": "Wanderer's Campfire",
+    "name": "Aster Academy Grounds",
     "manaCost": 2,
     "type": "LOCATION",
     "heroClass": "NEUTRAL",
@@ -4932,7 +4932,7 @@
     "attack": 5,
     "health": 6,
     "text": "Battlecry: Deal 3 damage to all enemy minions.",
-    "flavor": "From the ashes of Gavalon, she rises again — and again.",
+    "flavor": "Born from the ashes of Gavalon — like Jimmy himself.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -4942,5 +4942,886 @@
       "target": "ALL_ENEMY_MINIONS",
       "value": 3
     }
+  },
+  {
+    "cardCode": "AVA_TOKEN_02",
+    "name": "Guardian Drone",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "AVA",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 2,
+    "text": "Taunt",
+    "flavor": "Upgraded drone with defensive protocols.",
+    "keywords": [
+      "TAUNT"
+    ],
+    "minionType": "MECH"
+  },
+  {
+    "cardCode": "JIM_BOND_01",
+    "name": "Otto, Loyal Otter",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "JIMMY",
+    "rarity": "RARE",
+    "attack": 2,
+    "health": 2,
+    "text": "Bond: If you control Bella, both get +2/+2.",
+    "flavor": "Otto never wanders far from his partner.",
+    "keywords": [
+      "BOND"
+    ],
+    "minionType": "BEAST",
+    "bondPartnerCode": "JIM_BOND_02",
+    "bondEffect": {
+      "type": "BUFF_MINION",
+      "target": "SELF",
+      "attackBuff": 2,
+      "healthBuff": 2
+    }
+  },
+  {
+    "cardCode": "JIM_BOND_02",
+    "name": "Bella, Snow Guardian",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "JIMMY",
+    "rarity": "RARE",
+    "attack": 3,
+    "health": 4,
+    "text": "Taunt. Bond: If you control Otto, both get +2/+2.",
+    "flavor": "Her thick fur hides a heart of pure Orra fire.",
+    "keywords": [
+      "TAUNT",
+      "BOND"
+    ],
+    "minionType": "BEAST",
+    "bondPartnerCode": "JIM_BOND_01",
+    "bondEffect": {
+      "type": "BUFF_MINION",
+      "target": "SELF",
+      "attackBuff": 2,
+      "healthBuff": 2
+    }
+  },
+  {
+    "cardCode": "DRK_BOND_01",
+    "name": "Sengo, Shadow Leopard",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "DEREK",
+    "rarity": "RARE",
+    "attack": 3,
+    "health": 2,
+    "text": "Stealth. Bond: If you control Rosie, draw 2 cards.",
+    "flavor": "The leopard moves like a reef shadow — silent, patient, lethal.",
+    "keywords": [
+      "STEALTH",
+      "BOND"
+    ],
+    "minionType": "BEAST",
+    "bondPartnerCode": "DRK_BOND_02",
+    "bondEffect": {
+      "type": "DRAW_CARDS",
+      "target": "NONE",
+      "value": 2
+    }
+  },
+  {
+    "cardCode": "DRK_BOND_02",
+    "name": "Rosie, Bottlenose Scout",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "DEREK",
+    "rarity": "RARE",
+    "attack": 1,
+    "health": 3,
+    "text": "Bond: If you control Sengo, draw 2 cards.",
+    "flavor": "She nudges lost things back to shore — including hope.",
+    "keywords": [
+      "BOND"
+    ],
+    "minionType": "BEAST",
+    "bondPartnerCode": "DRK_BOND_01",
+    "bondEffect": {
+      "type": "DRAW_CARDS",
+      "target": "NONE",
+      "value": 2
+    }
+  },
+  {
+    "cardCode": "TAL_BOND_01",
+    "name": "Snowball, Arctic Scout",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "TALA",
+    "rarity": "RARE",
+    "attack": 2,
+    "health": 3,
+    "text": "Bond: If you control Tala's Ice Orb, both get +1/+2 and gain Taunt.",
+    "flavor": "She always finds Tala first — small paws, big heart.",
+    "keywords": [
+      "BOND"
+    ],
+    "minionType": "BEAST",
+    "bondPartnerCode": "TAL_BOND_02",
+    "bondEffect": {
+      "type": "BUFF_MINION",
+      "target": "SELF",
+      "attackBuff": 1,
+      "healthBuff": 2
+    }
+  },
+  {
+    "cardCode": "TAL_BOND_02",
+    "name": "Tala's Ice Orb",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "TALA",
+    "rarity": "RARE",
+    "attack": 1,
+    "health": 4,
+    "text": "Taunt. Bond: If you control Snowball, both get +1/+2.",
+    "flavor": "The diamond at its center hums with ancient Orra.",
+    "keywords": [
+      "TAUNT",
+      "BOND"
+    ],
+    "minionType": "ELEMENTAL",
+    "bondPartnerCode": "TAL_BOND_01",
+    "bondEffect": {
+      "type": "BUFF_MINION",
+      "target": "SELF",
+      "attackBuff": 1,
+      "healthBuff": 2
+    }
+  },
+  {
+    "cardCode": "AND_BOND_01",
+    "name": "Frostfang",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "ANDERS",
+    "rarity": "RARE",
+    "attack": 3,
+    "health": 3,
+    "text": "Bond: If you control Icelash, both get +2/+1 and Freeze a random enemy minion.",
+    "flavor": "Two halves of the same blizzard.",
+    "keywords": [
+      "BOND"
+    ],
+    "minionType": "BEAST",
+    "bondPartnerCode": "AND_BOND_02",
+    "bondEffect": {
+      "type": "BUFF_MINION",
+      "target": "SELF",
+      "attackBuff": 2,
+      "healthBuff": 1
+    }
+  },
+  {
+    "cardCode": "AND_BOND_02",
+    "name": "Icelash",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "ANDERS",
+    "rarity": "RARE",
+    "attack": 2,
+    "health": 2,
+    "text": "Bond: If you control Frostfang, both get +2/+1.",
+    "flavor": "Where Frostfang bites, Icelash follows.",
+    "keywords": [
+      "BOND"
+    ],
+    "minionType": "BEAST",
+    "bondPartnerCode": "AND_BOND_01",
+    "bondEffect": {
+      "type": "BUFF_MINION",
+      "target": "SELF",
+      "attackBuff": 2,
+      "healthBuff": 1
+    }
+  },
+  {
+    "cardCode": "NEU_ORRA_01",
+    "name": "Orra Capacitor",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "EPIC",
+    "attack": 1,
+    "health": 5,
+    "text": "Orra Charge (3): Deal 4 damage to all enemies.",
+    "flavor": "Three turns. That's all it needs.",
+    "keywords": [
+      "ORRA_CHARGE"
+    ],
+    "minionType": "MECH",
+    "orraChargeMax": 3,
+    "orraChargeEffect": {
+      "type": "DEAL_DAMAGE_ALL_ENEMIES",
+      "target": "ALL_ENEMY_MINIONS",
+      "value": 4
+    }
+  },
+  {
+    "cardCode": "TAL_ORRA_01",
+    "name": "Tala's Healing Bloom",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "TALA",
+    "rarity": "EPIC",
+    "attack": 0,
+    "health": 4,
+    "text": "Orra Charge (2): Restore 6 health to your hero and draw a card.",
+    "flavor": "Patience yields the sweetest nectar.",
+    "keywords": [
+      "ORRA_CHARGE"
+    ],
+    "minionType": "ELEMENTAL",
+    "orraChargeMax": 2,
+    "orraChargeEffect": {
+      "type": "RESTORE_HEALTH",
+      "target": "TARGET_HERO",
+      "value": 6
+    }
+  },
+  {
+    "cardCode": "DRK_ORRA_01",
+    "name": "Orra Overloader",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "DEREK",
+    "rarity": "EPIC",
+    "attack": 3,
+    "health": 6,
+    "text": "Orra Charge (2): Draw 3 cards.",
+    "flavor": "Derek's most dangerous experiment — a self-charging intelligence.",
+    "keywords": [
+      "ORRA_CHARGE"
+    ],
+    "minionType": "MECH",
+    "orraChargeMax": 2,
+    "orraChargeEffect": {
+      "type": "DRAW_CARDS",
+      "target": "NONE",
+      "value": 3
+    }
+  },
+  {
+    "cardCode": "AND_ORRA_01",
+    "name": "Frostcore Sentinel",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "ANDERS",
+    "rarity": "EPIC",
+    "attack": 2,
+    "health": 6,
+    "text": "Orra Charge (3): Freeze ALL enemy minions.",
+    "flavor": "Glacial patience, catastrophic release.",
+    "keywords": [
+      "ORRA_CHARGE"
+    ],
+    "minionType": "ELEMENTAL",
+    "orraChargeMax": 3,
+    "orraChargeEffect": {
+      "type": "FREEZE_TARGET",
+      "target": "ALL_ENEMY_MINIONS"
+    }
+  },
+  {
+    "cardCode": "IZZ_ORRA_01",
+    "name": "Orra Battery",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "IZZY",
+    "rarity": "RARE",
+    "attack": 1,
+    "health": 4,
+    "text": "Orra Charge (2): Gain 4 Armor.",
+    "flavor": "Izzy's mobile power source — steady, reliable, explosive.",
+    "keywords": [
+      "ORRA_CHARGE"
+    ],
+    "minionType": "MECH",
+    "orraChargeMax": 2,
+    "orraChargeEffect": {
+      "type": "GAIN_ARMOR",
+      "target": "NONE",
+      "value": 4
+    }
+  },
+  {
+    "cardCode": "DES_COLLAR_01",
+    "name": "Dominion Handler",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "DES",
+    "rarity": "RARE",
+    "attack": 2,
+    "health": 4,
+    "text": "Collar: When this attacks and the target survives, the target switches sides next turn.",
+    "flavor": "Every beast eventually bows to Des.",
+    "keywords": [
+      "COLLAR"
+    ],
+    "minionType": null
+  },
+  {
+    "cardCode": "DES_COLLAR_02",
+    "name": "Collar Drone",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "DES",
+    "rarity": "RARE",
+    "attack": 1,
+    "health": 3,
+    "text": "Collar. Deathrattle: Apply Collar to a random enemy minion.",
+    "flavor": "Even in death, the collar persists.",
+    "keywords": [
+      "COLLAR",
+      "DEATHRATTLE"
+    ],
+    "minionType": "MECH",
+    "deathrattleEffect": {
+      "type": "BUFF_ALL_ENEMY",
+      "target": "ALL_ENEMY_MINIONS",
+      "attackBuff": 0,
+      "healthBuff": 0
+    }
+  },
+  {
+    "cardCode": "DES_COLLAR_03",
+    "name": "Des Aster, Puppetmaster",
+    "manaCost": 8,
+    "type": "MINION",
+    "heroClass": "DES",
+    "rarity": "LEGENDARY",
+    "attack": 4,
+    "health": 6,
+    "text": "Collar. Battlecry: Apply Collar to ALL enemy minions.",
+    "flavor": "The strings are invisible, but the control is absolute.",
+    "keywords": [
+      "COLLAR",
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "AVA_BOND_01",
+    "name": "Fiona, Sky Glider",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "AVA",
+    "rarity": "RARE",
+    "attack": 2,
+    "health": 2,
+    "text": "Bond: If you control Luna Device, both get +1/+1 and gain Divine Shield.",
+    "flavor": "She glides between rooftops, delivering circuits and sass.",
+    "keywords": [
+      "BOND"
+    ],
+    "minionType": "BEAST",
+    "bondPartnerCode": "AVA_BOND_02",
+    "bondEffect": {
+      "type": "BUFF_MINION",
+      "target": "SELF",
+      "attackBuff": 1,
+      "healthBuff": 1
+    }
+  },
+  {
+    "cardCode": "AVA_BOND_02",
+    "name": "Luna Device",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "AVA",
+    "rarity": "RARE",
+    "attack": 2,
+    "health": 3,
+    "text": "Bond: If you control Fiona, both get +1/+1.",
+    "flavor": "Ava's masterwork — half scanner, half best friend.",
+    "keywords": [
+      "BOND"
+    ],
+    "minionType": "MECH",
+    "bondPartnerCode": "AVA_BOND_01",
+    "bondEffect": {
+      "type": "BUFF_MINION",
+      "target": "SELF",
+      "attackBuff": 1,
+      "healthBuff": 1
+    }
+  },
+  {
+    "cardCode": "LUC_BOND_01",
+    "name": "Jax, Desert Coyote",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "LUCAS",
+    "rarity": "RARE",
+    "attack": 2,
+    "health": 1,
+    "text": "Stealth. Bond: If you control Owl Sketch, both get +2/+2.",
+    "flavor": "Jax trusts no one — except the boy who draws owls.",
+    "keywords": [
+      "STEALTH",
+      "BOND"
+    ],
+    "minionType": "BEAST",
+    "bondPartnerCode": "LUC_BOND_02",
+    "bondEffect": {
+      "type": "BUFF_MINION",
+      "target": "SELF",
+      "attackBuff": 2,
+      "healthBuff": 2
+    }
+  },
+  {
+    "cardCode": "LUC_BOND_02",
+    "name": "Owl Sketch",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "LUCAS",
+    "rarity": "RARE",
+    "attack": 3,
+    "health": 2,
+    "text": "Bond: If you control Jax, both get +2/+2.",
+    "flavor": "Lucas's drawings have a way of coming to life.",
+    "keywords": [
+      "BOND"
+    ],
+    "minionType": "SPIRIT",
+    "bondPartnerCode": "LUC_BOND_01",
+    "bondEffect": {
+      "type": "BUFF_MINION",
+      "target": "SELF",
+      "attackBuff": 2,
+      "healthBuff": 2
+    }
+  },
+  {
+    "cardCode": "AST_BOND_01",
+    "name": "Mighty, Loyal Mink",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "ASTRID",
+    "rarity": "RARE",
+    "attack": 2,
+    "health": 3,
+    "text": "Bond: If you control Astrid's Shield, both get +1/+2 and gain Divine Shield.",
+    "flavor": "Where Astrid plants her feet, Mighty stands beside her.",
+    "keywords": [
+      "BOND"
+    ],
+    "minionType": "BEAST",
+    "bondPartnerCode": "AST_BOND_02",
+    "bondEffect": {
+      "type": "BUFF_MINION",
+      "target": "SELF",
+      "attackBuff": 1,
+      "healthBuff": 2,
+      "grantKeyword": "DIVINE_SHIELD"
+    }
+  },
+  {
+    "cardCode": "AST_BOND_02",
+    "name": "Astrid's Shield",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "ASTRID",
+    "rarity": "RARE",
+    "attack": 1,
+    "health": 4,
+    "text": "Taunt. Bond: If you control Mighty, both get +1/+2.",
+    "flavor": "Forged from Orragem crystal, unbreakable as her loyalty.",
+    "keywords": [
+      "TAUNT",
+      "BOND"
+    ],
+    "minionType": "MECH",
+    "bondPartnerCode": "AST_BOND_01",
+    "bondEffect": {
+      "type": "BUFF_MINION",
+      "target": "SELF",
+      "attackBuff": 1,
+      "healthBuff": 2
+    }
+  },
+  {
+    "cardCode": "IZZ_BOND_01",
+    "name": "Bling, Puffin Navigator",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "IZZY",
+    "rarity": "RARE",
+    "attack": 2,
+    "health": 2,
+    "text": "Bond: If you control Sparkle Compass, both get +1/+2 and gain 3 Armor.",
+    "flavor": "Bling always knows which way is shiny.",
+    "keywords": [
+      "BOND"
+    ],
+    "minionType": "BEAST",
+    "bondPartnerCode": "IZZ_BOND_02",
+    "bondEffect": {
+      "type": "GAIN_ARMOR",
+      "target": "NONE",
+      "value": 3
+    }
+  },
+  {
+    "cardCode": "IZZ_BOND_02",
+    "name": "Sparkle Compass",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "IZZY",
+    "rarity": "RARE",
+    "attack": 1,
+    "health": 4,
+    "text": "Bond: If you control Bling, both get +1/+2.",
+    "flavor": "Points toward balance — and buried treasure.",
+    "keywords": [
+      "BOND"
+    ],
+    "minionType": "MECH",
+    "bondPartnerCode": "IZZ_BOND_01",
+    "bondEffect": {
+      "type": "BUFF_MINION",
+      "target": "SELF",
+      "attackBuff": 1,
+      "healthBuff": 2
+    }
+  },
+  {
+    "cardCode": "NEU_ORRA_02",
+    "name": "Orra Crucible Fragment",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "EPIC",
+    "attack": 2,
+    "health": 5,
+    "text": "Orra Charge (3): Deal 3 damage to all minions and draw 2 cards.",
+    "flavor": "A shard of the stolen Crucible — still pulsing with raw Orra.",
+    "keywords": [
+      "ORRA_CHARGE"
+    ],
+    "minionType": "ELEMENTAL",
+    "orraChargeMax": 3,
+    "orraChargeEffect": {
+      "type": "DEAL_DAMAGE_ALL_MINIONS",
+      "target": "ALL_MINIONS",
+      "value": 3
+    }
+  },
+  {
+    "cardCode": "DES_ORRA_01",
+    "name": "Polara Core",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "DES",
+    "rarity": "EPIC",
+    "attack": 3,
+    "health": 5,
+    "text": "Orra Charge (2): Destroy a random enemy minion.",
+    "flavor": "Ripped from the heart of Mount Polara. Des wastes nothing.",
+    "keywords": [
+      "ORRA_CHARGE"
+    ],
+    "minionType": "ELEMENTAL",
+    "orraChargeMax": 2,
+    "orraChargeEffect": {
+      "type": "DESTROY_MINION",
+      "target": "RANDOM_ENEMY_MINION",
+      "value": 1
+    }
+  },
+  {
+    "cardCode": "DRK_ORRA_02",
+    "name": "Reef Tidecaller",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "DEREK",
+    "rarity": "RARE",
+    "attack": 2,
+    "health": 4,
+    "text": "Orra Charge (2): Return a random enemy minion to its owner's hand.",
+    "flavor": "The reef remembers those who disrespect its waters.",
+    "keywords": [
+      "ORRA_CHARGE"
+    ],
+    "minionType": "ELEMENTAL",
+    "orraChargeMax": 2,
+    "orraChargeEffect": {
+      "type": "RETURN_TO_HAND",
+      "target": "RANDOM_ENEMY_MINION",
+      "value": 1
+    }
+  },
+  {
+    "cardCode": "AVA_ORRA_01",
+    "name": "Orra Turret",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "AVA",
+    "rarity": "RARE",
+    "attack": 2,
+    "health": 5,
+    "text": "Orra Charge (3): Summon two 1/1 Gadget Drones.",
+    "flavor": "Ava's turrets run on Orra and spite.",
+    "keywords": [
+      "ORRA_CHARGE"
+    ],
+    "minionType": "MECH",
+    "orraChargeMax": 3,
+    "orraChargeEffect": {
+      "type": "SUMMON_MINION",
+      "target": "NONE",
+      "summonCardCode": "AVA_TOKEN_01",
+      "summonCount": 2
+    }
+  },
+  {
+    "cardCode": "LUC_ORRA_01",
+    "name": "Sandtrap Orraglyph",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "LUCAS",
+    "rarity": "RARE",
+    "attack": 2,
+    "health": 3,
+    "text": "Orra Charge (2): Return ALL enemy minions with 2 or less Attack to their hand.",
+    "flavor": "The desert swallows what it does not want.",
+    "keywords": [
+      "ORRA_CHARGE"
+    ],
+    "minionType": "ELEMENTAL",
+    "orraChargeMax": 2,
+    "orraChargeEffect": {
+      "type": "RETURN_TO_HAND",
+      "target": "ALL_ENEMY_MINIONS",
+      "value": 2
+    }
+  },
+  {
+    "cardCode": "DES_COLLAR_04",
+    "name": "Dominion Recruiter",
+    "manaCost": 4,
+    "type": "SPELL",
+    "heroClass": "DES",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Apply Collar to an enemy minion and deal 2 damage to it.",
+    "flavor": "Every recruit joins willingly. Eventually.",
+    "keywords": [
+      "COLLAR"
+    ],
+    "spellEffect": {
+      "type": "DEAL_DAMAGE",
+      "target": "TARGET_ENEMY_MINION",
+      "value": 2
+    }
+  },
+  {
+    "cardCode": "DES_COLLAR_05",
+    "name": "Collar of Submission",
+    "manaCost": 3,
+    "type": "SPELL",
+    "heroClass": "DES",
+    "rarity": "EPIC",
+    "attack": 0,
+    "health": 0,
+    "text": "Silence an enemy minion, then apply Collar to it.",
+    "flavor": "First comes silence. Then obedience.",
+    "keywords": [
+      "COLLAR"
+    ],
+    "spellEffect": {
+      "type": "SILENCE_TARGET",
+      "target": "TARGET_ENEMY_MINION",
+      "value": 0
+    }
+  },
+  {
+    "cardCode": "JIM_LORE_01",
+    "name": "Ace's Bow",
+    "manaCost": 3,
+    "type": "WEAPON",
+    "heroClass": "JIMMY",
+    "rarity": "EPIC",
+    "attack": 2,
+    "health": 3,
+    "text": "Battlecry: Deal 2 damage to a random enemy minion.",
+    "flavor": "Left behind in the vault. Jimmy took it without asking.",
+    "keywords": [
+      "BATTLECRY"
+    ],
+    "battlecryEffect": {
+      "type": "DEAL_DAMAGE_RANDOM_ENEMY",
+      "target": "RANDOM_ENEMY_MINION",
+      "value": 2
+    }
+  },
+  {
+    "cardCode": "JIM_LORE_02",
+    "name": "Gavalon Firestorm",
+    "manaCost": 6,
+    "type": "SPELL",
+    "heroClass": "JIMMY",
+    "rarity": "EPIC",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 4 damage to all enemy minions.",
+    "flavor": "On Gavalon, this is just called Tuesday.",
+    "keywords": [],
+    "spellEffect": {
+      "type": "DEAL_DAMAGE_ALL_ENEMIES",
+      "target": "ALL_ENEMY_MINIONS",
+      "value": 4
+    }
+  },
+  {
+    "cardCode": "DRK_LORE_01",
+    "name": "Riptide Reef Guardian",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "DEREK",
+    "rarity": "EPIC",
+    "attack": 3,
+    "health": 6,
+    "text": "Taunt. Battlecry: Draw a card.",
+    "flavor": "The reef chose its own protector. Derek just helped.",
+    "keywords": [
+      "TAUNT",
+      "BATTLECRY"
+    ],
+    "minionType": "BEAST",
+    "battlecryEffect": {
+      "type": "DRAW_CARDS",
+      "target": "NONE",
+      "value": 1
+    }
+  },
+  {
+    "cardCode": "NEU_LORE_01",
+    "name": "Hoverboard Rush",
+    "manaCost": 1,
+    "type": "SPELL",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Give a friendly minion Charge.",
+    "flavor": "Standard Aster Academy transport. Non-standard speed.",
+    "keywords": [],
+    "spellEffect": {
+      "type": "GRANT_KEYWORD",
+      "target": "TARGET_FRIENDLY_MINION",
+      "grantKeyword": "CHARGE"
+    }
+  },
+  {
+    "cardCode": "DES_LORE_01",
+    "name": "Orra Crucible",
+    "manaCost": 7,
+    "type": "MINION",
+    "heroClass": "DES",
+    "rarity": "LEGENDARY",
+    "attack": 4,
+    "health": 8,
+    "text": "Battlecry: Destroy an enemy minion. Deathrattle: Draw 2 cards.",
+    "flavor": "The source of all Orra, stolen by the one who would weaponize it.",
+    "keywords": [
+      "BATTLECRY",
+      "DEATHRATTLE"
+    ],
+    "minionType": "ELEMENTAL",
+    "battlecryEffect": {
+      "type": "DESTROY_MINION",
+      "target": "TARGET_ENEMY_MINION",
+      "value": 1
+    },
+    "deathrattleEffect": {
+      "type": "DRAW_CARDS",
+      "target": "NONE",
+      "value": 2
+    }
+  },
+  {
+    "cardCode": "NEU_LORE_02",
+    "name": "Ameti Ascension",
+    "manaCost": 5,
+    "type": "SPELL",
+    "heroClass": "NEUTRAL",
+    "rarity": "LEGENDARY",
+    "attack": 0,
+    "health": 0,
+    "text": "Upgrade your Hero Power. Draw a card.",
+    "flavor": "To become Ameti is to hear the Orra sing your name.",
+    "keywords": [],
+    "spellEffect": {
+      "type": "DRAW_CARDS",
+      "target": "NONE",
+      "value": 1
+    }
+  },
+  {
+    "cardCode": "NEU_LORE_03",
+    "name": "Aster Academy Trainer",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 4,
+    "text": "Battlecry: Give a friendly minion +1/+1.",
+    "flavor": "Every student at Aster Peak earns their stripes — and their bruises.",
+    "keywords": [
+      "BATTLECRY"
+    ],
+    "battlecryEffect": {
+      "type": "BUFF_MINION",
+      "target": "TARGET_FRIENDLY_MINION",
+      "attackBuff": 1,
+      "healthBuff": 1
+    }
+  },
+  {
+    "cardCode": "NEU_LORE_04",
+    "name": "Aster Peak Lookout",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 3,
+    "text": "Battlecry: Gain 2 Armor.",
+    "flavor": "From the peak, you can see both sunrise and danger.",
+    "keywords": [
+      "BATTLECRY"
+    ],
+    "battlecryEffect": {
+      "type": "GAIN_ARMOR",
+      "target": "NONE",
+      "value": 2
+    }
+  },
+  {
+    "cardCode": "NEU_LORE_05",
+    "name": "Orraglass Sentry",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "RARE",
+    "attack": 3,
+    "health": 5,
+    "text": "Taunt",
+    "flavor": "Made from crystallized Orra — beautiful and nearly unbreakable.",
+    "keywords": [
+      "TAUNT"
+    ]
   }
 ]

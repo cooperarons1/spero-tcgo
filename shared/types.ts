@@ -16,7 +16,10 @@ export type Keyword =
   | 'STEALTH'
   | 'SECRET'
   | 'END_OF_TURN'
-  | 'COMBO';
+  | 'COMBO'
+  | 'BOND'
+  | 'COLLAR'
+  | 'ORRA_CHARGE';
 
 // ─── Secrets ───
 
@@ -59,6 +62,12 @@ export interface CardDef {
   minionType?: MinionType;
   locationEffect?: EffectDef;
   locationEffects?: EffectDef[];
+  // Bond: named partner pairing
+  bondPartnerCode?: string;       // cardCode of the bond partner
+  bondEffect?: EffectDef;         // effect applied to BOTH when bond triggers
+  // Orra Charge: ticking time-bomb minions
+  orraChargeMax?: number;         // charges needed to fire
+  orraChargeEffect?: EffectDef;   // effect that fires at max charge
 }
 
 // ─── Effect System ───
@@ -145,6 +154,11 @@ export interface BoardMinion {
   isSilenced: boolean;
   hasStealthUntilAttack: boolean;
   enchantments: Enchantment[];
+  // Orra Charge state
+  currentOrraCharge?: number;
+  // Collar state
+  isCollared?: boolean;
+  collarOwnerIndex?: 0 | 1; // which player will gain this minion
 }
 
 // ─── Board Location ───
@@ -186,6 +200,9 @@ export interface PlayerState {
   fatigueDamage: number;   // increments each draw from empty deck
   graveyard: CardInstance[];
   secrets: ActiveSecret[];
+  // Hero power upgrade system
+  heroPowerUpgraded: boolean;
+  upgradeProgress: number; // tracks progress toward upgrade condition
 }
 
 // ─── Game State ───
@@ -288,6 +305,8 @@ export interface ClientPlayerInfo {
   fatigueDamage: number;
   graveyardCount: number;
   secretCount: number;
+  heroPowerUpgraded: boolean;
+  upgradeProgress: number;
 }
 
 export interface ClientGameState {
@@ -309,6 +328,8 @@ export interface ClientGameState {
   myFatigueDamage: number;
   myGraveyardCount: number;
   mySecrets: ActiveSecret[];
+  myHeroPowerUpgraded: boolean;
+  myUpgradeProgress: number;
   opponent: ClientPlayerInfo;
   deckCount: number;
   opponentDeckCount: number;
