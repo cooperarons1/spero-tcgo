@@ -389,8 +389,8 @@
     "type": "MINION",
     "heroClass": "TALA",
     "rarity": "RARE",
-    "attack": 3,
-    "health": 5,
+    "attack": 2,
+    "health": 4,
     "text": "Battlecry: Give a friendly minion +1/+2.",
     "flavor": "She reads the rings of ancient trees and whispers their secrets.",
     "keywords": [
@@ -406,7 +406,7 @@
   {
     "cardCode": "TAL008",
     "name": "Ironwood Colossus",
-    "manaCost": 7,
+    "manaCost": 8,
     "type": "MINION",
     "heroClass": "TALA",
     "rarity": "EPIC",
@@ -941,7 +941,7 @@
   {
     "cardCode": "AND007",
     "name": "Avalanche Warden",
-    "manaCost": 6,
+    "manaCost": 7,
     "type": "MINION",
     "heroClass": "ANDERS",
     "rarity": "RARE",
@@ -981,13 +981,13 @@
   {
     "cardCode": "AND009",
     "name": "Anders, Star Striker",
-    "manaCost": 8,
+    "manaCost": 9,
     "type": "MINION",
     "heroClass": "ANDERS",
     "rarity": "LEGENDARY",
     "attack": 6,
     "health": 8,
-    "text": "Battlecry: Deal 3 damage to all enemies and Freeze them.",
+    "text": "Battlecry: Deal 2 damage to all enemies and Freeze them.",
     "flavor": "The best hockbandy player Aster Peak has ever seen \u2014 on ice and in battle.",
     "keywords": [
       "BATTLECRY"
@@ -996,7 +996,7 @@
       {
         "type": "DEAL_DAMAGE_ALL_ENEMIES",
         "target": "ALL_ENEMY_MINIONS",
-        "value": 3
+        "value": 2
       },
       {
         "type": "FREEZE_TARGET",
@@ -2763,7 +2763,7 @@
   {
     "cardCode": "AST013",
     "name": "Guardian's Embrace",
-    "manaCost": 5,
+    "manaCost": 6,
     "type": "SPELL",
     "heroClass": "ASTRID",
     "rarity": "EPIC",
@@ -2897,7 +2897,7 @@
     "rarity": "LEGENDARY",
     "attack": 6,
     "health": 10,
-    "text": "Taunt. Divine Shield. Battlecry: Give all friendly minions Divine Shield and +0/+3.",
+    "text": "Taunt. Divine Shield. Battlecry: Give all friendly minions Divine Shield and +0/+2.",
     "flavor": "Black hair streaked with blue \u2014 the nicest Rumbler, and the fiercest shield.",
     "keywords": [
       "TAUNT",
@@ -2914,7 +2914,7 @@
         "type": "BUFF_ALL_FRIENDLY",
         "target": "ALL_FRIENDLY_MINIONS",
         "attackBuff": 0,
-        "healthBuff": 3
+        "healthBuff": 2
       }
     ]
   },
@@ -4222,7 +4222,7 @@
   {
     "cardCode": "AND_S02",
     "name": "Mirror Reflection",
-    "manaCost": 3,
+    "manaCost": 4,
     "type": "SPELL",
     "heroClass": "ANDERS",
     "rarity": "RARE",
@@ -4372,7 +4372,7 @@
     "rarity": "RARE",
     "attack": 0,
     "health": 0,
-    "text": "Secret: When a friendly minion dies, give all other friendly minions +3/+2.",
+    "text": "Secret: When a friendly minion dies, give all other friendly minions +2/+1.",
     "flavor": "Vengeance is its own reward.",
     "keywords": [
       "SECRET"
@@ -4381,8 +4381,8 @@
     "secretEffect": {
       "type": "BUFF_ALL_FRIENDLY",
       "target": "NONE",
-      "attackBuff": 3,
-      "healthBuff": 2
+      "attackBuff": 2,
+      "healthBuff": 1
     }
   },
   {
@@ -4497,7 +4497,7 @@
   {
     "cardCode": "IZZ_NEW_01",
     "name": "Sparkle Avalanche",
-    "manaCost": 4,
+    "manaCost": 3,
     "type": "SPELL",
     "heroClass": "IZZY",
     "rarity": "EPIC",
@@ -4930,8 +4930,8 @@
     "heroClass": "JIMMY",
     "rarity": "LEGENDARY",
     "attack": 5,
-    "health": 6,
-    "text": "Battlecry: Deal 3 damage to all enemy minions.",
+    "health": 5,
+    "text": "Battlecry: Deal 2 damage to all enemy minions.",
     "flavor": "Born from the ashes of Gavalon \u2014 like Jimmy himself.",
     "keywords": [
       "BATTLECRY"
@@ -4940,7 +4940,7 @@
     "battlecryEffect": {
       "type": "DEAL_DAMAGE_ALL_ENEMIES",
       "target": "ALL_ENEMY_MINIONS",
-      "value": 3
+      "value": 2
     }
   },
   {
@@ -5130,7 +5130,7 @@
     "rarity": "RARE",
     "attack": 2,
     "health": 2,
-    "text": "Bond: If you control Frostfang, both get +2/+1.",
+    "text": "Bond: If you control Frostfang, both get +1/+1.",
     "flavor": "Where Frostfang bites, Icelash follows.",
     "keywords": [
       "BOND"
@@ -5140,7 +5140,7 @@
     "bondEffect": {
       "type": "BUFF_MINION",
       "target": "SELF",
-      "attackBuff": 2,
+      "attackBuff": 1,
       "healthBuff": 1
     }
   },
@@ -5218,14 +5218,14 @@
     "heroClass": "ANDERS",
     "rarity": "EPIC",
     "attack": 2,
-    "health": 6,
-    "text": "Orra Charge (4): Freeze ALL enemy minions.",
+    "health": 5,
+    "text": "Orra Charge (5): Freeze ALL enemy minions.",
     "flavor": "Glacial patience, catastrophic release.",
     "keywords": [
       "ORRA_CHARGE"
     ],
     "minionType": "ELEMENTAL",
-    "orraChargeMax": 4,
+    "orraChargeMax": 5,
     "orraChargeEffect": {
       "type": "FREEZE_TARGET",
       "target": "ALL_ENEMY_MINIONS"
@@ -5238,9 +5238,9 @@
     "type": "MINION",
     "heroClass": "IZZY",
     "rarity": "RARE",
-    "attack": 1,
+    "attack": 2,
     "health": 4,
-    "text": "Orra Charge (2): Gain 4 Armor.",
+    "text": "Orra Charge (2): Gain 5 Armor.",
     "flavor": "Izzy's mobile power source \u2014 steady, reliable, explosive.",
     "keywords": [
       "ORRA_CHARGE"
@@ -5250,7 +5250,7 @@
     "orraChargeEffect": {
       "type": "GAIN_ARMOR",
       "target": "NONE",
-      "value": 4
+      "value": 5
     }
   },
   {
@@ -5457,8 +5457,8 @@
     "heroClass": "IZZY",
     "rarity": "RARE",
     "attack": 2,
-    "health": 2,
-    "text": "Bond: If you control Sparkle Compass, both get +1/+2 and gain 3 Armor.",
+    "health": 3,
+    "text": "Bond: If you control Sparkle Compass, both get +1/+2 and gain 4 Armor.",
     "flavor": "Bling always knows which way is shiny.",
     "keywords": [
       "BOND"
@@ -5468,7 +5468,7 @@
     "bondEffect": {
       "type": "GAIN_ARMOR",
       "target": "NONE",
-      "value": 3
+      "value": 4
     }
   },
   {
@@ -5478,7 +5478,7 @@
     "type": "MINION",
     "heroClass": "IZZY",
     "rarity": "RARE",
-    "attack": 1,
+    "attack": 2,
     "health": 4,
     "text": "Bond: If you control Bling, both get +1/+2.",
     "flavor": "Points toward balance \u2014 and buried treasure.",
@@ -5568,14 +5568,14 @@
     "heroClass": "AVA",
     "rarity": "RARE",
     "attack": 2,
-    "health": 5,
-    "text": "Orra Charge (3): Summon two 1/1 Gadget Drones.",
+    "health": 6,
+    "text": "Orra Charge (2): Summon two 1/1 Gadget Drones.",
     "flavor": "Ava's turrets run on Orra and spite.",
     "keywords": [
       "ORRA_CHARGE"
     ],
     "minionType": "MECH",
-    "orraChargeMax": 3,
+    "orraChargeMax": 2,
     "orraChargeEffect": {
       "type": "SUMMON_MINION",
       "target": "NONE",
@@ -5592,7 +5592,7 @@
     "rarity": "RARE",
     "attack": 3,
     "health": 3,
-    "text": "Orra Charge (2): Return ALL enemy minions with 2 or less Attack to their hand.",
+    "text": "Orra Charge (2): Return ALL enemy minions with 3 or less Attack to their hand.",
     "flavor": "The desert swallows what it does not want.",
     "keywords": [
       "ORRA_CHARGE"
@@ -5602,7 +5602,7 @@
     "orraChargeEffect": {
       "type": "RETURN_TO_HAND",
       "target": "ALL_ENEMY_MINIONS",
-      "value": 2
+      "value": 3
     }
   },
   {
@@ -5628,7 +5628,7 @@
   {
     "cardCode": "DES_COLLAR_05",
     "name": "Collar of Submission",
-    "manaCost": 3,
+    "manaCost": 2,
     "type": "SPELL",
     "heroClass": "DES",
     "rarity": "EPIC",
