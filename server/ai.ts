@@ -78,7 +78,7 @@ function getCardWinRate(cardCode: string): number | null {
 /** Get per-card mulligan keep win rate */
 function getCardKeepWinRate(cardCode: string): number | null {
   const stats = aiWeights?.cardStats?.[cardCode];
-  if (!stats || stats.keptInMulligan < 20) return null;
+  if (!stats || stats.played < 50) return null;
   return stats.keepWinRate;
 }
 
