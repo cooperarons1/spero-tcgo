@@ -1093,6 +1093,17 @@ export default function GameBoard({
   const [targeting, setTargeting] = useState<TargetingMode>({ type: 'none' });
   const [selectedHandCard, setSelectedHandCard] = useState<string | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [emoteOpen, setEmoteOpen] = useState(false);
+  const [myEmote, setMyEmote] = useState<string | null>(null);
+  const emoteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Auto-close emote popup after 3 seconds
+  useEffect(() => {
+    if (emoteOpen) {
+      emoteTimerRef.current = setTimeout(() => setEmoteOpen(false), 3000);
+      return () => { if (emoteTimerRef.current) clearTimeout(emoteTimerRef.current); };
+    }
+  }, [emoteOpen]);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [attackerPos, setAttackerPos] = useState<{ x: number; y: number } | null>(null);
   const boardRef = useRef<HTMLDivElement>(null);
@@ -1848,8 +1859,15 @@ export default function GameBoard({
 
       {/* Opponent Emote */}
       {opponentEmote && (
-        <div className="fixed right-8 top-24 z-30 animate-bounce rounded-lg bg-stone-800 px-4 py-2 text-2xl shadow-lg">
+        <div className="fixed right-8 top-24 z-30 animate-bounce rounded-lg bg-stone-800 px-4 py-2 text-2xl shadow-lg border border-stone-600">
           {opponentEmote}
+        </div>
+      )}
+
+      {/* My Emote */}
+      {myEmote && (
+        <div className="fixed right-8 bottom-24 z-30 animate-bounce rounded-lg bg-amber-900/90 border border-amber-600 px-4 py-2 text-lg text-amber-100 shadow-lg">
+          {myEmote}
         </div>
       )}
 
@@ -2143,6 +2161,48 @@ export default function GameBoard({
             upgradeProgress={gs.myUpgradeProgress}
             onHeroPointerDown={handleHeroPointerDown}
           />
+
+          {/* Emote button */}
+          <div className="relative">
+            <button
+              onClick={() => setEmoteOpen(!emoteOpen)}
+              className="rounded-full bg-stone-800/80 border border-stone-600 w-9 h-9 flex items-center justify-center text-stone-300 hover:bg-stone-700 hover:text-white transition-colors"
+              title="Send emote"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+            </button>
+
+            {/* Emote popup */}
+            {emoteOpen && (
+              <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-50 bg-stone-900 border border-stone-600 rounded-xl p-2 shadow-2xl grid grid-cols-3 gap-1 animate-fade-in"
+                onMouseLeave={() => setEmoteOpen(false)}
+              >
+                {[
+                  { id: 'Well Played', label: 'Well Played' },
+                  { id: 'Thanks', label: 'Thanks' },
+                  { id: 'Greetings', label: 'Greetings' },
+                  { id: 'Wow', label: 'Wow' },
+                  { id: 'Oops', label: 'Oops' },
+                  { id: 'Threaten', label: 'Threaten' },
+                ].map(emote => (
+                  <button
+                    key={emote.id}
+                    onClick={() => {
+                      actions.emitEmote(emote.id);
+                      setMyEmote(emote.label);
+                      setTimeout(() => setMyEmote(null), 3000);
+                      setEmoteOpen(false);
+                    }}
+                    className="px-3 py-1.5 text-xs text-stone-200 hover:bg-stone-700 rounded-lg whitespace-nowrap transition-colors"
+                  >
+                    {emote.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* My hand — fanned arc layout */}

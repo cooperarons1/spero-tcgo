@@ -20,7 +20,7 @@ import { STARTER_DECKS } from '../shared/starterDecks.js';
 import { secretTriggerCount, resetSecretTriggerCount } from './secrets.js';
 import {
   reloadAIWeights, getAIMulliganReplacements, cardPlayPriority,
-  pickSmartAttackTarget, pickSmartTarget, pickTargetFromList,
+  pickSmartAttackTarget, pickSmartTarget, pickTargetFromList, hasLethal, pickLethalTarget,
 } from './ai.js';
 import type { GameState, BoardMinion, PlayerState, HeroClass } from '../shared/types.js';
 
@@ -81,6 +81,21 @@ let totalSecretsPlayed = 0;
 let totalSecretsCountered = 0; // spells countered
 resetSecretTriggerCount();
 
+// ─── Per-card tracking ───
+interface CardTracker {
+  played: number;
+  wins: number;
+  keptInMulligan: number;
+  keptWins: number;
+}
+const cardTracker = new Map<string, CardTracker>();
+
+function getOrCreateCardTracker(cardCode: string): CardTracker {
+  let t = cardTracker.get(cardCode);
+  if (!t) { t = { played: 0, wins: 0, keptInMulligan: 0, keptWins: 0 }; cardTracker.set(cardCode, t); }
+  return t;
+}
+
 let wins = [0, 0];
 let totalTurns = 0;
 let errors = 0;
@@ -111,8 +126,19 @@ for (let g = 0; g < gameCount && Date.now() < endTime; g++) {
     );
 
     // Smart mulligan using AI logic
-    confirmMulligan(game, 'ai-1', getAIMulliganReplacements(game.players[0].hand, deck1.heroClass, deck2.heroClass));
-    confirmMulligan(game, 'ai-2', getAIMulliganReplacements(game.players[1].hand, deck2.heroClass, deck1.heroClass));
+    const mull1 = getAIMulliganReplacements(game.players[0].hand, deck1.heroClass, deck2.heroClass);
+    const mull2 = getAIMulliganReplacements(game.players[1].hand, deck2.heroClass, deck1.heroClass);
+
+    // Track mulligan keeps for per-card stats
+    const mulliganKept: [string[], string[]] = [[], []];
+    game.players[0].hand.forEach((c, i) => { if (!mull1[i]) mulliganKept[0].push(c.cardCode); });
+    game.players[1].hand.forEach((c, i) => { if (!mull2[i]) mulliganKept[1].push(c.cardCode); });
+
+    confirmMulligan(game, 'ai-1', mull1);
+    confirmMulligan(game, 'ai-2', mull2);
+
+    // Track cards played per player this game
+    const cardsPlayed: [Set<string>, Set<string>] = [new Set(), new Set()];
 
     let turnCount = 0;
     while (!game.winner && turnCount < MAX_TURNS) {
@@ -159,12 +185,14 @@ for (let g = 0; g < gameCount && Date.now() < endTime; g++) {
 
           const result = playCard(game, me.playerId, card.instanceId, undefined, targetId);
           if (result.success) {
+            cardsPlayed[myIdx].add(card.cardCode);
             played = true;
             break;
           } else if (result.needsTarget && result.validTargets && result.validTargets.length > 0) {
             const retryTarget = pickTargetFromList(game, myIdx, def, result.validTargets);
             const retry = playCard(game, me.playerId, card.instanceId, undefined, retryTarget);
             if (retry.success) {
+              cardsPlayed[myIdx].add(card.cardCode);
               played = true;
               break;
             }
@@ -174,12 +202,15 @@ for (let g = 0; g < gameCount && Date.now() < endTime; g++) {
 
       if (game.winner) break;
 
-      // Smart attacks using threat scoring
+      // Smart attacks using threat scoring (with lethal check)
+      const goingLethal = hasLethal(me, opp);
       for (const minion of [...me.board]) {
         if (game.winner) break;
         if (!minion.canAttack || minion.attacksRemaining <= 0 || minion.isFrozen || minion.currentAttack <= 0) continue;
 
-        const target = pickSmartAttackTarget(minion, me, opp, oppIdx);
+        const target = goingLethal
+          ? pickLethalTarget(minion, opp, oppIdx)
+          : pickSmartAttackTarget(minion, me, opp, oppIdx);
         if (!target) continue;
         attack(game, me.playerId, minion.instanceId, target);
 
@@ -230,6 +261,22 @@ for (let g = 0; g < gameCount && Date.now() < endTime; g++) {
         totalDamageToHeroes += stats.damageDealtToHeroes ?? 0;
       }
       totalGamesWithStats++;
+
+      // Per-card stats: credit played cards with win/loss
+      for (let pi = 0; pi < 2; pi++) {
+        const isWinner = pi === winnerIdx;
+        for (const cardCode of cardsPlayed[pi as 0 | 1]) {
+          const t = getOrCreateCardTracker(cardCode);
+          t.played++;
+          if (isWinner) t.wins++;
+        }
+        // Mulligan keep stats
+        for (const cardCode of mulliganKept[pi as 0 | 1]) {
+          const t = getOrCreateCardTracker(cardCode);
+          t.keptInMulligan++;
+          if (isWinner) t.keptWins++;
+        }
+      }
 
       if (verbose) {
         console.log(`Game ${g + 1}: ${game.players[winnerIdx].playerName} (${winnerClass}) beats ${loserClass} on turn ${game.turnNumber} via ${game.winReason}`);
@@ -439,14 +486,27 @@ function saveWeights() {
     }
   }
 
+  // Build per-card stats
+  const cardStats: Record<string, { played: number; winRate: number; keepRate: number; keepWinRate: number }> = {};
+  for (const [cardCode, t] of cardTracker) {
+    if (t.played < 10) continue; // skip cards with too few samples
+    cardStats[cardCode] = {
+      played: t.played,
+      winRate: t.played > 0 ? t.wins / t.played : 0.5,
+      keepRate: t.keptInMulligan > 0 ? t.keptInMulligan / (t.keptInMulligan + (t.played - t.keptInMulligan)) : 0,
+      keepWinRate: t.keptInMulligan > 0 ? t.keptWins / t.keptInMulligan : 0.5,
+    };
+  }
+
   const weights = {
-    version: 1,
+    version: 2,
     generatedAt: new Date().toISOString(),
     totalGames: decided,
     classWinRates,
     matchupMatrix,
     classProfile,
     classAvgStats,
+    cardStats,
   };
 
   fs.writeFileSync(WEIGHTS_PATH, JSON.stringify(weights, null, 2));
@@ -478,6 +538,7 @@ if (learnMode && learnCycles > 1) {
     totalGamesWithStats = 0;
     totalSecretsPlayed = 0;
     resetSecretTriggerCount();
+    cardTracker.clear();
     for (const hc of HERO_CLASSES) {
       classWins.set(hc, 0);
       classLosses.set(hc, 0);
@@ -504,8 +565,15 @@ if (learnMode && learnCycles > 1) {
           { deckLists: [deck1.cards, deck2.cards] }
         );
 
-        confirmMulligan(game, 'ai-1', getAIMulliganReplacements(game.players[0].hand, deck1.heroClass, deck2.heroClass));
-        confirmMulligan(game, 'ai-2', getAIMulliganReplacements(game.players[1].hand, deck2.heroClass, deck1.heroClass));
+        const cMull1 = getAIMulliganReplacements(game.players[0].hand, deck1.heroClass, deck2.heroClass);
+        const cMull2 = getAIMulliganReplacements(game.players[1].hand, deck2.heroClass, deck1.heroClass);
+        const cMulliganKept: [string[], string[]] = [[], []];
+        game.players[0].hand.forEach((c, i) => { if (!cMull1[i]) cMulliganKept[0].push(c.cardCode); });
+        game.players[1].hand.forEach((c, i) => { if (!cMull2[i]) cMulliganKept[1].push(c.cardCode); });
+        confirmMulligan(game, 'ai-1', cMull1);
+        confirmMulligan(game, 'ai-2', cMull2);
+
+        const cCardsPlayed: [Set<string>, Set<string>] = [new Set(), new Set()];
 
         let turnCount = 0;
         while (!game.winner && turnCount < MAX_TURNS) {
@@ -541,24 +609,29 @@ if (learnMode && learnCycles > 1) {
                 targetId = pickSmartTarget(game, myIdx, def);
               }
               const result = playCard(game, me.playerId, card.instanceId, undefined, targetId);
-              if (result.success) { played = true; break; }
+              if (result.success) { cCardsPlayed[myIdx].add(card.cardCode); played = true; break; }
               else if (result.needsTarget && result.validTargets?.length) {
                 const retryTarget = pickTargetFromList(game, myIdx, def, result.validTargets);
                 const retry = playCard(game, me.playerId, card.instanceId, undefined, retryTarget);
-                if (retry.success) { played = true; break; }
+                if (retry.success) { cCardsPlayed[myIdx].add(card.cardCode); played = true; break; }
               }
             }
           }
           if (game.winner) break;
 
+          const cGoingLethal = hasLethal(me, opp);
           for (const minion of [...me.board]) {
             if (game.winner) break;
             if (!minion.canAttack || minion.attacksRemaining <= 0 || minion.isFrozen || minion.currentAttack <= 0) continue;
-            const target = pickSmartAttackTarget(minion, me, opp, oppIdx);
+            const target = cGoingLethal
+              ? pickLethalTarget(minion, opp, oppIdx)
+              : pickSmartAttackTarget(minion, me, opp, oppIdx);
             if (!target) continue;
             attack(game, me.playerId, minion.instanceId, target);
             if (minion.attacksRemaining > 0 && !game.winner) {
-              const target2 = pickSmartAttackTarget(minion, me, opp, oppIdx);
+              const target2 = cGoingLethal
+                ? pickLethalTarget(minion, opp, oppIdx)
+                : pickSmartAttackTarget(minion, me, opp, oppIdx);
               if (target2) attack(game, me.playerId, minion.instanceId, target2);
             }
           }
@@ -589,6 +662,21 @@ if (learnMode && learnCycles > 1) {
             totalDamageToHeroes += stats.damageDealtToHeroes ?? 0;
           }
           totalGamesWithStats++;
+
+          // Per-card stats
+          for (let pi = 0; pi < 2; pi++) {
+            const isWinner = pi === winnerIdx;
+            for (const cardCode of cCardsPlayed[pi as 0 | 1]) {
+              const t = getOrCreateCardTracker(cardCode);
+              t.played++;
+              if (isWinner) t.wins++;
+            }
+            for (const cardCode of cMulliganKept[pi as 0 | 1]) {
+              const t = getOrCreateCardTracker(cardCode);
+              t.keptInMulligan++;
+              if (isWinner) t.keptWins++;
+            }
+          }
         }
       } catch { errors++; }
     }

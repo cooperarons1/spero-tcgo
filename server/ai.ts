@@ -26,11 +26,19 @@ const AGGRO_CLASSES: HeroClass[] = ['JIMMY', 'LUCAS', 'DES'];
 
 // ── AI Weights (loaded from simulation data) ──
 
+interface CardStats {
+  played: number;
+  winRate: number;
+  keepRate: number;
+  keepWinRate: number;
+}
+
 interface AIWeights {
   version: number;
   classWinRates: Record<string, number>;
   matchupMatrix: Record<string, Record<string, number>>;
   classProfile: Record<string, string>; // 'aggro' | 'control' | 'midrange'
+  cardStats?: Record<string, CardStats>;
 }
 
 let aiWeights: AIWeights | null = null;
@@ -58,6 +66,20 @@ export function reloadAIWeights(): void {
   } catch {
     // Weights file missing or invalid — keep existing
   }
+}
+
+/** Get per-card win rate from simulation data */
+function getCardWinRate(cardCode: string): number | null {
+  const stats = aiWeights?.cardStats?.[cardCode];
+  if (!stats || stats.played < 50) return null;
+  return stats.winRate;
+}
+
+/** Get per-card mulligan keep win rate */
+function getCardKeepWinRate(cardCode: string): number | null {
+  const stats = aiWeights?.cardStats?.[cardCode];
+  if (!stats || stats.keptInMulligan < 20) return null;
+  return stats.keepWinRate;
 }
 
 /** Get opponent's class profile from weights */
@@ -128,9 +150,74 @@ export function getAIMulliganReplacements(hand: CardInstance[], heroClass: HeroC
     if (card.cardCode === 'COIN') return false;
     // vs aggro: always keep taunt minions even if expensive (up to 5 mana)
     if (oppProfile === 'aggro' && def.keywords.includes('TAUNT') && def.manaCost <= 5) return false;
+
+    // Per-card ML mulligan: if we have keep win rate data, use it
+    const keepWR = getCardKeepWinRate(card.cardCode);
+    if (keepWR !== null) {
+      // Keep cards with above-average keep win rate, replace poor performers
+      if (keepWR >= 0.55) return false; // keep
+      if (keepWR < 0.42) return true;  // replace
+    }
+
     // Replace cards above the threshold
     return def.manaCost > keepThreshold;
   });
+}
+
+// ── Lethal Detection ──
+
+/**
+ * Check if we have lethal: total available damage >= opponent health.
+ * Accounts for taunts — if any taunt exists, we can't go face freely.
+ * Returns true if all attacks should go face.
+ */
+export function hasLethal(me: PlayerState, opp: PlayerState): boolean {
+  const taunts = getTauntMinions(opp.board);
+  const oppEffectiveHealth = opp.health + opp.armor;
+
+  // Calculate total available damage
+  let totalDamage = 0;
+
+  // Minion attacks
+  for (const minion of me.board) {
+    if (!minion.canAttack || minion.attacksRemaining <= 0 || minion.isFrozen || minion.currentAttack <= 0) continue;
+    const attacks = minion.attacksRemaining; // handles Windfury
+    totalDamage += minion.currentAttack * attacks;
+  }
+
+  // Weapon attack
+  if (me.weapon && me.weapon.currentAttack > 0) {
+    totalDamage += me.weapon.currentAttack;
+  }
+
+  // Hero attack (e.g. Lucas hero power)
+  if (me.heroAttackThisTurn > 0) {
+    totalDamage += me.heroAttackThisTurn;
+  }
+
+  if (taunts.length > 0) {
+    // Must kill all taunts first — subtract their total health from our damage budget
+    let tauntHealth = 0;
+    for (const t of taunts) {
+      tauntHealth += t.hasDivineShield ? t.currentHealth + 1 : t.currentHealth; // rough estimate for shield
+    }
+    return (totalDamage - tauntHealth) >= oppEffectiveHealth;
+  }
+
+  return totalDamage >= oppEffectiveHealth;
+}
+
+/** When going for lethal, attack face unless a taunt blocks */
+export function pickLethalTarget(attacker: BoardMinion, opp: PlayerState, oppIdx: 0 | 1): string {
+  const taunts = getTauntMinions(opp.board);
+  if (taunts.length > 0) {
+    // Must kill taunt first — pick one we can kill
+    const killable = taunts.filter(t => !t.hasDivineShield && t.currentHealth <= attacker.currentAttack);
+    if (killable.length > 0) return killable[0].instanceId;
+    // Can't kill any taunt — hit lowest health to chip it down
+    return taunts.sort((a, b) => a.currentHealth - b.currentHealth)[0].instanceId;
+  }
+  return `hero-${oppIdx}`;
 }
 
 // ── Threat Evaluation ──
@@ -314,6 +401,26 @@ function playOneCard(
       return cardPlayPriority(db, me, opp) - cardPlayPriority(da, me, opp);
     });
 
+  // Mana curve optimization: if best card leaves ≥2 mana unspent and we have a
+  // card that fills the leftover exactly, prefer the filler card first
+  if (playableCards.length >= 2) {
+    const bestDef = getCardDef(playableCards[0].cardCode);
+    const leftover = me.mana - bestDef.manaCost;
+    if (leftover >= 2) {
+      const filler = playableCards.find((c, i) => {
+        if (i === 0) return false;
+        const d = getCardDef(c.cardCode);
+        return d.manaCost === leftover;
+      });
+      if (filler) {
+        // Move filler to front so we play it first, then the big card next cycle
+        const idx = playableCards.indexOf(filler);
+        playableCards.splice(idx, 1);
+        playableCards.unshift(filler);
+      }
+    }
+  }
+
   for (const card of playableCards) {
     if (game.winner) break;
     const def = getCardDef(card.cardCode);
@@ -401,11 +508,17 @@ function attackWithOneMinion(
   const me = game.players[myIdx];
   const opp = game.players[oppIdx];
 
+  // Lethal check: if we can kill opponent, go all-face (respecting taunts)
+  const goingLethal = hasLethal(me, opp);
+
   for (const minion of me.board) {
     if (game.winner) break;
     if (!minion.canAttack || minion.attacksRemaining <= 0 || minion.isFrozen || minion.currentAttack <= 0) continue;
 
-    const targetId = pickSmartAttackTarget(minion, me, opp, oppIdx);
+    // If lethal detected, attack face (taunts are handled by pickSmartAttackTarget since they're mandatory)
+    const targetId = goingLethal
+      ? pickLethalTarget(minion, opp, oppIdx)
+      : pickSmartAttackTarget(minion, me, opp, oppIdx);
     if (!targetId) continue;
 
     const result = attack(game, aiPlayerId, minion.instanceId, targetId);
@@ -447,6 +560,34 @@ function tryPreAttackHeroPower(
 ): boolean {
   const me = game.players[myIdx];
   const opp = game.players[oppIdx];
+
+  // Derek: draw a card BEFORE playing cards (more options)
+  if (me.heroClass === 'DEREK') {
+    useHeroPower(game, aiPlayerId, null);
+    broadcast();
+    return true;
+  }
+
+  // Tala: buff before attacks if it enables a kill
+  if (me.heroClass === 'TALA' && me.board.length > 0) {
+    const opp = game.players[oppIdx];
+    const targetable = opp.board.filter(m => !m.hasStealthUntilAttack);
+    // Check if buffing any friendly minion (+1/+1) enables a kill it couldn't make before
+    for (const friendly of me.board) {
+      if (!friendly.canAttack || friendly.attacksRemaining <= 0 || friendly.isFrozen) continue;
+      const buffedAtk = friendly.currentAttack + 1;
+      for (const enemy of targetable) {
+        if (enemy.hasDivineShield) continue;
+        if (friendly.currentAttack < enemy.currentHealth && buffedAtk >= enemy.currentHealth) {
+          // Buff enables a kill — use hero power on this minion now
+          useHeroPower(game, aiPlayerId, friendly.instanceId);
+          broadcast();
+          return true;
+        }
+      }
+    }
+    // No kill enabled — don't use pre-attack, save for post-attack
+  }
 
   // Only use hero power pre-attack for damage classes that enable better trades
   if (me.heroClass === 'JIMMY' || me.heroClass === 'DES') {
@@ -641,6 +782,13 @@ export function cardPlayPriority(def: CardDef, me: PlayerState, opp: PlayerState
 
   // Locations are moderate priority
   if (def.type === 'LOCATION') score += 5;
+
+  // Per-card ML bonus: cards with high win rates get a boost
+  const cardWR = getCardWinRate(def.cardCode);
+  if (cardWR !== null) {
+    // Scale: 50% WR = +0, 60% = +1, 70% = +2, etc. Max ±5
+    score += Math.max(-5, Math.min(5, (cardWR - 0.5) * 10));
+  }
 
   return score;
 }

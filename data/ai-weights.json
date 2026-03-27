@@ -1,116 +1,116 @@
 {
-  "version": 1,
-  "generatedAt": "2026-03-26T22:08:16.420Z",
-  "totalGames": 500000,
+  "version": 2,
+  "generatedAt": "2026-03-27T00:02:25.515Z",
+  "totalGames": 100,
   "classWinRates": {
-    "JIMMY": 0.5708308965765442,
-    "TALA": 0.5501824817518248,
-    "DEREK": 0.5039513240085687,
-    "ANDERS": 0.5868066128136699,
-    "DES": 0.4350336949079246,
-    "ASTRID": 0.5063055445615803,
-    "AVA": 0.4994751621614347,
-    "LUCAS": 0.4183062523669546,
-    "IZZY": 0.428460608684671
+    "JIMMY": 0.47058823529411764,
+    "TALA": 0.5806451612903226,
+    "DEREK": 0.5454545454545454,
+    "ANDERS": 0.5238095238095238,
+    "DES": 0.3,
+    "ASTRID": 0.5238095238095238,
+    "AVA": 0.5,
+    "LUCAS": 0.6153846153846154,
+    "IZZY": 0.3333333333333333
   },
   "matchupMatrix": {
     "JIMMY": {
       "JIMMY": 0.5,
-      "TALA": 0.45371947756956277,
-      "DEREK": 0.6198273053111762,
-      "ANDERS": 0.5778049775601796,
-      "DES": 0.7021259462071187,
-      "ASTRID": 0.538479942579153,
-      "AVA": 0.5477686483003061,
-      "LUCAS": 0.6633412380407229,
-      "IZZY": 0.5352260778128286
+      "TALA": 0,
+      "DEREK": 0.5,
+      "ANDERS": 1,
+      "DES": 0.5,
+      "ASTRID": 0,
+      "AVA": 1,
+      "LUCAS": 0.5,
+      "IZZY": 0.75
     },
     "TALA": {
-      "JIMMY": 0.5462805224304372,
+      "JIMMY": 1,
       "TALA": 0.5,
-      "DEREK": 0.410761154855643,
-      "ANDERS": 0.31211067065771375,
-      "DES": 0.4756756756756757,
-      "ASTRID": 0.5043485328781598,
-      "AVA": 0.8227228207639569,
-      "LUCAS": 0.6455562763542004,
-      "IZZY": 0.7353228167181656
+      "DEREK": 0.3333333333333333,
+      "ANDERS": 0,
+      "DES": 0.75,
+      "ASTRID": 0.25,
+      "AVA": 1,
+      "LUCAS": 0.5,
+      "IZZY": 0.75
     },
     "DEREK": {
-      "JIMMY": 0.3801726946888237,
-      "TALA": 0.589238845144357,
+      "JIMMY": 0.5,
+      "TALA": 0.6666666666666666,
       "DEREK": 0.5,
-      "ANDERS": 0.5050674327667385,
-      "DES": 0.619187898089172,
-      "ASTRID": 0.5439275421984355,
-      "AVA": 0.4566316296236861,
-      "LUCAS": 0.44192310831768833,
-      "IZZY": 0.49838709677419357
+      "ANDERS": 0.6666666666666666,
+      "DES": 1,
+      "ASTRID": 0,
+      "AVA": 0.3333333333333333,
+      "LUCAS": 0,
+      "IZZY": 0.6
     },
     "ANDERS": {
-      "JIMMY": 0.4221950224398205,
-      "TALA": 0.6878893293422862,
-      "DEREK": 0.4949325672332615,
+      "JIMMY": 0,
+      "TALA": 1,
+      "DEREK": 0.3333333333333333,
       "ANDERS": 0.5,
-      "DES": 0.47744330562505044,
-      "ASTRID": 0.6584241074978134,
-      "AVA": 0.6214457831325301,
-      "LUCAS": 0.6019527152424756,
-      "IZZY": 0.8152490297542044
+      "DES": 1,
+      "ASTRID": 0.6666666666666666,
+      "AVA": 0.6666666666666666,
+      "LUCAS": 0.4,
+      "IZZY": 0.5
     },
     "DES": {
-      "JIMMY": 0.2978740537928813,
-      "TALA": 0.5243243243243243,
-      "DEREK": 0.38081210191082804,
-      "ANDERS": 0.5225566943749496,
+      "JIMMY": 0.5,
+      "TALA": 0.25,
+      "DEREK": 0,
+      "ANDERS": 0,
       "DES": 0.5,
-      "ASTRID": 0.5916165692168327,
-      "AVA": 0.3111942118526949,
-      "LUCAS": 0.3829874162444844,
-      "IZZY": 0.40594140882159313
+      "ASTRID": 1,
+      "AVA": 0,
+      "LUCAS": 0.25,
+      "IZZY": 0.5
     },
     "ASTRID": {
-      "JIMMY": 0.46152005742084695,
-      "TALA": 0.4956514671218402,
-      "DEREK": 0.4560724578015644,
-      "ANDERS": 0.3415758925021865,
-      "DES": 0.40838343078316724,
+      "JIMMY": 1,
+      "TALA": 0.75,
+      "DEREK": 1,
+      "ANDERS": 0.3333333333333333,
+      "DES": 0,
       "ASTRID": 0.5,
-      "AVA": 0.5527795629820051,
-      "LUCAS": 0.5975915299442334,
-      "IZZY": 0.7448365587900472
+      "AVA": 0.4,
+      "LUCAS": 0,
+      "IZZY": 1
     },
     "AVA": {
-      "JIMMY": 0.4522313516996939,
-      "TALA": 0.1772771792360431,
-      "DEREK": 0.5433683703763139,
-      "ANDERS": 0.3785542168674699,
-      "DES": 0.6888057881473051,
-      "ASTRID": 0.44722043701799485,
+      "JIMMY": 0,
+      "TALA": 0,
+      "DEREK": 0.6666666666666666,
+      "ANDERS": 0.3333333333333333,
+      "DES": 1,
+      "ASTRID": 0.6,
       "AVA": 0.5,
-      "LUCAS": 0.7259181701030928,
-      "IZZY": 0.579959595959596
+      "LUCAS": 0.6666666666666666,
+      "IZZY": 0
     },
     "LUCAS": {
-      "JIMMY": 0.33665876195927713,
-      "TALA": 0.35444372364579957,
-      "DEREK": 0.5580768916823117,
-      "ANDERS": 0.39804728475752443,
-      "DES": 0.6170125837555156,
-      "ASTRID": 0.4024084700557666,
-      "AVA": 0.2740818298969072,
+      "JIMMY": 0.5,
+      "TALA": 0.5,
+      "DEREK": 1,
+      "ANDERS": 0.6,
+      "DES": 0.75,
+      "ASTRID": 1,
+      "AVA": 0.3333333333333333,
       "LUCAS": 0.5,
-      "IZZY": 0.32517196200458565
+      "IZZY": 0.5
     },
     "IZZY": {
-      "JIMMY": 0.4647739221871714,
-      "TALA": 0.2646771832818344,
-      "DEREK": 0.5016129032258064,
-      "ANDERS": 0.1847509702457956,
-      "DES": 0.5940585911784069,
-      "ASTRID": 0.2551634412099528,
-      "AVA": 0.42004040404040405,
-      "LUCAS": 0.6748280379954144,
+      "JIMMY": 0.25,
+      "TALA": 0.25,
+      "DEREK": 0.4,
+      "ANDERS": 0.5,
+      "DES": 0.5,
+      "ASTRID": 0,
+      "AVA": 1,
+      "LUCAS": 0.5,
       "IZZY": 0.5
     }
   },
@@ -127,49 +127,633 @@
   },
   "classAvgStats": {
     "JIMMY": {
-      "minionsPerGame": 15.86579,
-      "spellsPerGame": 1.972312,
-      "heroPowerPerGame": 3.980155
+      "minionsPerGame": 14.965,
+      "spellsPerGame": 1.585,
+      "heroPowerPerGame": 3.45
     },
     "TALA": {
-      "minionsPerGame": 15.86579,
-      "spellsPerGame": 1.972312,
-      "heroPowerPerGame": 3.980155
+      "minionsPerGame": 14.965,
+      "spellsPerGame": 1.585,
+      "heroPowerPerGame": 3.45
     },
     "DEREK": {
-      "minionsPerGame": 15.86579,
-      "spellsPerGame": 1.972312,
-      "heroPowerPerGame": 3.980155
+      "minionsPerGame": 14.965,
+      "spellsPerGame": 1.585,
+      "heroPowerPerGame": 3.45
     },
     "ANDERS": {
-      "minionsPerGame": 15.86579,
-      "spellsPerGame": 1.972312,
-      "heroPowerPerGame": 3.980155
+      "minionsPerGame": 14.965,
+      "spellsPerGame": 1.585,
+      "heroPowerPerGame": 3.45
     },
     "DES": {
-      "minionsPerGame": 15.86579,
-      "spellsPerGame": 1.972312,
-      "heroPowerPerGame": 3.980155
+      "minionsPerGame": 14.965,
+      "spellsPerGame": 1.585,
+      "heroPowerPerGame": 3.45
     },
     "ASTRID": {
-      "minionsPerGame": 15.86579,
-      "spellsPerGame": 1.972312,
-      "heroPowerPerGame": 3.980155
+      "minionsPerGame": 14.965,
+      "spellsPerGame": 1.585,
+      "heroPowerPerGame": 3.45
     },
     "AVA": {
-      "minionsPerGame": 15.86579,
-      "spellsPerGame": 1.972312,
-      "heroPowerPerGame": 3.980155
+      "minionsPerGame": 14.965,
+      "spellsPerGame": 1.585,
+      "heroPowerPerGame": 3.45
     },
     "LUCAS": {
-      "minionsPerGame": 15.86579,
-      "spellsPerGame": 1.972312,
-      "heroPowerPerGame": 3.980155
+      "minionsPerGame": 14.965,
+      "spellsPerGame": 1.585,
+      "heroPowerPerGame": 3.45
     },
     "IZZY": {
-      "minionsPerGame": 15.86579,
-      "spellsPerGame": 1.972312,
-      "heroPowerPerGame": 3.980155
+      "minionsPerGame": 14.965,
+      "spellsPerGame": 1.585,
+      "heroPowerPerGame": 3.45
+    }
+  },
+  "cardStats": {
+    "NEU003": {
+      "played": 84,
+      "winRate": 0.5238095238095238,
+      "keepRate": 0.2976190476190476,
+      "keepWinRate": 0.44
+    },
+    "NEU007": {
+      "played": 40,
+      "winRate": 0.525,
+      "keepRate": 0.35,
+      "keepWinRate": 0.35714285714285715
+    },
+    "AVA001": {
+      "played": 21,
+      "winRate": 0.47619047619047616,
+      "keepRate": 0.2857142857142857,
+      "keepWinRate": 0.8333333333333334
+    },
+    "AVA004": {
+      "played": 17,
+      "winRate": 0.5882352941176471,
+      "keepRate": 0.23529411764705882,
+      "keepWinRate": 0.75
+    },
+    "AVA003": {
+      "played": 20,
+      "winRate": 0.6,
+      "keepRate": 0.2,
+      "keepWinRate": 0.5
+    },
+    "NEU047": {
+      "played": 20,
+      "winRate": 0.5,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "AVA_ORRA_01": {
+      "played": 13,
+      "winRate": 0.38461538461538464,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "AVA005": {
+      "played": 19,
+      "winRate": 0.5789473684210527,
+      "keepRate": 0.15789473684210525,
+      "keepWinRate": 0.3333333333333333
+    },
+    "AVA_BOND_02": {
+      "played": 13,
+      "winRate": 0.46153846153846156,
+      "keepRate": 0.15384615384615385,
+      "keepWinRate": 0.5
+    },
+    "NEU012": {
+      "played": 72,
+      "winRate": 0.4583333333333333,
+      "keepRate": 0.20833333333333334,
+      "keepWinRate": 0.26666666666666666
+    },
+    "AVA011": {
+      "played": 20,
+      "winRate": 0.55,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "NEU022": {
+      "played": 61,
+      "winRate": 0.5409836065573771,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "NEU014": {
+      "played": 21,
+      "winRate": 0.5238095238095238,
+      "keepRate": 0.14285714285714285,
+      "keepWinRate": 0.6666666666666666
+    },
+    "AVA_BOND_01": {
+      "played": 14,
+      "winRate": 0.5,
+      "keepRate": 0.14285714285714285,
+      "keepWinRate": 0
+    },
+    "NEU004": {
+      "played": 53,
+      "winRate": 0.5471698113207547,
+      "keepRate": 0.22641509433962265,
+      "keepWinRate": 0.75
+    },
+    "IZZ_ORRA_01": {
+      "played": 13,
+      "winRate": 0.3076923076923077,
+      "keepRate": 0.23076923076923078,
+      "keepWinRate": 0.3333333333333333
+    },
+    "IZZ_NEW_01": {
+      "played": 12,
+      "winRate": 0.25,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "NEU045": {
+      "played": 41,
+      "winRate": 0.5121951219512195,
+      "keepRate": 0.4146341463414634,
+      "keepWinRate": 0.5882352941176471
+    },
+    "IZZ005": {
+      "played": 15,
+      "winRate": 0.3333333333333333,
+      "keepRate": 0.2,
+      "keepWinRate": 1
+    },
+    "NEU026": {
+      "played": 114,
+      "winRate": 0.47368421052631576,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "NEU021": {
+      "played": 65,
+      "winRate": 0.49230769230769234,
+      "keepRate": 0.06153846153846154,
+      "keepWinRate": 0
+    },
+    "IZZ001": {
+      "played": 13,
+      "winRate": 0.46153846153846156,
+      "keepRate": 0.15384615384615385,
+      "keepWinRate": 0
+    },
+    "IZZ003": {
+      "played": 14,
+      "winRate": 0.42857142857142855,
+      "keepRate": 0.2857142857142857,
+      "keepWinRate": 0
+    },
+    "NEU035": {
+      "played": 18,
+      "winRate": 0.5,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "NEU011": {
+      "played": 47,
+      "winRate": 0.5319148936170213,
+      "keepRate": 0.2553191489361702,
+      "keepWinRate": 0.3333333333333333
+    },
+    "NEU015": {
+      "played": 107,
+      "winRate": 0.5233644859813084,
+      "keepRate": 0.07476635514018691,
+      "keepWinRate": 0.625
+    },
+    "IZZ_BOND_01": {
+      "played": 11,
+      "winRate": 0.2727272727272727,
+      "keepRate": 0.18181818181818182,
+      "keepWinRate": 0
+    },
+    "NEU046": {
+      "played": 48,
+      "winRate": 0.4791666666666667,
+      "keepRate": 0.2708333333333333,
+      "keepWinRate": 0.3076923076923077
+    },
+    "NEU002": {
+      "played": 77,
+      "winRate": 0.5194805194805194,
+      "keepRate": 0.2727272727272727,
+      "keepWinRate": 0.5238095238095238
+    },
+    "IZZ007": {
+      "played": 17,
+      "winRate": 0.35294117647058826,
+      "keepRate": 0.23529411764705882,
+      "keepWinRate": 0.25
+    },
+    "JIM001": {
+      "played": 15,
+      "winRate": 0.4666666666666667,
+      "keepRate": 0.4,
+      "keepWinRate": 0.3333333333333333
+    },
+    "NEU005": {
+      "played": 61,
+      "winRate": 0.5573770491803278,
+      "keepRate": 0.26229508196721313,
+      "keepWinRate": 0.5625
+    },
+    "JIM005": {
+      "played": 14,
+      "winRate": 0.5,
+      "keepRate": 0.14285714285714285,
+      "keepWinRate": 0.5
+    },
+    "NEU009": {
+      "played": 26,
+      "winRate": 0.46153846153846156,
+      "keepRate": 0.15384615384615385,
+      "keepWinRate": 1
+    },
+    "JIM002": {
+      "played": 14,
+      "winRate": 0.5,
+      "keepRate": 0.2857142857142857,
+      "keepWinRate": 0.25
+    },
+    "JIM003": {
+      "played": 13,
+      "winRate": 0.46153846153846156,
+      "keepRate": 0.3076923076923077,
+      "keepWinRate": 0.25
+    },
+    "TAL003": {
+      "played": 27,
+      "winRate": 0.5925925925925926,
+      "keepRate": 0.18518518518518517,
+      "keepWinRate": 0.6
+    },
+    "NEU010": {
+      "played": 60,
+      "winRate": 0.55,
+      "keepRate": 0.43333333333333335,
+      "keepWinRate": 0.4230769230769231
+    },
+    "NEU027": {
+      "played": 28,
+      "winRate": 0.6071428571428571,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "TAL_BOND_02": {
+      "played": 19,
+      "winRate": 0.5789473684210527,
+      "keepRate": 0.3157894736842105,
+      "keepWinRate": 0.6666666666666666
+    },
+    "TAL_ORRA_01": {
+      "played": 19,
+      "winRate": 0.7368421052631579,
+      "keepRate": 0.21052631578947367,
+      "keepWinRate": 1
+    },
+    "NEU016": {
+      "played": 33,
+      "winRate": 0.5757575757575758,
+      "keepRate": 0.09090909090909091,
+      "keepWinRate": 1
+    },
+    "TAL008": {
+      "played": 24,
+      "winRate": 0.5833333333333334,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "TAL001": {
+      "played": 30,
+      "winRate": 0.5666666666666667,
+      "keepRate": 0.26666666666666666,
+      "keepWinRate": 0.5
+    },
+    "TAL007": {
+      "played": 21,
+      "winRate": 0.8095238095238095,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "TAL005": {
+      "played": 25,
+      "winRate": 0.6,
+      "keepRate": 0.08,
+      "keepWinRate": 1
+    },
+    "DRK_BOND_01": {
+      "played": 11,
+      "winRate": 0.5454545454545454,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "DRK001": {
+      "played": 18,
+      "winRate": 0.6111111111111112,
+      "keepRate": 0.3333333333333333,
+      "keepWinRate": 0.5
+    },
+    "DRK007": {
+      "played": 15,
+      "winRate": 0.5333333333333333,
+      "keepRate": 0.13333333333333333,
+      "keepWinRate": 0.5
+    },
+    "NEU024": {
+      "played": 38,
+      "winRate": 0.5526315789473685,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "DRK009": {
+      "played": 15,
+      "winRate": 0.4666666666666667,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "DRK005": {
+      "played": 16,
+      "winRate": 0.5625,
+      "keepRate": 0.4375,
+      "keepWinRate": 0.5714285714285714
+    },
+    "DRK_ORRA_01": {
+      "played": 13,
+      "winRate": 0.6923076923076923,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "TAL_BOND_01": {
+      "played": 23,
+      "winRate": 0.5652173913043478,
+      "keepRate": 0.17391304347826086,
+      "keepWinRate": 0.25
+    },
+    "AND005": {
+      "played": 12,
+      "winRate": 0.6666666666666666,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "AND010": {
+      "played": 14,
+      "winRate": 0.5,
+      "keepRate": 0.14285714285714285,
+      "keepWinRate": 0.5
+    },
+    "AND001": {
+      "played": 19,
+      "winRate": 0.5789473684210527,
+      "keepRate": 0.3684210526315789,
+      "keepWinRate": 0.42857142857142855
+    },
+    "AND_BOND_02": {
+      "played": 14,
+      "winRate": 0.42857142857142855,
+      "keepRate": 0.21428571428571427,
+      "keepWinRate": 0
+    },
+    "AND003": {
+      "played": 18,
+      "winRate": 0.5,
+      "keepRate": 0.2222222222222222,
+      "keepWinRate": 0.25
+    },
+    "AST001": {
+      "played": 19,
+      "winRate": 0.5263157894736842,
+      "keepRate": 0.3684210526315789,
+      "keepWinRate": 0.42857142857142855
+    },
+    "AST009": {
+      "played": 10,
+      "winRate": 0.3,
+      "keepRate": 0.1,
+      "keepWinRate": 0
+    },
+    "NEU019": {
+      "played": 19,
+      "winRate": 0.47368421052631576,
+      "keepRate": 0.10526315789473684,
+      "keepWinRate": 0.5
+    },
+    "AST_NEW_01": {
+      "played": 12,
+      "winRate": 0.4166666666666667,
+      "keepRate": 0.08333333333333333,
+      "keepWinRate": 1
+    },
+    "NEU006": {
+      "played": 17,
+      "winRate": 0.47058823529411764,
+      "keepRate": 0.17647058823529413,
+      "keepWinRate": 0.3333333333333333
+    },
+    "NEU013": {
+      "played": 18,
+      "winRate": 0.5,
+      "keepRate": 0.2777777777777778,
+      "keepWinRate": 0.2
+    },
+    "AST_BOND_01": {
+      "played": 12,
+      "winRate": 0.75,
+      "keepRate": 0.25,
+      "keepWinRate": 1
+    },
+    "AST007": {
+      "played": 16,
+      "winRate": 0.625,
+      "keepRate": 0.125,
+      "keepWinRate": 1
+    },
+    "AST003": {
+      "played": 16,
+      "winRate": 0.6875,
+      "keepRate": 0.1875,
+      "keepWinRate": 1
+    },
+    "AST_S02": {
+      "played": 14,
+      "winRate": 0.42857142857142855,
+      "keepRate": 0.14285714285714285,
+      "keepWinRate": 0
+    },
+    "AST005": {
+      "played": 16,
+      "winRate": 0.4375,
+      "keepRate": 0.25,
+      "keepWinRate": 0.25
+    },
+    "AST_BOND_02": {
+      "played": 15,
+      "winRate": 0.4666666666666667,
+      "keepRate": 0.06666666666666667,
+      "keepWinRate": 1
+    },
+    "DES001": {
+      "played": 11,
+      "winRate": 0.36363636363636365,
+      "keepRate": 0.6363636363636364,
+      "keepWinRate": 0.2857142857142857
+    },
+    "DES_NEW_01": {
+      "played": 16,
+      "winRate": 0.3125,
+      "keepRate": 0.3125,
+      "keepWinRate": 0.6
+    },
+    "DES011": {
+      "played": 13,
+      "winRate": 0.3076923076923077,
+      "keepRate": 0.07692307692307693,
+      "keepWinRate": 1
+    },
+    "NEU023": {
+      "played": 15,
+      "winRate": 0.3333333333333333,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "NEU029": {
+      "played": 26,
+      "winRate": 0.46153846153846156,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "NEU041": {
+      "played": 40,
+      "winRate": 0.45,
+      "keepRate": 0.3,
+      "keepWinRate": 0.25
+    },
+    "DES_S01": {
+      "played": 11,
+      "winRate": 0.36363636363636365,
+      "keepRate": 0.36363636363636365,
+      "keepWinRate": 0.25
+    },
+    "DES_COLLAR_01": {
+      "played": 11,
+      "winRate": 0.18181818181818182,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "DES003": {
+      "played": 14,
+      "winRate": 0.2857142857142857,
+      "keepRate": 0.21428571428571427,
+      "keepWinRate": 0
+    },
+    "IZZ_BOND_02": {
+      "played": 11,
+      "winRate": 0.2727272727272727,
+      "keepRate": 0.09090909090909091,
+      "keepWinRate": 0
+    },
+    "AND_BOND_01": {
+      "played": 12,
+      "winRate": 0.5,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "AND007": {
+      "played": 10,
+      "winRate": 0.6,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "AND009": {
+      "played": 10,
+      "winRate": 0.8,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "DRK003": {
+      "played": 12,
+      "winRate": 0.5,
+      "keepRate": 0.25,
+      "keepWinRate": 0
+    },
+    "DRK010": {
+      "played": 17,
+      "winRate": 0.47058823529411764,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "LUC001": {
+      "played": 19,
+      "winRate": 0.631578947368421,
+      "keepRate": 0.3157894736842105,
+      "keepWinRate": 0.5
+    },
+    "LUC006": {
+      "played": 17,
+      "winRate": 0.5882352941176471,
+      "keepRate": 0.47058823529411764,
+      "keepWinRate": 0.5
+    },
+    "NEU017": {
+      "played": 19,
+      "winRate": 0.7368421052631579,
+      "keepRate": 0.10526315789473684,
+      "keepWinRate": 0.5
+    },
+    "LUC_ORRA_01": {
+      "played": 13,
+      "winRate": 0.46153846153846156,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "LUC008": {
+      "played": 18,
+      "winRate": 0.7222222222222222,
+      "keepRate": 0.05555555555555555,
+      "keepWinRate": 1
+    },
+    "AND_S01": {
+      "played": 10,
+      "winRate": 0.7,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "LUC009": {
+      "played": 13,
+      "winRate": 0.6923076923076923,
+      "keepRate": 0.07692307692307693,
+      "keepWinRate": 1
+    },
+    "LUC003": {
+      "played": 20,
+      "winRate": 0.55,
+      "keepRate": 0.4,
+      "keepWinRate": 0.5
+    },
+    "LUC_BOND_01": {
+      "played": 12,
+      "winRate": 0.5833333333333334,
+      "keepRate": 0.08333333333333333,
+      "keepWinRate": 1
+    },
+    "AST_NEW_02": {
+      "played": 10,
+      "winRate": 0.4,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "LUC005": {
+      "played": 14,
+      "winRate": 0.6428571428571429,
+      "keepRate": 0.14285714285714285,
+      "keepWinRate": 1
     }
   }
 }
