@@ -340,9 +340,6 @@ function App() {
             opponentEmote={opponentEmote}
             onLeaveGame={() => { socket.emit('leave-game'); setGameState(null); setView('lobby'); setPostGameRewards(null); sessionStorage.removeItem('spero-room-code'); }}
             uid={user.uid}
-            rematchState={rematchState}
-            onRequestRematch={() => { setRematchState('proposed'); socket.emit('request-rematch'); }}
-            onDeclineRematch={() => socket.emit('decline-rematch')}
             postGameRewards={postGameRewards}
           />
           {showIntro && (

@@ -268,8 +268,8 @@ export function useHeroPower(
 
   switch (player.heroClass) {
     case 'JIMMY': {
-      // Orra Arrow: Deal 2 damage (upgraded: 3) to any target
-      const dmg = upgraded ? 3 : 2;
+      // Orra Arrow: Deal 2 damage to any target (upgraded: 2 dmg + 1 dmg to adjacent)
+      const dmg = 2;
       if (!targetId) {
         const targets = [
           ...game.players[0].board.filter(m => !m.hasStealthUntilAttack).map(m => m.instanceId),
@@ -283,12 +283,27 @@ export function useHeroPower(
       game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
       game.playerStats[pIdx as 0 | 1].heroPowerUses++;
       executeEffect(game, pIdx as 0 | 1, { type: 'DEAL_DAMAGE', target: 'TARGET_ANY', value: dmg }, targetId);
+      if (upgraded) {
+        // Upgraded: also deal 1 dmg to adjacent minions
+        for (const p of game.players) {
+          const idx = p.board.findIndex(m => m.instanceId === targetId);
+          if (idx >= 0) {
+            if (idx > 0) {
+              executeEffect(game, pIdx as 0 | 1, { type: 'DEAL_DAMAGE', target: 'TARGET_ANY', value: 1 }, p.board[idx - 1].instanceId);
+            }
+            if (idx < p.board.length - 1) {
+              executeEffect(game, pIdx as 0 | 1, { type: 'DEAL_DAMAGE', target: 'TARGET_ANY', value: 1 }, p.board[idx + 1].instanceId);
+            }
+            break;
+          }
+        }
+      }
       addLog(game, pIdx as 0 | 1, `${player.playerName} uses ${upgraded ? 'Orra Barrage' : 'Orra Arrow'}`, 'PLAY');
       break;
     }
     case 'TALA': {
-      // Nature's Touch: +1/+1 (upgraded: +2/+2)
-      const buff = upgraded ? 2 : 1;
+      // Nature's Touch: +1/+1 (upgraded: +1/+2)
+      const buff = upgraded ? 1 : 1;
       const friendlyMinionsTala = game.players[pIdx].board;
       if (!targetId) {
         if (friendlyMinionsTala.length === 0) return { success: false, error: 'No friendly minions to target' };
@@ -300,7 +315,8 @@ export function useHeroPower(
       player.heroPowerUsed = true;
       game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
       game.playerStats[pIdx as 0 | 1].heroPowerUses++;
-      executeEffect(game, pIdx as 0 | 1, { type: 'BUFF_MINION', target: 'TARGET_FRIENDLY_MINION', attackBuff: buff, healthBuff: buff }, targetId);
+      const healthBuff = upgraded ? 2 : 1;
+      executeEffect(game, pIdx as 0 | 1, { type: 'BUFF_MINION', target: 'TARGET_FRIENDLY_MINION', attackBuff: buff, healthBuff }, targetId);
       addLog(game, pIdx as 0 | 1, `${player.playerName} uses ${upgraded ? "Nature's Embrace" : "Nature's Touch"}`, 'PLAY');
       break;
     }
@@ -320,8 +336,7 @@ export function useHeroPower(
       break;
     }
     case 'ANDERS': {
-      // Hockbandy Strike: 1 dmg + freeze (upgraded: 2 dmg + freeze + adjacents)
-      const dmg = upgraded ? 2 : 1;
+      // Hockbandy Strike: 1 dmg + freeze (upgraded: 1 dmg + freeze target + 1 adjacent)
       const allMinions = [
         ...game.players[0].board.filter(m => !m.hasStealthUntilAttack).map(m => m.instanceId),
         ...game.players[1].board.filter(m => !m.hasStealthUntilAttack).map(m => m.instanceId),
@@ -335,15 +350,15 @@ export function useHeroPower(
       player.heroPowerUsed = true;
       game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
       game.playerStats[pIdx as 0 | 1].heroPowerUses++;
-      executeEffect(game, pIdx as 0 | 1, { type: 'DEAL_DAMAGE', target: 'TARGET_MINION', value: dmg }, targetId);
+      executeEffect(game, pIdx as 0 | 1, { type: 'DEAL_DAMAGE', target: 'TARGET_MINION', value: 1 }, targetId);
       executeEffect(game, pIdx as 0 | 1, { type: 'FREEZE_TARGET', target: 'TARGET_MINION' }, targetId);
       if (upgraded) {
-        // Freeze adjacent minions
+        // Freeze 1 adjacent minion (the one to the right, or left if rightmost)
         for (const p of game.players) {
           const idx = p.board.findIndex(m => m.instanceId === targetId);
           if (idx >= 0) {
-            if (idx > 0) p.board[idx - 1].isFrozen = true;
             if (idx < p.board.length - 1) p.board[idx + 1].isFrozen = true;
+            else if (idx > 0) p.board[idx - 1].isFrozen = true;
             break;
           }
         }
@@ -352,8 +367,8 @@ export function useHeroPower(
       break;
     }
     case 'DES': {
-      // Orra Siphon: 2 dmg to enemy hero (upgraded: 3 dmg + random enemy gets -1 atk)
-      const dmg = upgraded ? 3 : 2;
+      // Orra Siphon: 2 dmg to enemy hero (upgraded: 2 dmg + random enemy gets -1 atk)
+      const dmg = 2;
       player.mana -= HERO_POWER_COST;
       player.heroPowerUsed = true;
       game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
@@ -390,13 +405,20 @@ export function useHeroPower(
       break;
     }
     case 'AVA': {
-      // Deploy Drone: 1/1 (upgraded: 2/2 Taunt)
+      // Deploy Drone: 1/1 (upgraded: 1/1 with Taunt)
       if (player.board.length >= MAX_BOARD_SIZE) return { success: false, error: 'Board is full' };
       player.mana -= HERO_POWER_COST;
       player.heroPowerUsed = true;
       game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
       game.playerStats[pIdx as 0 | 1].heroPowerUses++;
-      executeEffect(game, pIdx as 0 | 1, { type: 'SUMMON_MINION', target: 'NONE', summonCardCode: upgraded ? 'AVA_TOKEN_02' : 'AVA_TOKEN_01' });
+      executeEffect(game, pIdx as 0 | 1, { type: 'SUMMON_MINION', target: 'NONE', summonCardCode: 'AVA_TOKEN_01' });
+      if (upgraded) {
+        // Give the newly summoned token Taunt via enchantment
+        const lastMinion = player.board[player.board.length - 1];
+        if (lastMinion) {
+          lastMinion.enchantments.push({ source: 'ava-upgraded-hp', attackMod: 0, healthMod: 0, addedKeywords: ['TAUNT'] });
+        }
+      }
       addLog(game, pIdx as 0 | 1, `${player.playerName} uses ${upgraded ? 'Deploy Guardian' : 'Deploy Drone'}`, 'PLAY');
       break;
     }
@@ -418,12 +440,12 @@ export function useHeroPower(
       break;
     }
     case 'IZZY': {
-      // Chart Course: 2 armor (upgraded: 3 armor + draw 1)
+      // Chart Course: 2 armor (upgraded: 2 armor + draw 1)
       player.mana -= HERO_POWER_COST;
       player.heroPowerUsed = true;
       game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
       game.playerStats[pIdx as 0 | 1].heroPowerUses++;
-      executeEffect(game, pIdx as 0 | 1, { type: 'GAIN_ARMOR', target: 'NONE', value: upgraded ? 3 : 2 });
+      executeEffect(game, pIdx as 0 | 1, { type: 'GAIN_ARMOR', target: 'NONE', value: 2 });
       if (upgraded) {
         drawCard(game, pIdx as 0 | 1, true);
       }

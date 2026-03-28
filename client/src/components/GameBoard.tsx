@@ -159,15 +159,15 @@ const HERO_POWER_DESC: Record<HeroClass, string> = {
 };
 
 const HERO_POWER_DESC_UPGRADED: Record<HeroClass, string> = {
-  JIMMY: 'Orra Barrage: Deal 3 damage to any target',
-  TALA: "Nature's Embrace: Give a friendly minion +2/+2",
+  JIMMY: 'Orra Barrage: Deal 2 damage + 1 to adjacent minions',
+  TALA: "Nature's Embrace: Give a friendly minion +1/+2",
   DEREK: 'Master Tinker: Draw a card (1 mana refunded)',
-  ANDERS: 'Avalanche Strike: Deal 2 damage + Freeze target and adjacents',
-  DES: 'Dark Siphon: Deal 3 damage + random enemy gets -1 Attack',
+  ANDERS: 'Avalanche Strike: Deal 1 damage + Freeze target and 1 adjacent',
+  DES: 'Dark Siphon: Deal 2 damage + random enemy gets -1 Attack',
   ASTRID: 'Radiant Guard: Divine Shield + 0/+2',
-  AVA: 'Deploy Guardian: Summon a 2/2 Taunt Drone',
+  AVA: 'Deploy Guardian: Summon a 1/1 Drone with Taunt',
   LUCAS: "Shadow Veil: +2 Attack this turn and gain 2 Armor",
-  IZZY: 'Master Navigator: Gain 3 Armor and draw 1',
+  IZZY: 'Master Navigator: Gain 2 Armor and draw 1',
   NEUTRAL: 'Hero Power',
 };
 
@@ -177,10 +177,10 @@ const HERO_UPGRADE_CONDITIONS: Record<HeroClass, { description: string; target: 
   TALA: { description: 'Total HP healed', target: 10 },
   DEREK: { description: 'Cards drawn from effects', target: 5 },
   ANDERS: { description: 'Minions frozen', target: 4 },
-  DES: { description: 'Enemy minions destroyed', target: 2 },
+  DES: { description: 'Enemy minions destroyed', target: 4 },
   ASTRID: { description: 'Divine Shield minions at once', target: 3 },
-  AVA: { description: 'Minions summoned', target: 5 },
-  LUCAS: { description: 'Enemy minions returned', target: 2 },
+  AVA: { description: 'Minions summoned', target: 8 },
+  LUCAS: { description: 'Enemy minions returned', target: 3 },
   IZZY: { description: 'Armor gained', target: 10 },
   NEUTRAL: { description: '', target: 0 },
 };
@@ -371,9 +371,6 @@ interface GameBoardProps {
   opponentEmote: string | null;
   onLeaveGame: () => void;
   uid: string;
-  rematchState: 'default' | 'proposed' | 'received' | 'declined';
-  onRequestRematch: () => void;
-  onDeclineRematch: () => void;
   postGameRewards: PostGameRewards | null;
 }
 
@@ -518,7 +515,7 @@ function BoardMinionCard({
         ${hasDivine && !isSilenced ? 'ring-[3px] ring-yellow-300 ring-offset-1 ring-offset-transparent animate-divine-sparkle' : ''}
         ${isFrozen ? 'brightness-75 saturate-50' : ''}
         ${isStealth ? 'opacity-40' : ''}
-        ${canAct && isMyMinion ? 'shadow-[0_0_20px_6px_rgba(34,197,94,0.7)] cursor-pointer hover:scale-110 ring-[3px] ring-green-400/80' : ''}
+        ${canAct && isMyMinion ? 'border-[3px] border-green-400 shadow-[0_0_12px_4px_rgba(34,197,94,0.5)] cursor-pointer hover:scale-110 animate-ready-pulse' : ''}
         ${isMyMinion && !canAct && !isFrozen ? 'opacity-80' : ''}
         ${isValidTarget ? 'shadow-[0_0_12px_2px_rgba(34,197,94,0.7)] cursor-crosshair' : ''}
         ${isSelected ? 'ring-[3px] ring-green-400 shadow-[0_0_24px_8px_rgba(34,197,94,0.6)] -translate-y-2 scale-110 z-30 animate-attacker-pulse' : ''}
@@ -699,6 +696,7 @@ function HeroPortrait({
   upgradeProgress,
   onHeroPointerDown,
   onHeroPowerPointerDown,
+  weaponEquipFlash,
 }: {
   heroClass: HeroClass;
   health: number;
@@ -724,6 +722,7 @@ function HeroPortrait({
   upgradeProgress?: number;
   onHeroPointerDown?: (e: React.PointerEvent) => void;
   onHeroPowerPointerDown?: (e: React.PointerEvent) => void;
+  weaponEquipFlash?: boolean;
 }) {
   const borderClass = CLASS_BORDER[heroClass];
   const bgClass = CLASS_BG[heroClass];
@@ -758,7 +757,8 @@ function HeroPortrait({
       {/* Weapon (left side) */}
       {weapon && (
         <div className={`flex h-12 w-12 md:h-16 md:w-16 flex-col items-center justify-center rounded-lg border-2 bg-stone-800
-          ${canHeroAttack ? 'border-green-400 shadow-[0_0_12px_3px_rgba(34,197,94,0.6)]' : 'border-stone-600'}`}>
+          ${canHeroAttack ? 'border-green-400 shadow-[0_0_12px_3px_rgba(34,197,94,0.6)]' : 'border-stone-600'}
+          ${weaponEquipFlash ? 'animate-weapon-equip' : ''}`}>
           <span className="text-[10px] md:text-xs text-stone-400">Weapon</span>
           <div className="flex gap-2 text-xs md:text-sm">
             <span className="font-bold text-amber-400">{weapon.currentAttack}</span>
@@ -829,7 +829,7 @@ function HeroPortrait({
           )}
         </button>
         {/* Styled tooltip on hover */}
-        <div className={`absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover/hp:block text-[11px] px-3 py-1.5 rounded-lg whitespace-nowrap z-50 shadow-lg pointer-events-none max-w-[250px]
+        <div className={`absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover/hp:block text-[11px] px-3 py-1.5 rounded-lg whitespace-normal text-center z-50 shadow-lg pointer-events-none max-w-[250px]
           ${heroPowerUpgraded
             ? 'bg-gradient-to-b from-amber-900 to-stone-900 text-amber-100 border border-amber-400/60 shadow-[0_0_8px_rgba(245,158,11,0.3)]'
             : 'bg-stone-900 text-amber-200 border border-amber-600/40'}`}>
@@ -839,7 +839,7 @@ function HeroPortrait({
             : (<>
                 {HERO_POWER_DESC[heroClass]}
                 {HERO_UPGRADE_CONDITIONS[heroClass].target > 0 && (
-                  <span className="block text-[9px] text-amber-400/60 mt-0.5">
+                  <span className="block text-[10px] text-amber-400/60 mt-0.5">
                     Upgrade: {HERO_UPGRADE_CONDITIONS[heroClass].description} ({upgradeProgress ?? 0}/{HERO_UPGRADE_CONDITIONS[heroClass].target})
                   </span>
                 )}
@@ -884,7 +884,7 @@ function HandCard({
         ${isSelected
           ? 'border-green-400 -translate-y-6 scale-110 z-20 shadow-[0_0_20px_4px_rgba(34,197,94,0.5)]'
           : canPlay
-            ? 'hover:-translate-y-4 hover:scale-105 hover:z-10 cursor-pointer hover:shadow-[0_0_16px_rgba(245,158,11,0.3)]'
+            ? 'hover:-translate-y-4 hover:scale-105 hover:z-10 cursor-pointer hover:shadow-[0_0_16px_rgba(245,158,11,0.3)] ring-2 ring-green-400/60 shadow-[0_0_8px_rgba(34,197,94,0.4)]'
             : 'border-stone-500 opacity-60 cursor-not-allowed'}
         ${isDragging ? 'dragging-card' : ''}
         ${isNew ? 'animate-card-draw-in' : ''}
@@ -1091,9 +1091,6 @@ export default function GameBoard({
   opponentEmote,
   onLeaveGame,
   uid,
-  rematchState,
-  onRequestRematch,
-  onDeclineRematch,
   postGameRewards,
 }: GameBoardProps) {
   const actions = useGameActions();
@@ -1131,6 +1128,10 @@ export default function GameBoard({
   const [buffedIds, setBuffedIds] = useState<Set<string>>(new Set());
   const [activeSpell, setActiveSpell] = useState<{ cardCode: string; targetId: string } | null>(null);
   const [heroPowerFlash, setHeroPowerFlash] = useState(false);
+  const [opHeroPowerFlash, setOpHeroPowerFlash] = useState(false);
+  const prevOpHeroPowerUsed = useRef(gs.opponent.heroPowerUsed);
+  const [weaponEquipFlash, setWeaponEquipFlash] = useState(false);
+  const prevWeaponRef = useRef(gs.myWeapon);
 
   // ─── Pointer drag state (replaces HTML5 drag-and-drop) ───
   const [ptrDrag, setPtrDrag] = useState<PointerDragState | null>(null);
@@ -1216,6 +1217,24 @@ export default function GameBoard({
 
   // ─── Sound effects ───
   useSoundEffects(diff, gs);
+
+  // ─── Opponent hero power flash detection ───
+  useEffect(() => {
+    if (gs.opponent.heroPowerUsed && !prevOpHeroPowerUsed.current) {
+      setOpHeroPowerFlash(true);
+      setTimeout(() => setOpHeroPowerFlash(false), 400);
+    }
+    prevOpHeroPowerUsed.current = gs.opponent.heroPowerUsed;
+  }, [gs.opponent.heroPowerUsed]);
+
+  // ─── Weapon equip flash ───
+  useEffect(() => {
+    if (gs.myWeapon && !prevWeaponRef.current) {
+      setWeaponEquipFlash(true);
+      setTimeout(() => setWeaponEquipFlash(false), 400);
+    }
+    prevWeaponRef.current = gs.myWeapon;
+  }, [gs.myWeapon]);
 
   // Track mouse for attack arrows — no longer needs dragover, handled by pointer move
   // mousePos is updated via the pointer drag global handler
@@ -1828,9 +1847,10 @@ export default function GameBoard({
     return undefined;
   }, [entranceIds, damageIds, lungeId, defenderLungeId]);
 
-  // ─── Dynamic board scaling ───
-  const myBoardScale = myBoard.length <= 5 ? 1 : Math.max(0.65, 5.5 / myBoard.length);
-  const opBoardScale = opBoard.length <= 5 ? 1 : Math.max(0.65, 5.5 / opBoard.length);
+  // ─── Dynamic board gap (overlap when full, no shrinking) ───
+  const getBoardGap = (count: number) => count <= 4 ? '0.75rem' : count <= 6 ? '0.25rem' : '-0.5rem';
+  const myBoardGap = getBoardGap(myBoard.length);
+  const opBoardGap = getBoardGap(opBoard.length);
 
   // ─── Spell effect callback (must be before any early return) ───
   const clearSpell = useCallback(() => setActiveSpell(null), []);
@@ -1859,10 +1879,7 @@ export default function GameBoard({
       winnerName={gs.winner === gs.myPlayerId ? gs.myPlayerName : gs.opponent.playerName}
       isMe={gs.winner === gs.myPlayerId}
       onPlayAgain={onLeaveGame}
-      onRequestRematch={onRequestRematch}
-      onDeclineRematch={onDeclineRematch}
       gameState={gs}
-      rematchState={rematchState}
       onLeaveGame={onLeaveGame}
       rewards={postGameRewards}
     />
@@ -1909,7 +1926,7 @@ export default function GameBoard({
   return (
     <div
       ref={boardRef}
-      className="relative flex h-screen w-screen flex-col overflow-hidden select-none"
+      className="relative flex h-dvh w-screen flex-col overflow-hidden select-none"
       style={{ background: 'linear-gradient(to bottom, #1a0f05, #2d1e0e 6%, #4a3520 15%, #5c4528 30%, #6b5232 45%, #725838 50%, #6b5232 55%, #5c4528 70%, #4a3520 85%, #2d1e0e 94%, #1a0f05)' }}
     >
       {GameOverOverlay}
@@ -1971,7 +1988,7 @@ export default function GameBoard({
       {/* ═══════════════════════════════════════════ */}
       {/* OPPONENT AREA (top half) */}
       {/* ═══════════════════════════════════════════ */}
-      <div className="flex flex-1 flex-col items-center px-2 md:px-4 pt-1 md:pt-2 pb-0">
+      <div className="flex flex-1 min-h-0 flex-col items-center px-2 md:px-4 pt-1 md:pt-2 pb-0">
         {/* Opponent hand */}
         <OpponentHand count={gs.opponent.handCount} />
 
@@ -1996,6 +2013,7 @@ export default function GameBoard({
             heroDamage={opHeroDamage}
             secretCount={gs.opponent.secretCount}
             entityId={`hero-${1 - gs.myPlayerIndex}`}
+            heroPowerFlash={opHeroPowerFlash}
             heroPowerUpgraded={gs.opponent.heroPowerUpgraded}
             upgradeProgress={gs.opponent.upgradeProgress}
           />
@@ -2025,22 +2043,23 @@ export default function GameBoard({
           </div>
         )}
 
-        {/* Opponent board — dynamic scaling */}
+        {/* Opponent board */}
         <div className="flex min-h-[7rem] mb-4 items-center justify-center board-field">
           <div
-            className="flex items-center justify-center gap-4 max-w-[64rem]"
-            style={opBoardScale < 1 ? { transform: `scale(${opBoardScale})`, transformOrigin: 'center center' } : undefined}
+            className="flex items-center justify-center max-w-[64rem]"
+            style={{ gap: opBoardGap }}
           >
             {opBoard.map((m, idx) => {
               const count = opBoard.length;
               const mid = (count - 1) / 2;
               const arcAngle = count > 1 ? (idx - mid) * 3 : 0;
               const arcY = Math.abs(idx - mid) * 3;
+              const zIdx = count - Math.abs(idx - Math.floor(mid));
               return (
               <div
                 key={m.instanceId}
                 data-entity-id={m.instanceId}
-                style={{ flex: '0 1 9rem', transform: `scale(${cardScale}) rotate(${arcAngle}deg) translateY(${arcY}px)`, transformOrigin: 'center center' }}
+                style={{ flex: '0 1 9rem', transform: `scale(${cardScale}) rotate(${arcAngle}deg) translateY(${arcY}px)`, transformOrigin: 'center center', zIndex: zIdx }}
                 onMouseEnter={(e) => setHoveredCard({ cardCode: m.cardCode, x: e.clientX, y: e.clientY })}
                 onMouseLeave={() => setHoveredCard(null)}
               >
@@ -2148,7 +2167,7 @@ export default function GameBoard({
       {/* MY AREA (entire bottom half is drop zone) */}
       {/* ═══════════════════════════════════════════ */}
       <div
-        className={`flex flex-1 flex-col items-center px-2 md:px-4 pt-0 pb-2 transition-all ${dropZoneActive ? 'bg-green-500/5' : ''}`}
+        className={`flex flex-1 min-h-0 flex-col items-center px-2 md:px-4 pt-0 pb-2 transition-all ${dropZoneActive ? 'bg-green-500/5' : ''}`}
       >
         {/* My locations */}
         {gs.myLocations && gs.myLocations.length > 0 && (
@@ -2180,39 +2199,56 @@ export default function GameBoard({
           className="flex min-h-[7rem] mt-4 items-center justify-center rounded-lg board-field border-2 border-transparent"
         >
           <div
-            className="flex items-center justify-center gap-4 max-w-[64rem]"
-            style={myBoardScale < 1 ? { transform: `scale(${myBoardScale})`, transformOrigin: 'bottom center' } : undefined}
+            className="flex items-center justify-center max-w-[64rem]"
+            style={{ gap: myBoardGap }}
           >
-            {myBoard.map((m, i) => {
+            {(() => {
+              const isDraggingMinion = ptrDrag?.info.kind === 'hand-card' && ptrDrag.activated && draggingCardType === 'MINION' && dropZoneActive;
+              const insertAt = isDraggingMinion && dropIndex != null ? dropIndex : -1;
+              const items: React.ReactNode[] = [];
               const count = myBoard.length;
-              const mid = (count - 1) / 2;
-              const arcAngle = count > 1 ? (i - mid) * 3 : 0;
-              const arcY = Math.abs(i - mid) * 3;
-              return (
-              <Fragment key={m.instanceId}>
-                <div
-                  data-minion-index={i}
-                  data-entity-id={m.instanceId}
-                  style={{ flex: '0 1 9rem', transform: `scale(${cardScale}) rotate(${arcAngle}deg) translateY(${arcY}px)`, transformOrigin: 'bottom center' }}
-                  onMouseEnter={(e) => setHoveredCard({ cardCode: m.cardCode, x: e.clientX, y: e.clientY })}
-                  onMouseLeave={() => setHoveredCard(null)}
-                >
-                  <BoardMinionCard
-                    minion={m}
-                    isMyMinion={true}
-                    canAct={isMyTurn && m.canAttack && m.attacksRemaining > 0 && m.currentAttack > 0}
-                    hasSummoningSickness={isMyTurn && !m.canAttack && m.currentAttack > 0 && !m.isFrozen}
-                    isValidTarget={validTargetIds.has(m.instanceId)}
-                    isSelected={targeting.type === 'attack' && targeting.attackerInstanceId === m.instanceId}
-                    onClick={(e?: any) => handleMyMinionClick(m, e)}
-                    animationClass={getMinionAnim(m.instanceId, true)}
-                    isBuffed={buffedIds.has(m.instanceId)}
-                    onPointerDown={(e) => handleMinionPointerDown(e, m)}
-                  />
-                </div>
-              </Fragment>
-              );
-            })}
+              for (let i = 0; i <= count; i++) {
+                if (i === insertAt) {
+                  items.push(
+                    <div key="drop-spacer" className="w-[4rem] h-[10.5rem] transition-all duration-200" />
+                  );
+                }
+                if (i < count) {
+                  const m = myBoard[i];
+                  const mid = (count - 1) / 2;
+                  const arcAngle = count > 1 ? (i - mid) * 3 : 0;
+                  const arcY = Math.abs(i - mid) * 3;
+                  items.push(
+                    <div
+                      key={m.instanceId}
+                      data-minion-index={i}
+                      data-entity-id={m.instanceId}
+                      style={{ flex: '0 1 9rem', transform: `scale(${cardScale}) rotate(${arcAngle}deg) translateY(${arcY}px)`, transformOrigin: 'bottom center', transition: 'all 0.2s ease' }}
+                      onMouseEnter={(e) => setHoveredCard({ cardCode: m.cardCode, x: e.clientX, y: e.clientY })}
+                      onMouseLeave={() => setHoveredCard(null)}
+                    >
+                      <BoardMinionCard
+                        minion={m}
+                        isMyMinion={true}
+                        canAct={isMyTurn && m.canAttack && m.attacksRemaining > 0 && m.currentAttack > 0}
+                        hasSummoningSickness={isMyTurn && !m.canAttack && m.currentAttack > 0 && !m.isFrozen}
+                        isValidTarget={validTargetIds.has(m.instanceId)}
+                        isSelected={targeting.type === 'attack' && targeting.attackerInstanceId === m.instanceId}
+                        onClick={(e?: any) => handleMyMinionClick(m, e)}
+                        animationClass={getMinionAnim(m.instanceId, true)}
+                        isBuffed={buffedIds.has(m.instanceId)}
+                        onPointerDown={(e) => handleMinionPointerDown(e, m)}
+                      />
+                    </div>
+                  );
+                }
+              }
+              // If insertAt is at the end (== count), it's already added
+              if (insertAt === count) {
+                // Already inserted above in the loop
+              }
+              return items;
+            })()}
           </div>
         </div>
 
@@ -2252,6 +2288,7 @@ export default function GameBoard({
             upgradeProgress={gs.myUpgradeProgress}
             onHeroPointerDown={handleHeroPointerDown}
             onHeroPowerPointerDown={handleHeroPowerPointerDown}
+            weaponEquipFlash={weaponEquipFlash}
           />
 
           {/* Emote button */}
@@ -2268,8 +2305,9 @@ export default function GameBoard({
 
             {/* Emote popup */}
             {emoteOpen && (
+              <>
+              <div className="fixed inset-0 z-40" onClick={() => setEmoteOpen(false)} />
               <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-50 bg-stone-900 border border-stone-600 rounded-xl p-2 shadow-2xl grid grid-cols-3 gap-1 animate-fade-in"
-                onMouseLeave={() => setEmoteOpen(false)}
               >
                 {[
                   { id: 'Well Played', label: 'Well Played' },
@@ -2293,6 +2331,7 @@ export default function GameBoard({
                   </button>
                 ))}
               </div>
+              </>
             )}
           </div>
         </div>
@@ -2471,17 +2510,8 @@ export default function GameBoard({
             </div>
           );
         } else {
-          // Attack drag — show sword icon
-          return (
-            <div
-              className="pointer-events-none fixed z-[70]"
-              style={{ left: ptrDrag.curX - 30, top: ptrDrag.curY - 30 }}
-            >
-              <div className="w-[60px] h-[60px] rounded-full bg-gradient-to-br from-green-500 to-green-800 border-[3px] border-green-400 flex items-center justify-center text-[28px] shadow-[0_0_20px_rgba(34,197,94,0.6)]">
-                {'⚔'}
-              </div>
-            </div>
-          );
+          // Attack drag — no ghost, the attack arrow line provides visual feedback
+          return null;
         }
       })()}
     </div>

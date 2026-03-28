@@ -4,16 +4,11 @@ import { getRankTier } from '../../../shared/types';
 import { ConfettiCanvas } from './ConfettiCanvas';
 import { soundManager } from '../utils/soundManager';
 
-type RematchState = 'default' | 'proposed' | 'received' | 'declined';
-
 interface GameOverProps {
   winnerName: string;
   isMe: boolean;
   onPlayAgain: () => void;
-  onRequestRematch: () => void;
-  onDeclineRematch: () => void;
   gameState: ClientGameState;
-  rematchState: RematchState;
   onLeaveGame?: () => void;
   rewards: PostGameRewards | null;
 }
@@ -164,7 +159,7 @@ function RewardsPanel({ rewards, isMe }: { rewards: PostGameRewards; isMe: boole
   );
 }
 
-export function GameOver({ winnerName, isMe, onPlayAgain, onRequestRematch, onDeclineRematch, gameState, rematchState, onLeaveGame, rewards }: GameOverProps) {
+export function GameOver({ winnerName, isMe, onPlayAgain, gameState, onLeaveGame, rewards }: GameOverProps) {
   const winMessage = getWinMessage(isMe);
 
   return (
@@ -182,38 +177,6 @@ export function GameOver({ winnerName, isMe, onPlayAgain, onRequestRematch, onDe
         {rewards && <RewardsPanel rewards={rewards} isMe={isMe} />}
 
         <div className="space-y-2 mt-4">
-          {rematchState === 'default' && (
-            <button
-              onClick={onRequestRematch}
-              className="w-full bg-spero-green text-white font-bold py-3 px-8 rounded-xl text-lg hover:brightness-110 active:scale-95 transition-all shadow-lg cursor-pointer"
-            >
-              Rematch
-            </button>
-          )}
-          {rematchState === 'proposed' && (
-            <div className="text-gray-400 text-sm py-3">
-              Waiting for opponent to accept...
-            </div>
-          )}
-          {rematchState === 'received' && (
-            <div className="flex gap-3">
-              <button
-                onClick={onRequestRematch}
-                className="flex-1 bg-spero-green text-white font-bold py-3 rounded-xl hover:brightness-110 active:scale-95 transition-all cursor-pointer"
-              >
-                Accept Rematch
-              </button>
-              <button
-                onClick={onDeclineRematch}
-                className="flex-1 bg-slate-700 text-gray-300 font-bold py-3 rounded-xl hover:bg-slate-700/80 active:scale-95 transition-all cursor-pointer"
-              >
-                Decline
-              </button>
-            </div>
-          )}
-          {rematchState === 'declined' && (
-            <div className="text-gray-500 text-sm py-3">Rematch declined.</div>
-          )}
           {onLeaveGame && (
             <button
               onClick={onLeaveGame}

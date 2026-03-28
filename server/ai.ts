@@ -18,8 +18,8 @@ const AI_NAMES = [
 ];
 
 const DELAYS = {
-  action: 1800,
-  endTurn: 1200,
+  action: 2200,
+  endTurn: 1500,
 };
 
 const AGGRO_CLASSES: HeroClass[] = ['JIMMY', 'LUCAS', 'DES'];
