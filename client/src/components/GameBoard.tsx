@@ -2443,7 +2443,7 @@ export default function GameBoard({
               </div>
               {/* Text */}
               {def.text && (
-                <div className="px-3 py-2 bg-black/20">
+                <div className="px-3 py-2 bg-black/20 max-h-[80px] overflow-y-auto">
                   <p className="text-gray-200 text-xs leading-snug">{def.text}</p>
                 </div>
               )}

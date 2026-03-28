@@ -4,8 +4,29 @@ import type {
   ClientCardInstance,
   ClientPlayerInfo,
   PendingInteraction,
+  HeroClass,
+  PlayerStats,
+  PlayerState,
 } from '../shared/types.js';
 import { TURN_TIMEOUT_MS } from '../shared/types.js';
+
+/**
+ * Compute effective upgrade progress from playerStats + upgradeProgress.
+ * Heroes that track via playerStats need their stat mapped here so the client
+ * can display accurate progress bars.
+ */
+function getEffectiveUpgradeProgress(player: PlayerState, stats: PlayerStats): number {
+  switch (player.heroClass) {
+    case 'JIMMY': return stats.minionsKilled;
+    case 'DES': return stats.minionsKilled;
+    case 'TALA': return stats.healingDone;
+    case 'DEREK': return stats.cardsDrawnFromEffects;
+    case 'AVA': return stats.minionsPlayed + stats.heroPowerUses;
+    case 'ASTRID': return player.board.filter(m => m.hasDivineShield).length;
+    // Anders, Lucas, Izzy use upgradeProgress directly
+    default: return player.upgradeProgress;
+  }
+}
 
 /** Sanitize game state for a specific player */
 export function getClientState(game: GameState, playerId: string): ClientGameState {
@@ -39,7 +60,7 @@ export function getClientState(game: GameState, playerId: string): ClientGameSta
     graveyardCount: opp.graveyard.length,
     secretCount: opp.secrets.length,
     heroPowerUpgraded: opp.heroPowerUpgraded,
-    upgradeProgress: opp.upgradeProgress,
+    upgradeProgress: getEffectiveUpgradeProgress(opp, game.playerStats[oppIdx]),
   };
 
   const turnDeadline = game.turnStartedAt && !game.winner
@@ -66,7 +87,7 @@ export function getClientState(game: GameState, playerId: string): ClientGameSta
     myGraveyardCount: me.graveyard.length,
     mySecrets: me.secrets,
     myHeroPowerUpgraded: me.heroPowerUpgraded,
-    myUpgradeProgress: me.upgradeProgress,
+    myUpgradeProgress: getEffectiveUpgradeProgress(me, game.playerStats[myIdx]),
     opponent,
     deckCount: game.decks[myIdx].length,
     opponentDeckCount: game.decks[oppIdx].length,
@@ -109,7 +130,7 @@ export function getSpectatorState(game: GameState): ClientGameState {
     graveyardCount: p1.graveyard.length,
     secretCount: p1.secrets.length,
     heroPowerUpgraded: p1.heroPowerUpgraded,
-    upgradeProgress: p1.upgradeProgress,
+    upgradeProgress: getEffectiveUpgradeProgress(p1, game.playerStats[1]),
   };
 
   const turnDeadline = game.turnStartedAt && !game.winner
@@ -136,7 +157,7 @@ export function getSpectatorState(game: GameState): ClientGameState {
     myGraveyardCount: p0.graveyard.length,
     mySecrets: [],
     myHeroPowerUpgraded: p0.heroPowerUpgraded,
-    myUpgradeProgress: p0.upgradeProgress,
+    myUpgradeProgress: getEffectiveUpgradeProgress(p0, game.playerStats[0]),
     opponent,
     deckCount: game.decks[0].length,
     opponentDeckCount: game.decks[1].length,
