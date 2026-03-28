@@ -22,10 +22,13 @@ import {
   reloadAIWeights, getAIMulliganReplacements, cardPlayPriority,
   pickSmartAttackTarget, pickSmartTarget, pickTargetFromList, hasLethal, pickLethalTarget,
 } from './ai.js';
+import { executeTeacherTurn, getTeacherMulliganDecision } from './ai-teacher.js';
+import type { TeacherDecision } from './ai-teacher.js';
 import type { GameState, BoardMinion, PlayerState, HeroClass } from '../shared/types.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const WEIGHTS_PATH = path.join(__dirname, '..', 'data', 'ai-weights.json');
+const DECISIONS_PATH = path.join(__dirname, '..', 'data', 'teacher-decisions.jsonl');
 
 const args = process.argv.slice(2);
 const hoursIdx = args.indexOf('--hours');
@@ -35,8 +38,30 @@ const endTime = hours > 0 ? Date.now() + hours * 3600_000 : Infinity;
 const verbose = args.includes('--verbose');
 const learnMode = args.includes('--learn');
 const learnCycles = parseInt(args[args.indexOf('--cycles') + 1] || '3');
+const teacherMode = args.includes('--teacher');
+const teacherVsTeacher = args.includes('--teacher-vs-teacher');
+const recordMode = args.includes('--record');
+const distillAfter = args.includes('--distill');
+
+// Decision recording stream
+let decisionStream: fs.WriteStream | null = null;
+if (recordMode || teacherMode || teacherVsTeacher) {
+  decisionStream = fs.createWriteStream(DECISIONS_PATH, { flags: 'a' }); // append mode
+}
+
+function recordDecision(d: TeacherDecision) {
+  if (decisionStream) {
+    decisionStream.write(JSON.stringify(d) + '\n');
+  }
+}
+
+const useTeacher = teacherMode || teacherVsTeacher;
 
 console.log(`\n🎮 Miro TCGO AI Simulator — Hearthstone Edition`);
+if (useTeacher) {
+  console.log(`Mode: ${teacherVsTeacher ? 'Teacher vs Teacher' : 'Teacher (P1) vs Student (P2)'}`);
+  if (recordMode || useTeacher) console.log(`Recording decisions to ${DECISIONS_PATH}`);
+}
 if (hours > 0) {
   console.log(`Running for ${hours} hours (until ${new Date(endTime).toLocaleTimeString()})...\n`);
 } else {
@@ -125,9 +150,25 @@ for (let g = 0; g < gameCount && Date.now() < endTime; g++) {
       { deckLists: [deck1.cards, deck2.cards] }
     );
 
-    // Smart mulligan using AI logic
-    const mull1 = getAIMulliganReplacements(game.players[0].hand, deck1.heroClass, deck2.heroClass);
-    const mull2 = getAIMulliganReplacements(game.players[1].hand, deck2.heroClass, deck1.heroClass);
+    // Smart mulligan using AI logic (teacher for player 1 if in teacher mode)
+    let mull1: boolean[];
+    let mull2: boolean[];
+
+    if (useTeacher) {
+      const t1 = getTeacherMulliganDecision(game.players[0].hand, deck1.heroClass, deck2.heroClass);
+      mull1 = t1.replacements;
+      recordDecision(t1.decision);
+    } else {
+      mull1 = getAIMulliganReplacements(game.players[0].hand, deck1.heroClass, deck2.heroClass);
+    }
+
+    if (teacherVsTeacher) {
+      const t2 = getTeacherMulliganDecision(game.players[1].hand, deck2.heroClass, deck1.heroClass);
+      mull2 = t2.replacements;
+      recordDecision(t2.decision);
+    } else {
+      mull2 = getAIMulliganReplacements(game.players[1].hand, deck2.heroClass, deck1.heroClass);
+    }
 
     // Track mulligan keeps for per-card stats
     const mulliganKept: [string[], string[]] = [[], []];
@@ -149,83 +190,96 @@ for (let g = 0; g < gameCount && Date.now() < endTime; g++) {
       const oppIdx = (pIdx === 0 ? 1 : 0) as 0 | 1;
       const opp = game.players[oppIdx];
 
-      // Play cards using smart priority ordering
-      let played = true;
-      let safety = 0;
-      while (played && !game.winner && safety < 30) {
-        played = false;
-        safety++;
+      // Determine if this player uses teacher AI
+      const isTeacherPlayer = teacherVsTeacher || (useTeacher && myIdx === 0);
 
-        const playable = me.hand
-          .filter(c => {
-            const def = getCardDef(c.cardCode);
-            return def.manaCost <= me.mana && c.cardCode !== 'COIN';
-          })
-          .sort((a, b) => cardPlayPriority(getCardDef(b.cardCode), me, opp) - cardPlayPriority(getCardDef(a.cardCode), me, opp));
+      if (isTeacherPlayer) {
+        // Teacher AI: lookahead + permutation search (handles cards, attacks, hero power)
+        const decisions = executeTeacherTurn(game, myIdx);
+        for (const d of decisions) {
+          recordDecision(d);
+          if (d.type === 'play' && d.card) cardsPlayed[myIdx].add(d.card);
+        }
+      } else {
+        // Student AI: heuristic-based (existing logic)
+        // Play cards using smart priority ordering
+        let played = true;
+        let safety = 0;
+        while (played && !game.winner && safety < 30) {
+          played = false;
+          safety++;
 
-        for (const card of playable) {
-          if (game.winner) break;
-          const def = getCardDef(card.cardCode);
-          if (def.type === 'MINION' && me.board.length >= 7) continue;
-          if (def.type === 'LOCATION' && (me.board.length + me.locations.length) >= 7) continue;
+          const playable = me.hand
+            .filter(c => {
+              const def = getCardDef(c.cardCode);
+              return def.manaCost <= me.mana && c.cardCode !== 'COIN';
+            })
+            .sort((a, b) => cardPlayPriority(getCardDef(b.cardCode), me, opp) - cardPlayPriority(getCardDef(a.cardCode), me, opp));
 
-          if (def.secretTrigger) {
-            if (me.secrets.some(s => s.cardCode === card.cardCode)) continue;
-            if (me.secrets.length >= 5) continue;
-            totalSecretsPlayed++;
-          }
+          for (const card of playable) {
+            if (game.winner) break;
+            const def = getCardDef(card.cardCode);
+            if (def.type === 'MINION' && me.board.length >= 7) continue;
+            if (def.type === 'LOCATION' && (me.board.length + me.locations.length) >= 7) continue;
 
-          // Smart targeting for spells and battlecries
-          let targetId: string | null = null;
-          if (def.type === 'MINION' && def.keywords.includes('BATTLECRY') && def.battlecryEffect) {
-            targetId = pickSmartTarget(game, myIdx, def);
-          } else if (def.type === 'SPELL' && def.spellEffect) {
-            targetId = pickSmartTarget(game, myIdx, def);
-          }
+            if (def.secretTrigger) {
+              if (me.secrets.some(s => s.cardCode === card.cardCode)) continue;
+              if (me.secrets.length >= 5) continue;
+              totalSecretsPlayed++;
+            }
 
-          const result = playCard(game, me.playerId, card.instanceId, undefined, targetId);
-          if (result.success) {
-            cardsPlayed[myIdx].add(card.cardCode);
-            played = true;
-            break;
-          } else if (result.needsTarget && result.validTargets && result.validTargets.length > 0) {
-            const retryTarget = pickTargetFromList(game, myIdx, def, result.validTargets);
-            const retry = playCard(game, me.playerId, card.instanceId, undefined, retryTarget);
-            if (retry.success) {
+            // Smart targeting for spells and battlecries
+            let targetId: string | null = null;
+            if (def.type === 'MINION' && def.keywords.includes('BATTLECRY') && def.battlecryEffect) {
+              targetId = pickSmartTarget(game, myIdx, def);
+            } else if (def.type === 'SPELL' && def.spellEffect) {
+              targetId = pickSmartTarget(game, myIdx, def);
+            }
+
+            const result = playCard(game, me.playerId, card.instanceId, undefined, targetId);
+            if (result.success) {
               cardsPlayed[myIdx].add(card.cardCode);
               played = true;
               break;
+            } else if (result.needsTarget && result.validTargets && result.validTargets.length > 0) {
+              const retryTarget = pickTargetFromList(game, myIdx, def, result.validTargets);
+              const retry = playCard(game, me.playerId, card.instanceId, undefined, retryTarget);
+              if (retry.success) {
+                cardsPlayed[myIdx].add(card.cardCode);
+                played = true;
+                break;
+              }
             }
           }
         }
-      }
 
-      if (game.winner) break;
-
-      // Smart attacks using threat scoring (with lethal check)
-      const goingLethal = hasLethal(me, opp);
-      for (const minion of [...me.board]) {
         if (game.winner) break;
-        if (!minion.canAttack || minion.attacksRemaining <= 0 || minion.isFrozen || minion.currentAttack <= 0) continue;
 
-        const target = goingLethal
-          ? pickLethalTarget(minion, opp, oppIdx)
-          : pickSmartAttackTarget(minion, me, opp, oppIdx);
-        if (!target) continue;
-        attack(game, me.playerId, minion.instanceId, target);
+        // Smart attacks using threat scoring (with lethal check)
+        const goingLethal = hasLethal(me, opp);
+        for (const minion of [...me.board]) {
+          if (game.winner) break;
+          if (!minion.canAttack || minion.attacksRemaining <= 0 || minion.isFrozen || minion.currentAttack <= 0) continue;
 
-        // Windfury second attack
-        if (minion.attacksRemaining > 0 && !game.winner) {
-          const target2 = pickSmartAttackTarget(minion, me, opp, oppIdx);
-          if (target2) attack(game, me.playerId, minion.instanceId, target2);
+          const target = goingLethal
+            ? pickLethalTarget(minion, opp, oppIdx)
+            : pickSmartAttackTarget(minion, me, opp, oppIdx);
+          if (!target) continue;
+          attack(game, me.playerId, minion.instanceId, target);
+
+          // Windfury second attack
+          if (minion.attacksRemaining > 0 && !game.winner) {
+            const target2 = pickSmartAttackTarget(minion, me, opp, oppIdx);
+            if (target2) attack(game, me.playerId, minion.instanceId, target2);
+          }
         }
-      }
 
-      if (game.winner) break;
+        if (game.winner) break;
 
-      // Smart hero power
-      if (!me.heroPowerUsed && me.mana >= 2) {
-        simUseHeroPower(game, me, opp, myIdx, oppIdx);
+        // Smart hero power
+        if (!me.heroPowerUsed && me.mana >= 2) {
+          simUseHeroPower(game, me, opp, myIdx, oppIdx);
+        }
       }
 
       if (game.winner) break;
@@ -515,6 +569,22 @@ function saveWeights() {
 
 printResults();
 saveWeights();
+
+// Close decision stream
+if (decisionStream) {
+  decisionStream.end();
+  if (fs.existsSync(DECISIONS_PATH)) {
+    const stats = fs.statSync(DECISIONS_PATH);
+    console.log(`\nTeacher decisions saved to ${DECISIONS_PATH} (${(stats.size / 1024 / 1024).toFixed(1)} MB)`);
+  }
+}
+
+// Auto-distill if requested
+if (distillAfter && (useTeacher || recordMode)) {
+  console.log('\nRunning distillation...');
+  const cp = require('child_process') as typeof import('child_process');
+  cp.execSync(`npx tsx ${path.join(__dirname, 'ai-distill.ts')}`, { stdio: 'inherit' });
+}
 
 // ─── Learn mode: run multiple cycles ───
 if (learnMode && learnCycles > 1) {

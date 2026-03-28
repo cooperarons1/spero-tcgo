@@ -39,6 +39,12 @@ interface AIWeights {
   matchupMatrix: Record<string, Record<string, number>>;
   classProfile: Record<string, string>; // 'aggro' | 'control' | 'midrange'
   cardStats?: Record<string, CardStats>;
+  // v3 distilled fields (from teacher AI)
+  cardMatchupBonus?: Record<string, Record<string, number>>;    // cardCode → oppClass → bonus
+  cardOnCurveBonus?: Record<string, number>;                    // cardCode → on-curve bonus
+  mulliganKeepByMatchup?: Record<string, Record<string, number>>; // cardCode → oppProfile → keep score
+  attackFaceThreshold?: Record<string, number>;                 // oppProfile → board advantage to go face
+  heroPowerTiming?: Record<string, 'pre' | 'post' | 'always'>; // class → timing preference
 }
 
 let aiWeights: AIWeights | null = null;
@@ -80,6 +86,32 @@ function getCardKeepWinRate(cardCode: string): number | null {
   const stats = aiWeights?.cardStats?.[cardCode];
   if (!stats || stats.played < 50) return null;
   return stats.keepWinRate;
+}
+
+/** Get card matchup bonus from distilled teacher data */
+function getCardMatchupBonus(cardCode: string, oppClass: HeroClass): number {
+  return aiWeights?.cardMatchupBonus?.[cardCode]?.[oppClass] ?? 0;
+}
+
+/** Get card on-curve bonus from distilled teacher data */
+function getCardOnCurveBonus(cardCode: string): number {
+  return aiWeights?.cardOnCurveBonus?.[cardCode] ?? 0;
+}
+
+/** Get mulligan keep score from distilled teacher data */
+function getMulliganKeepScore(cardCode: string, oppProfile: string): number | null {
+  const score = aiWeights?.mulliganKeepByMatchup?.[cardCode]?.[oppProfile];
+  return score !== undefined ? score : null;
+}
+
+/** Get attack face threshold from distilled teacher data */
+function getAttackFaceThreshold(oppProfile: string): number {
+  return aiWeights?.attackFaceThreshold?.[oppProfile] ?? 3;
+}
+
+/** Get hero power timing preference from distilled teacher data */
+function getHeroPowerTiming(heroClass: HeroClass): 'pre' | 'post' | 'always' | null {
+  return aiWeights?.heroPowerTiming?.[heroClass] ?? null;
 }
 
 /** Get opponent's class profile from weights */
@@ -150,6 +182,17 @@ export function getAIMulliganReplacements(hand: CardInstance[], heroClass: HeroC
     if (card.cardCode === 'COIN') return false;
     // vs aggro: always keep taunt minions even if expensive (up to 5 mana)
     if (oppProfile === 'aggro' && def.keywords.includes('TAUNT') && def.manaCost <= 5) return false;
+
+    // v3 distilled mulligan: matchup-specific keep scores from teacher data
+    if (oppProfile) {
+      const teacherKeep = getMulliganKeepScore(card.cardCode, oppProfile);
+      if (teacherKeep !== null) {
+        // Teacher score is -1..+1: positive = keep, negative = replace
+        if (teacherKeep >= 0.3) return false;  // teacher says keep
+        if (teacherKeep <= -0.3) return true;  // teacher says replace
+        // Between -0.3 and 0.3: fall through to other heuristics
+      }
+    }
 
     // Per-card ML mulligan: if we have keep win rate data, use it
     const keepWR = getCardKeepWinRate(card.cardCode);
@@ -561,6 +604,10 @@ function tryPreAttackHeroPower(
   const me = game.players[myIdx];
   const opp = game.players[oppIdx];
 
+  // v3 distilled: if teacher data says this class should use post-attack timing, skip pre-attack
+  const timingPref = getHeroPowerTiming(me.heroClass);
+  if (timingPref === 'post') return false;
+
   // Derek: draw a card BEFORE playing cards (more options)
   if (me.heroClass === 'DEREK') {
     useHeroPower(game, aiPlayerId, null);
@@ -790,6 +837,16 @@ export function cardPlayPriority(def: CardDef, me: PlayerState, opp: PlayerState
     score += Math.max(-5, Math.min(5, (cardWR - 0.5) * 10));
   }
 
+  // v3 distilled bonuses from teacher AI
+  // Card-matchup bonus: how well this card performs against the opponent's class
+  score += getCardMatchupBonus(def.cardCode, opp.heroClass);
+
+  // On-curve bonus: bonus when played on-curve (turn ≈ mana cost)
+  const turnMana = me.maxMana; // proxy for current turn
+  if (def.manaCost >= turnMana - 1 && def.manaCost <= turnMana) {
+    score += getCardOnCurveBonus(def.cardCode);
+  }
+
   return score;
 }
 
@@ -963,6 +1020,22 @@ export function pickSmartAttackTarget(
       .sort((a, b) => threatScore(b) - threatScore(a));
     if (shielded.length > 0) {
       return shielded[0].instanceId;
+    }
+  }
+
+  // v3 distilled: use teacher-learned face threshold to decide trade-vs-face
+  const oppProfile = getOpponentProfile(opp.heroClass);
+  const faceThreshold = getAttackFaceThreshold(oppProfile);
+  const advantage = boardAdvantage(me, opp);
+
+  // Only go face if we have sufficient board advantage
+  if (advantage < faceThreshold && targetable.length > 0) {
+    // Try to chip down the highest-threat minion instead of going face
+    const bestChip = targetable
+      .filter(m => !m.hasDivineShield)
+      .sort((a, b) => threatScore(b) - threatScore(a));
+    if (bestChip.length > 0 && threatScore(bestChip[0]) >= 4) {
+      return bestChip[0].instanceId;
     }
   }
 
