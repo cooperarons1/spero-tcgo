@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { CARD_ART_PNGS } from './cardArtPngs';
 
 // Shared gradient definitions by theme
 const jimmyGradients = (
@@ -4393,8 +4394,23 @@ function FallbackArt() {
 }
 
 export function CardArt({ cardCode, className }: { cardCode: string; className?: string }) {
-  const renderArt = cardArtMap[cardCode];
+  const [pngFailed, setPngFailed] = useState(false);
+  const hasPng = CARD_ART_PNGS.has(cardCode) && !pngFailed;
 
+  if (hasPng) {
+    return (
+      <img
+        src={`/cards/${cardCode}.png`}
+        alt=""
+        className={className}
+        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        loading="lazy"
+        onError={() => setPngFailed(true)}
+      />
+    );
+  }
+
+  const renderArt = cardArtMap[cardCode];
   return (
     <svg
       viewBox="0 0 100 80"

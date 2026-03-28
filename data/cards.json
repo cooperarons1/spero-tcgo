@@ -5823,5 +5823,3429 @@
     "keywords": [
       "TAUNT"
     ]
+  },
+  {
+    "cardCode": "AST021",
+    "name": "Calculated Force",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "ASTRID",
+    "rarity": "EPIC",
+    "attack": 4,
+    "health": 5,
+    "text": "Battlecry: Give all friendly minions Divine Shield.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "AST022",
+    "name": "Calculated Force",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "ASTRID",
+    "rarity": "EPIC",
+    "attack": 4,
+    "health": 5,
+    "text": "Battlecry: Give all friendly minions Divine Shield.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "AVA021",
+    "name": "Breakthrough Innovation",
+    "manaCost": 6,
+    "type": "MINION",
+    "heroClass": "AVA",
+    "rarity": "EPIC",
+    "attack": 4,
+    "health": 5,
+    "text": "Battlecry: Summon two 2/2 Guardian Drones.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "AVA022",
+    "name": "Breakthrough Innovation",
+    "manaCost": 6,
+    "type": "MINION",
+    "heroClass": "AVA",
+    "rarity": "EPIC",
+    "attack": 4,
+    "health": 5,
+    "text": "Battlecry: Summon two 2/2 Guardian Drones.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "NEU_LOC03",
+    "name": "Acacian Maze",
+    "manaCost": 3,
+    "type": "LOCATION",
+    "heroClass": "NEUTRAL",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "DRK016",
+    "name": "Adjusted Surroundings",
+    "manaCost": 3,
+    "type": "SPELL",
+    "heroClass": "DEREK",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 2 damage to a random enemy minion. Draw a card.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "NEU061",
+    "name": "Aemilio",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 3,
+    "health": 4,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "LUC021",
+    "name": "Agile Strength",
+    "manaCost": 2,
+    "type": "SPELL",
+    "heroClass": "LUCAS",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Give a friendly minion +2 Attack this turn.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "AVA023",
+    "name": "Airdrop",
+    "manaCost": 3,
+    "type": "SPELL",
+    "heroClass": "AVA",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Summon two 1/1 Gadget Drones.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "AST023",
+    "name": "Alexis",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "ASTRID",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 5,
+    "text": "Taunt.",
+    "flavor": "",
+    "keywords": [
+      "TAUNT"
+    ]
+  },
+  {
+    "cardCode": "DRK017",
+    "name": "Andrii",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "DEREK",
+    "rarity": "COMMON",
+    "attack": 4,
+    "health": 3,
+    "text": "Deathrattle: Deal 2 damage to a random enemy.",
+    "flavor": "",
+    "keywords": [],
+    "minionType": "MECH"
+  },
+  {
+    "cardCode": "NEU062",
+    "name": "Another Round on Me",
+    "manaCost": 4,
+    "type": "SPELL",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Draw 2 cards.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "JIM017",
+    "name": "Anvil to Iron",
+    "manaCost": 2,
+    "type": "SPELL",
+    "heroClass": "JIMMY",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Give a minion +2/+1.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "AST024",
+    "name": "Applied Judgement",
+    "manaCost": 3,
+    "type": "SPELL",
+    "heroClass": "ASTRID",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal damage equal to a friendly minion's Attack to an enemy.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "TAL016",
+    "name": "Asmita",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "TALA",
+    "rarity": "RARE",
+    "attack": 3,
+    "health": 5,
+    "text": "Battlecry: Restore 3 Health to your hero.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "DRK018",
+    "name": "Audit the Inventory",
+    "manaCost": 2,
+    "type": "SPELL",
+    "heroClass": "DEREK",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Draw a card. If you have a weapon, draw 2 instead.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "LUC022",
+    "name": "Ayto",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "LUCAS",
+    "rarity": "COMMON",
+    "attack": 3,
+    "health": 2,
+    "text": "Combo: Gain +1/+1.",
+    "flavor": "",
+    "keywords": [
+      "COMBO"
+    ]
+  },
+  {
+    "cardCode": "IZZ021",
+    "name": "Balanced Progress",
+    "manaCost": 3,
+    "type": "SPELL",
+    "heroClass": "IZZY",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Give a friendly minion +2/+2.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "DRK019",
+    "name": "Bjorn",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "DEREK",
+    "rarity": "COMMON",
+    "attack": 4,
+    "health": 5,
+    "text": "Taunt.",
+    "flavor": "",
+    "keywords": [],
+    "minionType": "MECH"
+  },
+  {
+    "cardCode": "JIM018",
+    "name": "Bloodthirsty Polearm",
+    "manaCost": 4,
+    "type": "WEAPON",
+    "heroClass": "JIMMY",
+    "rarity": "RARE",
+    "attack": 4,
+    "health": 2,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "JIM019",
+    "name": "Bombastic Bomb",
+    "manaCost": 4,
+    "type": "SPELL",
+    "heroClass": "JIMMY",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 4 damage to an enemy minion.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "IZZ022",
+    "name": "Boost the Parade",
+    "manaCost": 4,
+    "type": "SPELL",
+    "heroClass": "IZZY",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Give all friendly minions +1/+1.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "NEU063",
+    "name": "Boris",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 5,
+    "health": 5,
+    "text": "Taunt.",
+    "flavor": "",
+    "keywords": [
+      "TAUNT"
+    ]
+  },
+  {
+    "cardCode": "NEU064",
+    "name": "Boris",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 5,
+    "health": 5,
+    "text": "Taunt.",
+    "flavor": "",
+    "keywords": [
+      "TAUNT"
+    ]
+  },
+  {
+    "cardCode": "JIM020",
+    "name": "Bottled Flame",
+    "manaCost": 1,
+    "type": "SPELL",
+    "heroClass": "JIMMY",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 2 damage to a minion.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "AND016",
+    "name": "Bottled Water",
+    "manaCost": 1,
+    "type": "SPELL",
+    "heroClass": "ANDERS",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Restore 3 Health to a character.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "TAL017",
+    "name": "Brea",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "TALA",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 3,
+    "text": "Battlecry: Restore 2 Health to a friendly character.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "JIM021",
+    "name": "Bronson",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "JIMMY",
+    "rarity": "RARE",
+    "attack": 4,
+    "health": 3,
+    "text": "Charge.",
+    "flavor": "",
+    "keywords": [
+      "CHARGE"
+    ]
+  },
+  {
+    "cardCode": "JIM022",
+    "name": "Brutus",
+    "manaCost": 6,
+    "type": "MINION",
+    "heroClass": "JIMMY",
+    "rarity": "EPIC",
+    "attack": 6,
+    "health": 5,
+    "text": "Charge.",
+    "flavor": "",
+    "keywords": [
+      "CHARGE"
+    ]
+  },
+  {
+    "cardCode": "AND017",
+    "name": "Calix",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "ANDERS",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 4,
+    "text": "Battlecry: Freeze a random enemy minion.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "AST025",
+    "name": "Call to Arms",
+    "manaCost": 5,
+    "type": "SPELL",
+    "heroClass": "ASTRID",
+    "rarity": "EPIC",
+    "attack": 0,
+    "health": 0,
+    "text": "Summon three 2/1 Guardians with Taunt.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "DRK020",
+    "name": "Candice",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "DEREK",
+    "rarity": "COMMON",
+    "attack": 3,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": [],
+    "minionType": "MECH"
+  },
+  {
+    "cardCode": "NEU065",
+    "name": "Cardboard Pickaxe",
+    "manaCost": 1,
+    "type": "WEAPON",
+    "heroClass": "NEUTRAL",
+    "rarity": "RARE",
+    "attack": 1,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "IZZ023",
+    "name": "Carmi",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "IZZY",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 3,
+    "text": "Battlecry: Gain 1 Armor.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "AND018",
+    "name": "Caspian",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "ANDERS",
+    "rarity": "RARE",
+    "attack": 4,
+    "health": 5,
+    "text": "Freeze any character damaged by this minion.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "DRK021",
+    "name": "Caytum",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "DEREK",
+    "rarity": "RARE",
+    "attack": 3,
+    "health": 4,
+    "text": "Battlecry: Draw a card.",
+    "flavor": "",
+    "keywords": [],
+    "minionType": "MECH"
+  },
+  {
+    "cardCode": "AST026",
+    "name": "Chest of Fortitude",
+    "manaCost": 2,
+    "type": "SPELL",
+    "heroClass": "ASTRID",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Give a friendly minion Divine Shield.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "AND019",
+    "name": "Chest of Replenishing Ice",
+    "manaCost": 3,
+    "type": "SPELL",
+    "heroClass": "ANDERS",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Freeze an enemy. Draw a card.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "AVA024",
+    "name": "Chip",
+    "manaCost": 1,
+    "type": "MINION",
+    "heroClass": "AVA",
+    "rarity": "COMMON",
+    "attack": 1,
+    "health": 2,
+    "text": "Battlecry: Add a 1/1 Gadget Drone to your hand.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "NEU066",
+    "name": "Chomp",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "RARE",
+    "attack": 5,
+    "health": 4,
+    "text": "Battlecry: Deal 1 damage to all other minions.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "JIM023",
+    "name": "Chuck",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "JIMMY",
+    "rarity": "COMMON",
+    "attack": 3,
+    "health": 2,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "LUC023",
+    "name": "Cicero",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "LUCAS",
+    "rarity": "RARE",
+    "attack": 3,
+    "health": 4,
+    "text": "Stealth. Combo: Draw a card.",
+    "flavor": "",
+    "keywords": [
+      "STEALTH",
+      "COMBO"
+    ]
+  },
+  {
+    "cardCode": "IZZ024",
+    "name": "Coastal Typhoon",
+    "manaCost": 5,
+    "type": "SPELL",
+    "heroClass": "IZZY",
+    "rarity": "EPIC",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 3 damage to all enemy minions.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "AND020",
+    "name": "Concealed in Ice",
+    "manaCost": 2,
+    "type": "SPELL",
+    "heroClass": "ANDERS",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Freeze an enemy minion.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "DRK022",
+    "name": "Convex",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "DEREK",
+    "rarity": "COMMON",
+    "attack": 3,
+    "health": 3,
+    "text": "Battlecry: Draw a card if you control a mech.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "NEU_LOC04",
+    "name": "Coral Haven",
+    "manaCost": 3,
+    "type": "LOCATION",
+    "heroClass": "NEUTRAL",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "DES021",
+    "name": "Crimson Cells",
+    "manaCost": 2,
+    "type": "SPELL",
+    "heroClass": "DES",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 3 damage to your hero. Draw 2 cards.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "NEU_LOC05",
+    "name": "Crown Pointe Mines",
+    "manaCost": 3,
+    "type": "LOCATION",
+    "heroClass": "NEUTRAL",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "TAL018",
+    "name": "Cultivating Acacia",
+    "manaCost": 2,
+    "type": "SPELL",
+    "heroClass": "TALA",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Restore 4 Health to a character.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "IZZ025",
+    "name": "Cynthie",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "IZZY",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 4,
+    "text": "Battlecry: Gain 2 Armor.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "DES022",
+    "name": "Death's Descent",
+    "manaCost": 6,
+    "type": "SPELL",
+    "heroClass": "DES",
+    "rarity": "EPIC",
+    "attack": 0,
+    "health": 0,
+    "text": "Destroy all minions with 3 or less Attack.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "AST027",
+    "name": "Defensive Staff of Strength",
+    "manaCost": 3,
+    "type": "WEAPON",
+    "heroClass": "ASTRID",
+    "rarity": "RARE",
+    "attack": 2,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "DES023",
+    "name": "Destroy Your Surroundings",
+    "manaCost": 5,
+    "type": "SPELL",
+    "heroClass": "DES",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Destroy a random enemy minion.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "JIM024",
+    "name": "Eddie",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "JIMMY",
+    "rarity": "COMMON",
+    "attack": 3,
+    "health": 3,
+    "text": "Battlecry: Deal 1 damage to a random enemy.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "DES024",
+    "name": "Elixir of Domination",
+    "manaCost": 4,
+    "type": "SPELL",
+    "heroClass": "DES",
+    "rarity": "EPIC",
+    "attack": 0,
+    "health": 0,
+    "text": "Take control of an enemy minion with 3 or less Attack.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "AST028",
+    "name": "Elle",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "ASTRID",
+    "rarity": "RARE",
+    "attack": 2,
+    "health": 3,
+    "text": "Divine Shield.",
+    "flavor": "",
+    "keywords": [
+      "DIVINE_SHIELD"
+    ]
+  },
+  {
+    "cardCode": "JIM025",
+    "name": "Embra",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "JIMMY",
+    "rarity": "RARE",
+    "attack": 4,
+    "health": 4,
+    "text": "Battlecry: Deal 3 damage to a random enemy minion.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "TAL019",
+    "name": "Emerging Sunshine",
+    "manaCost": 2,
+    "type": "SPELL",
+    "heroClass": "TALA",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Restore 4 Health to all friendly characters.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "TAL020",
+    "name": "Emmy",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "TALA",
+    "rarity": "RARE",
+    "attack": 2,
+    "health": 4,
+    "text": "Battlecry: Restore 3 Health to all friendly minions.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "NEU067",
+    "name": "Emyren",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 3,
+    "health": 5,
+    "text": "Taunt.",
+    "flavor": "",
+    "keywords": [
+      "TAUNT"
+    ]
+  },
+  {
+    "cardCode": "JIM026",
+    "name": "Engulfed in Flames",
+    "manaCost": 7,
+    "type": "SPELL",
+    "heroClass": "JIMMY",
+    "rarity": "EPIC",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 5 damage to all characters.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "DRK023",
+    "name": "Equipment Upgrade",
+    "manaCost": 2,
+    "type": "SPELL",
+    "heroClass": "DEREK",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Give your weapon +1/+1.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "IZZ026",
+    "name": "Extreme Gusts",
+    "manaCost": 3,
+    "type": "SPELL",
+    "heroClass": "IZZY",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Return an enemy minion to their hand.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "DES025",
+    "name": "Ezra",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "DES",
+    "rarity": "COMMON",
+    "attack": 4,
+    "health": 3,
+    "text": "Battlecry: Deal 2 damage to your hero.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "AVA025",
+    "name": "Fiona, Acrobat",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "AVA",
+    "rarity": "RARE",
+    "attack": 3,
+    "health": 3,
+    "text": "Stealth. Deathrattle: Draw a card.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "LUC024",
+    "name": "Face to Face",
+    "manaCost": 2,
+    "type": "SPELL",
+    "heroClass": "LUCAS",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 3 damage to the enemy hero.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "LUC025",
+    "name": "Farrah",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "LUCAS",
+    "rarity": "COMMON",
+    "attack": 3,
+    "health": 3,
+    "text": "Stealth.",
+    "flavor": "",
+    "keywords": [
+      "STEALTH"
+    ]
+  },
+  {
+    "cardCode": "LUC026",
+    "name": "Feather Cloak",
+    "manaCost": 2,
+    "type": "WEAPON",
+    "heroClass": "LUCAS",
+    "rarity": "RARE",
+    "attack": 1,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "NEU068",
+    "name": "Felix",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "JIM027",
+    "name": "Fenris",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "JIMMY",
+    "rarity": "EPIC",
+    "attack": 5,
+    "health": 4,
+    "text": "Deathrattle: Deal 2 damage to all enemies.",
+    "flavor": "",
+    "keywords": [
+      "DEATHRATTLE"
+    ]
+  },
+  {
+    "cardCode": "AND021",
+    "name": "Fiddle of Silence",
+    "manaCost": 3,
+    "type": "WEAPON",
+    "heroClass": "ANDERS",
+    "rarity": "RARE",
+    "attack": 1,
+    "health": 4,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "LUC_LOC02",
+    "name": "Fixed Roll Casino",
+    "manaCost": 3,
+    "type": "LOCATION",
+    "heroClass": "LUCAS",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "JIM028",
+    "name": "Flaming Sword of Pain",
+    "manaCost": 5,
+    "type": "WEAPON",
+    "heroClass": "JIMMY",
+    "rarity": "RARE",
+    "attack": 5,
+    "health": 2,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "NEU069",
+    "name": "Flexible Spear of Damage",
+    "manaCost": 3,
+    "type": "WEAPON",
+    "heroClass": "NEUTRAL",
+    "rarity": "RARE",
+    "attack": 3,
+    "health": 2,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "LUC027",
+    "name": "Focus of Return",
+    "manaCost": 1,
+    "type": "SPELL",
+    "heroClass": "LUCAS",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Return a friendly minion to your hand.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "TAL021",
+    "name": "Freya",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "TALA",
+    "rarity": "RARE",
+    "attack": 3,
+    "health": 6,
+    "text": "Battlecry: Restore 4 Health to your hero.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "DRK024",
+    "name": "GPU",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "DEREK",
+    "rarity": "EPIC",
+    "attack": 3,
+    "health": 4,
+    "text": "Battlecry: Draw a card for each mech you control.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "NEU070",
+    "name": "Garf",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 4,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "JIM029",
+    "name": "Giant Slayer",
+    "manaCost": 3,
+    "type": "SPELL",
+    "heroClass": "JIMMY",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 4 damage to a minion with 5 or more Attack.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "AVA026",
+    "name": "Giga",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "AVA",
+    "rarity": "COMMON",
+    "attack": 4,
+    "health": 5,
+    "text": "Battlecry: Summon a 1/1 Gadget Drone.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "NEU071",
+    "name": "Giova",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "RARE",
+    "attack": 2,
+    "health": 2,
+    "text": "Battlecry: Draw a card.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "AND022",
+    "name": "Glacius",
+    "manaCost": 6,
+    "type": "MINION",
+    "heroClass": "ANDERS",
+    "rarity": "EPIC",
+    "attack": 5,
+    "health": 6,
+    "text": "Freeze any character damaged by this minion.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "AND023",
+    "name": "Glasglow",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "ANDERS",
+    "rarity": "RARE",
+    "attack": 3,
+    "health": 4,
+    "text": "Battlecry: Freeze a random enemy.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "NEU_LOC06",
+    "name": "Hope Falls",
+    "manaCost": 3,
+    "type": "LOCATION",
+    "heroClass": "NEUTRAL",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "AND024",
+    "name": "Hailstorm",
+    "manaCost": 4,
+    "type": "SPELL",
+    "heroClass": "ANDERS",
+    "rarity": "EPIC",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 2 damage to all enemy minions. Freeze them.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "LUC028",
+    "name": "Harley",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "LUCAS",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 2,
+    "text": "Combo: Gain +2 Attack.",
+    "flavor": "",
+    "keywords": [
+      "COMBO"
+    ]
+  },
+  {
+    "cardCode": "TAL022",
+    "name": "Harvesting Scythe",
+    "manaCost": 4,
+    "type": "WEAPON",
+    "heroClass": "TALA",
+    "rarity": "RARE",
+    "attack": 3,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "DRK_LOC02",
+    "name": "Helix Megaplex",
+    "manaCost": 3,
+    "type": "LOCATION",
+    "heroClass": "DEREK",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "DRK025",
+    "name": "Helix Robot",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "DEREK",
+    "rarity": "COMMON",
+    "attack": 3,
+    "health": 2,
+    "text": "Charge.",
+    "flavor": "",
+    "keywords": [],
+    "minionType": "MECH"
+  },
+  {
+    "cardCode": "AVA027",
+    "name": "Recycle",
+    "manaCost": 2,
+    "type": "SPELL",
+    "heroClass": "AVA",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Destroy a friendly minion. Draw 2 cards.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "LUC029",
+    "name": "Hunting Trophy",
+    "manaCost": 3,
+    "type": "SPELL",
+    "heroClass": "LUCAS",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Destroy a damaged enemy minion.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "IZZ027",
+    "name": "Brittana, Sparkle Scout",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "IZZY",
+    "rarity": "RARE",
+    "attack": 3,
+    "health": 4,
+    "text": "Battlecry: Gain 2 Armor.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "IZZ028",
+    "name": "Brittana, Sparkle Scout",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "IZZY",
+    "rarity": "RARE",
+    "attack": 3,
+    "health": 4,
+    "text": "Battlecry: Gain 2 Armor.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "AND025",
+    "name": "Ice Storm",
+    "manaCost": 5,
+    "type": "SPELL",
+    "heroClass": "ANDERS",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Freeze all enemy minions.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "JIM030",
+    "name": "Infernic",
+    "manaCost": 8,
+    "type": "MINION",
+    "heroClass": "JIMMY",
+    "rarity": "LEGENDARY",
+    "attack": 7,
+    "health": 7,
+    "text": "Battlecry: Deal 4 damage to all enemy minions.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "DES_LOC02",
+    "name": "Isolation Arena",
+    "manaCost": 3,
+    "type": "LOCATION",
+    "heroClass": "DES",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "AND026",
+    "name": "Ivana",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "ANDERS",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 4,
+    "text": "Battlecry: Freeze an enemy minion.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "TAL_LOC02",
+    "name": "Ivory Forest",
+    "manaCost": 3,
+    "type": "LOCATION",
+    "heroClass": "TALA",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "AST029",
+    "name": "Jasten",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "ASTRID",
+    "rarity": "EPIC",
+    "attack": 3,
+    "health": 5,
+    "text": "Taunt. Divine Shield.",
+    "flavor": "",
+    "keywords": [
+      "TAUNT",
+      "DIVINE_SHIELD"
+    ]
+  },
+  {
+    "cardCode": "IZZ029",
+    "name": "Jetstream",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "IZZY",
+    "rarity": "RARE",
+    "attack": 4,
+    "health": 3,
+    "text": "Windfury.",
+    "flavor": "",
+    "keywords": [
+      "WINDFURY"
+    ]
+  },
+  {
+    "cardCode": "LUC030",
+    "name": "Jie",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "LUCAS",
+    "rarity": "RARE",
+    "attack": 3,
+    "health": 3,
+    "text": "Combo: Return an enemy minion to their hand.",
+    "flavor": "",
+    "keywords": [
+      "COMBO"
+    ]
+  },
+  {
+    "cardCode": "NEU072",
+    "name": "Jorge",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 4,
+    "health": 4,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "TAL023",
+    "name": "Juni",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "TALA",
+    "rarity": "COMMON",
+    "attack": 1,
+    "health": 3,
+    "text": "Battlecry: Restore 3 Health to a friendly character.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "DRK026",
+    "name": "Junk",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "DEREK",
+    "rarity": "RARE",
+    "attack": 2,
+    "health": 3,
+    "text": "Deathrattle: Add a random mech to your hand.",
+    "flavor": "",
+    "keywords": [
+      "DEATHRATTLE"
+    ]
+  },
+  {
+    "cardCode": "DES026",
+    "name": "Kabistan",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "DES",
+    "rarity": "RARE",
+    "attack": 5,
+    "health": 4,
+    "text": "Deathrattle: Deal 2 damage to all characters.",
+    "flavor": "",
+    "keywords": [
+      "DEATHRATTLE"
+    ]
+  },
+  {
+    "cardCode": "DES_LOC03",
+    "name": "Kaligula Hallow",
+    "manaCost": 3,
+    "type": "LOCATION",
+    "heroClass": "DES",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "TAL024",
+    "name": "Kandu",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "TALA",
+    "rarity": "COMMON",
+    "attack": 3,
+    "health": 5,
+    "text": "Battlecry: Give a friendly minion +1/+2.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "AST030",
+    "name": "Karmonian Badge of Force",
+    "manaCost": 2,
+    "type": "WEAPON",
+    "heroClass": "ASTRID",
+    "rarity": "RARE",
+    "attack": 1,
+    "health": 4,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "LUC031",
+    "name": "Kato",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "LUCAS",
+    "rarity": "RARE",
+    "attack": 5,
+    "health": 3,
+    "text": "Combo: Deal 2 damage to the enemy hero.",
+    "flavor": "",
+    "keywords": [
+      "COMBO"
+    ]
+  },
+  {
+    "cardCode": "IZZ030",
+    "name": "Kite",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "IZZY",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 2,
+    "text": "Windfury.",
+    "flavor": "",
+    "keywords": [
+      "WINDFURY"
+    ]
+  },
+  {
+    "cardCode": "DRK027",
+    "name": "Klein",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "DEREK",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 4,
+    "text": "Battlecry: Give a friendly mech +1/+1.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "NEU073",
+    "name": "Kron",
+    "manaCost": 6,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 6,
+    "health": 6,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "DRK028",
+    "name": "Sir Helio, Mech Paladin",
+    "manaCost": 6,
+    "type": "MINION",
+    "heroClass": "DEREK",
+    "rarity": "EPIC",
+    "attack": 5,
+    "health": 6,
+    "text": "Taunt. Divine Shield.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "LUC032",
+    "name": "Hugo, Shadow Blade",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "LUCAS",
+    "rarity": "EPIC",
+    "attack": 5,
+    "health": 4,
+    "text": "Combo: Deal 3 damage to any target.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "LUC033",
+    "name": "Hugo, Shadow Blade",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "LUCAS",
+    "rarity": "EPIC",
+    "attack": 5,
+    "health": 4,
+    "text": "Combo: Deal 3 damage to any target.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "AST031",
+    "name": "Lady Arinna",
+    "manaCost": 6,
+    "type": "MINION",
+    "heroClass": "ASTRID",
+    "rarity": "LEGENDARY",
+    "attack": 4,
+    "health": 7,
+    "text": "Taunt. Battlecry: Give adjacent minions Divine Shield.",
+    "flavor": "",
+    "keywords": [
+      "TAUNT",
+      "DIVINE_SHIELD",
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "DES027",
+    "name": "Lateo",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "DES",
+    "rarity": "RARE",
+    "attack": 4,
+    "health": 4,
+    "text": "Deathrattle: Deal 3 damage to the enemy hero.",
+    "flavor": "",
+    "keywords": [
+      "DEATHRATTLE"
+    ]
+  },
+  {
+    "cardCode": "NEU074",
+    "name": "Liam",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 3,
+    "health": 3,
+    "text": "Battlecry: Draw a card.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "NEU_LOC07",
+    "name": "Light Lanes Raceway",
+    "manaCost": 3,
+    "type": "LOCATION",
+    "heroClass": "NEUTRAL",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "AND027",
+    "name": "Lightning Rod of Damage",
+    "manaCost": 4,
+    "type": "WEAPON",
+    "heroClass": "ANDERS",
+    "rarity": "RARE",
+    "attack": 3,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "IZZ031",
+    "name": "Little Dipper",
+    "manaCost": 1,
+    "type": "MINION",
+    "heroClass": "IZZY",
+    "rarity": "COMMON",
+    "attack": 1,
+    "health": 2,
+    "text": "Battlecry: Gain 1 Armor.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "TAL025",
+    "name": "Lucy",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "TALA",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 4,
+    "text": "Battlecry: Restore 2 Health to all friendly characters.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "TAL026",
+    "name": "Mr. Verdant",
+    "manaCost": 6,
+    "type": "MINION",
+    "heroClass": "TALA",
+    "rarity": "EPIC",
+    "attack": 4,
+    "health": 6,
+    "text": "Battlecry: Restore 5 Health to all friendly characters.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "NEU075",
+    "name": "Ms. Easley",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "RARE",
+    "attack": 3,
+    "health": 4,
+    "text": "Battlecry: Deal 2 damage to a random enemy.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "NEU076",
+    "name": "Ms. Mirabella",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "EPIC",
+    "attack": 3,
+    "health": 5,
+    "text": "Battlecry: Draw 2 cards.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "NEU077",
+    "name": "Maestro Waulie",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "LEGENDARY",
+    "attack": 3,
+    "health": 5,
+    "text": "Battlecry: Draw 2 cards.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "AVA028",
+    "name": "Manufacture Reinforcements",
+    "manaCost": 4,
+    "type": "SPELL",
+    "heroClass": "AVA",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Summon three 1/1 Gadget Drones.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "JIM031",
+    "name": "Markus",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "JIMMY",
+    "rarity": "COMMON",
+    "attack": 4,
+    "health": 2,
+    "text": "Charge.",
+    "flavor": "",
+    "keywords": [
+      "CHARGE"
+    ]
+  },
+  {
+    "cardCode": "DES028",
+    "name": "Maso",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "DES",
+    "rarity": "COMMON",
+    "attack": 3,
+    "health": 2,
+    "text": "Battlecry: Deal 1 damage to your hero.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "NEU078",
+    "name": "Max",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 2,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "DRK_LOC03",
+    "name": "Mechingham Estates",
+    "manaCost": 3,
+    "type": "LOCATION",
+    "heroClass": "DEREK",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "DRK029",
+    "name": "Megabyte",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "DEREK",
+    "rarity": "COMMON",
+    "attack": 4,
+    "health": 5,
+    "text": "Battlecry: Draw a card.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "LUC034",
+    "name": "Mercurio",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "LUCAS",
+    "rarity": "EPIC",
+    "attack": 4,
+    "health": 4,
+    "text": "Stealth. Combo: Gain +2/+2.",
+    "flavor": "",
+    "keywords": [
+      "STEALTH",
+      "COMBO"
+    ]
+  },
+  {
+    "cardCode": "TAL027",
+    "name": "Merva",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "TALA",
+    "rarity": "RARE",
+    "attack": 2,
+    "health": 6,
+    "text": "Taunt. Battlecry: Restore 2 Health to adjacent minions.",
+    "flavor": "",
+    "keywords": [
+      "TAUNT",
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "DRK030",
+    "name": "Metal Detector",
+    "manaCost": 2,
+    "type": "WEAPON",
+    "heroClass": "DEREK",
+    "rarity": "RARE",
+    "attack": 1,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "NEU079",
+    "name": "Mina",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 1,
+    "health": 3,
+    "text": "Taunt.",
+    "flavor": "",
+    "keywords": [
+      "TAUNT"
+    ]
+  },
+  {
+    "cardCode": "NEU080",
+    "name": "Mirabelle",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 3,
+    "health": 4,
+    "text": "Battlecry: Draw a card.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "AND028",
+    "name": "Monico",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "ANDERS",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "NEU081",
+    "name": "Morris",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 3,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "AND_LOC02",
+    "name": "Mt. Silencia",
+    "manaCost": 3,
+    "type": "LOCATION",
+    "heroClass": "ANDERS",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "TAL028",
+    "name": "Nature's End",
+    "manaCost": 4,
+    "type": "SPELL",
+    "heroClass": "TALA",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Destroy a minion with 5 or more Attack.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "TAL029",
+    "name": "Nature's Wrath",
+    "manaCost": 6,
+    "type": "SPELL",
+    "heroClass": "TALA",
+    "rarity": "EPIC",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 4 damage to all enemy minions.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "IZZ032",
+    "name": "Net Launcher",
+    "manaCost": 3,
+    "type": "WEAPON",
+    "heroClass": "IZZY",
+    "rarity": "RARE",
+    "attack": 2,
+    "health": 2,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "NEU_LOC08",
+    "name": "Nivarra Guild Hall",
+    "manaCost": 3,
+    "type": "LOCATION",
+    "heroClass": "NEUTRAL",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "LUC035",
+    "name": "Nothing to See Here",
+    "manaCost": 3,
+    "type": "SPELL",
+    "heroClass": "LUCAS",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Give a friendly minion Stealth.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "JIM032",
+    "name": "Nova Ramiro",
+    "manaCost": 7,
+    "type": "MINION",
+    "heroClass": "JIMMY",
+    "rarity": "EPIC",
+    "attack": 6,
+    "health": 6,
+    "text": "Battlecry: Deal 3 damage to all enemies.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "AVA029",
+    "name": "Nullification Field",
+    "manaCost": 5,
+    "type": "SPELL",
+    "heroClass": "AVA",
+    "rarity": "EPIC",
+    "attack": 0,
+    "health": 0,
+    "text": "Silence all enemy minions.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "DES_LOC04",
+    "name": "Obexian Slums",
+    "manaCost": 3,
+    "type": "LOCATION",
+    "heroClass": "DES",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "NEU082",
+    "name": "Omar",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 4,
+    "health": 4,
+    "text": "Taunt.",
+    "flavor": "",
+    "keywords": [
+      "TAUNT"
+    ]
+  },
+  {
+    "cardCode": "NEU083",
+    "name": "Orra Slingshot",
+    "manaCost": 2,
+    "type": "WEAPON",
+    "heroClass": "NEUTRAL",
+    "rarity": "RARE",
+    "attack": 2,
+    "health": 2,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "AND029",
+    "name": "Ozone",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "ANDERS",
+    "rarity": "LEGENDARY",
+    "attack": 4,
+    "health": 4,
+    "text": "Battlecry: Freeze all enemy minions.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "TAL_LOC03",
+    "name": "Pawprint Valley",
+    "manaCost": 3,
+    "type": "LOCATION",
+    "heroClass": "TALA",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "AVA030",
+    "name": "Peep",
+    "manaCost": 1,
+    "type": "MINION",
+    "heroClass": "AVA",
+    "rarity": "COMMON",
+    "attack": 1,
+    "health": 1,
+    "text": "Deathrattle: Draw a card.",
+    "flavor": "",
+    "keywords": [
+      "DEATHRATTLE"
+    ]
+  },
+  {
+    "cardCode": "IZZ033",
+    "name": "Penetrating Gale",
+    "manaCost": 2,
+    "type": "SPELL",
+    "heroClass": "IZZY",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 2 damage to a character.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "NEU084",
+    "name": "Percy",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 4,
+    "text": "Taunt.",
+    "flavor": "",
+    "keywords": [
+      "TAUNT"
+    ]
+  },
+  {
+    "cardCode": "DRK031",
+    "name": "Pero",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "DEREK",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 2,
+    "text": "",
+    "flavor": "",
+    "keywords": [],
+    "minionType": "MECH"
+  },
+  {
+    "cardCode": "NEU085",
+    "name": "Pierre",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 4,
+    "health": 5,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "LUC036",
+    "name": "Pinch",
+    "manaCost": 1,
+    "type": "MINION",
+    "heroClass": "LUCAS",
+    "rarity": "COMMON",
+    "attack": 1,
+    "health": 2,
+    "text": "Combo: Deal 1 damage to the enemy hero.",
+    "flavor": "",
+    "keywords": [
+      "COMBO"
+    ]
+  },
+  {
+    "cardCode": "TAL030",
+    "name": "Pineapple Armor",
+    "manaCost": 3,
+    "type": "WEAPON",
+    "heroClass": "TALA",
+    "rarity": "RARE",
+    "attack": 2,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "TAL_LOC04",
+    "name": "Pinewield Passage",
+    "manaCost": 3,
+    "type": "LOCATION",
+    "heroClass": "TALA",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "TAL031",
+    "name": "Plup",
+    "manaCost": 1,
+    "type": "MINION",
+    "heroClass": "TALA",
+    "rarity": "COMMON",
+    "attack": 1,
+    "health": 2,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "LUC037",
+    "name": "Poke",
+    "manaCost": 1,
+    "type": "MINION",
+    "heroClass": "LUCAS",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 1,
+    "text": "Combo: Gain Stealth.",
+    "flavor": "",
+    "keywords": [
+      "STEALTH",
+      "COMBO"
+    ]
+  },
+  {
+    "cardCode": "NEU086",
+    "name": "Potion of Strength",
+    "manaCost": 2,
+    "type": "SPELL",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Give a minion +2/+2.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "DRK032",
+    "name": "Prema",
+    "manaCost": 6,
+    "type": "MINION",
+    "heroClass": "DEREK",
+    "rarity": "EPIC",
+    "attack": 5,
+    "health": 6,
+    "text": "Taunt. Deathrattle: Summon a 3/3 mech.",
+    "flavor": "",
+    "keywords": [],
+    "minionType": "MECH"
+  },
+  {
+    "cardCode": "AST032",
+    "name": "Prevent Destruction",
+    "manaCost": 3,
+    "type": "SPELL",
+    "heroClass": "ASTRID",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Give a friendly minion Divine Shield and Taunt.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "AVA031",
+    "name": "Q Launcher",
+    "manaCost": 4,
+    "type": "WEAPON",
+    "heroClass": "AVA",
+    "rarity": "RARE",
+    "attack": 3,
+    "health": 2,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "DRK033",
+    "name": "Quick Fix",
+    "manaCost": 1,
+    "type": "SPELL",
+    "heroClass": "DEREK",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Restore a minion to full Health.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "NEU087",
+    "name": "Rahul",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "RARE",
+    "attack": 5,
+    "health": 5,
+    "text": "Battlecry: Gain 3 Armor.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "AST033",
+    "name": "Raphael",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "ASTRID",
+    "rarity": "RARE",
+    "attack": 4,
+    "health": 6,
+    "text": "Taunt. Battlecry: Gain 2 Armor.",
+    "flavor": "",
+    "keywords": [
+      "TAUNT",
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "IZZ034",
+    "name": "Raye",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "IZZY",
+    "rarity": "COMMON",
+    "attack": 3,
+    "health": 4,
+    "text": "Battlecry: Gain 3 Armor.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "IZZ035",
+    "name": "Re-Energizer",
+    "manaCost": 2,
+    "type": "SPELL",
+    "heroClass": "IZZY",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Gain 2 Armor. Draw a card.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "DRK034",
+    "name": "Reassign",
+    "manaCost": 3,
+    "type": "SPELL",
+    "heroClass": "DEREK",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Return a minion to its owner's hand.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "DRK035",
+    "name": "Recall",
+    "manaCost": 1,
+    "type": "SPELL",
+    "heroClass": "DEREK",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Return a friendly minion to your hand. Draw a card.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "DRK036",
+    "name": "Recorder",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "DEREK",
+    "rarity": "COMMON",
+    "attack": 1,
+    "health": 3,
+    "text": "Battlecry: Draw a card.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "AVA032",
+    "name": "Recycle",
+    "manaCost": 2,
+    "type": "SPELL",
+    "heroClass": "AVA",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Destroy a friendly minion. Draw 2 cards.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "AVA033",
+    "name": "Recycle",
+    "manaCost": 2,
+    "type": "SPELL",
+    "heroClass": "AVA",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Destroy a friendly minion. Draw 2 cards.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "TAL032",
+    "name": "Relentless Stampede",
+    "manaCost": 5,
+    "type": "SPELL",
+    "heroClass": "TALA",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Give your minions +2 Attack this turn.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "DRK037",
+    "name": "Resourcefulness",
+    "manaCost": 2,
+    "type": "SPELL",
+    "heroClass": "DEREK",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Draw 2 cards.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "NEU088",
+    "name": "Rhea",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 3,
+    "health": 5,
+    "text": "Battlecry: Restore 3 Health to your hero.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "NEU089",
+    "name": "RoRo",
+    "manaCost": 1,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 1,
+    "health": 1,
+    "text": "Deathrattle: Draw a card.",
+    "flavor": "",
+    "keywords": [
+      "DEATHRATTLE"
+    ]
+  },
+  {
+    "cardCode": "AST034",
+    "name": "Roderick",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "ASTRID",
+    "rarity": "COMMON",
+    "attack": 3,
+    "health": 5,
+    "text": "Taunt.",
+    "flavor": "",
+    "keywords": [
+      "TAUNT"
+    ]
+  },
+  {
+    "cardCode": "AVA034",
+    "name": "Roll of Repurpose",
+    "manaCost": 1,
+    "type": "SPELL",
+    "heroClass": "AVA",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 1 damage to a minion. Draw a card.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "DES029",
+    "name": "Romulus",
+    "manaCost": 6,
+    "type": "MINION",
+    "heroClass": "DES",
+    "rarity": "EPIC",
+    "attack": 5,
+    "health": 5,
+    "text": "Deathrattle: Summon a 4/4 Shadow.",
+    "flavor": "",
+    "keywords": [
+      "DEATHRATTLE"
+    ]
+  },
+  {
+    "cardCode": "JIM033",
+    "name": "Ruby",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "JIMMY",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 2,
+    "text": "Battlecry: Deal 1 damage to a random enemy.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "IZZ036",
+    "name": "Senga, Wind Rider",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "IZZY",
+    "rarity": "RARE",
+    "attack": 4,
+    "health": 3,
+    "text": "Windfury.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "AVA035",
+    "name": "Sall-E",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "AVA",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 4,
+    "text": "Deathrattle: Summon a 1/1 Gadget Drone.",
+    "flavor": "",
+    "keywords": [
+      "DEATHRATTLE"
+    ]
+  },
+  {
+    "cardCode": "DRK038",
+    "name": "Scrap Scythe",
+    "manaCost": 3,
+    "type": "WEAPON",
+    "heroClass": "DEREK",
+    "rarity": "RARE",
+    "attack": 3,
+    "health": 2,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "DES030",
+    "name": "Selena",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "DES",
+    "rarity": "RARE",
+    "attack": 3,
+    "health": 4,
+    "text": "Stealth. Deathrattle: Deal 2 damage to the enemy hero.",
+    "flavor": "",
+    "keywords": [
+      "STEALTH",
+      "DEATHRATTLE"
+    ]
+  },
+  {
+    "cardCode": "AND_LOC03",
+    "name": "Serenity Hot Springs",
+    "manaCost": 3,
+    "type": "LOCATION",
+    "heroClass": "ANDERS",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "DES031",
+    "name": "Shazarda",
+    "manaCost": 7,
+    "type": "MINION",
+    "heroClass": "DES",
+    "rarity": "EPIC",
+    "attack": 6,
+    "health": 6,
+    "text": "Deathrattle: Deal 3 damage to all enemies.",
+    "flavor": "",
+    "keywords": [
+      "DEATHRATTLE"
+    ]
+  },
+  {
+    "cardCode": "AST035",
+    "name": "Shield of Fragility",
+    "manaCost": 2,
+    "type": "WEAPON",
+    "heroClass": "ASTRID",
+    "rarity": "RARE",
+    "attack": 1,
+    "health": 4,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "LUC038",
+    "name": "Sho",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "LUCAS",
+    "rarity": "COMMON",
+    "attack": 4,
+    "health": 2,
+    "text": "Combo: Draw a card.",
+    "flavor": "",
+    "keywords": [
+      "COMBO"
+    ]
+  },
+  {
+    "cardCode": "NEU090",
+    "name": "Short Sword",
+    "manaCost": 1,
+    "type": "WEAPON",
+    "heroClass": "NEUTRAL",
+    "rarity": "RARE",
+    "attack": 2,
+    "health": 2,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "NEU091",
+    "name": "Skales",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 4,
+    "health": 5,
+    "text": "Taunt.",
+    "flavor": "",
+    "keywords": [
+      "TAUNT"
+    ]
+  },
+  {
+    "cardCode": "DRK039",
+    "name": "Skip",
+    "manaCost": 1,
+    "type": "MINION",
+    "heroClass": "DEREK",
+    "rarity": "COMMON",
+    "attack": 1,
+    "health": 2,
+    "text": "Deathrattle: Draw a card.",
+    "flavor": "",
+    "keywords": [],
+    "minionType": "MECH"
+  },
+  {
+    "cardCode": "NEU092",
+    "name": "Small Discovery",
+    "manaCost": 1,
+    "type": "SPELL",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Draw a card.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "LUC039",
+    "name": "Sneaky Sneaky",
+    "manaCost": 2,
+    "type": "SPELL",
+    "heroClass": "LUCAS",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Give a friendly minion Stealth and +1/+1.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "JIM034",
+    "name": "Spear of Penetration",
+    "manaCost": 3,
+    "type": "WEAPON",
+    "heroClass": "JIMMY",
+    "rarity": "RARE",
+    "attack": 4,
+    "health": 2,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "DRK040",
+    "name": "Spence",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "DEREK",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 2,
+    "text": "Battlecry: Add a spare part to your hand.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "JIM035",
+    "name": "Stern",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "JIMMY",
+    "rarity": "COMMON",
+    "attack": 5,
+    "health": 3,
+    "text": "Battlecry: Deal 1 damage to all enemies.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "TAL033",
+    "name": "Stix",
+    "manaCost": 1,
+    "type": "MINION",
+    "heroClass": "TALA",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 1,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "DES032",
+    "name": "Stolen Identity",
+    "manaCost": 3,
+    "type": "SPELL",
+    "heroClass": "DES",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Copy a random enemy minion and add it to your hand.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "AST036",
+    "name": "Strategic Plans",
+    "manaCost": 2,
+    "type": "SPELL",
+    "heroClass": "ASTRID",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Draw 2 cards. Gain 2 Armor.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "IZZ037",
+    "name": "Sygna",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "IZZY",
+    "rarity": "RARE",
+    "attack": 4,
+    "health": 5,
+    "text": "Battlecry: Gain 4 Armor.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "DRK041",
+    "name": "Talbot L",
+    "manaCost": 7,
+    "type": "MINION",
+    "heroClass": "DEREK",
+    "rarity": "EPIC",
+    "attack": 6,
+    "health": 7,
+    "text": "Taunt. Deathrattle: Summon a 4/4 mech.",
+    "flavor": "",
+    "keywords": [],
+    "minionType": "MECH"
+  },
+  {
+    "cardCode": "DRK042",
+    "name": "Talbot M",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "DEREK",
+    "rarity": "COMMON",
+    "attack": 4,
+    "health": 5,
+    "text": "Taunt.",
+    "flavor": "",
+    "keywords": [],
+    "minionType": "MECH"
+  },
+  {
+    "cardCode": "DRK043",
+    "name": "Talbot S",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "DEREK",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 3,
+    "text": "Deathrattle: Summon a 1/1 mech.",
+    "flavor": "",
+    "keywords": [],
+    "minionType": "MECH"
+  },
+  {
+    "cardCode": "AST037",
+    "name": "Tamara",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "ASTRID",
+    "rarity": "RARE",
+    "attack": 2,
+    "health": 4,
+    "text": "Divine Shield.",
+    "flavor": "",
+    "keywords": [
+      "DIVINE_SHIELD"
+    ]
+  },
+  {
+    "cardCode": "LUC040",
+    "name": "Tandem",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "LUCAS",
+    "rarity": "COMMON",
+    "attack": 4,
+    "health": 3,
+    "text": "Combo: Gain +2/+1.",
+    "flavor": "",
+    "keywords": [
+      "COMBO"
+    ]
+  },
+  {
+    "cardCode": "JIM036",
+    "name": "Tayvon",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "JIMMY",
+    "rarity": "COMMON",
+    "attack": 3,
+    "health": 2,
+    "text": "Battlecry: Deal 2 damage to a random enemy.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "DES033",
+    "name": "The Anarchist",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "DES",
+    "rarity": "LEGENDARY",
+    "attack": 6,
+    "health": 4,
+    "text": "Battlecry: Destroy a random enemy minion.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "TAL034",
+    "name": "The Grand Sequoia",
+    "manaCost": 8,
+    "type": "MINION",
+    "heroClass": "TALA",
+    "rarity": "LEGENDARY",
+    "attack": 5,
+    "health": 8,
+    "text": "Taunt. Battlecry: Restore 5 Health to all friendly characters.",
+    "flavor": "",
+    "keywords": [
+      "TAUNT",
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "JIM037",
+    "name": "The Searing Anvil",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "JIMMY",
+    "rarity": "RARE",
+    "attack": 3,
+    "health": 4,
+    "text": "Your other minions have +1 Attack.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "DRK044",
+    "name": "The Zipper",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "DEREK",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 3,
+    "text": "Battlecry: Return a friendly minion to your hand.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "NEU093",
+    "name": "Timely Restock",
+    "manaCost": 3,
+    "type": "SPELL",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Draw 2 cards.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "AVA036",
+    "name": "Tiny Spark",
+    "manaCost": 1,
+    "type": "SPELL",
+    "heroClass": "AVA",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 1 damage.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "NEU094",
+    "name": "Tori",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 3,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "TAL035",
+    "name": "Trample",
+    "manaCost": 3,
+    "type": "SPELL",
+    "heroClass": "TALA",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "A friendly minion deals its Attack damage to an adjacent enemy.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "NEU095",
+    "name": "Trav",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 4,
+    "health": 4,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "DRK045",
+    "name": "Trax",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "DEREK",
+    "rarity": "COMMON",
+    "attack": 4,
+    "health": 3,
+    "text": "Deathrattle: Summon a 2/2 mech.",
+    "flavor": "",
+    "keywords": [
+      "DEATHRATTLE"
+    ]
+  },
+  {
+    "cardCode": "LUC041",
+    "name": "Trickwing",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "LUCAS",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 2,
+    "text": "Stealth.",
+    "flavor": "",
+    "keywords": [
+      "STEALTH"
+    ]
+  },
+  {
+    "cardCode": "DRK046",
+    "name": "Trimmer V1",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "DEREK",
+    "rarity": "COMMON",
+    "attack": 3,
+    "health": 2,
+    "text": "Deathrattle: Deal 2 damage to a random enemy.",
+    "flavor": "",
+    "keywords": [
+      "DEATHRATTLE"
+    ]
+  },
+  {
+    "cardCode": "AST038",
+    "name": "Trinity",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "ASTRID",
+    "rarity": "EPIC",
+    "attack": 3,
+    "health": 6,
+    "text": "Taunt. Divine Shield.",
+    "flavor": "",
+    "keywords": [
+      "TAUNT",
+      "DIVINE_SHIELD"
+    ]
+  },
+  {
+    "cardCode": "AST039",
+    "name": "Triumphant",
+    "manaCost": 4,
+    "type": "SPELL",
+    "heroClass": "ASTRID",
+    "rarity": "EPIC",
+    "attack": 0,
+    "health": 0,
+    "text": "Give a friendly minion +3/+3 and Divine Shield.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "NEU096",
+    "name": "Tumbler",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 3,
+    "health": 2,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "DES034",
+    "name": "Twilight's Judgment",
+    "manaCost": 4,
+    "type": "SPELL",
+    "heroClass": "DES",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 3 damage to all minions.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "NEU097",
+    "name": "Tybiel",
+    "manaCost": 6,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "RARE",
+    "attack": 5,
+    "health": 6,
+    "text": "Battlecry: Restore 4 Health to your hero.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "DES035",
+    "name": "Ulan",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "DES",
+    "rarity": "RARE",
+    "attack": 5,
+    "health": 5,
+    "text": "Deathrattle: Deal 2 damage to all minions.",
+    "flavor": "",
+    "keywords": [
+      "DEATHRATTLE"
+    ]
+  },
+  {
+    "cardCode": "IZZ038",
+    "name": "Uncover Treasure",
+    "manaCost": 2,
+    "type": "SPELL",
+    "heroClass": "IZZY",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Gain 3 Armor. Draw a card.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "TAL036",
+    "name": "Vanilla",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "TALA",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 4,
+    "text": "Battlecry: Restore 3 Health to a friendly character.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "NEU098",
+    "name": "Vince",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "RARE",
+    "attack": 4,
+    "health": 3,
+    "text": "Charge.",
+    "flavor": "",
+    "keywords": [
+      "CHARGE"
+    ]
+  },
+  {
+    "cardCode": "DES036",
+    "name": "Vlad",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "DES",
+    "rarity": "COMMON",
+    "attack": 4,
+    "health": 4,
+    "text": "Deathrattle: Deal 2 damage to the enemy hero.",
+    "flavor": "",
+    "keywords": [
+      "DEATHRATTLE"
+    ]
+  },
+  {
+    "cardCode": "AND030",
+    "name": "Vortex",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "ANDERS",
+    "rarity": "RARE",
+    "attack": 3,
+    "health": 5,
+    "text": "Battlecry: Freeze two random enemy minions.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "NEU099",
+    "name": "Voulder",
+    "manaCost": 7,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 7,
+    "health": 7,
+    "text": "Taunt.",
+    "flavor": "",
+    "keywords": [
+      "TAUNT"
+    ]
+  },
+  {
+    "cardCode": "DES037",
+    "name": "Vrasp",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "DES",
+    "rarity": "COMMON",
+    "attack": 4,
+    "health": 2,
+    "text": "Stealth.",
+    "flavor": "",
+    "keywords": [
+      "STEALTH"
+    ]
+  },
+  {
+    "cardCode": "DES038",
+    "name": "Vyren",
+    "manaCost": 6,
+    "type": "MINION",
+    "heroClass": "DES",
+    "rarity": "RARE",
+    "attack": 5,
+    "health": 5,
+    "text": "Battlecry: Destroy a random enemy minion.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "JIM038",
+    "name": "Warning Shot",
+    "manaCost": 0,
+    "type": "SPELL",
+    "heroClass": "JIMMY",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 1 damage to the enemy hero.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "LUC042",
+    "name": "Warp Staff",
+    "manaCost": 3,
+    "type": "WEAPON",
+    "heroClass": "LUCAS",
+    "rarity": "RARE",
+    "attack": 2,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "IZZ_LOC02",
+    "name": "Whisper Island",
+    "manaCost": 3,
+    "type": "LOCATION",
+    "heroClass": "IZZY",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 3,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "AVA037",
+    "name": "Whizz",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "AVA",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 2,
+    "text": "Battlecry: Summon a 1/1 Gadget Drone.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "AND031",
+    "name": "Xiao",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "ANDERS",
+    "rarity": "RARE",
+    "attack": 2,
+    "health": 3,
+    "text": "Freeze any character damaged by this minion.",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "NEU100",
+    "name": "Yip",
+    "manaCost": 1,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 1,
+    "health": 2,
+    "text": "",
+    "flavor": "",
+    "keywords": []
+  },
+  {
+    "cardCode": "AST040",
+    "name": "Yvette",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "ASTRID",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 4,
+    "text": "Battlecry: Give a friendly minion Taunt.",
+    "flavor": "",
+    "keywords": [
+      "TAUNT",
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "IZZ039",
+    "name": "Zahava",
+    "manaCost": 6,
+    "type": "MINION",
+    "heroClass": "IZZY",
+    "rarity": "EPIC",
+    "attack": 5,
+    "health": 6,
+    "text": "Battlecry: Gain 5 Armor.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "NEU101",
+    "name": "Zhang",
+    "manaCost": 5,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 5,
+    "health": 4,
+    "text": "Battlecry: Deal 2 damage to a random enemy.",
+    "flavor": "",
+    "keywords": [
+      "BATTLECRY"
+    ]
+  },
+  {
+    "cardCode": "DRK047",
+    "name": "Zims",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "DEREK",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 3,
+    "text": "Battlecry: Give a friendly mech +1 Attack.",
+    "flavor": "",
+    "keywords": [],
+    "minionType": "MECH"
   }
 ]

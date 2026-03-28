@@ -66,10 +66,7 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
           ${className ?? ''}
         `}
       >
-        {/* Diamond pattern for card back */}
-        <div className="absolute inset-2 border border-amber-600 rounded-lg opacity-40" />
-        <div className="absolute inset-4 border border-amber-700 rounded-md opacity-25 rotate-45 scale-75" />
-        <div className="text-amber-600 font-extrabold text-sm tracking-widest select-none">MIRO</div>
+        <img src="/cards/card-back.png" alt="" className="absolute inset-0 w-full h-full object-cover rounded-xl" />
       </button>
     );
   }
@@ -312,9 +309,7 @@ export function CardBack({ size = 'md', onClick, disabled }: { size?: 'sm' | 'md
         ${disabled ? 'cursor-not-allowed' : ''}
       `}
     >
-      <div className="absolute inset-2 border border-amber-600 rounded-lg opacity-40" />
-      <div className="absolute inset-4 border border-amber-700 rounded-md opacity-25 rotate-45 scale-75" />
-      <div className="text-amber-600 font-extrabold text-sm tracking-widest select-none">MIRO</div>
+      <img src="/cards/card-back.png" alt="" className="absolute inset-0 w-full h-full object-cover rounded-xl" />
     </button>
   );
 }

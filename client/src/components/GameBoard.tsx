@@ -248,7 +248,14 @@ const HERO_POWER_SVG: Record<HeroClass, React.ReactNode> = {
   ),
 };
 
-// ─── Hero Portrait SVGs ───
+// ─── Hero Portrait PNGs (available for some heroes) ───
+const HERO_PORTRAIT_PNGS: Partial<Record<HeroClass, string>> = {
+  JIMMY: '/heroes/JIMMY.png',
+  TALA: '/heroes/TALA.png',
+  DEREK: '/heroes/DEREK.png',
+};
+
+// ─── Hero Portrait SVGs (fallback) ───
 const HERO_PORTRAIT_SVG: Record<HeroClass, React.ReactNode> = {
   JIMMY: (
     <svg viewBox="0 0 60 60" className="w-full h-full">
@@ -780,9 +787,13 @@ function HeroPortrait({
             ${heroDamage ? 'animate-hero-damage animate-damage-shake' : ''}
           `}
         >
-          {/* Character SVG portrait */}
+          {/* Character portrait */}
           <div className="absolute inset-1 rounded-full overflow-hidden opacity-80">
-            {HERO_PORTRAIT_SVG[heroClass]}
+            {HERO_PORTRAIT_PNGS[heroClass] ? (
+              <img src={HERO_PORTRAIT_PNGS[heroClass]} alt="" className="w-full h-full object-cover" />
+            ) : (
+              HERO_PORTRAIT_SVG[heroClass]
+            )}
           </div>
           {/* HP overlay at bottom */}
           <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 text-lg font-bold z-10 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] ${isDamaged ? 'text-red-400' : 'text-white'}`}>
