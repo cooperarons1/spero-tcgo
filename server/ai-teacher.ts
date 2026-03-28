@@ -146,12 +146,57 @@ function totalAvailableDamage(player: PlayerState): number {
 
 // ── Deep Clone ──
 
+function cloneMinion(m: BoardMinion): BoardMinion {
+  return {
+    instanceId: m.instanceId, cardCode: m.cardCode,
+    currentAttack: m.currentAttack, currentHealth: m.currentHealth, maxHealth: m.maxHealth,
+    canAttack: m.canAttack, attacksRemaining: m.attacksRemaining,
+    hasDivineShield: m.hasDivineShield, isFrozen: m.isFrozen, isSilenced: m.isSilenced,
+    hasStealthUntilAttack: m.hasStealthUntilAttack,
+    enchantments: m.enchantments.map(e => ({ ...e, addedKeywords: e.addedKeywords ? [...e.addedKeywords] : undefined })),
+    currentOrraCharge: m.currentOrraCharge, isCollared: m.isCollared, collarOwnerIndex: m.collarOwnerIndex,
+  };
+}
+
+function clonePlayer(p: PlayerState): PlayerState {
+  return {
+    playerId: p.playerId, playerName: p.playerName, heroClass: p.heroClass,
+    health: p.health, maxHealth: p.maxHealth, armor: p.armor,
+    mana: p.mana, maxMana: p.maxMana,
+    hand: p.hand.map(c => ({ ...c })),
+    board: p.board.map(cloneMinion),
+    weapon: p.weapon ? { ...p.weapon } : null,
+    locations: p.locations.map(l => ({ ...l })),
+    heroPowerUsed: p.heroPowerUsed, heroAttackThisTurn: p.heroAttackThisTurn,
+    fatigueDamage: p.fatigueDamage,
+    graveyard: p.graveyard.map(c => ({ ...c })),
+    secrets: p.secrets.map(s => ({ ...s })),
+    heroPowerUpgraded: p.heroPowerUpgraded, upgradeProgress: p.upgradeProgress,
+  };
+}
+
 /**
  * Deep-clone a GameState for lookahead simulation.
- * Uses structuredClone for correctness (handles nested objects, arrays).
+ * Manually clones to avoid copying the huge log array — saves ~90% memory.
  */
 function cloneGame(game: GameState): GameState {
-  return structuredClone(game);
+  return {
+    players: [clonePlayer(game.players[0]), clonePlayer(game.players[1])],
+    decks: [game.decks[0].map(c => ({ ...c })), game.decks[1].map(c => ({ ...c }))],
+    currentPlayerIndex: game.currentPlayerIndex,
+    turnNumber: game.turnNumber,
+    phase: game.phase,
+    mulliganChoices: [game.mulliganChoices[0]?.slice() ?? null, game.mulliganChoices[1]?.slice() ?? null],
+    mulliganConfirmed: [...game.mulliganConfirmed],
+    winner: game.winner,
+    winReason: game.winReason,
+    lastAction: game.lastAction,
+    log: [],  // Drop the log — not needed for evaluation
+    turnStartedAt: game.turnStartedAt,
+    playerStats: [{ ...game.playerStats[0] }, { ...game.playerStats[1] }],
+    pendingInteraction: null,
+    cardsPlayedThisTurn: game.cardsPlayedThisTurn,
+  };
 }
 
 // ── Lookahead Evaluation ──
