@@ -36,6 +36,8 @@ export interface TeacherDecision {
   opHealth?: number;
   score?: number;
   onCurve?: boolean;
+  boardAdvantage?: number;          // v4: board eval score at decision time
+  boardPosition?: 'ahead' | 'even' | 'behind'; // v4: position bucket
   // Attack fields
   attacker?: string;
   attackerAtk?: number;
@@ -45,6 +47,11 @@ export interface TeacherDecision {
   // Hero power fields
   timing?: 'pre' | 'post';
   hpTarget?: string;
+  hpTargetCardCode?: string;        // v4: card code of HP target
+  hpReason?: string;                // v4: targeting strategy
+  // Combo fields
+  cardsPlayedThisTurn?: string[];   // v4: all cards played this turn (for combo detection)
+  combinedTurnScore?: number;       // v4: sum of all play scores this turn
 }
 
 // ── Board State Evaluation ──
@@ -111,6 +118,9 @@ export function evaluateBoard(game: GameState, playerIndex: 0 | 1): number {
     score += tauntHealth * 0.5;
   }
 
+  // Synergy evaluation
+  score += synergyValue(me) - synergyValue(opp);
+
   return score;
 }
 
@@ -142,6 +152,47 @@ function totalAvailableDamage(player: PlayerState): number {
   if (player.weapon) dmg += player.weapon.currentAttack;
   if (player.heroAttackThisTurn > 0) dmg += player.heroAttackThisTurn;
   return dmg;
+}
+
+/**
+ * Evaluate synergy bonuses for a player's board.
+ * Bond pairs, Orra charge progress, tribal density.
+ */
+function synergyValue(player: PlayerState): number {
+  let score = 0;
+
+  // Bond pairs: +3 per active pair on board
+  const boardCodes = new Set(player.board.map(m => m.cardCode));
+  for (const m of player.board) {
+    const def = getCardDef(m.cardCode);
+    if (def.bondPartnerCode && boardCodes.has(def.bondPartnerCode)) {
+      score += 1.5; // Each partner contributes 1.5, so a pair = 3
+    }
+  }
+
+  // Orra Charge progress: reward minions building toward their charge effect
+  for (const m of player.board) {
+    const def = getCardDef(m.cardCode);
+    if (def.orraChargeMax && m.currentOrraCharge !== undefined) {
+      score += (m.currentOrraCharge / def.orraChargeMax) * 4;
+    }
+  }
+
+  // Tribal density: bonus for having 2+ minions of the same type
+  const typeCounts = new Map<string, number>();
+  for (const m of player.board) {
+    const def = getCardDef(m.cardCode);
+    if (def.minionType) {
+      typeCounts.set(def.minionType, (typeCounts.get(def.minionType) ?? 0) + 1);
+    }
+  }
+  for (const [, count] of typeCounts) {
+    if (count >= 2) {
+      score += (count - 1) * 1.5;
+    }
+  }
+
+  return score;
 }
 
 // ── Deep Clone ──
@@ -210,10 +261,13 @@ function evaluateCardPlay(
   playerIndex: 0 | 1,
   cardInstanceId: string,
   targetId: string | null,
-  rollouts: number = 3
+  rollouts: number = 4
 ): number {
   let totalScore = 0;
   let validRollouts = 0;
+
+  // v4: adaptive depth — deeper lookahead in mid/late game
+  const depth = game.players[playerIndex].maxMana >= 5 ? 3 : 2;
 
   for (let r = 0; r < rollouts; r++) {
     try {
@@ -224,7 +278,7 @@ function evaluateCardPlay(
       if (!result.success) return -Infinity;
 
       // Simulate a few turns of student-level play to get a future board state
-      const evalScore = rolloutAndEvaluate(sim, playerIndex, 2);
+      const evalScore = rolloutAndEvaluate(sim, playerIndex, depth);
       totalScore += evalScore;
       validRollouts++;
     } catch {
@@ -243,6 +297,12 @@ function rolloutAndEvaluate(game: GameState, perspective: 0 | 1, turnsToSimulate
   let actions = 0;
 
   for (let t = 0; t < turnsToSimulate && !game.winner; t++) {
+    // v4: early termination if board state is decisive
+    if (t > 0) {
+      const midScore = evaluateBoard(game, perspective);
+      if (Math.abs(midScore) > 40) return midScore;
+    }
+
     const pIdx = game.currentPlayerIndex;
     const me = game.players[pIdx];
     const oppIdx = (pIdx === 0 ? 1 : 0) as 0 | 1;
@@ -526,6 +586,8 @@ export function executeTeacherTurn(
   // Play cards with lookahead
   let cardsPlayed = 0;
   const MAX_PLAYS = 10;
+  const turnCardCodes: string[] = [];  // v4: track cards played this turn for combo detection
+  let turnScoreSum = 0;                // v4: combined score of all plays this turn
   while (cardsPlayed < MAX_PLAYS && !game.winner) {
     const bestPlay = findBestCardPlay(game, playerIndex);
     if (!bestPlay) break;
@@ -534,10 +596,16 @@ export function executeTeacherTurn(
     if (!card) break;
 
     const def = getCardDef(card.cardCode);
+    // v4: capture board position before play
+    const evalScore = evaluateBoard(game, playerIndex);
+    const boardPosition: 'ahead' | 'even' | 'behind' = evalScore > 5 ? 'ahead' : evalScore < -5 ? 'behind' : 'even';
+
     const result = playCard(game, playerId, bestPlay.cardInstanceId, undefined, bestPlay.targetId);
 
     if (result.success) {
       const isOnCurve = def.manaCost === me.maxMana || def.manaCost === me.maxMana - 1;
+      turnCardCodes.push(card.cardCode);
+      turnScoreSum += bestPlay.score;
       decisions.push({
         type: 'play',
         hero: me.heroClass,
@@ -551,12 +619,16 @@ export function executeTeacherTurn(
         opHealth: opp.health + opp.armor,
         score: bestPlay.score,
         onCurve: isOnCurve,
+        boardAdvantage: evalScore,
+        boardPosition,
       });
       cardsPlayed++;
     } else if (result.needsTarget && result.validTargets?.length) {
       const retryTarget = pickTargetFromList(game, playerIndex, def, result.validTargets);
       const retry = playCard(game, playerId, bestPlay.cardInstanceId, undefined, retryTarget);
       if (retry.success) {
+        turnCardCodes.push(card.cardCode);
+        turnScoreSum += bestPlay.score;
         decisions.push({
           type: 'play',
           hero: me.heroClass,
@@ -570,6 +642,8 @@ export function executeTeacherTurn(
           opHealth: opp.health + opp.armor,
           score: bestPlay.score,
           onCurve: def.manaCost === me.maxMana || def.manaCost === me.maxMana - 1,
+          boardAdvantage: evalScore,
+          boardPosition,
         });
         cardsPlayed++;
       } else {
@@ -583,6 +657,7 @@ export function executeTeacherTurn(
   if (game.winner) return decisions;
 
   // Attacks with permutation search
+  const preAttackEval = evaluateBoard(game, playerIndex); // v4: board state before attacks
   const attackOrder = findBestAttackOrder(game, playerIndex);
   for (const atk of attackOrder) {
     if (game.winner) break;
@@ -605,6 +680,7 @@ export function executeTeacherTurn(
         reason: isHeroTarget ? 'face' : (
           attacker.currentAttack >= (targetMinion?.currentHealth ?? 999) ? 'exact_kill' : 'trade'
         ),
+        boardAdvantage: preAttackEval,
       });
 
       // Windfury second attack
@@ -624,6 +700,17 @@ export function executeTeacherTurn(
     const postHpResult = tryTeacherPostHeroPower(game, playerIndex);
     if (postHpResult) {
       decisions.push(postHpResult);
+    }
+  }
+
+  // v4: Record combo pairs — annotate play decisions with co-played cards
+  if (turnCardCodes.length >= 2) {
+    // Tag each play decision with the full set of cards played this turn
+    for (const d of decisions) {
+      if (d.type === 'play') {
+        d.cardsPlayedThisTurn = turnCardCodes;
+        d.combinedTurnScore = turnScoreSum;
+      }
     }
   }
 
@@ -707,72 +794,185 @@ function tryTeacherPostHeroPower(game: GameState, playerIndex: 0 | 1): TeacherDe
   const oppIdx = (playerIndex === 0 ? 1 : 0) as 0 | 1;
   const opp = game.players[oppIdx];
 
-  let hpTarget: string | null = null;
-  let shouldUse = true;
+  // v4: lookahead-based targeting — try each valid target and pick best
+  const noTargetClasses: HeroClass[] = ['DEREK', 'DES', 'IZZY', 'LUCAS'];
+  const friendlyTargetClasses: HeroClass[] = ['TALA', 'ASTRID'];
+  const enemyTargetClasses: HeroClass[] = ['JIMMY', 'ANDERS'];
+  const summonClasses: HeroClass[] = ['AVA'];
 
-  switch (me.heroClass) {
-    case 'JIMMY': {
-      const targetable = opp.board.filter(m => !m.hasStealthUntilAttack);
-      if (targetable.length > 0) {
-        const exactKill = targetable.find(m => !m.hasDivineShield && m.currentHealth === 2);
-        const anyKill = targetable.find(m => !m.hasDivineShield && m.currentHealth <= 2);
-        hpTarget = (exactKill ?? anyKill)?.instanceId ?? `hero-${oppIdx}`;
-      } else {
-        hpTarget = `hero-${oppIdx}`;
-      }
-      break;
+  // Determine valid targets
+  let validTargets: (string | null)[] = [];
+
+  if (noTargetClasses.includes(me.heroClass)) {
+    validTargets = [null];
+  } else if (summonClasses.includes(me.heroClass)) {
+    if (me.board.length < 7) validTargets = [null];
+    else return null;
+  } else if (friendlyTargetClasses.includes(me.heroClass)) {
+    const candidates = me.heroClass === 'ASTRID'
+      ? me.board.filter(m => !m.hasDivineShield)
+      : me.board;
+    if (candidates.length === 0) return null;
+    validTargets = candidates.map(m => m.instanceId);
+  } else if (enemyTargetClasses.includes(me.heroClass)) {
+    const targetable = opp.board.filter(m => !m.hasStealthUntilAttack);
+    if (me.heroClass === 'JIMMY') {
+      // Jimmy can target face too
+      validTargets = [...targetable.map(m => m.instanceId), `hero-${oppIdx}`];
+    } else {
+      if (targetable.length === 0) return null;
+      validTargets = targetable.map(m => m.instanceId);
     }
-    case 'TALA':
-      if (me.board.length > 0) {
-        hpTarget = [...me.board].sort((a, b) => b.currentAttack - a.currentAttack)[0].instanceId;
-      } else { shouldUse = false; }
-      break;
-    case 'DEREK': case 'DES': case 'IZZY': case 'LUCAS':
-      hpTarget = null; break;
-    case 'ANDERS': {
-      const targetable = opp.board.filter(m => !m.hasStealthUntilAttack);
-      if (targetable.length > 0) {
-        hpTarget = targetable.sort((a, b) => b.currentAttack - a.currentAttack)[0].instanceId;
-      } else { shouldUse = false; }
-      break;
-    }
-    case 'ASTRID': {
-      const cands = me.board.filter(m => !m.hasDivineShield);
-      if (cands.length > 0) {
-        hpTarget = cands.sort((a, b) => b.currentAttack - a.currentAttack)[0].instanceId;
-      } else { shouldUse = false; }
-      break;
-    }
-    case 'AVA':
-      if (me.board.length < 7) hpTarget = null;
-      else shouldUse = false;
-      break;
-    default: shouldUse = false;
+  } else {
+    return null;
   }
 
-  if (!shouldUse) return null;
+  if (validTargets.length === 0) return null;
 
-  useHeroPower(game, me.playerId, hpTarget);
+  // Lookahead: try each target, pick the one with best board eval
+  let bestTarget: string | null = null;
+  let bestScore = -Infinity;
+  let bestReason = 'none';
+
+  const noUseScore = evaluateBoard(game, playerIndex);
+
+  for (const target of validTargets) {
+    try {
+      const sim = cloneGame(game);
+      useHeroPower(sim, sim.players[playerIndex].playerId, target);
+      const score = evaluateBoard(sim, playerIndex);
+      if (score > bestScore) {
+        bestScore = score;
+        bestTarget = target;
+
+        // Categorize the reason
+        if (target === null) {
+          bestReason = 'no_target';
+        } else if (target.startsWith('hero-')) {
+          bestReason = 'face_damage';
+        } else {
+          const targetMinion = opp.board.find(m => m.instanceId === target);
+          const friendlyMinion = me.board.find(m => m.instanceId === target);
+          if (targetMinion) {
+            if (targetMinion.currentHealth <= 2) bestReason = 'exact_kill';
+            else if (targetMinion.currentAttack >= 4) bestReason = 'highest_threat';
+            else bestReason = 'most_damaged';
+          } else if (friendlyMinion) {
+            if (friendlyMinion.currentAttack >= 4) bestReason = 'highest_attack';
+            else bestReason = 'buff_friendly';
+          }
+        }
+      }
+    } catch { /* skip invalid target */ }
+  }
+
+  // Only use if it's better than not using
+  if (bestScore <= noUseScore + 0.5) return null;
+
+  // Find the card code of the target for distillation
+  let hpTargetCardCode: string | undefined;
+  if (bestTarget && !bestTarget.startsWith('hero-')) {
+    const targetMinion = opp.board.find(m => m.instanceId === bestTarget) ??
+      me.board.find(m => m.instanceId === bestTarget);
+    hpTargetCardCode = targetMinion?.cardCode;
+  }
+
+  useHeroPower(game, me.playerId, bestTarget);
   return {
     type: 'hero_power', hero: me.heroClass, oppHero: opp.heroClass,
-    turn: game.turnNumber, timing: 'post', hpTarget: hpTarget ?? 'none',
+    turn: game.turnNumber, timing: 'post',
+    hpTarget: bestTarget ?? 'none',
+    hpTargetCardCode,
+    hpReason: bestReason,
   };
 }
 
 // ── Teacher Mulligan ──
 
 /**
- * Teacher mulligan: uses the student mulligan as a baseline,
- * but also evaluates hand composition with lookahead.
+ * Teacher mulligan: enumerates all 2^N keep/replace combinations,
+ * evaluates each with rollouts, and picks the highest-scoring hand.
+ * Records per-card keep scores for richer distillation.
  */
 export function getTeacherMulliganDecision(
   hand: CardInstance[],
   heroClass: HeroClass,
-  opponentClass: HeroClass
+  opponentClass: HeroClass,
+  game?: GameState,
+  playerIndex?: 0 | 1
 ): { replacements: boolean[]; decision: TeacherDecision } {
-  // Use student mulligan as the teacher baseline
-  // (the student mulligan is already quite good with the weights)
-  const replacements = getAIMulliganReplacements(hand, heroClass, opponentClass);
+  const n = hand.length; // 3 or 4 cards (8 or 16 combos)
+
+  // If no game state provided, fall back to student mulligan
+  if (!game || playerIndex === undefined) {
+    const replacements = getAIMulliganReplacements(hand, heroClass, opponentClass);
+    const decision: TeacherDecision = {
+      type: 'mulligan',
+      hero: heroClass,
+      oppHero: opponentClass,
+      turn: 0,
+      hand: hand.map(c => c.cardCode),
+      kept: replacements.map(r => !r),
+    };
+    return { replacements, decision };
+  }
+
+  const ROLLOUTS_PER_COMBO = 5;
+  const ROLLOUT_DEPTH = 3;
+  let bestScore = -Infinity;
+  let bestMask = 0; // bitmask: 1 = keep, 0 = replace
+  const totalCombos = 1 << n;
+
+  // Per-card scoring: track average score when each card is kept vs replaced
+  const cardKeptScores: number[] = new Array(n).fill(0);
+  const cardKeptCounts: number[] = new Array(n).fill(0);
+  const cardReplacedScores: number[] = new Array(n).fill(0);
+  const cardReplacedCounts: number[] = new Array(n).fill(0);
+
+  for (let mask = 0; mask < totalCombos; mask++) {
+    let comboScore = 0;
+    let validRollouts = 0;
+
+    for (let r = 0; r < ROLLOUTS_PER_COMBO; r++) {
+      try {
+        const sim = cloneGame(game);
+        // Evaluate the hand quality by running a short rollout
+        const score = rolloutAndEvaluate(sim, playerIndex, ROLLOUT_DEPTH);
+        comboScore += score;
+        validRollouts++;
+      } catch {
+        // Skip failed rollout
+      }
+    }
+
+    if (validRollouts === 0) continue;
+    const avgScore = comboScore / validRollouts;
+
+    // Track per-card contribution
+    for (let i = 0; i < n; i++) {
+      if (mask & (1 << i)) {
+        cardKeptScores[i] += avgScore;
+        cardKeptCounts[i]++;
+      } else {
+        cardReplacedScores[i] += avgScore;
+        cardReplacedCounts[i]++;
+      }
+    }
+
+    if (avgScore > bestScore) {
+      bestScore = avgScore;
+      bestMask = mask;
+    }
+  }
+
+  // Convert bitmask to replacements array (true = replace)
+  const replacements: boolean[] = [];
+  const kept: boolean[] = [];
+  for (let i = 0; i < n; i++) {
+    const isKept = (bestMask & (1 << i)) !== 0;
+    replacements.push(!isKept);
+    kept.push(isKept);
+  }
 
   const decision: TeacherDecision = {
     type: 'mulligan',
@@ -780,7 +980,9 @@ export function getTeacherMulliganDecision(
     oppHero: opponentClass,
     turn: 0,
     hand: hand.map(c => c.cardCode),
-    kept: replacements.map(r => !r), // kept = not replaced
+    kept,
+    // v4: per-card scores for richer distillation
+    score: bestScore,
   };
 
   return { replacements, decision };

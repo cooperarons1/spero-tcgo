@@ -45,6 +45,12 @@ interface AIWeights {
   mulliganKeepByMatchup?: Record<string, Record<string, number>>; // cardCode → oppProfile → keep score
   attackFaceThreshold?: Record<string, number>;                 // oppProfile → board advantage to go face
   heroPowerTiming?: Record<string, 'pre' | 'post' | 'always'>; // class → timing preference
+  // v4 distilled fields
+  attackFaceThresholdByMatchup?: Record<string, Record<string, number>>; // hero → oppHero → threshold
+  cardPositionBonus?: Record<string, Record<string, number>>;   // cardCode → 'ahead'|'even'|'behind' → bonus
+  cardPhaseBonus?: Record<string, Record<string, number>>;      // cardCode → 'early'|'mid'|'late' → bonus
+  heroPowerTargetStrategy?: Record<string, string>;             // heroClass → targeting strategy
+  comboPairs?: Record<string, Record<string, number>>;          // cardCode → partnerCode → bonus
 }
 
 let aiWeights: AIWeights | null = null;
@@ -112,6 +118,32 @@ function getAttackFaceThreshold(oppProfile: string): number {
 /** Get hero power timing preference from distilled teacher data */
 function getHeroPowerTiming(heroClass: HeroClass): 'pre' | 'post' | 'always' | null {
   return aiWeights?.heroPowerTiming?.[heroClass] ?? null;
+}
+
+/** v4: Get per-matchup attack face threshold (hero vs oppHero), fallback to profile-based */
+function getAttackFaceThresholdByMatchup(myHero: HeroClass, oppHero: HeroClass): number | null {
+  const threshold = aiWeights?.attackFaceThresholdByMatchup?.[myHero]?.[oppHero];
+  return threshold !== undefined ? threshold : null;
+}
+
+/** v4: Get card position bonus (ahead/even/behind) */
+function getCardPositionBonus(cardCode: string, position: 'ahead' | 'even' | 'behind'): number {
+  return aiWeights?.cardPositionBonus?.[cardCode]?.[position] ?? 0;
+}
+
+/** v4: Get card phase bonus (early/mid/late) */
+function getCardPhaseBonus(cardCode: string, phase: 'early' | 'mid' | 'late'): number {
+  return aiWeights?.cardPhaseBonus?.[cardCode]?.[phase] ?? 0;
+}
+
+/** v4: Get hero power target strategy */
+function getHeroPowerTargetStrategy(heroClass: HeroClass): string | null {
+  return aiWeights?.heroPowerTargetStrategy?.[heroClass] ?? null;
+}
+
+/** v4: Get combo pair bonus for playing a card when partner is in hand */
+function getComboPairBonus(cardCode: string, partnerCode: string): number {
+  return aiWeights?.comboPairs?.[cardCode]?.[partnerCode] ?? 0;
 }
 
 /** Get opponent's class profile from weights */
@@ -847,6 +879,25 @@ export function cardPlayPriority(def: CardDef, me: PlayerState, opp: PlayerState
     score += getCardOnCurveBonus(def.cardCode);
   }
 
+  // v4: Position-aware card bonus (ahead/even/behind)
+  const advantage = boardAdvantage(me, opp);
+  const position: 'ahead' | 'even' | 'behind' = advantage > 5 ? 'ahead' : advantage < -5 ? 'behind' : 'even';
+  score += getCardPositionBonus(def.cardCode, position);
+
+  // v4: Phase-aware card bonus (early/mid/late)
+  const phase: 'early' | 'mid' | 'late' = me.maxMana <= 4 ? 'early' : me.maxMana <= 7 ? 'mid' : 'late';
+  score += getCardPhaseBonus(def.cardCode, phase);
+
+  // v4: Combo pair bonus — boost if a known combo partner is in hand
+  for (const handCard of me.hand) {
+    if (handCard.cardCode === def.cardCode) continue;
+    const comboBonus = getComboPairBonus(def.cardCode, handCard.cardCode);
+    if (comboBonus > 0) {
+      score += comboBonus;
+      break; // only apply best combo bonus once
+    }
+  }
+
   return score;
 }
 
@@ -1023,9 +1074,10 @@ export function pickSmartAttackTarget(
     }
   }
 
-  // v3 distilled: use teacher-learned face threshold to decide trade-vs-face
+  // v4: per-matchup threshold with v3 profile-based fallback
   const oppProfile = getOpponentProfile(opp.heroClass);
-  const faceThreshold = getAttackFaceThreshold(oppProfile);
+  const faceThreshold = getAttackFaceThresholdByMatchup(me.heroClass, opp.heroClass)
+    ?? getAttackFaceThreshold(oppProfile);
   const advantage = boardAdvantage(me, opp);
 
   // Only go face if we have sufficient board advantage
@@ -1115,10 +1167,17 @@ function usePostAttackHeroPower(
   let shouldUse = true;
 
   switch (me.heroClass) {
-    case 'JIMMY':
-      // Orra Arrow: 2 damage targeted — prefer killing a minion exactly, else hit face
-      hpTarget = pickDamageHeroPowerTarget(opp, oppIdx, 2);
+    case 'JIMMY': {
+      // v4: use distilled strategy if available
+      const jimmyTarget = getDistilledHeroPowerTarget(me.heroClass, me, opp, oppIdx);
+      if (jimmyTarget !== undefined) {
+        hpTarget = jimmyTarget;
+      } else {
+        // Orra Arrow: 2 damage targeted — prefer killing a minion exactly, else hit face
+        hpTarget = pickDamageHeroPowerTarget(opp, oppIdx, 2);
+      }
       break;
+    }
 
     case 'DES':
       // Orra Siphon: 2 damage to enemy hero (no targeting needed)
@@ -1141,20 +1200,27 @@ function usePostAttackHeroPower(
       hpTarget = null;
       break;
 
-    case 'ANDERS':
-      // Freeze + 1 damage to enemy minion — target highest threat
-      if (opp.board.length > 0) {
-        const targetable = opp.board.filter(m => !m.hasStealthUntilAttack);
-        if (targetable.length > 0) {
-          // Prefer freezing highest-attack minion (prevents most damage)
-          hpTarget = targetable.sort((a, b) => b.currentAttack - a.currentAttack)[0].instanceId;
+    case 'ANDERS': {
+      // v4: use distilled strategy if available
+      const andersTarget = getDistilledHeroPowerTarget(me.heroClass, me, opp, oppIdx);
+      if (andersTarget !== undefined) {
+        if (andersTarget === null) shouldUse = false;
+        else hpTarget = andersTarget;
+      } else {
+        // Freeze + 1 damage to enemy minion — target highest threat
+        if (opp.board.length > 0) {
+          const targetable = opp.board.filter(m => !m.hasStealthUntilAttack);
+          if (targetable.length > 0) {
+            hpTarget = targetable.sort((a, b) => b.currentAttack - a.currentAttack)[0].instanceId;
+          } else {
+            shouldUse = false;
+          }
         } else {
           shouldUse = false;
         }
-      } else {
-        shouldUse = false;
       }
       break;
+    }
 
     case 'ASTRID': {
       // Mighty Guard: give Divine Shield to biggest friendly minion without it
@@ -1199,6 +1265,54 @@ function usePostAttackHeroPower(
   if (hpTarget !== null || noTargetNeeded) {
     useHeroPower(game, aiPlayerId, hpTarget);
     broadcast();
+  }
+}
+
+/**
+ * v4: Pick hero power target using distilled strategy from teacher data.
+ * Returns undefined if no strategy available (fall back to hand-coded logic).
+ * Returns null if strategy says don't use.
+ */
+function getDistilledHeroPowerTarget(
+  heroClass: HeroClass,
+  me: PlayerState,
+  opp: PlayerState,
+  oppIdx: 0 | 1
+): string | null | undefined {
+  const strategy = getHeroPowerTargetStrategy(heroClass);
+  if (!strategy) return undefined; // no distilled data, use fallback
+
+  const targetable = opp.board.filter(m => !m.hasStealthUntilAttack);
+  if (targetable.length === 0) {
+    // Face or no use depending on hero
+    if (heroClass === 'JIMMY') return `hero-${oppIdx}`;
+    return null;
+  }
+
+  switch (strategy) {
+    case 'exact_kill': {
+      // Try to find a minion we can exactly kill
+      const hpDamage = heroClass === 'JIMMY' ? 2 : heroClass === 'ANDERS' ? 1 : 2;
+      const exact = targetable
+        .filter(m => !m.hasDivineShield && m.currentHealth === hpDamage)
+        .sort((a, b) => threatScore(b) - threatScore(a));
+      if (exact.length > 0) return exact[0].instanceId;
+      // Fall through to highest_threat
+      return targetable.sort((a, b) => threatScore(b) - threatScore(a))[0].instanceId;
+    }
+    case 'highest_threat':
+      return targetable.sort((a, b) => threatScore(b) - threatScore(a))[0].instanceId;
+    case 'highest_attack':
+      return targetable.sort((a, b) => b.currentAttack - a.currentAttack)[0].instanceId;
+    case 'most_damaged': {
+      const damaged = targetable.filter(m => m.currentHealth < m.maxHealth);
+      if (damaged.length > 0) return damaged.sort((a, b) => (a.currentHealth / a.maxHealth) - (b.currentHealth / b.maxHealth))[0].instanceId;
+      return targetable.sort((a, b) => threatScore(b) - threatScore(a))[0].instanceId;
+    }
+    case 'face_damage':
+      return `hero-${oppIdx}`;
+    default:
+      return undefined; // unknown strategy, use fallback
   }
 }
 

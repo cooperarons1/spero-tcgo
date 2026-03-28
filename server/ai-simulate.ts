@@ -42,9 +42,17 @@ const teacherMode = args.includes('--teacher');
 const teacherVsTeacher = args.includes('--teacher-vs-teacher');
 const recordMode = args.includes('--record');
 const distillAfter = args.includes('--distill');
+const targetedMode = args.includes('--targeted');
+const hero1Idx = args.indexOf('--hero1');
+const hero1Forced = hero1Idx >= 0 ? (args[hero1Idx + 1] as HeroClass) : null;
+const hero2Idx = args.indexOf('--hero2');
+const hero2Forced = hero2Idx >= 0 ? (args[hero2Idx + 1] as HeroClass) : null;
+const useTeacher = teacherMode || teacherVsTeacher;
+const teacherPercentIdx = args.indexOf('--teacher-percent');
+const teacherPercent = teacherPercentIdx >= 0 ? parseInt(args[teacherPercentIdx + 1] || '100') : (useTeacher ? 100 : 0);
 
 // Decision recording — async writes with large buffer for performance
-const shouldRecord = recordMode || teacherMode || teacherVsTeacher;
+const shouldRecord = recordMode || teacherMode || teacherVsTeacher || teacherPercent > 0;
 let decisionStream: fs.WriteStream | null = null;
 if (shouldRecord) {
   decisionStream = fs.createWriteStream(DECISIONS_PATH, { flags: 'a', highWaterMark: 1024 * 1024 }); // 1MB buffer
@@ -57,17 +65,62 @@ function recordDecision(d: TeacherDecision) {
   decisionCount++;
 }
 
-const useTeacher = teacherMode || teacherVsTeacher;
-
 console.log(`\n🎮 Miro TCGO AI Simulator — Hearthstone Edition`);
 if (useTeacher) {
   console.log(`Mode: ${teacherVsTeacher ? 'Teacher vs Teacher' : 'Teacher (P1) vs Student (P2)'}`);
   if (recordMode || useTeacher) console.log(`Recording decisions to ${DECISIONS_PATH}`);
 }
+if (teacherPercent > 0 && teacherPercent < 100) {
+  console.log(`Teacher percent: ${teacherPercent}% teacher games, ${100 - teacherPercent}% student games`);
+}
+if (targetedMode) console.log(`Targeted mode: oversampling weakest matchups`);
+if (hero1Forced || hero2Forced) console.log(`Forced matchup: ${hero1Forced ?? 'random'} vs ${hero2Forced ?? 'random'}`);
 if (hours > 0) {
   console.log(`Running for ${hours} hours (until ${new Date(endTime).toLocaleTimeString()})...\n`);
 } else {
   console.log(`Running ${gameCount} games...\n`);
+}
+
+// ─── Targeted matchup selection ───
+
+/** Read existing weights and find hero pairs with fewest data points */
+function getTargetedMatchup(): [HeroClass, HeroClass] {
+  if (hero1Forced && hero2Forced) return [hero1Forced, hero2Forced];
+
+  try {
+    if (!fs.existsSync(WEIGHTS_PATH)) return randomMatchup();
+    const weights = JSON.parse(fs.readFileSync(WEIGHTS_PATH, 'utf-8'));
+
+    // Find matchup pairs with least data (use matchupMatrix values near 0.5 = uncertain)
+    const pairs: Array<{ h1: HeroClass; h2: HeroClass; uncertainty: number }> = [];
+    for (const h1 of HERO_CLASSES) {
+      for (const h2 of HERO_CLASSES) {
+        if (h1 === h2) continue;
+        // Check per-matchup attack threshold data as proxy for data quantity
+        const hasMatchupData = weights.attackFaceThresholdByMatchup?.[h1]?.[h2] !== undefined;
+        const wr = weights.matchupMatrix?.[h1]?.[h2] ?? 0.5;
+        // Uncertainty: closer to 0.5 = less certain, no matchup threshold data = highest priority
+        const uncertainty = hasMatchupData ? Math.abs(wr - 0.5) : 1.0;
+        pairs.push({ h1, h2, uncertainty: 1 - uncertainty }); // invert so highest uncertainty = highest weight
+      }
+    }
+
+    // Weight selection toward high-uncertainty pairs
+    pairs.sort((a, b) => b.uncertainty - a.uncertainty);
+    // Pick from top 20% with randomization
+    const topN = Math.max(1, Math.floor(pairs.length * 0.2));
+    const pick = pairs[Math.floor(Math.random() * topN)];
+    return [hero1Forced ?? pick.h1, hero2Forced ?? pick.h2];
+  } catch {
+    return randomMatchup();
+  }
+}
+
+function randomMatchup(): [HeroClass, HeroClass] {
+  return [
+    hero1Forced ?? HERO_CLASSES[Math.floor(Math.random() * HERO_CLASSES.length)],
+    hero2Forced ?? HERO_CLASSES[Math.floor(Math.random() * HERO_CLASSES.length)],
+  ];
 }
 
 // ─── All hero classes (excluding NEUTRAL) ───
@@ -141,8 +194,23 @@ for (let g = 0; g < gameCount && Date.now() < endTime; g++) {
     lastProgressTime = Date.now();
   }
   try {
-    const deck1 = STARTER_DECKS[Math.floor(Math.random() * STARTER_DECKS.length)];
-    const deck2 = STARTER_DECKS[Math.floor(Math.random() * STARTER_DECKS.length)];
+    // Deck selection: targeted mode oversamples weak matchups
+    let deck1, deck2;
+    if (targetedMode || hero1Forced || hero2Forced) {
+      const [h1, h2] = targetedMode ? getTargetedMatchup() : [
+        hero1Forced ?? HERO_CLASSES[Math.floor(Math.random() * HERO_CLASSES.length)],
+        hero2Forced ?? HERO_CLASSES[Math.floor(Math.random() * HERO_CLASSES.length)],
+      ];
+      deck1 = STARTER_DECKS.find(d => d.heroClass === h1) ?? STARTER_DECKS[Math.floor(Math.random() * STARTER_DECKS.length)];
+      deck2 = STARTER_DECKS.find(d => d.heroClass === h2) ?? STARTER_DECKS[Math.floor(Math.random() * STARTER_DECKS.length)];
+    } else {
+      deck1 = STARTER_DECKS[Math.floor(Math.random() * STARTER_DECKS.length)];
+      deck2 = STARTER_DECKS[Math.floor(Math.random() * STARTER_DECKS.length)];
+    }
+
+    // --teacher-percent: decide if this game uses teacher AI
+    const isTeacherGame = teacherPercent >= 100 ? useTeacher :
+      teacherPercent > 0 ? (Math.random() * 100) < teacherPercent : false;
 
     const game = createGame(
       [
@@ -156,8 +224,8 @@ for (let g = 0; g < gameCount && Date.now() < endTime; g++) {
     let mull1: boolean[];
     let mull2: boolean[];
 
-    if (useTeacher) {
-      const t1 = getTeacherMulliganDecision(game.players[0].hand, deck1.heroClass, deck2.heroClass);
+    if (isTeacherGame || useTeacher) {
+      const t1 = getTeacherMulliganDecision(game.players[0].hand, deck1.heroClass, deck2.heroClass, game, 0);
       mull1 = t1.replacements;
       recordDecision(t1.decision);
     } else {
@@ -165,7 +233,7 @@ for (let g = 0; g < gameCount && Date.now() < endTime; g++) {
     }
 
     if (teacherVsTeacher) {
-      const t2 = getTeacherMulliganDecision(game.players[1].hand, deck2.heroClass, deck1.heroClass);
+      const t2 = getTeacherMulliganDecision(game.players[1].hand, deck2.heroClass, deck1.heroClass, game, 1);
       mull2 = t2.replacements;
       recordDecision(t2.decision);
     } else {
@@ -193,7 +261,7 @@ for (let g = 0; g < gameCount && Date.now() < endTime; g++) {
       const opp = game.players[oppIdx];
 
       // Determine if this player uses teacher AI
-      const isTeacherPlayer = teacherVsTeacher || (useTeacher && myIdx === 0);
+      const isTeacherPlayer = teacherVsTeacher || ((isTeacherGame || useTeacher) && myIdx === 0);
 
       if (isTeacherPlayer) {
         // Teacher AI: lookahead + permutation search (handles cards, attacks, hero power)
