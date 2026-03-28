@@ -251,6 +251,7 @@ export interface PlayerStats {
   damageDealtToMinions: number;
   healingDone: number;
   cardsDrawn: number;
+  cardsDrawnFromEffects: number;
   turnsPlayed: number;
   manaSpent: number;
 }

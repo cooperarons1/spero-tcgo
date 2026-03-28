@@ -48,6 +48,7 @@ function useCardScale(): number {
 type PointerDragKind =
   | { kind: 'hand-card'; cardInstanceId: string; cardType: string | null; targetType: string | null }
   | { kind: 'attack'; attackerInstanceId: string }
+  | { kind: 'hero-power' }
   | null;
 
 interface PointerDragState {
@@ -562,12 +563,15 @@ function BoardMinionCard({
 
       {/* Collar indicator — purple chain icon, top-right */}
       {minion.isCollared && (
-        <div className="absolute top-0 right-0 z-20 pointer-events-none">
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-purple-800 border-2 border-purple-300 shadow-lg animate-pulse">
+        <div className="absolute top-0 right-0 z-20 group/collar">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-purple-800 border-2 border-purple-300 shadow-lg animate-pulse cursor-help">
             <svg viewBox="0 0 16 16" className="w-4 h-4 text-white" fill="currentColor">
               <circle cx="8" cy="8" r="5" fill="none" stroke="currentColor" strokeWidth="2"/>
               <circle cx="8" cy="8" r="2" fill="currentColor"/>
             </svg>
+          </div>
+          <div className="absolute top-full mt-1 right-0 hidden group-hover/collar:block bg-stone-900 text-purple-200 text-[10px] px-2 py-1 rounded-lg whitespace-nowrap z-50 border border-purple-500/40 shadow-lg pointer-events-none">
+            Collared: Switches sides if it survives combat
           </div>
         </div>
       )}
@@ -694,6 +698,7 @@ function HeroPortrait({
   heroPowerUpgraded,
   upgradeProgress,
   onHeroPointerDown,
+  onHeroPowerPointerDown,
 }: {
   heroClass: HeroClass;
   health: number;
@@ -718,6 +723,7 @@ function HeroPortrait({
   heroPowerUpgraded?: boolean;
   upgradeProgress?: number;
   onHeroPointerDown?: (e: React.PointerEvent) => void;
+  onHeroPowerPointerDown?: (e: React.PointerEvent) => void;
 }) {
   const borderClass = CLASS_BORDER[heroClass];
   const bgClass = CLASS_BG[heroClass];
@@ -796,8 +802,9 @@ function HeroPortrait({
       <div className="relative group/hp">
         <button
           onClick={onHeroPowerClick}
+          onPointerDown={onHeroPowerPointerDown}
           disabled={!canUseHeroPower}
-          className={`relative flex h-14 w-14 items-center justify-center rounded-lg border-2 transition-all
+          className={`relative flex h-14 w-14 items-center justify-center rounded-lg border-2 transition-all touch-none
             ${heroPowerUpgraded
               ? (canUseHeroPower
                 ? 'border-amber-300 bg-gradient-to-br from-amber-700/60 to-amber-500/40 hover:from-amber-600/80 hover:to-amber-400/60 hover:scale-110 cursor-pointer shadow-[0_0_12px_2px_rgba(245,158,11,0.5)]'
@@ -822,7 +829,11 @@ function HeroPortrait({
           )}
         </button>
         {/* Styled tooltip on hover */}
-        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover/hp:block bg-stone-900 text-amber-200 text-[11px] px-3 py-1.5 rounded-lg whitespace-nowrap z-50 border border-amber-600/40 shadow-lg pointer-events-none max-w-[250px]">
+        <div className={`absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover/hp:block text-[11px] px-3 py-1.5 rounded-lg whitespace-nowrap z-50 shadow-lg pointer-events-none max-w-[250px]
+          ${heroPowerUpgraded
+            ? 'bg-gradient-to-b from-amber-900 to-stone-900 text-amber-100 border border-amber-400/60 shadow-[0_0_8px_rgba(245,158,11,0.3)]'
+            : 'bg-stone-900 text-amber-200 border border-amber-600/40'}`}>
+          {heroPowerUpgraded && <span className="text-amber-300 font-bold">{'★ UPGRADED ★'}<br/></span>}
           {heroPowerUpgraded
             ? HERO_POWER_DESC_UPGRADED[heroClass]
             : (<>
@@ -1133,6 +1144,7 @@ export default function GameBoard({
   const draggingCardType = ptrDrag?.info.kind === 'hand-card' && ptrDrag.activated ? ptrDrag.info.cardType : null;
   const draggingTargetType = ptrDrag?.info.kind === 'hand-card' && ptrDrag.activated ? ptrDrag.info.targetType : null;
   const draggingAttackerId = ptrDrag?.info.kind === 'attack' && ptrDrag.activated ? ptrDrag.info.attackerInstanceId : null;
+  const draggingHeroPower = ptrDrag?.info.kind === 'hero-power' && ptrDrag.activated;
 
   // ─── Card hover preview state ───
   const [hoveredCard, setHoveredCard] = useState<{ cardCode: string; x: number; y: number } | null>(null);
@@ -1287,6 +1299,41 @@ export default function GameBoard({
       }
       return ids;
     }
+    // Hero power drag targeting
+    if (draggingHeroPower) {
+      const ids = new Set<string>();
+      const tt = HERO_POWER_TARGETING[gs.myHeroClass];
+      if (tt === 'TARGET_MINION') {
+        for (const m of myBoard) ids.add(m.instanceId);
+        for (const m of opBoard) { if (!m.hasStealthUntilAttack) ids.add(m.instanceId); }
+      } else if (tt === 'TARGET_FRIENDLY_MINION') {
+        for (const m of myBoard) { if (!m.hasDivineShield) ids.add(m.instanceId); }
+      } else if (tt === 'TARGET_ANY') {
+        for (const m of myBoard) ids.add(m.instanceId);
+        for (const m of opBoard) { if (!m.hasStealthUntilAttack) ids.add(m.instanceId); }
+        ids.add(`hero-${gs.myPlayerIndex}`);
+        ids.add(`hero-${1 - gs.myPlayerIndex}`);
+      }
+      return ids;
+    }
+    // Spell drag targeting (drag a targeted spell over valid targets)
+    if (draggingCardType === 'SPELL' && draggingCardId && draggingTargetType) {
+      const ids = new Set<string>();
+      if (draggingTargetType === 'TARGET_ENEMY_MINION') {
+        for (const m of opBoard) { if (!m.hasStealthUntilAttack) ids.add(m.instanceId); }
+      } else if (draggingTargetType === 'TARGET_FRIENDLY_MINION') {
+        for (const m of myBoard) ids.add(m.instanceId);
+      } else if (draggingTargetType === 'TARGET_MINION') {
+        for (const m of myBoard) ids.add(m.instanceId);
+        for (const m of opBoard) { if (!m.hasStealthUntilAttack) ids.add(m.instanceId); }
+      } else if (draggingTargetType === 'TARGET_ANY') {
+        for (const m of myBoard) ids.add(m.instanceId);
+        for (const m of opBoard) { if (!m.hasStealthUntilAttack) ids.add(m.instanceId); }
+        ids.add(`hero-${gs.myPlayerIndex}`);
+        ids.add(`hero-${1 - gs.myPlayerIndex}`);
+      }
+      return ids;
+    }
     // Client-side hero power targeting
     if (targeting.type === 'hero-power') {
       const ids = new Set<string>();
@@ -1305,7 +1352,7 @@ export default function GameBoard({
       return ids;
     }
     return new Set();
-  }, [targeting, pendingTarget, opBoard, myBoard, gs.myPlayerIndex, gs.myHeroClass]);
+  }, [targeting, pendingTarget, opBoard, myBoard, gs.myPlayerIndex, gs.myHeroClass, draggingCardType, draggingCardId, draggingTargetType, draggingHeroPower]);
 
   // ─── Cancel targeting ───
   const cancelTargeting = useCallback(() => {
@@ -1487,6 +1534,7 @@ export default function GameBoard({
 
   // ─── Hero Power ───
   const handleHeroPower = useCallback(() => {
+    if (justDraggedRef.current) return;
     if (!isMyTurn || !isPlaying || gs.myHeroPowerUsed || gs.myMana < HERO_POWER_COST) return;
     // Heroes with targeting enter client-side targeting mode
     if (HERO_POWER_TARGETING[gs.myHeroClass]) {
@@ -1533,6 +1581,7 @@ export default function GameBoard({
   ptrDragRef.current = ptrDrag;
   const handlePointerDropCardRef = useRef<(e: PointerEvent) => void>(() => {});
   const handlePointerDropAttackRef = useRef<(e: PointerEvent) => void>(() => {});
+  const handlePointerDropHeroPowerRef = useRef<(e: PointerEvent) => void>(() => {});
 
   // Global pointermove / pointerup listener while dragging
   useEffect(() => {
@@ -1579,13 +1628,15 @@ export default function GameBoard({
         handlePointerDropCardRef.current(e);
       } else if (drag.info.kind === 'attack') {
         handlePointerDropAttackRef.current(e);
+      } else if (drag.info.kind === 'hero-power') {
+        handlePointerDropHeroPowerRef.current(e);
       }
 
       setPtrDrag(null);
       setDropZoneActive(false);
       setDropIndex(null);
       setAttackerPos(null);
-      setTargeting(prev => prev.type === 'attack' ? { type: 'none' } : prev);
+      setTargeting(prev => (prev.type === 'attack' || prev.type === 'hero-power') ? { type: 'none' } : prev);
     };
 
     window.addEventListener('pointermove', handleMove, { passive: false });
@@ -1651,6 +1702,26 @@ export default function GameBoard({
       activated: false,
     });
   }, [isMyTurn, isPlaying, isGameOver, gs.myPlayerIndex]);
+
+  // Hero power pointer down → start hero power drag (for targeting hero powers)
+  const handleHeroPowerPointerDown = useCallback((e: React.PointerEvent) => {
+    if (!isMyTurn || !isPlaying || isGameOver) return;
+    if (gs.myHeroPowerUsed || gs.myMana < HERO_POWER_COST) return;
+    if (!HERO_POWER_TARGETING[gs.myHeroClass]) return; // non-targeting hero powers don't drag
+    e.preventDefault();
+    e.stopPropagation();
+    (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+
+    const rect = (e.target as HTMLElement).getBoundingClientRect();
+    setAttackerPos({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+    setTargeting({ type: 'hero-power' });
+    setPtrDrag({
+      info: { kind: 'hero-power' },
+      startX: e.clientX, startY: e.clientY,
+      curX: e.clientX, curY: e.clientY,
+      activated: false,
+    });
+  }, [isMyTurn, isPlaying, isGameOver, gs.myHeroPowerUsed, gs.myMana, gs.myHeroClass]);
 
   // Resolve hand card drop (called on pointerup)
   const handlePointerDropCard = useCallback((e: PointerEvent) => {
@@ -1729,6 +1800,24 @@ export default function GameBoard({
     }, 180);
   }, [validTargetIds, myBoard, actions]);
   handlePointerDropAttackRef.current = handlePointerDropAttack;
+
+  // Resolve hero power drop (called on pointerup)
+  const handlePointerDropHeroPower = useCallback((e: PointerEvent) => {
+    const drag = ptrDragRef.current;
+    if (!drag || drag.info.kind !== 'hero-power') return;
+
+    const targetEl = document.elementFromPoint(e.clientX, e.clientY)?.closest('[data-entity-id]');
+    const targetId = targetEl?.getAttribute('data-entity-id') ?? null;
+    if (!targetId || !validTargetIds.has(targetId)) return;
+
+    soundManager.play('AP_GAIN');
+    setHeroPowerFlash(true);
+    setTimeout(() => setHeroPowerFlash(false), 400);
+    actions.heroPower(targetId);
+    setTargeting({ type: 'none' });
+    setAttackerPos(null);
+  }, [validTargetIds, actions]);
+  handlePointerDropHeroPowerRef.current = handlePointerDropHeroPower;
 
   // ─── Get animation class for a minion ───
   const getMinionAnim = useCallback((instanceId: string, isMyMinion: boolean): string | undefined => {
@@ -1817,11 +1906,6 @@ export default function GameBoard({
     </div>
   ) : null;
 
-  // ─── Drop zone placeholder ───
-  const dropPlaceholder = (
-    <div className="w-4 h-[5.5rem] rounded-lg bg-green-500/20 border-2 border-dashed border-green-400/60 animate-pulse flex-shrink-0" />
-  );
-
   return (
     <div
       ref={boardRef}
@@ -1853,7 +1937,7 @@ export default function GameBoard({
       )}
 
       {/* Attack arrow */}
-      {targeting.type === 'attack' && attackerPos && (
+      {(targeting.type === 'attack' || targeting.type === 'hero-power') && attackerPos && (
         <AttackArrow from={attackerPos} to={mousePos} />
       )}
 
@@ -1906,7 +1990,7 @@ export default function GameBoard({
             mana={gs.opponent.mana}
             maxMana={gs.opponent.maxMana}
             canUseHeroPower={false}
-            isValidTarget={validTargetIds.has(`hero-${1 - gs.myPlayerIndex}`) || !!draggingAttackerId || (draggingCardType === 'SPELL' && !!draggingCardId && (!draggingTargetType || draggingTargetType === 'TARGET_ANY'))}
+            isValidTarget={validTargetIds.has(`hero-${1 - gs.myPlayerIndex}`)}
             onHeroPowerClick={() => {}}
             onHeroClick={() => handleEnemyTargetClick(`hero-${1 - gs.myPlayerIndex}`)}
             heroDamage={opHeroDamage}
@@ -1965,7 +2049,7 @@ export default function GameBoard({
                   isMyMinion={false}
                   canAct={false}
                   hasSummoningSickness={false}
-                  isValidTarget={validTargetIds.has(m.instanceId) || !!draggingAttackerId || (draggingCardType === 'SPELL' && !!draggingCardId && (!draggingTargetType || draggingTargetType === 'TARGET_ENEMY_MINION' || draggingTargetType === 'TARGET_MINION' || draggingTargetType === 'TARGET_ANY'))}
+                  isValidTarget={validTargetIds.has(m.instanceId)}
                   isSelected={false}
                   onClick={() => handleEnemyTargetClick(m.instanceId)}
                   animationClass={getMinionAnim(m.instanceId, false)}
@@ -1989,6 +2073,15 @@ export default function GameBoard({
       {draggingCardType === 'SPELL' && draggingTargetType && (
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none">
           <div className="bg-green-600/90 text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg animate-pulse">
+            Drag to a target
+          </div>
+        </div>
+      )}
+
+      {/* Hero power drag hint */}
+      {draggingHeroPower && (
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none">
+          <div className="bg-amber-600/90 text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg animate-pulse">
             Drag to a target
           </div>
         </div>
@@ -2084,7 +2177,7 @@ export default function GameBoard({
 
         {/* My board (minion positions) */}
         <div
-          className={`flex min-h-[7rem] mt-4 items-center justify-center rounded-lg board-field ${dropZoneActive ? 'drop-zone-active border-2 border-dashed border-green-500/40' : 'border-2 border-transparent'}`}
+          className="flex min-h-[7rem] mt-4 items-center justify-center rounded-lg board-field border-2 border-transparent"
         >
           <div
             className="flex items-center justify-center gap-4 max-w-[64rem]"
@@ -2097,7 +2190,6 @@ export default function GameBoard({
               const arcY = Math.abs(i - mid) * 3;
               return (
               <Fragment key={m.instanceId}>
-                {dropIndex === i && dropPlaceholder}
                 <div
                   data-minion-index={i}
                   data-entity-id={m.instanceId}
@@ -2110,7 +2202,7 @@ export default function GameBoard({
                     isMyMinion={true}
                     canAct={isMyTurn && m.canAttack && m.attacksRemaining > 0 && m.currentAttack > 0}
                     hasSummoningSickness={isMyTurn && !m.canAttack && m.currentAttack > 0 && !m.isFrozen}
-                    isValidTarget={validTargetIds.has(m.instanceId) || (draggingCardType === 'SPELL' && !!draggingCardId && (!draggingTargetType || draggingTargetType === 'TARGET_FRIENDLY_MINION' || draggingTargetType === 'TARGET_MINION' || draggingTargetType === 'TARGET_ANY'))}
+                    isValidTarget={validTargetIds.has(m.instanceId)}
                     isSelected={targeting.type === 'attack' && targeting.attackerInstanceId === m.instanceId}
                     onClick={(e?: any) => handleMyMinionClick(m, e)}
                     animationClass={getMinionAnim(m.instanceId, true)}
@@ -2121,7 +2213,6 @@ export default function GameBoard({
               </Fragment>
               );
             })}
-            {dropIndex === myBoard.length && dropPlaceholder}
           </div>
         </div>
 
@@ -2144,7 +2235,7 @@ export default function GameBoard({
             maxMana={gs.myMaxMana}
             canUseHeroPower={isMyTurn && !gs.myHeroPowerUsed && gs.myMana >= HERO_POWER_COST}
             canHeroAttack={isMyTurn && isPlaying && ((!!gs.myWeapon && gs.myWeapon.currentAttack > 0) || (gs.myHeroAttackThisTurn ?? 0) > 0)}
-            isValidTarget={validTargetIds.has(`hero-${gs.myPlayerIndex}`) || (draggingCardType === 'SPELL' && !!draggingCardId && (!draggingTargetType || draggingTargetType === 'TARGET_ANY'))}
+            isValidTarget={validTargetIds.has(`hero-${gs.myPlayerIndex}`)}
             onHeroPowerClick={handleHeroPower}
             onHeroClick={(e?: React.MouseEvent) => {
               if (validTargetIds.has(`hero-${gs.myPlayerIndex}`)) {
@@ -2160,6 +2251,7 @@ export default function GameBoard({
             heroPowerUpgraded={gs.myHeroPowerUpgraded}
             upgradeProgress={gs.myUpgradeProgress}
             onHeroPointerDown={handleHeroPointerDown}
+            onHeroPowerPointerDown={handleHeroPowerPointerDown}
           />
 
           {/* Emote button */}

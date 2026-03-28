@@ -127,7 +127,7 @@ export function executeEffect(
     }
     case 'DRAW_CARDS': {
       for (let i = 0; i < value; i++) {
-        drawCard(game, casterIndex);
+        drawCard(game, casterIndex, true);
       }
       break;
     }
@@ -386,7 +386,7 @@ export function executeEffect(
         if (hasDivineShield) drawCount = value + 1;
       }
       for (let i = 0; i < drawCount; i++) {
-        drawCard(game, casterIndex);
+        drawCard(game, casterIndex, true);
       }
       break;
     }
@@ -499,7 +499,7 @@ export function silenceMinion(minion: BoardMinion): void {
   minion.collarOwnerIndex = undefined;
 }
 
-export function drawCard(game: GameState, playerIndex: 0 | 1): void {
+export function drawCard(game: GameState, playerIndex: 0 | 1, fromEffect = false): void {
   const player = game.players[playerIndex];
   const deck = game.decks[playerIndex];
 
@@ -516,6 +516,9 @@ export function drawCard(game: GameState, playerIndex: 0 | 1): void {
   if (player.hand.length < MAX_HAND_SIZE) {
     player.hand.push(card);
     game.playerStats[playerIndex].cardsDrawn++;
+    if (fromEffect) {
+      game.playerStats[playerIndex].cardsDrawnFromEffects++;
+    }
   } else {
     // Overdraw — card is burned
     player.graveyard.push(card);

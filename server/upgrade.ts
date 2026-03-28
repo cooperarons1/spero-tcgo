@@ -29,7 +29,7 @@ export function checkHeroPowerUpgrade(game: GameState, playerIndex: 0 | 1): void
       if (stats.healingDone >= 10) shouldUpgrade = true;
       break;
     case 'DEREK':
-      if (stats.cardsDrawn >= 5) shouldUpgrade = true;
+      if (stats.cardsDrawnFromEffects >= 5) shouldUpgrade = true;
       break;
     case 'ANDERS':
       if (player.upgradeProgress >= 4) shouldUpgrade = true;

@@ -27,6 +27,7 @@ export function emptyStats(): PlayerStats {
     damageDealtToMinions: 0,
     healingDone: 0,
     cardsDrawn: 0,
+    cardsDrawnFromEffects: 0,
     turnsPlayed: 0,
     manaSpent: 0,
   };

@@ -105,6 +105,8 @@ function App() {
     const onReconnected = (data: { roomCode: string }) => {
       setConnectionStatus('connected');
       sessionStorage.setItem('spero-room-code', data.roomCode);
+      stateQueueRef.current = [];
+      processingRef.current = false;
     };
 
     const onOpponentDisconnected = () => {

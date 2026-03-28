@@ -310,7 +310,7 @@ export function useHeroPower(
       player.heroPowerUsed = true;
       game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
       game.playerStats[pIdx as 0 | 1].heroPowerUses++;
-      drawCard(game, pIdx as 0 | 1);
+      drawCard(game, pIdx as 0 | 1, true);
       if (upgraded) {
         player.mana = Math.min(player.mana + 1, player.maxMana);
         addLog(game, pIdx as 0 | 1, `${player.playerName} uses Master Tinker — draws a card (1 mana refunded)`, 'PLAY');
@@ -425,7 +425,7 @@ export function useHeroPower(
       game.playerStats[pIdx as 0 | 1].heroPowerUses++;
       executeEffect(game, pIdx as 0 | 1, { type: 'GAIN_ARMOR', target: 'NONE', value: upgraded ? 3 : 2 });
       if (upgraded) {
-        drawCard(game, pIdx as 0 | 1);
+        drawCard(game, pIdx as 0 | 1, true);
       }
       addLog(game, pIdx as 0 | 1, `${player.playerName} uses ${upgraded ? 'Master Navigator' : 'Chart Course'}`, 'PLAY');
       break;

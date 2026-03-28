@@ -5,7 +5,7 @@ interface ReconnectionOverlayProps {
   onReturnToLobby?: () => void;
 }
 
-const RECONNECT_TIMEOUT_MS = 30_000;
+const RECONNECT_TIMEOUT_MS = 120_000;
 
 export function ReconnectionOverlay({ status, onReturnToLobby }: ReconnectionOverlayProps) {
   const [timedOut, setTimedOut] = useState(false);
