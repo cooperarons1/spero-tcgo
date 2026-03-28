@@ -43,23 +43,18 @@ const teacherVsTeacher = args.includes('--teacher-vs-teacher');
 const recordMode = args.includes('--record');
 const distillAfter = args.includes('--distill');
 
-// Decision recording — use sync append for crash safety (flushes immediately)
+// Decision recording — async writes with large buffer for performance
 const shouldRecord = recordMode || teacherMode || teacherVsTeacher;
-let decisionBuffer: string[] = [];
-const FLUSH_THRESHOLD = 100; // flush every 100 decisions
+let decisionStream: fs.WriteStream | null = null;
+if (shouldRecord) {
+  decisionStream = fs.createWriteStream(DECISIONS_PATH, { flags: 'a', highWaterMark: 1024 * 1024 }); // 1MB buffer
+}
+let decisionCount = 0;
 
 function recordDecision(d: TeacherDecision) {
-  if (!shouldRecord) return;
-  decisionBuffer.push(JSON.stringify(d));
-  if (decisionBuffer.length >= FLUSH_THRESHOLD) {
-    flushDecisions();
-  }
-}
-
-function flushDecisions() {
-  if (decisionBuffer.length === 0) return;
-  fs.appendFileSync(DECISIONS_PATH, decisionBuffer.join('\n') + '\n');
-  decisionBuffer = [];
+  if (!decisionStream) return;
+  decisionStream.write(JSON.stringify(d) + '\n');
+  decisionCount++;
 }
 
 const useTeacher = teacherMode || teacherVsTeacher;
@@ -577,13 +572,10 @@ function saveWeights() {
 printResults();
 saveWeights();
 
-// Flush remaining decisions
-if (shouldRecord) {
-  flushDecisions();
-  if (fs.existsSync(DECISIONS_PATH)) {
-    const stats = fs.statSync(DECISIONS_PATH);
-    console.log(`\nTeacher decisions saved to ${DECISIONS_PATH} (${(stats.size / 1024 / 1024).toFixed(1)} MB)`);
-  }
+// Close decision stream
+if (decisionStream) {
+  decisionStream.end();
+  console.log(`\nTeacher decisions: ${decisionCount} recorded to ${DECISIONS_PATH}`);
 }
 
 // Auto-distill if requested
