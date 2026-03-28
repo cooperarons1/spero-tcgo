@@ -43,16 +43,23 @@ const teacherVsTeacher = args.includes('--teacher-vs-teacher');
 const recordMode = args.includes('--record');
 const distillAfter = args.includes('--distill');
 
-// Decision recording stream
-let decisionStream: fs.WriteStream | null = null;
-if (recordMode || teacherMode || teacherVsTeacher) {
-  decisionStream = fs.createWriteStream(DECISIONS_PATH, { flags: 'a' }); // append mode
-}
+// Decision recording — use sync append for crash safety (flushes immediately)
+const shouldRecord = recordMode || teacherMode || teacherVsTeacher;
+let decisionBuffer: string[] = [];
+const FLUSH_THRESHOLD = 100; // flush every 100 decisions
 
 function recordDecision(d: TeacherDecision) {
-  if (decisionStream) {
-    decisionStream.write(JSON.stringify(d) + '\n');
+  if (!shouldRecord) return;
+  decisionBuffer.push(JSON.stringify(d));
+  if (decisionBuffer.length >= FLUSH_THRESHOLD) {
+    flushDecisions();
   }
+}
+
+function flushDecisions() {
+  if (decisionBuffer.length === 0) return;
+  fs.appendFileSync(DECISIONS_PATH, decisionBuffer.join('\n') + '\n');
+  decisionBuffer = [];
 }
 
 const useTeacher = teacherMode || teacherVsTeacher;
@@ -570,9 +577,9 @@ function saveWeights() {
 printResults();
 saveWeights();
 
-// Close decision stream
-if (decisionStream) {
-  decisionStream.end();
+// Flush remaining decisions
+if (shouldRecord) {
+  flushDecisions();
   if (fs.existsSync(DECISIONS_PATH)) {
     const stats = fs.statSync(DECISIONS_PATH);
     console.log(`\nTeacher decisions saved to ${DECISIONS_PATH} (${(stats.size / 1024 / 1024).toFixed(1)} MB)`);
