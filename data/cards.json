@@ -825,7 +825,7 @@
     "attack": 4,
     "health": 5,
     "text": "Battlecry: Give all friendly minions Divine Shield.",
-    "flavor": "",
+    "flavor": "When she raises her fist, shields appear. It's not magic. It's will.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -846,7 +846,7 @@
     "attack": 4,
     "health": 5,
     "text": "Battlecry: Summon three 2/2 Guardian Drones with Taunt.",
-    "flavor": "",
+    "flavor": "Innovation doesn't ask permission.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -868,7 +868,7 @@
     "attack": 0,
     "health": 2,
     "text": "Return an enemy minion to their hand.",
-    "flavor": "",
+    "flavor": "Enter if you dare. Exit is... complicated.",
     "keywords": [],
     "locationEffect": {
       "type": "RETURN_TO_HAND",
@@ -885,7 +885,7 @@
     "attack": 0,
     "health": 0,
     "text": "Deal 2 damage to a random enemy minion. Draw a card.",
-    "flavor": "",
+    "flavor": "Adjust surroundings. If surroundings resist, adjust harder.",
     "keywords": [],
     "spellEffects": [
       {
@@ -910,7 +910,7 @@
     "attack": 3,
     "health": 4,
     "text": "",
-    "flavor": "",
+    "flavor": "Just passing through. Don't mind the sword.",
     "keywords": [],
     "minionType": "AMETI"
   },
@@ -924,7 +924,7 @@
     "attack": 0,
     "health": 0,
     "text": "Give a friendly minion +2 Attack this turn.",
-    "flavor": "",
+    "flavor": "Strength borrowed is strength earned. Sort of.",
     "keywords": [],
     "spellEffect": {
       "type": "BUFF_MINION",
@@ -943,7 +943,7 @@
     "attack": 0,
     "health": 0,
     "text": "Summon two 1/1 Gadget Drones.",
-    "flavor": "",
+    "flavor": "Supplies incoming! Duck!",
     "keywords": [],
     "spellEffect": {
       "type": "SUMMON_MINION",
@@ -962,7 +962,7 @@
     "attack": 2,
     "health": 5,
     "text": "Taunt.",
-    "flavor": "",
+    "flavor": "She stands where others won't. That's the whole job.",
     "keywords": [
       "TAUNT"
     ],
@@ -978,7 +978,7 @@
     "attack": 4,
     "health": 3,
     "text": "Deathrattle: Deal 2 damage to a random enemy.",
-    "flavor": "",
+    "flavor": "Built to fight. Fights to build. It's a whole cycle.",
     "keywords": [
       "DEATHRATTLE"
     ],
@@ -999,7 +999,7 @@
     "attack": 0,
     "health": 0,
     "text": "Draw 2 cards.",
-    "flavor": "",
+    "flavor": "Drinks are on me! ...next round is on you though.",
     "keywords": [],
     "spellEffect": {
       "type": "DRAW_CARDS",
@@ -1017,7 +1017,7 @@
     "attack": 0,
     "health": 0,
     "text": "Give a minion +2/+1.",
-    "flavor": "",
+    "flavor": "Hammer meets metal. Metal meets face.",
     "keywords": [],
     "spellEffect": {
       "type": "BUFF_MINION",
@@ -1036,7 +1036,7 @@
     "attack": 0,
     "health": 0,
     "text": "Deal damage equal to a friendly minion's Attack to an enemy.",
-    "flavor": "",
+    "flavor": "Justice isn't blind. It's taking careful aim.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE_BASED_ON_ARMOR",
@@ -1053,7 +1053,7 @@
     "attack": 3,
     "health": 5,
     "text": "Battlecry: Restore 3 Health to your hero.",
-    "flavor": "",
+    "flavor": "She speaks to the trees, and the trees listen.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1074,7 +1074,7 @@
     "attack": 0,
     "health": 0,
     "text": "Draw a card. If you have a weapon, draw 2 instead.",
-    "flavor": "",
+    "flavor": "Always check the inventory. Always.",
     "keywords": [],
     "spellEffect": {
       "type": "DRAW_CARDS",
@@ -1092,7 +1092,7 @@
     "attack": 3,
     "health": 2,
     "text": "Combo: Gain +1/+1.",
-    "flavor": "",
+    "flavor": "Fast hands, faster feet, fastest mouth.",
     "keywords": [
       "COMBO"
     ],
@@ -1114,7 +1114,7 @@
     "attack": 0,
     "health": 0,
     "text": "Give a friendly minion +2/+2.",
-    "flavor": "",
+    "flavor": "Balance in all things. Especially combat.",
     "keywords": [],
     "spellEffect": {
       "type": "BUFF_MINION",
@@ -1133,7 +1133,7 @@
     "attack": 4,
     "health": 5,
     "text": "Taunt.",
-    "flavor": "",
+    "flavor": "Slow, steady, and completely unstoppable.",
     "keywords": [],
     "minionType": "MECH"
   },
@@ -1147,7 +1147,7 @@
     "attack": 4,
     "health": 2,
     "text": "",
-    "flavor": "",
+    "flavor": "It hungers for more than just blood.",
     "keywords": []
   },
   {
@@ -1160,7 +1160,7 @@
     "attack": 0,
     "health": 0,
     "text": "Deal 4 damage to an enemy minion.",
-    "flavor": "",
+    "flavor": "Stand well back. Then stand back some more.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE",
@@ -1178,7 +1178,7 @@
     "attack": 0,
     "health": 0,
     "text": "Give all friendly minions +1/+1.",
-    "flavor": "",
+    "flavor": "More sparkle. More power. More parade.",
     "keywords": [],
     "spellEffect": {
       "type": "BUFF_ALL_FRIENDLY",
@@ -1197,7 +1197,7 @@
     "attack": 5,
     "health": 5,
     "text": "Taunt.",
-    "flavor": "",
+    "flavor": "Five tons of muscle and a heart of gold.",
     "keywords": [
       "TAUNT"
     ],
@@ -1213,7 +1213,7 @@
     "attack": 0,
     "health": 0,
     "text": "Deal 2 damage to a minion.",
-    "flavor": "",
+    "flavor": "Gavalon's finest export: pure, distilled chaos.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE",
@@ -1231,7 +1231,7 @@
     "attack": 0,
     "health": 0,
     "text": "Restore 3 Health to a character.",
-    "flavor": "",
+    "flavor": "Refreshing. Restorative. Remarkably cold.",
     "keywords": [],
     "spellEffect": {
       "type": "RESTORE_HEALTH",
@@ -1249,7 +1249,7 @@
     "attack": 2,
     "health": 3,
     "text": "Battlecry: Restore 2 Health to a friendly character.",
-    "flavor": "",
+    "flavor": "Every wound she heals leaves a flower behind.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1270,7 +1270,7 @@
     "attack": 4,
     "health": 3,
     "text": "Charge.",
-    "flavor": "",
+    "flavor": "He doesn't stop running. Ever.",
     "keywords": [
       "CHARGE"
     ],
@@ -1286,7 +1286,7 @@
     "attack": 6,
     "health": 5,
     "text": "Charge.",
-    "flavor": "",
+    "flavor": "They called him unkillable. They were almost right.",
     "keywords": [
       "CHARGE"
     ],
@@ -1302,7 +1302,7 @@
     "attack": 2,
     "health": 4,
     "text": "Battlecry: Freeze a random enemy minion.",
-    "flavor": "",
+    "flavor": "He freezes first and asks questions never.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1322,7 +1322,7 @@
     "attack": 0,
     "health": 0,
     "text": "Summon three 2/1 Guardians with Taunt.",
-    "flavor": "",
+    "flavor": "The call goes out. The army appears.",
     "keywords": [],
     "spellEffect": {
       "type": "SUMMON_MINION",
@@ -1341,7 +1341,7 @@
     "attack": 3,
     "health": 3,
     "text": "",
-    "flavor": "",
+    "flavor": "She'll work for parts. Good parts.",
     "keywords": [],
     "minionType": "MECH"
   },
@@ -1355,7 +1355,7 @@
     "attack": 1,
     "health": 3,
     "text": "",
-    "flavor": "",
+    "flavor": "Big, quiet, and in the way. Perfectly in the way.",
     "keywords": []
   },
   {
@@ -1368,7 +1368,7 @@
     "attack": 2,
     "health": 3,
     "text": "Battlecry: Gain 1 Armor.",
-    "flavor": "",
+    "flavor": "She swings first and navigates later.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1389,7 +1389,7 @@
     "attack": 4,
     "health": 5,
     "text": "Freeze any character damaged by this minion.",
-    "flavor": "",
+    "flavor": "The ice bends around him like it's alive.",
     "keywords": [],
     "minionType": "AMETI"
   },
@@ -1403,7 +1403,7 @@
     "attack": 3,
     "health": 4,
     "text": "Battlecry: Draw a card.",
-    "flavor": "",
+    "flavor": "His memory banks contain every recipe ever compiled.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1424,7 +1424,7 @@
     "attack": 0,
     "health": 0,
     "text": "Give a friendly minion Divine Shield.",
-    "flavor": "",
+    "flavor": "What's in the chest? Hope. Also a really nice shield.",
     "keywords": [],
     "spellEffect": {
       "type": "GRANT_KEYWORD",
@@ -1442,7 +1442,7 @@
     "attack": 0,
     "health": 0,
     "text": "Freeze an enemy. Draw a card.",
-    "flavor": "",
+    "flavor": "The chest is cold. The contents are colder.",
     "keywords": [],
     "spellEffects": [
       {
@@ -1466,7 +1466,7 @@
     "attack": 1,
     "health": 2,
     "text": "Battlecry: Add a 1/1 Gadget Drone to your hand.",
-    "flavor": "",
+    "flavor": "Small, curious, and always getting into things.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1487,7 +1487,7 @@
     "attack": 5,
     "health": 4,
     "text": "Battlecry: Deal 2 damage to all other minions.",
-    "flavor": "",
+    "flavor": "He bites everything. Everything. Don't test him.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1508,7 +1508,7 @@
     "attack": 3,
     "health": 2,
     "text": "",
-    "flavor": "",
+    "flavor": "Loyal, stubborn, and surprisingly good at carrying explosives.",
     "keywords": [],
     "minionType": "BEAST"
   },
@@ -1522,7 +1522,7 @@
     "attack": 3,
     "health": 4,
     "text": "Stealth. Combo: Draw a card.",
-    "flavor": "",
+    "flavor": "The crowd loves him. His targets don't.",
     "keywords": [
       "STEALTH",
       "COMBO"
@@ -1544,7 +1544,7 @@
     "attack": 0,
     "health": 0,
     "text": "Deal 3 damage to all enemy minions.",
-    "flavor": "",
+    "flavor": "The coast has seen worse. Actually, no, it hasn't.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE_ALL_ENEMIES",
@@ -1562,7 +1562,7 @@
     "attack": 0,
     "health": 0,
     "text": "Freeze an enemy minion.",
-    "flavor": "",
+    "flavor": "You won't see it coming. You won't feel it going.",
     "keywords": [],
     "spellEffect": {
       "type": "FREEZE_TARGET",
@@ -1579,7 +1579,7 @@
     "attack": 3,
     "health": 3,
     "text": "Battlecry: Draw a card if you control a MECH.",
-    "flavor": "",
+    "flavor": "If it has gears, he can make it better.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1600,7 +1600,7 @@
     "attack": 0,
     "health": 3,
     "text": "Restore 2 Health to your hero.",
-    "flavor": "",
+    "flavor": "The coral glows at night, and so do the fish.",
     "keywords": [],
     "locationEffect": {
       "type": "RESTORE_HEALTH",
@@ -1618,7 +1618,7 @@
     "attack": 0,
     "health": 0,
     "text": "Deal 3 damage to your hero. Draw 2 cards.",
-    "flavor": "",
+    "flavor": "The price of power is always paid in blood.",
     "keywords": [],
     "spellEffect": {
       "type": "DRAW_CARDS",
@@ -1636,7 +1636,7 @@
     "attack": 0,
     "health": 3,
     "text": "Deal 1 damage to all enemy minions.",
-    "flavor": "",
+    "flavor": "Gold in the walls. Danger in the tunnels.",
     "keywords": [],
     "locationEffect": {
       "type": "DEAL_DAMAGE_ALL_ENEMIES",
@@ -1654,7 +1654,7 @@
     "attack": 0,
     "health": 0,
     "text": "Restore 4 Health to a character.",
-    "flavor": "",
+    "flavor": "Even the humblest plant can mend a broken spirit.",
     "keywords": [],
     "spellEffect": {
       "type": "RESTORE_HEALTH",
@@ -1672,7 +1672,7 @@
     "attack": 2,
     "health": 4,
     "text": "Battlecry: Gain 2 Armor.",
-    "flavor": "",
+    "flavor": "Named after a constellation. Shines like one too.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1693,7 +1693,7 @@
     "attack": 0,
     "health": 0,
     "text": "Destroy all minions with 3 or less Attack.",
-    "flavor": "",
+    "flavor": "Everything that rises must eventually descend.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE_ALL_ENEMIES",
@@ -1711,7 +1711,7 @@
     "attack": 2,
     "health": 3,
     "text": "",
-    "flavor": "",
+    "flavor": "Defense is the best offense. This staff is the best defense.",
     "keywords": []
   },
   {
@@ -1724,7 +1724,7 @@
     "attack": 0,
     "health": 0,
     "text": "Destroy a random enemy minion.",
-    "flavor": "",
+    "flavor": "Poof. Gone. What were we talking about?",
     "keywords": [],
     "spellEffect": {
       "type": "DESTROY_MINION",
@@ -1741,7 +1741,7 @@
     "attack": 3,
     "health": 3,
     "text": "Battlecry: Deal 1 damage to a random enemy.",
-    "flavor": "",
+    "flavor": "He picks fights the way others pick flowers.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1762,7 +1762,7 @@
     "attack": 0,
     "health": 0,
     "text": "Take control of an enemy minion with 3 or less Attack.",
-    "flavor": "",
+    "flavor": "Why fight them when you can become them?",
     "keywords": [],
     "spellEffect": {
       "type": "STEAL_MINION",
@@ -1779,7 +1779,7 @@
     "attack": 2,
     "health": 3,
     "text": "Divine Shield.",
-    "flavor": "",
+    "flavor": "Her shield shimmers before the enemy even swings.",
     "keywords": [
       "DIVINE_SHIELD"
     ],
@@ -1795,7 +1795,7 @@
     "attack": 4,
     "health": 4,
     "text": "Battlecry: Deal 3 damage to a random enemy minion.",
-    "flavor": "",
+    "flavor": "Born from the last ember of a dying volcano.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1816,7 +1816,7 @@
     "attack": 0,
     "health": 0,
     "text": "Restore 4 Health to all friendly characters.",
-    "flavor": "",
+    "flavor": "The first light after the longest night.",
     "keywords": [],
     "spellEffect": {
       "type": "RESTORE_HEALTH",
@@ -1834,7 +1834,7 @@
     "attack": 2,
     "health": 4,
     "text": "Battlecry: Restore 3 Health to all friendly minions.",
-    "flavor": "",
+    "flavor": "She sings to the wounded until the pain forgets them.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1855,7 +1855,7 @@
     "attack": 3,
     "health": 5,
     "text": "Taunt.",
-    "flavor": "",
+    "flavor": "An owl with a backpack. What could go wrong?",
     "keywords": [
       "TAUNT"
     ],
@@ -1871,7 +1871,7 @@
     "attack": 0,
     "health": 0,
     "text": "Deal 5 damage to all characters.",
-    "flavor": "",
+    "flavor": "When the forest burns, new life begins \u2014 eventually.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE_ALL_ENEMIES",
@@ -1889,7 +1889,7 @@
     "attack": 0,
     "health": 0,
     "text": "Give your weapon +1/+1.",
-    "flavor": "",
+    "flavor": "Your weapon deserves an upgrade. So do you.",
     "keywords": [],
     "spellEffect": {
       "type": "BUFF_MINION",
@@ -1908,7 +1908,7 @@
     "attack": 0,
     "health": 0,
     "text": "Return an enemy minion to their hand.",
-    "flavor": "",
+    "flavor": "Her music moves birds and breaks hearts.",
     "keywords": [],
     "spellEffect": {
       "type": "RETURN_TO_HAND",
@@ -1925,7 +1925,7 @@
     "attack": 4,
     "health": 3,
     "text": "Battlecry: Deal 2 damage to your hero.",
-    "flavor": "",
+    "flavor": "Pain is just weakness leaving the body. He has a lot of weakness.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -1946,7 +1946,7 @@
     "attack": 3,
     "health": 3,
     "text": "Stealth. Deathrattle: Draw a card.",
-    "flavor": "",
+    "flavor": "She flies. She spies. She draws cards when she dies.",
     "keywords": [
       "STEALTH",
       "DEATHRATTLE"
@@ -1968,7 +1968,7 @@
     "attack": 0,
     "health": 0,
     "text": "Deal 3 damage to the enemy hero.",
-    "flavor": "",
+    "flavor": "He dances on rooftops and laughs at gravity.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE",
@@ -1986,7 +1986,7 @@
     "attack": 3,
     "health": 3,
     "text": "Stealth.",
-    "flavor": "",
+    "flavor": "She rides the wind on wings of gold.",
     "keywords": [
       "STEALTH"
     ],
@@ -2002,7 +2002,7 @@
     "attack": 1,
     "health": 3,
     "text": "",
-    "flavor": "",
+    "flavor": "Light as air. Quiet as shadow.",
     "keywords": []
   },
   {
@@ -2015,7 +2015,7 @@
     "attack": 2,
     "health": 3,
     "text": "",
-    "flavor": "",
+    "flavor": "Average height, average build, above-average survival instinct.",
     "keywords": [],
     "minionType": "AMETI"
   },
@@ -2029,7 +2029,7 @@
     "attack": 5,
     "health": 4,
     "text": "Deathrattle: Deal 2 damage to all enemies.",
-    "flavor": "",
+    "flavor": "His howl echoes through the frozen peaks of Aster.",
     "keywords": [
       "DEATHRATTLE"
     ],
@@ -2050,7 +2050,7 @@
     "attack": 1,
     "health": 4,
     "text": "",
-    "flavor": "",
+    "flavor": "When it plays, the world goes quiet.",
     "keywords": []
   },
   {
@@ -2063,7 +2063,7 @@
     "attack": 0,
     "health": 3,
     "text": "Draw a card.",
-    "flavor": "",
+    "flavor": "The house always wins. Unless you're Lucas.",
     "keywords": [],
     "locationEffect": {
       "type": "DRAW_CARDS",
@@ -2081,7 +2081,7 @@
     "attack": 5,
     "health": 2,
     "text": "",
-    "flavor": "",
+    "flavor": "Forged in Gavalon's deepest furnace. Handle with extreme caution.",
     "keywords": []
   },
   {
@@ -2094,7 +2094,7 @@
     "attack": 3,
     "health": 2,
     "text": "",
-    "flavor": "",
+    "flavor": "Charges into battle. Charges out of battle. Charges the bill.",
     "keywords": []
   },
   {
@@ -2107,7 +2107,7 @@
     "attack": 0,
     "health": 0,
     "text": "Return a friendly minion to your hand.",
-    "flavor": "",
+    "flavor": "One moment you're winning. The next, you're not even playing.",
     "keywords": [],
     "spellEffect": {
       "type": "RETURN_TO_HAND",
@@ -2124,7 +2124,7 @@
     "attack": 3,
     "health": 6,
     "text": "Battlecry: Restore 4 Health to your hero.",
-    "flavor": "",
+    "flavor": "The forests of Aster bow when she passes.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -2145,7 +2145,7 @@
     "attack": 3,
     "health": 4,
     "text": "Battlecry: Draw a card for each MECH you control.",
-    "flavor": "",
+    "flavor": "Processes data faster than you can blink. Much faster.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -2166,7 +2166,7 @@
     "attack": 4,
     "health": 3,
     "text": "",
-    "flavor": "",
+    "flavor": "When an elephant charges, you move. Or you don't move ever again.",
     "keywords": [],
     "minionType": "BEAST"
   },
@@ -2180,7 +2180,7 @@
     "attack": 0,
     "health": 0,
     "text": "Deal 4 damage to a minion with 5 or more Attack.",
-    "flavor": "",
+    "flavor": "The bigger they are, the more satisfying the sound.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE",
@@ -2198,7 +2198,7 @@
     "attack": 4,
     "health": 5,
     "text": "Battlecry: Summon a copy of a random friendly MECH.",
-    "flavor": "",
+    "flavor": "Giga's copies aren't perfect. They're better.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -2220,7 +2220,7 @@
     "attack": 2,
     "health": 2,
     "text": "Battlecry: Draw a card.",
-    "flavor": "",
+    "flavor": "Fire and water. Usually not at the same time.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -2241,7 +2241,7 @@
     "attack": 5,
     "health": 6,
     "text": "Freeze any character damaged by this minion. Battlecry: Freeze two random enemies.",
-    "flavor": "",
+    "flavor": "The ground cracks beneath his hooves. The air freezes above.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -2267,7 +2267,7 @@
     "attack": 3,
     "health": 4,
     "text": "Battlecry: Freeze a random enemy.",
-    "flavor": "",
+    "flavor": "She glows with an inner frost that never melts.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -2287,7 +2287,7 @@
     "attack": 0,
     "health": 3,
     "text": "Restore 3 Health to your hero. Draw a card.",
-    "flavor": "",
+    "flavor": "The falls haven't stopped in a thousand years.",
     "keywords": [],
     "locationEffects": [
       {
@@ -2312,7 +2312,7 @@
     "attack": 0,
     "health": 0,
     "text": "Deal 2 damage to all enemy minions. Freeze them.",
-    "flavor": "",
+    "flavor": "First comes the hail. Then comes the silence.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE_ALL_ENEMIES",
@@ -2330,7 +2330,7 @@
     "attack": 2,
     "health": 2,
     "text": "Combo: Gain +2 Attack.",
-    "flavor": "",
+    "flavor": "Lightning in her veins, thunder in her fists.",
     "keywords": [
       "COMBO"
     ],
@@ -2352,7 +2352,7 @@
     "attack": 3,
     "health": 3,
     "text": "",
-    "flavor": "",
+    "flavor": "Cuts through underbrush and overconfidence alike.",
     "keywords": []
   },
   {
@@ -2365,7 +2365,7 @@
     "attack": 0,
     "health": 2,
     "text": "Draw a card.",
-    "flavor": "",
+    "flavor": "Neon lights, chrome dreams, and the smell of engine oil.",
     "keywords": [],
     "locationEffect": {
       "type": "DRAW_CARDS",
@@ -2383,7 +2383,7 @@
     "attack": 3,
     "health": 2,
     "text": "Charge.",
-    "flavor": "",
+    "flavor": "Fast, cheap, and only occasionally explodes.",
     "keywords": [],
     "minionType": "MECH"
   },
@@ -2397,7 +2397,7 @@
     "attack": 0,
     "health": 0,
     "text": "Destroy a friendly minion. Draw 2 cards.",
-    "flavor": "",
+    "flavor": "One bot's trash is another bot's treasure.",
     "keywords": [],
     "spellEffects": [
       {
@@ -2421,7 +2421,7 @@
     "attack": 0,
     "health": 0,
     "text": "Destroy a damaged enemy minion.",
-    "flavor": "",
+    "flavor": "The best trophies are the ones that fought back.",
     "keywords": [],
     "spellEffect": {
       "type": "DESTROY_MINION",
@@ -2438,7 +2438,7 @@
     "attack": 3,
     "health": 4,
     "text": "Battlecry: Gain 2 Armor.",
-    "flavor": "",
+    "flavor": "Sparkle Squad, reporting for duty!",
     "keywords": [
       "BATTLECRY"
     ],
@@ -2459,7 +2459,7 @@
     "attack": 0,
     "health": 0,
     "text": "Freeze all enemy minions.",
-    "flavor": "",
+    "flavor": "The storm doesn't end. It just... waits.",
     "keywords": [],
     "spellEffect": {
       "type": "FREEZE_TARGET",
@@ -2476,7 +2476,7 @@
     "attack": 7,
     "health": 7,
     "text": "Battlecry: Deal 4 damage to all enemy minions.",
-    "flavor": "",
+    "flavor": "Ancient, enormous, and thoroughly unimpressed by your army.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -2497,7 +2497,7 @@
     "attack": 0,
     "health": 2,
     "text": "Deal 2 damage to a minion.",
-    "flavor": "",
+    "flavor": "Two enter. Eventually, one leaves.",
     "keywords": [],
     "locationEffect": {
       "type": "DEAL_DAMAGE",
@@ -2515,7 +2515,7 @@
     "attack": 2,
     "health": 4,
     "text": "Battlecry: Freeze an enemy minion.",
-    "flavor": "",
+    "flavor": "Her touch can stop a charging hovercraft.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -2535,7 +2535,7 @@
     "attack": 0,
     "health": 2,
     "text": "Give a friendly minion +1/+1.",
-    "flavor": "",
+    "flavor": "Ancient trees with memories longer than the Academy itself.",
     "keywords": [],
     "locationEffect": {
       "type": "BUFF_MINION",
@@ -2554,7 +2554,7 @@
     "attack": 3,
     "health": 5,
     "text": "Taunt. Divine Shield.",
-    "flavor": "",
+    "flavor": "Taunt and divine shield. The enemy's two least favorite words.",
     "keywords": [
       "TAUNT",
       "DIVINE_SHIELD"
@@ -2571,7 +2571,7 @@
     "attack": 4,
     "health": 3,
     "text": "Windfury.",
-    "flavor": "",
+    "flavor": "Hold onto your hat. Actually, don't bother.",
     "keywords": [
       "WINDFURY"
     ],
@@ -2587,7 +2587,7 @@
     "attack": 3,
     "health": 3,
     "text": "Combo: Return an enemy minion to their hand.",
-    "flavor": "",
+    "flavor": "Quiet as a shadow. Twice as dark.",
     "keywords": [
       "COMBO"
     ],
@@ -2607,7 +2607,7 @@
     "attack": 4,
     "health": 4,
     "text": "",
-    "flavor": "",
+    "flavor": "He reads the news while the world burns around him.",
     "keywords": [],
     "minionType": "HUMAN"
   },
@@ -2621,7 +2621,7 @@
     "attack": 1,
     "health": 3,
     "text": "Battlecry: Restore 3 Health to a friendly character.",
-    "flavor": "",
+    "flavor": "Fights with the ferocity of someone protecting her home.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -2642,7 +2642,7 @@
     "attack": 2,
     "health": 3,
     "text": "Deathrattle: Add a random MECH to your hand.",
-    "flavor": "",
+    "flavor": "One bot's junk is another bot's treasure.",
     "keywords": [
       "DEATHRATTLE"
     ],
@@ -2663,7 +2663,7 @@
     "attack": 5,
     "health": 4,
     "text": "Deathrattle: Deal 2 damage to all characters.",
-    "flavor": "",
+    "flavor": "His explosions are legendary. His survival is miraculous.",
     "keywords": [
       "DEATHRATTLE"
     ],
@@ -2684,7 +2684,7 @@
     "attack": 0,
     "health": 2,
     "text": "Deal 2 damage to a random enemy.",
-    "flavor": "",
+    "flavor": "Where dark Orra flows and darker things grow.",
     "keywords": [],
     "locationEffect": {
       "type": "DEAL_DAMAGE_RANDOM_ENEMY",
@@ -2702,7 +2702,7 @@
     "attack": 3,
     "health": 5,
     "text": "Battlecry: Give a friendly minion +1/+2.",
-    "flavor": "",
+    "flavor": "His garden is the battlefield. His flowers are victories.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -2724,7 +2724,7 @@
     "attack": 1,
     "health": 4,
     "text": "",
-    "flavor": "",
+    "flavor": "Small badge. Big force.",
     "keywords": []
   },
   {
@@ -2737,7 +2737,7 @@
     "attack": 5,
     "health": 3,
     "text": "Combo: Deal 2 damage to the enemy hero.",
-    "flavor": "",
+    "flavor": "Old man. Young birds. Ancient wisdom.",
     "keywords": [
       "COMBO"
     ],
@@ -2758,7 +2758,7 @@
     "attack": 2,
     "health": 2,
     "text": "Windfury.",
-    "flavor": "",
+    "flavor": "Twice the attacks, twice the sparkle.",
     "keywords": [
       "WINDFURY"
     ],
@@ -2774,7 +2774,7 @@
     "attack": 2,
     "health": 4,
     "text": "Battlecry: Give a friendly MECH +1/+1.",
-    "flavor": "",
+    "flavor": "He talks to machines. They talk back.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -2796,7 +2796,7 @@
     "attack": 6,
     "health": 6,
     "text": "Taunt. Battlecry: Restore 5 Health to your hero.",
-    "flavor": "",
+    "flavor": "Big enough to block the sun. Gentle enough to carry a bunny.",
     "keywords": [
       "TAUNT",
       "BATTLECRY"
@@ -2818,7 +2818,7 @@
     "attack": 5,
     "health": 6,
     "text": "Taunt. Divine Shield.",
-    "flavor": "",
+    "flavor": "Half knight, half machine. All paladin.",
     "keywords": [],
     "minionType": "MECH"
   },
@@ -2832,7 +2832,7 @@
     "attack": 5,
     "health": 4,
     "text": "Stealth. Combo: Deal 3 damage to any target and draw a card.",
-    "flavor": "",
+    "flavor": "His cousin's blade. His father's shadow. His own path.",
     "keywords": [
       "STEALTH",
       "COMBO"
@@ -2854,7 +2854,7 @@
     "attack": 4,
     "health": 7,
     "text": "Taunt. Battlecry: Give adjacent minions Divine Shield.",
-    "flavor": "",
+    "flavor": "When Arinna speaks, even the mountain listens.",
     "keywords": [
       "TAUNT",
       "BATTLECRY"
@@ -2876,7 +2876,7 @@
     "attack": 4,
     "health": 4,
     "text": "Deathrattle: Deal 3 damage to the enemy hero.",
-    "flavor": "",
+    "flavor": "The dead tell tales. He makes sure they do.",
     "keywords": [
       "DEATHRATTLE"
     ],
@@ -2897,7 +2897,7 @@
     "attack": 3,
     "health": 3,
     "text": "Battlecry: Draw a card.",
-    "flavor": "",
+    "flavor": "Knows everyone. Trusts no one. Tips generously.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -2918,7 +2918,7 @@
     "attack": 0,
     "health": 2,
     "text": "Summon a 1/1 Gadget Drone.",
-    "flavor": "",
+    "flavor": "Fastest raceway on Miro. Slowest ambulance response time.",
     "keywords": [],
     "locationEffect": {
       "type": "SUMMON_MINION",
@@ -2937,7 +2937,7 @@
     "attack": 3,
     "health": 3,
     "text": "",
-    "flavor": "",
+    "flavor": "Lightning and ice, perfectly balanced. Perfectly painful.",
     "keywords": []
   },
   {
@@ -2950,7 +2950,7 @@
     "attack": 1,
     "health": 2,
     "text": "Battlecry: Gain 1 Armor.",
-    "flavor": "",
+    "flavor": "She has the net. You have the problem.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -2971,7 +2971,7 @@
     "attack": 2,
     "health": 4,
     "text": "Battlecry: Restore 2 Health to all friendly characters.",
-    "flavor": "",
+    "flavor": "Silent. Patient. Absolutely lethal.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -2992,7 +2992,7 @@
     "attack": 4,
     "health": 6,
     "text": "Battlecry: Restore 5 Health to all friendly characters. Give them +1/+1.",
-    "flavor": "",
+    "flavor": "Where he walks, dead things grow green again.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -3021,7 +3021,7 @@
     "attack": 3,
     "health": 4,
     "text": "Battlecry: Deal 2 damage to a random enemy.",
-    "flavor": "",
+    "flavor": "Tough. Smart. Definitely not someone you want to cross.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -3042,7 +3042,7 @@
     "attack": 3,
     "health": 5,
     "text": "Battlecry: Draw 2 cards.",
-    "flavor": "",
+    "flavor": "She doesn't just enter a room. She commands it.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -3063,7 +3063,7 @@
     "attack": 3,
     "health": 5,
     "text": "Battlecry: Draw a card for each minion on the board.",
-    "flavor": "",
+    "flavor": "The maestro conducts chaos into symphony.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -3084,7 +3084,7 @@
     "attack": 0,
     "health": 0,
     "text": "Summon three 1/1 Gadget Drones.",
-    "flavor": "",
+    "flavor": "Three drones, ready for duty. Four if you count Fiona.",
     "keywords": [],
     "spellEffect": {
       "type": "SUMMON_MINION",
@@ -3103,7 +3103,7 @@
     "attack": 4,
     "health": 2,
     "text": "Charge.",
-    "flavor": "",
+    "flavor": "Charges first. Thinks later. Charges again.",
     "keywords": [
       "CHARGE"
     ],
@@ -3119,7 +3119,7 @@
     "attack": 3,
     "health": 2,
     "text": "Battlecry: Deal 1 damage to your hero.",
-    "flavor": "",
+    "flavor": "Small pain now. Bigger pain later.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -3140,7 +3140,7 @@
     "attack": 2,
     "health": 2,
     "text": "",
-    "flavor": "",
+    "flavor": "If it flies, he'll ride it. If it doesn't, he'll make it fly.",
     "keywords": [],
     "minionType": "HUMAN"
   },
@@ -3154,7 +3154,7 @@
     "attack": 0,
     "health": 2,
     "text": "Summon a 2/1 Scrap Golem.",
-    "flavor": "",
+    "flavor": "Where the wealthy live and the machines do the rest.",
     "keywords": [],
     "locationEffect": {
       "type": "SUMMON_MINION",
@@ -3173,7 +3173,7 @@
     "attack": 4,
     "health": 5,
     "text": "Battlecry: Draw a card.",
-    "flavor": "",
+    "flavor": "A whole megabyte of trouble.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -3194,7 +3194,7 @@
     "attack": 4,
     "health": 4,
     "text": "Stealth. Combo: Gain +3/+3 and Windfury.",
-    "flavor": "",
+    "flavor": "You'll never see him coming. Or going.",
     "keywords": [
       "STEALTH",
       "COMBO"
@@ -3217,7 +3217,7 @@
     "attack": 2,
     "health": 6,
     "text": "Taunt. Battlecry: Restore 2 Health to adjacent minions.",
-    "flavor": "",
+    "flavor": "She weaves wind and butterflies into shields.",
     "keywords": [
       "TAUNT",
       "BATTLECRY"
@@ -3239,7 +3239,7 @@
     "attack": 1,
     "health": 3,
     "text": "",
-    "flavor": "",
+    "flavor": "Finds metal underground. Finds trouble everywhere else.",
     "keywords": []
   },
   {
@@ -3252,7 +3252,7 @@
     "attack": 1,
     "health": 3,
     "text": "Taunt.",
-    "flavor": "",
+    "flavor": "Dark wings, dark purpose. Also carries mail.",
     "keywords": [
       "TAUNT"
     ],
@@ -3268,7 +3268,7 @@
     "attack": 3,
     "health": 4,
     "text": "Battlecry: Draw a card.",
-    "flavor": "",
+    "flavor": "Her mirror shows what you could be. Her blade shows what you'll become.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -3289,7 +3289,7 @@
     "attack": 2,
     "health": 3,
     "text": "",
-    "flavor": "",
+    "flavor": "Still waters run deep. And cold.",
     "keywords": [],
     "minionType": "HUMAN"
   },
@@ -3303,7 +3303,7 @@
     "attack": 3,
     "health": 3,
     "text": "",
-    "flavor": "",
+    "flavor": "Armored. Antlered. Angry.",
     "keywords": [],
     "minionType": "BEAST"
   },
@@ -3317,7 +3317,7 @@
     "attack": 0,
     "health": 2,
     "text": "Freeze an enemy minion.",
-    "flavor": "",
+    "flavor": "So quiet you can hear the snow falling. And nothing else.",
     "keywords": [],
     "locationEffect": {
       "type": "FREEZE_TARGET",
@@ -3334,7 +3334,7 @@
     "attack": 0,
     "health": 0,
     "text": "Destroy a minion with 5 or more Attack.",
-    "flavor": "",
+    "flavor": "Nature takes back what was never yours to keep.",
     "keywords": [],
     "spellEffect": {
       "type": "DESTROY_MINION",
@@ -3351,7 +3351,7 @@
     "attack": 0,
     "health": 0,
     "text": "Deal 4 damage to all enemy minions.",
-    "flavor": "",
+    "flavor": "The forest's answer to everything: overwhelming force.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE_ALL_ENEMIES",
@@ -3369,7 +3369,7 @@
     "attack": 2,
     "health": 2,
     "text": "",
-    "flavor": "",
+    "flavor": "Aim. Fire. Apologize later.",
     "keywords": []
   },
   {
@@ -3382,7 +3382,7 @@
     "attack": 0,
     "health": 3,
     "text": "Give a friendly minion +0/+2.",
-    "flavor": "",
+    "flavor": "Where guilds gather and grudges are settled.",
     "keywords": [],
     "locationEffect": {
       "type": "BUFF_MINION",
@@ -3401,7 +3401,7 @@
     "attack": 0,
     "health": 0,
     "text": "Give a friendly minion Stealth.",
-    "flavor": "",
+    "flavor": "Not much to see here. Which is exactly the point.",
     "keywords": [],
     "spellEffect": {
       "type": "GRANT_KEYWORD",
@@ -3419,7 +3419,7 @@
     "attack": 6,
     "health": 6,
     "text": "Battlecry: Deal 3 damage to all enemies.",
-    "flavor": "",
+    "flavor": "Where she walks, the ground remembers.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -3440,7 +3440,7 @@
     "attack": 0,
     "health": 0,
     "text": "Silence all enemy minions.",
-    "flavor": "",
+    "flavor": "When everything is silent, Ava's work begins.",
     "keywords": [],
     "spellEffect": {
       "type": "SILENCE_TARGET",
@@ -3457,7 +3457,7 @@
     "attack": 0,
     "health": 2,
     "text": "Deal 1 damage to a random enemy.",
-    "flavor": "",
+    "flavor": "The forgotten district. Forgotten by choice.",
     "keywords": [],
     "locationEffect": {
       "type": "DEAL_DAMAGE_RANDOM_ENEMY",
@@ -3475,7 +3475,7 @@
     "attack": 4,
     "health": 4,
     "text": "Taunt.",
-    "flavor": "",
+    "flavor": "Rolls in. Rolls out. Rolls over everything in between.",
     "keywords": [
       "TAUNT"
     ],
@@ -3491,7 +3491,7 @@
     "attack": 2,
     "health": 2,
     "text": "",
-    "flavor": "",
+    "flavor": "Simple, elegant, and surprisingly accurate.",
     "keywords": []
   },
   {
@@ -3504,7 +3504,7 @@
     "attack": 4,
     "health": 4,
     "text": "Battlecry: Freeze all enemy minions.",
-    "flavor": "",
+    "flavor": "He is the storm that Aster Peak fears most.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -3524,7 +3524,7 @@
     "attack": 0,
     "health": 3,
     "text": "Restore 3 Health to a character.",
-    "flavor": "",
+    "flavor": "Follow the paw prints. They always lead somewhere magical.",
     "keywords": [],
     "locationEffect": {
       "type": "RESTORE_HEALTH",
@@ -3542,7 +3542,7 @@
     "attack": 1,
     "health": 1,
     "text": "Deathrattle: Draw a card.",
-    "flavor": "",
+    "flavor": "Small peep. Big impact. Eventually.",
     "keywords": [
       "DEATHRATTLE"
     ],
@@ -3563,7 +3563,7 @@
     "attack": 0,
     "health": 0,
     "text": "Deal 2 damage to a character.",
-    "flavor": "",
+    "flavor": "Fire in her heart, calm in her eyes.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE",
@@ -3581,7 +3581,7 @@
     "attack": 2,
     "health": 4,
     "text": "Taunt.",
-    "flavor": "",
+    "flavor": "Tiny but terrifyingly territorial.",
     "keywords": [
       "TAUNT"
     ],
@@ -3597,7 +3597,7 @@
     "attack": 2,
     "health": 2,
     "text": "",
-    "flavor": "",
+    "flavor": "Simple design. Simple function. Simply effective.",
     "keywords": [],
     "minionType": "MECH"
   },
@@ -3611,7 +3611,7 @@
     "attack": 4,
     "health": 5,
     "text": "",
-    "flavor": "",
+    "flavor": "A scholar of the old ways and the new swords.",
     "keywords": [],
     "minionType": "AMETI"
   },
@@ -3625,7 +3625,7 @@
     "attack": 1,
     "health": 2,
     "text": "Combo: Deal 1 damage to the enemy hero.",
-    "flavor": "",
+    "flavor": "Small pinch. Big ouchie.",
     "keywords": [
       "COMBO"
     ],
@@ -3646,7 +3646,7 @@
     "attack": 2,
     "health": 3,
     "text": "",
-    "flavor": "",
+    "flavor": "Surprisingly effective. Delicious afterwards.",
     "keywords": []
   },
   {
@@ -3659,7 +3659,7 @@
     "attack": 0,
     "health": 2,
     "text": "Draw a card.",
-    "flavor": "",
+    "flavor": "The passage shifts when no one's looking.",
     "keywords": [],
     "locationEffect": {
       "type": "DRAW_CARDS",
@@ -3677,7 +3677,7 @@
     "attack": 1,
     "health": 2,
     "text": "",
-    "flavor": "",
+    "flavor": "Small, round, and utterly fearless.",
     "keywords": [],
     "minionType": "BEAST"
   },
@@ -3691,7 +3691,7 @@
     "attack": 2,
     "health": 1,
     "text": "Combo: Gain Stealth.",
-    "flavor": "",
+    "flavor": "Now you see him... no, actually, you don't.",
     "keywords": [
       "COMBO"
     ],
@@ -3712,7 +3712,7 @@
     "attack": 0,
     "health": 0,
     "text": "Give a minion +2/+2.",
-    "flavor": "",
+    "flavor": "Drink up. Side effects may include winning.",
     "keywords": [],
     "spellEffect": {
       "type": "BUFF_MINION",
@@ -3731,7 +3731,7 @@
     "attack": 5,
     "health": 6,
     "text": "Taunt. Deathrattle: Summon two 3/3 mechs.",
-    "flavor": "",
+    "flavor": "The last line of defense. Literally.",
     "keywords": [
       "TAUNT",
       "DEATHRATTLE"
@@ -3754,7 +3754,7 @@
     "attack": 0,
     "health": 0,
     "text": "Give a friendly minion Divine Shield and Taunt.",
-    "flavor": "",
+    "flavor": "Not on my watch. Not on anyone's watch.",
     "keywords": [],
     "spellEffects": [
       {
@@ -3779,7 +3779,7 @@
     "attack": 3,
     "health": 2,
     "text": "",
-    "flavor": "",
+    "flavor": "Point. Click. Problem solved.",
     "keywords": []
   },
   {
@@ -3792,7 +3792,7 @@
     "attack": 0,
     "health": 0,
     "text": "Restore a minion to full Health.",
-    "flavor": "",
+    "flavor": "Fixed in five minutes or your money back. Probably.",
     "keywords": [],
     "spellEffect": {
       "type": "RESTORE_HEALTH",
@@ -3810,7 +3810,7 @@
     "attack": 5,
     "health": 5,
     "text": "Battlecry: Gain 3 Armor.",
-    "flavor": "",
+    "flavor": "Built like a fortress. Thinks like a general.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -3831,7 +3831,7 @@
     "attack": 4,
     "health": 6,
     "text": "Taunt. Battlecry: Gain 2 Armor.",
-    "flavor": "",
+    "flavor": "He's been guarding this post for twelve years. He's not tired.",
     "keywords": [
       "TAUNT",
       "BATTLECRY"
@@ -3853,7 +3853,7 @@
     "attack": 3,
     "health": 4,
     "text": "Battlecry: Gain 3 Armor.",
-    "flavor": "",
+    "flavor": "The wind carries her. The wind carries everything, eventually.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -3874,7 +3874,7 @@
     "attack": 0,
     "health": 0,
     "text": "Gain 2 Armor. Draw a card.",
-    "flavor": "",
+    "flavor": "Recharges your armor and your confidence.",
     "keywords": [],
     "spellEffects": [
       {
@@ -3899,7 +3899,7 @@
     "attack": 0,
     "health": 0,
     "text": "Return a minion to its owner's hand.",
-    "flavor": "",
+    "flavor": "Sometimes the simplest solution is a sharp blade.",
     "keywords": [],
     "spellEffect": {
       "type": "RETURN_TO_HAND",
@@ -3916,7 +3916,7 @@
     "attack": 0,
     "health": 0,
     "text": "Return a friendly minion to your hand. Draw a card.",
-    "flavor": "",
+    "flavor": "Come back! I wasn't done with you!",
     "keywords": [],
     "spellEffects": [
       {
@@ -3940,7 +3940,7 @@
     "attack": 1,
     "health": 3,
     "text": "Battlecry: Draw a card.",
-    "flavor": "",
+    "flavor": "Records everything. Forgets nothing. Judges constantly.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -3961,7 +3961,7 @@
     "attack": 0,
     "health": 0,
     "text": "Give your minions +2 Attack this turn.",
-    "flavor": "",
+    "flavor": "When the herd runs, nothing stands in its path.",
     "keywords": [],
     "spellEffect": {
       "type": "BUFF_ALL_FRIENDLY",
@@ -3980,7 +3980,7 @@
     "attack": 0,
     "health": 0,
     "text": "Draw 2 cards.",
-    "flavor": "",
+    "flavor": "A good engineer finds resources. A great one creates them.",
     "keywords": [],
     "spellEffect": {
       "type": "DRAW_CARDS",
@@ -3998,7 +3998,7 @@
     "attack": 3,
     "health": 5,
     "text": "Battlecry: Restore 3 Health to your hero.",
-    "flavor": "",
+    "flavor": "She sees the future in a cup of tea.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -4019,7 +4019,7 @@
     "attack": 1,
     "health": 1,
     "text": "Deathrattle: Draw a card.",
-    "flavor": "",
+    "flavor": "Small, round, and ready to draw cards.",
     "keywords": [
       "DEATHRATTLE"
     ],
@@ -4040,7 +4040,7 @@
     "attack": 3,
     "health": 5,
     "text": "Taunt.",
-    "flavor": "",
+    "flavor": "Roderick doesn't move. That's the whole strategy.",
     "keywords": [
       "TAUNT"
     ],
@@ -4056,7 +4056,7 @@
     "attack": 0,
     "health": 0,
     "text": "Deal 1 damage to a minion. Draw a card.",
-    "flavor": "",
+    "flavor": "The smallest spark can light the biggest fire.",
     "keywords": [],
     "spellEffects": [
       {
@@ -4081,7 +4081,7 @@
     "attack": 5,
     "health": 5,
     "text": "Deathrattle: Summon a 4/4 Shadow.",
-    "flavor": "",
+    "flavor": "His shadow swallows the light. And then everything else.",
     "keywords": [
       "DEATHRATTLE"
     ],
@@ -4103,7 +4103,7 @@
     "attack": 2,
     "health": 2,
     "text": "Battlecry: Deal 1 damage to a random enemy.",
-    "flavor": "",
+    "flavor": "Red like the sunset over Gavalon. Twice as dangerous.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -4124,7 +4124,7 @@
     "attack": 4,
     "health": 3,
     "text": "Windfury. Battlecry: Gain +2 Attack for each Armor you have.",
-    "flavor": "",
+    "flavor": "Windfury and fury. Mostly fury.",
     "keywords": [
       "WINDFURY",
       "BATTLECRY"
@@ -4146,7 +4146,7 @@
     "attack": 2,
     "health": 4,
     "text": "Deathrattle: Summon a 1/1 Gadget Drone.",
-    "flavor": "",
+    "flavor": "She carries spare parts, spare drones, and spare attitude.",
     "keywords": [
       "DEATHRATTLE"
     ],
@@ -4168,7 +4168,7 @@
     "attack": 3,
     "health": 2,
     "text": "",
-    "flavor": "",
+    "flavor": "Recycled from seventeen different machines. Works like new.",
     "keywords": []
   },
   {
@@ -4181,7 +4181,7 @@
     "attack": 3,
     "health": 4,
     "text": "Stealth. Deathrattle: Deal 2 damage to the enemy hero.",
-    "flavor": "",
+    "flavor": "She moves through darkness like it's home. Because it is.",
     "keywords": [
       "STEALTH",
       "DEATHRATTLE"
@@ -4203,7 +4203,7 @@
     "attack": 0,
     "health": 3,
     "text": "Restore 2 Health to all friendly characters.",
-    "flavor": "",
+    "flavor": "The springs heal the body. The silence heals the soul.",
     "keywords": [],
     "locationEffect": {
       "type": "RESTORE_HEALTH",
@@ -4221,7 +4221,7 @@
     "attack": 6,
     "health": 6,
     "text": "Deathrattle: Deal 3 damage to all enemies. Summon a 4/4 Shadow.",
-    "flavor": "",
+    "flavor": "Dragon fire and darkness, woven into one terrible beast.",
     "keywords": [
       "DEATHRATTLE"
     ],
@@ -4242,7 +4242,7 @@
     "attack": 1,
     "health": 4,
     "text": "",
-    "flavor": "",
+    "flavor": "Fragile name. Unbreakable shield.",
     "keywords": []
   },
   {
@@ -4255,7 +4255,7 @@
     "attack": 4,
     "health": 2,
     "text": "Combo: Draw a card.",
-    "flavor": "",
+    "flavor": "Sho shoots. Sho scores. Sho disappears.",
     "keywords": [
       "COMBO"
     ],
@@ -4276,7 +4276,7 @@
     "attack": 2,
     "health": 2,
     "text": "",
-    "flavor": "",
+    "flavor": "Stands guard. Doesn't flinch. Not even once.",
     "keywords": []
   },
   {
@@ -4289,7 +4289,7 @@
     "attack": 4,
     "health": 5,
     "text": "Taunt.",
-    "flavor": "",
+    "flavor": "Tall, silent, and slightly intimidating.",
     "keywords": [
       "TAUNT"
     ],
@@ -4305,7 +4305,7 @@
     "attack": 1,
     "health": 2,
     "text": "Deathrattle: Draw a card.",
-    "flavor": "",
+    "flavor": "He skips the small talk and gets right to the point.",
     "keywords": [
       "DEATHRATTLE"
     ],
@@ -4326,7 +4326,7 @@
     "attack": 0,
     "health": 0,
     "text": "Draw a card.",
-    "flavor": "",
+    "flavor": "Heals with a touch. Judges with a glance.",
     "keywords": [],
     "spellEffect": {
       "type": "DRAW_CARDS",
@@ -4344,7 +4344,7 @@
     "attack": 0,
     "health": 0,
     "text": "Give a friendly minion Stealth and +1/+1.",
-    "flavor": "",
+    "flavor": "Shh. Sneaky sneaky. Nobody saw a thing.",
     "keywords": [],
     "spellEffect": {
       "type": "GRANT_KEYWORD",
@@ -4362,7 +4362,7 @@
     "attack": 4,
     "health": 2,
     "text": "",
-    "flavor": "",
+    "flavor": "Goes through shields like they're made of paper.",
     "keywords": []
   },
   {
@@ -4375,7 +4375,7 @@
     "attack": 2,
     "health": 2,
     "text": "Battlecry: Add a spare part to your hand.",
-    "flavor": "",
+    "flavor": "He puts the 'mad' in 'mad scientist.' The chameleon puts the 'cool.'",
     "keywords": [
       "BATTLECRY"
     ],
@@ -4396,7 +4396,7 @@
     "attack": 5,
     "health": 3,
     "text": "Battlecry: Deal 1 damage to all enemies.",
-    "flavor": "",
+    "flavor": "His stare alone has ended more fights than his blade.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -4417,7 +4417,7 @@
     "attack": 2,
     "health": 1,
     "text": "",
-    "flavor": "",
+    "flavor": "Sharp enough to cut through the morning fog.",
     "keywords": [],
     "minionType": "BEAST"
   },
@@ -4431,7 +4431,7 @@
     "attack": 0,
     "health": 0,
     "text": "Copy a random enemy minion and add it to your hand.",
-    "flavor": "",
+    "flavor": "Who you were doesn't matter. Who you are now does.",
     "keywords": [],
     "spellEffect": {
       "type": "DRAW_CARDS",
@@ -4449,7 +4449,7 @@
     "attack": 0,
     "health": 0,
     "text": "Draw 2 cards. Gain 2 Armor.",
-    "flavor": "",
+    "flavor": "Plans within plans. Shields within shields.",
     "keywords": [],
     "spellEffects": [
       {
@@ -4474,7 +4474,7 @@
     "attack": 4,
     "health": 5,
     "text": "Battlecry: Gain 4 Armor.",
-    "flavor": "",
+    "flavor": "Five layers of armor and a smile.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -4495,7 +4495,7 @@
     "attack": 6,
     "health": 7,
     "text": "Taunt. Deathrattle: Summon a 5/5 mech with Taunt.",
-    "flavor": "",
+    "flavor": "The biggest bot on the battlefield, and he knows it.",
     "keywords": [
       "TAUNT",
       "DEATHRATTLE"
@@ -4518,7 +4518,7 @@
     "attack": 4,
     "health": 5,
     "text": "Taunt.",
-    "flavor": "",
+    "flavor": "Medium-sized problems require medium-sized solutions.",
     "keywords": [],
     "minionType": "MECH"
   },
@@ -4532,7 +4532,7 @@
     "attack": 2,
     "health": 3,
     "text": "Deathrattle: Summon a 1/1 mech.",
-    "flavor": "",
+    "flavor": "Small, scrappy, and surprisingly hard to kill.",
     "keywords": [
       "DEATHRATTLE"
     ],
@@ -4554,7 +4554,7 @@
     "attack": 2,
     "health": 4,
     "text": "Divine Shield.",
-    "flavor": "",
+    "flavor": "Her armor shimmers with morning light.",
     "keywords": [
       "DIVINE_SHIELD"
     ],
@@ -4570,7 +4570,7 @@
     "attack": 4,
     "health": 3,
     "text": "Combo: Gain +2/+1.",
-    "flavor": "",
+    "flavor": "Together they're unstoppable. Apart they're just... stoppable.",
     "keywords": [
       "COMBO"
     ],
@@ -4592,7 +4592,7 @@
     "attack": 3,
     "health": 2,
     "text": "Battlecry: Deal 2 damage to a random enemy.",
-    "flavor": "",
+    "flavor": "Quick hands, quicker temper.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -4613,7 +4613,7 @@
     "attack": 6,
     "health": 4,
     "text": "Battlecry: Destroy a random enemy minion.",
-    "flavor": "",
+    "flavor": "Rules are for those who lack the power to break them.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -4633,7 +4633,7 @@
     "attack": 5,
     "health": 8,
     "text": "Taunt. Battlecry: Restore 5 Health to all friendly characters.",
-    "flavor": "",
+    "flavor": "It was here before Aster Academy. It will be here long after.",
     "keywords": [
       "TAUNT",
       "BATTLECRY"
@@ -4655,7 +4655,7 @@
     "attack": 3,
     "health": 4,
     "text": "Your other minions have +1 Attack.",
-    "flavor": "",
+    "flavor": "The anvil doesn't care who you are. It shapes you all the same.",
     "keywords": [],
     "minionType": "HUMAN"
   },
@@ -4669,7 +4669,7 @@
     "attack": 2,
     "health": 3,
     "text": "Battlecry: Return a friendly minion to your hand.",
-    "flavor": "",
+    "flavor": "Fastest transport in the Helix district. No questions asked.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -4689,7 +4689,7 @@
     "attack": 0,
     "health": 0,
     "text": "Draw 2 cards.",
-    "flavor": "",
+    "flavor": "Ancient scales. Ancient grudge.",
     "keywords": [],
     "spellEffect": {
       "type": "DRAW_CARDS",
@@ -4707,7 +4707,7 @@
     "attack": 0,
     "health": 0,
     "text": "Deal 1 damage.",
-    "flavor": "",
+    "flavor": "Tiny spark, meet tiny target.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE",
@@ -4725,7 +4725,7 @@
     "attack": 3,
     "health": 3,
     "text": "",
-    "flavor": "",
+    "flavor": "One person's trash is RoRo's treasure.",
     "keywords": [],
     "minionType": "AMETI"
   },
@@ -4739,7 +4739,7 @@
     "attack": 0,
     "health": 0,
     "text": "A friendly minion deals its Attack damage to an adjacent enemy.",
-    "flavor": "",
+    "flavor": "The ground shakes. The enemy doesn't.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE",
@@ -4757,7 +4757,7 @@
     "attack": 4,
     "health": 4,
     "text": "",
-    "flavor": "",
+    "flavor": "Potions and papers. The tools of a true academic.",
     "keywords": [],
     "minionType": "HUMAN"
   },
@@ -4771,7 +4771,7 @@
     "attack": 4,
     "health": 3,
     "text": "Deathrattle: Summon a 2/2 mech.",
-    "flavor": "",
+    "flavor": "Leaves tracks wherever he goes. Deliberately.",
     "keywords": [
       "DEATHRATTLE"
     ],
@@ -4793,7 +4793,7 @@
     "attack": 2,
     "health": 2,
     "text": "Stealth.",
-    "flavor": "",
+    "flavor": "A dragon that learned stealth. The world is not ready.",
     "keywords": [
       "STEALTH"
     ],
@@ -4809,7 +4809,7 @@
     "attack": 3,
     "health": 2,
     "text": "Deathrattle: Deal 2 damage to a random enemy.",
-    "flavor": "",
+    "flavor": "Trims hedges, enemies, and awkward conversations.",
     "keywords": [
       "DEATHRATTLE"
     ],
@@ -4830,7 +4830,7 @@
     "attack": 3,
     "health": 6,
     "text": "Taunt. Divine Shield.",
-    "flavor": "",
+    "flavor": "Three aspects. One champion. Zero chance of getting through.",
     "keywords": [
       "TAUNT",
       "DIVINE_SHIELD"
@@ -4847,7 +4847,7 @@
     "attack": 0,
     "health": 0,
     "text": "Give a friendly minion +3/+3 and Divine Shield.",
-    "flavor": "",
+    "flavor": "Victory is its own reward. This buff is a close second.",
     "keywords": [],
     "spellEffect": {
       "type": "BUFF_MINION",
@@ -4866,7 +4866,7 @@
     "attack": 3,
     "health": 2,
     "text": "",
-    "flavor": "",
+    "flavor": "Half ram, half nightmare. All horns.",
     "keywords": [],
     "minionType": "BEAST"
   },
@@ -4880,7 +4880,7 @@
     "attack": 0,
     "health": 0,
     "text": "Deal 3 damage to all minions.",
-    "flavor": "",
+    "flavor": "The twilight brings judgment. The night brings worse.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE_ALL_ENEMIES",
@@ -4898,7 +4898,7 @@
     "attack": 5,
     "health": 6,
     "text": "Taunt. Deathrattle: Summon two 2/2 Tusklings.",
-    "flavor": "",
+    "flavor": "The war elephant of Miro. Feared by all, loved by tusklings.",
     "keywords": [
       "TAUNT",
       "DEATHRATTLE"
@@ -4920,7 +4920,7 @@
     "attack": 5,
     "health": 5,
     "text": "Deathrattle: Deal 2 damage to all minions.",
-    "flavor": "",
+    "flavor": "He doesn't stay dead. Nobody knows why.",
     "keywords": [
       "DEATHRATTLE"
     ],
@@ -4941,7 +4941,7 @@
     "attack": 0,
     "health": 0,
     "text": "Gain 3 Armor. Draw a card.",
-    "flavor": "",
+    "flavor": "X marks the spot. The spot marks the gold.",
     "keywords": [],
     "spellEffects": [
       {
@@ -4966,7 +4966,7 @@
     "attack": 2,
     "health": 4,
     "text": "Battlecry: Restore 3 Health to a friendly character.",
-    "flavor": "",
+    "flavor": "A gentle giant with glowing eyes and a warm heart.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -4987,7 +4987,7 @@
     "attack": 4,
     "health": 3,
     "text": "Charge.",
-    "flavor": "",
+    "flavor": "Cloaked in mystery. Armed with certainty.",
     "keywords": [
       "CHARGE"
     ],
@@ -5003,7 +5003,7 @@
     "attack": 4,
     "health": 4,
     "text": "Deathrattle: Deal 2 damage to the enemy hero.",
-    "flavor": "",
+    "flavor": "Deals with the dead. Deals for the dead. Deals IN dead.",
     "keywords": [
       "DEATHRATTLE"
     ],
@@ -5024,7 +5024,7 @@
     "attack": 3,
     "health": 5,
     "text": "Battlecry: Freeze two random enemy minions.",
-    "flavor": "",
+    "flavor": "A whirlpool of ice and fury.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -5050,7 +5050,7 @@
     "attack": 7,
     "health": 7,
     "text": "Taunt.",
-    "flavor": "",
+    "flavor": "The fire in his hammer burns hotter than Gavalon.",
     "keywords": [
       "TAUNT"
     ],
@@ -5066,7 +5066,7 @@
     "attack": 4,
     "health": 2,
     "text": "Stealth.",
-    "flavor": "",
+    "flavor": "You never see Vrasp. You only see what Vrasp left behind.",
     "keywords": [
       "STEALTH"
     ],
@@ -5082,7 +5082,7 @@
     "attack": 5,
     "health": 5,
     "text": "Battlecry: Destroy a random enemy minion.",
-    "flavor": "",
+    "flavor": "The last thing his targets hear is a polite apology.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -5102,7 +5102,7 @@
     "attack": 0,
     "health": 0,
     "text": "Deal 1 damage to the enemy hero.",
-    "flavor": "",
+    "flavor": "Just a little warning. Just a little.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE",
@@ -5120,7 +5120,7 @@
     "attack": 2,
     "health": 3,
     "text": "",
-    "flavor": "",
+    "flavor": "Bends space. Breaks expectations.",
     "keywords": []
   },
   {
@@ -5133,7 +5133,7 @@
     "attack": 0,
     "health": 3,
     "text": "Gain 2 Armor.",
-    "flavor": "",
+    "flavor": "The island whispers secrets to those who listen.",
     "keywords": [],
     "locationEffect": {
       "type": "GAIN_ARMOR",
@@ -5151,7 +5151,7 @@
     "attack": 2,
     "health": 2,
     "text": "Battlecry: Summon a 1/1 Gadget Drone.",
-    "flavor": "",
+    "flavor": "Whizz in, drop a drone, whizz out. Simple.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -5173,7 +5173,7 @@
     "attack": 2,
     "health": 3,
     "text": "Freeze any character damaged by this minion.",
-    "flavor": "",
+    "flavor": "Young, fierce, and colder than she looks.",
     "keywords": [],
     "minionType": "AMETI"
   },
@@ -5187,7 +5187,7 @@
     "attack": 1,
     "health": 2,
     "text": "",
-    "flavor": "",
+    "flavor": "Baby dragon. Big dreams. Bigger appetite.",
     "keywords": [],
     "minionType": "DRAGON"
   },
@@ -5201,7 +5201,7 @@
     "attack": 2,
     "health": 4,
     "text": "Battlecry: Give a friendly minion Taunt.",
-    "flavor": "",
+    "flavor": "She gives others strength. That's her strength.",
     "keywords": [
       "TAUNT",
       "BATTLECRY"
@@ -5223,7 +5223,7 @@
     "attack": 5,
     "health": 6,
     "text": "Battlecry: Gain 5 Armor. Draw 2 cards.",
-    "flavor": "",
+    "flavor": "She collects gems the way others collect regrets.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -5244,7 +5244,7 @@
     "attack": 5,
     "health": 4,
     "text": "Battlecry: Deal 2 damage to a random enemy.",
-    "flavor": "",
+    "flavor": "His knives hit the target. Every. Single. Time.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -5265,7 +5265,7 @@
     "attack": 2,
     "health": 3,
     "text": "Battlecry: Give a friendly MECH +1 Attack.",
-    "flavor": "",
+    "flavor": "He gives mechs a little extra spark.",
     "keywords": [
       "BATTLECRY"
     ],
