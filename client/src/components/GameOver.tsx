@@ -201,6 +201,21 @@ export function GameOver({ winnerName, isMe, onPlayAgain, gameState, onLeaveGame
         {/* Rewards Panel */}
         {rewards && <RewardsPanel rewards={rewards} isMe={isMe} />}
 
+        {/* Game Stats */}
+        {gameState.playerStats && (
+          <div className="mt-3 bg-slate-700/30 rounded-xl p-3">
+            <h4 className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">Game Stats</h4>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+              <div className="flex justify-between"><span className="text-gray-400">Damage to Hero</span><span className="text-white font-bold">{gameState.playerStats[gameState.myPlayerIndex].damageDealtToHeroes}</span></div>
+              <div className="flex justify-between"><span className="text-gray-400">Minions Killed</span><span className="text-white font-bold">{gameState.playerStats[gameState.myPlayerIndex].minionsKilled}</span></div>
+              <div className="flex justify-between"><span className="text-gray-400">Minions Played</span><span className="text-white font-bold">{gameState.playerStats[gameState.myPlayerIndex].minionsPlayed}</span></div>
+              <div className="flex justify-between"><span className="text-gray-400">Spells Cast</span><span className="text-white font-bold">{gameState.playerStats[gameState.myPlayerIndex].spellsCast}</span></div>
+              <div className="flex justify-between"><span className="text-gray-400">Cards Drawn</span><span className="text-white font-bold">{gameState.playerStats[gameState.myPlayerIndex].cardsDrawn}</span></div>
+              <div className="flex justify-between"><span className="text-gray-400">Healing Done</span><span className="text-white font-bold">{gameState.playerStats[gameState.myPlayerIndex].healingDone}</span></div>
+            </div>
+          </div>
+        )}
+
         <div className="space-y-2 mt-4">
           {onLeaveGame && (
             <button
