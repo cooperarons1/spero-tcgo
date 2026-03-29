@@ -194,52 +194,50 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
         <div className="flex-1" />
       )}
 
-      {/* ── Bottom stats — minions & weapons ── */}
+      {/* ── Bottom stats — absolute positioned inside card ── */}
       {hasStats && (
-        <div className={`
-          flex justify-between items-end shrink-0
-          ${small ? 'px-0 pb-0 -mb-0.5' : 'px-0 pb-0 -mb-0.5'}
-          z-10
-        `}>
+        <>
           {/* Attack — bottom-left */}
           <div className={`
-            ${small ? 'w-6 h-6 text-[10px] -ml-1' : 'w-8 h-8 text-sm -ml-1'}
+            absolute ${small ? 'bottom-0.5 left-0.5 w-6 h-6 text-[10px]' : 'bottom-0.5 left-0.5 w-8 h-8 text-sm'}
             rounded-full bg-gradient-to-br from-yellow-500 to-yellow-700
             border-2 border-yellow-400 shadow-md shadow-yellow-500/40
-            flex items-center justify-center font-extrabold text-white
+            flex items-center justify-center font-extrabold text-white z-20
           `}>
             {def.attack}
           </div>
 
-          {/* Tribe label — centered */}
-          {isMinion && def.minionType && (
-            <span className={`
-              ${small ? 'text-[5px] px-1' : 'text-[7px] px-1.5'}
-              font-bold text-amber-300/80 bg-stone-900/60 rounded-sm
-            `}>
-              {def.minionType}
-            </span>
-          )}
-
           {/* Health/Durability — bottom-right */}
           <div className={`
-            ${small ? 'w-6 h-6 text-[10px] -mr-1' : 'w-8 h-8 text-sm -mr-1'}
+            absolute ${small ? 'bottom-0.5 right-0.5 w-6 h-6 text-[10px]' : 'bottom-0.5 right-0.5 w-8 h-8 text-sm'}
             rounded-full
             ${isWeapon
               ? 'bg-gradient-to-br from-emerald-400 to-emerald-700 border-emerald-300 shadow-emerald-500/40'
               : 'bg-gradient-to-br from-red-500 to-red-800 border-red-400 shadow-red-500/40'
             }
-            border-2 shadow-md
+            border-2 shadow-md z-20
             flex items-center justify-center font-extrabold text-white
           `}>
             {def.health}
           </div>
-        </div>
+
+          {/* Tribe label — bottom center */}
+          {isMinion && def.minionType && (
+            <div className={`absolute ${small ? 'bottom-0.5' : 'bottom-1'} left-1/2 -translate-x-1/2 z-20`}>
+              <span className={`
+                ${small ? 'text-[5px] px-1' : 'text-[6px] px-1.5 py-px'}
+                font-bold text-amber-200 bg-stone-900/80 rounded-sm border border-amber-700/30
+              `}>
+                {def.minionType}
+              </span>
+            </div>
+          )}
+        </>
       )}
 
-      {/* Location durability */}
+      {/* Location durability — bottom center */}
       {isLocation && (
-        <div className={`flex justify-center shrink-0 ${small ? 'pb-0.5' : 'pb-1'} z-10`}>
+        <div className={`absolute ${small ? 'bottom-0.5' : 'bottom-0.5'} left-1/2 -translate-x-1/2 z-20`}>
           <div className={`
             ${small ? 'w-6 h-6 text-[10px]' : 'w-8 h-8 text-sm'}
             rounded-full bg-gradient-to-br from-emerald-400 to-emerald-700
@@ -250,9 +248,6 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
           </div>
         </div>
       )}
-
-      {/* Spell bottom spacer */}
-      {isSpell && !isLocation && <div className={small ? 'h-1' : 'h-1.5'} />}
 
       {/* Selected glow */}
       {selected && (
