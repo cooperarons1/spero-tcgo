@@ -2479,6 +2479,43 @@ export default function GameBoard({
                 </div>
               )}
             </div>
+            {/* Keyword tooltips */}
+            {def.keywords && def.keywords.length > 0 && (() => {
+              const KW_DESC: Record<string, string> = {
+                TAUNT: 'Enemies must attack this minion first.',
+                CHARGE: 'Can attack immediately when played.',
+                DIVINE_SHIELD: 'The first damage this minion takes is ignored.',
+                BATTLECRY: 'Does something when you play it from your hand.',
+                DEATHRATTLE: 'Does something when this minion dies.',
+                FREEZE: 'Frozen characters lose their next attack.',
+                WINDFURY: 'Can attack twice each turn.',
+                STEALTH: 'Cannot be targeted until it attacks.',
+                SECRET: 'Hidden until a specific action triggers it.',
+                COMBO: 'A bonus if you already played a card this turn.',
+                BOND: 'Gets a bonus when its partner is on the board.',
+                ORRA_CHARGE: 'Gains a charge each turn. Triggers at max charges.',
+                END_OF_TURN: 'Triggers at the end of your turn.',
+              };
+              const kws = def.keywords.filter((k: string) => KW_DESC[k]);
+              if (kws.length === 0) return null;
+              return (
+                <div className="mt-1.5 bg-stone-900/95 border border-amber-700/40 rounded-lg px-3 py-2 max-w-[200px] shadow-xl">
+                  {kws.map((kw: string) => (
+                    <div key={kw} className="mb-1 last:mb-0">
+                      <span className="text-amber-300 font-bold text-[10px]">
+                        {kw === 'DIVINE_SHIELD' ? 'Divine Shield' :
+                         kw === 'END_OF_TURN' ? 'End of Turn' :
+                         kw === 'ORRA_CHARGE' ? 'Orra Charge' :
+                         kw.charAt(0) + kw.slice(1).toLowerCase()}
+                      </span>
+                      <span className="text-gray-400 text-[9px] ml-1">
+                        {KW_DESC[kw]}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
           </div>
         );
       })()}

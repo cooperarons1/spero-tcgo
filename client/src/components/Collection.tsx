@@ -51,6 +51,22 @@ const HERO_BG_MAP: Record<string, string> = {
 const allCards = cardData as CardDef[];
 const cardsByCode = new Map(allCards.map(c => [c.cardCode, c]));
 
+const KEYWORD_DESCRIPTIONS: Record<string, string> = {
+  TAUNT: 'Enemies must attack this minion first.',
+  CHARGE: 'Can attack immediately when played.',
+  DIVINE_SHIELD: 'The first damage this minion takes is ignored.',
+  BATTLECRY: 'Does something when you play it from your hand.',
+  DEATHRATTLE: 'Does something when this minion dies.',
+  FREEZE: 'Frozen characters lose their next attack.',
+  WINDFURY: 'Can attack twice each turn.',
+  STEALTH: 'Cannot be targeted until it attacks.',
+  SECRET: 'Hidden until a specific action triggers it.',
+  COMBO: 'A bonus if you already played a card this turn.',
+  BOND: 'Gets a bonus when its partner is on the board.',
+  ORRA_CHARGE: 'Gains a charge each turn. Triggers at max charges.',
+  END_OF_TURN: 'Triggers at the end of your turn.',
+};
+
 // Hero portrait images (PNG for heroes that have them, fallback to colored circle)
 const HERO_PORTRAIT_IMGS: Partial<Record<string, string>> = {
   JIMMY: '/heroes/JIMMY.png',
@@ -607,15 +623,39 @@ export function Collection({ uid, onBack }: CollectionProps) {
         )}
       </div>
 
-      {/* Card hover preview */}
+      {/* Card hover preview with keyword tooltips */}
       {hoveredCard && (() => {
         const def = getCardDef(hoveredCard.code);
         if (!def) return null;
-        const px = hoveredCard.x > window.innerWidth / 2 ? hoveredCard.x - 220 : hoveredCard.x + 20;
-        const py = Math.max(8, Math.min(hoveredCard.y - 60, window.innerHeight - 320));
+        const px = hoveredCard.x > window.innerWidth / 2 ? hoveredCard.x - 240 : hoveredCard.x + 20;
+        const py = Math.max(8, Math.min(hoveredCard.y - 60, window.innerHeight - 400));
+        const keywords = (def.keywords || []).filter((k: string) => KEYWORD_DESCRIPTIONS[k]);
         return (
           <div className="fixed z-[60] pointer-events-none" style={{ left: px, top: py }}>
-            <Card cardCode={hoveredCard.code} className="!w-[180px] !h-[257px] shadow-2xl" />
+            <Card cardCode={hoveredCard.code} className="!w-[200px] !h-[286px] shadow-2xl" />
+            {keywords.length > 0 && (
+              <div className="mt-1.5 bg-stone-900/95 border border-amber-700/40 rounded-lg px-3 py-2 max-w-[200px] shadow-xl">
+                {keywords.map((kw: string) => (
+                  <div key={kw} className="mb-1 last:mb-0">
+                    <span className="text-amber-300 font-bold text-[10px]">
+                      {kw === 'DIVINE_SHIELD' ? 'Divine Shield' :
+                       kw === 'END_OF_TURN' ? 'End of Turn' :
+                       kw === 'ORRA_CHARGE' ? 'Orra Charge' :
+                       kw.charAt(0) + kw.slice(1).toLowerCase()}
+                    </span>
+                    <span className="text-gray-400 text-[9px] ml-1">
+                      {KEYWORD_DESCRIPTIONS[kw]}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {def.minionType && (
+              <div className="mt-1 bg-stone-900/95 border border-amber-700/40 rounded-lg px-3 py-1 max-w-[200px] shadow-xl">
+                <span className="text-amber-200 font-bold text-[10px]">Tribe: </span>
+                <span className="text-gray-300 text-[10px]">{def.minionType}</span>
+              </div>
+            )}
           </div>
         );
       })()}
