@@ -218,7 +218,7 @@ function clonePlayer(p: PlayerState): PlayerState {
     board: p.board.map(cloneMinion),
     weapon: p.weapon ? { ...p.weapon } : null,
     locations: p.locations.map(l => ({ ...l })),
-    heroPowerUsed: p.heroPowerUsed, heroAttackThisTurn: p.heroAttackThisTurn,
+    heroPowerUsed: p.heroPowerUsed, heroAttackThisTurn: p.heroAttackThisTurn, heroAttacksRemaining: p.heroAttacksRemaining ?? 1,
     fatigueDamage: p.fatigueDamage,
     graveyard: p.graveyard.map(c => ({ ...c })),
     secrets: p.secrets.map(s => ({ ...s })),

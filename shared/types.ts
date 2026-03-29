@@ -327,6 +327,7 @@ export interface ClientGameState {
   myWeapon: Weapon | null;
   myHeroPowerUsed: boolean;
   myHeroAttackThisTurn: number;
+  myHeroAttacksRemaining: number;
   myFatigueDamage: number;
   myGraveyardCount: number;
   mySecrets: ActiveSecret[];

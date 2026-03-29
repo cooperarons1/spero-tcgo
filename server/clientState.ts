@@ -154,6 +154,7 @@ export function getSpectatorState(game: GameState): ClientGameState {
     myWeapon: p0.weapon,
     myHeroPowerUsed: p0.heroPowerUsed,
     myHeroAttackThisTurn: p0.heroAttackThisTurn,
+    myHeroAttacksRemaining: p0.heroAttacksRemaining ?? 1,
     myFatigueDamage: p0.fatigueDamage,
     myGraveyardCount: p0.graveyard.length,
     mySecrets: [],

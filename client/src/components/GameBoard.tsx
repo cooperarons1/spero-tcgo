@@ -2334,7 +2334,7 @@ export default function GameBoard({
             mana={gs.myMana}
             maxMana={gs.myMaxMana}
             canUseHeroPower={isMyTurn && !gs.myHeroPowerUsed && gs.myMana >= HERO_POWER_COST}
-            canHeroAttack={isMyTurn && isPlaying && ((gs as any).myHeroAttacksRemaining ?? 1) > 0 && ((!!gs.myWeapon && gs.myWeapon.currentAttack > 0) || (gs.myHeroAttackThisTurn ?? 0) > 0)}
+            canHeroAttack={isMyTurn && isPlaying && (gs.myHeroAttacksRemaining ?? 1) > 0 && ((!!gs.myWeapon && gs.myWeapon.currentAttack > 0) || (gs.myHeroAttackThisTurn ?? 0) > 0)}
             isValidTarget={validTargetIds.has(`hero-${gs.myPlayerIndex}`)}
             onHeroPowerClick={handleHeroPower}
             onHeroClick={(e?: React.MouseEvent) => {
