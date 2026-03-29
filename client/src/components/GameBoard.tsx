@@ -793,7 +793,7 @@ function HeroPortrait({
       )}
       {/* Weapon (left side) — Hearthstone-style circular with art */}
       {weapon && (
-        <div className={`relative h-14 w-14 md:h-[72px] md:w-[72px] rounded-full overflow-hidden border-[3px] bg-stone-900
+        <div className={`relative h-16 w-16 md:h-20 md:w-20 rounded-full overflow-hidden border-[3px] bg-stone-900
           ${canHeroAttack ? 'border-green-400 shadow-[0_0_16px_4px_rgba(34,197,94,0.6)]' : 'border-stone-500'}
           ${weaponEquipFlash ? 'animate-weapon-equip' : ''}`}
           style={{ boxShadow: canHeroAttack ? undefined : 'inset 0 2px 8px rgba(0,0,0,0.6)' }}
@@ -801,16 +801,16 @@ function HeroPortrait({
           {/* Weapon card art */}
           <CardArt cardCode={weapon.cardCode} className="absolute inset-0 w-full h-full object-cover" />
           {/* Dark overlay for readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20" />
-          {/* Serrated edge decorations */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/15" />
+          {/* Inner ring decoration */}
           <div className="absolute inset-0 rounded-full" style={{ boxShadow: 'inset 0 0 0 2px rgba(100,90,70,0.5)' }} />
           {/* Attack badge (bottom-left) */}
-          <div className="absolute -bottom-0.5 -left-0.5 md:bottom-0 md:left-0 w-6 h-6 md:w-7 md:h-7 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 border-2 border-amber-300 flex items-center justify-center shadow-lg z-10">
-            <span className="text-white font-extrabold text-[10px] md:text-xs drop-shadow-md">{weapon.currentAttack}</span>
+          <div className="absolute bottom-0 left-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 border-2 border-amber-300 flex items-center justify-center shadow-lg z-10">
+            <span className="text-white font-extrabold text-xs md:text-sm drop-shadow-md">{weapon.currentAttack}</span>
           </div>
           {/* Durability badge (bottom-right) */}
-          <div className="absolute -bottom-0.5 -right-0.5 md:bottom-0 md:right-0 w-6 h-6 md:w-7 md:h-7 rounded-full bg-gradient-to-br from-stone-400 to-stone-600 border-2 border-stone-300 flex items-center justify-center shadow-lg z-10">
-            <span className="text-white font-extrabold text-[10px] md:text-xs drop-shadow-md">{weapon.durability}</span>
+          <div className="absolute bottom-0 right-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-stone-400 to-stone-600 border-2 border-stone-300 flex items-center justify-center shadow-lg z-10">
+            <span className="text-white font-extrabold text-xs md:text-sm drop-shadow-md">{weapon.durability}</span>
           </div>
         </div>
       )}
@@ -821,7 +821,7 @@ function HeroPortrait({
           onClick={onHeroClick}
           onPointerDown={onHeroPointerDown}
           data-entity-id={entityId}
-          className={`relative flex h-16 w-16 md:h-24 md:w-24 items-center justify-center rounded-full border-4 touch-none ${borderClass} ${bgClass} transition-all overflow-hidden
+          className={`relative flex h-20 w-20 md:h-28 md:w-28 items-center justify-center rounded-full border-4 touch-none ${borderClass} ${bgClass} transition-all overflow-hidden
             ${isValidTarget ? 'shadow-[0_0_16px_4px_rgba(34,197,94,0.6)] cursor-crosshair' : ''}
             ${canHeroAttack ? 'shadow-[0_0_20px_6px_rgba(34,197,94,0.7)] ring-[3px] ring-green-400/80 cursor-pointer' : ''}
             ${!isValidTarget && !canHeroAttack && !isMyHero ? 'cursor-default' : ''}
@@ -837,7 +837,7 @@ function HeroPortrait({
             )}
           </div>
           {/* HP overlay at bottom */}
-          <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 text-lg font-bold z-10 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] ${isDamaged ? 'text-red-400' : 'text-white'}`}>
+          <span className={`absolute bottom-0.5 left-1/2 -translate-x-1/2 text-xl md:text-2xl font-extrabold z-10 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] ${isDamaged ? 'text-red-400' : 'text-white'}`}>
             {health}
           </span>
         </button>
@@ -856,7 +856,7 @@ function HeroPortrait({
           onClick={onHeroPowerClick}
           onPointerDown={onHeroPowerPointerDown}
           disabled={!canUseHeroPower}
-          className={`relative flex h-14 w-14 items-center justify-center rounded-lg border-2 transition-all touch-none
+          className={`relative flex h-16 w-16 md:h-[4.5rem] md:w-[4.5rem] items-center justify-center rounded-lg border-2 transition-all touch-none
             ${heroPowerUpgraded
               ? (canUseHeroPower
                 ? 'border-amber-300 bg-gradient-to-br from-amber-700/60 to-amber-500/40 hover:from-amber-600/80 hover:to-amber-400/60 hover:scale-110 cursor-pointer shadow-[0_0_12px_2px_rgba(245,158,11,0.5)]'
@@ -2334,7 +2334,7 @@ export default function GameBoard({
             mana={gs.myMana}
             maxMana={gs.myMaxMana}
             canUseHeroPower={isMyTurn && !gs.myHeroPowerUsed && gs.myMana >= HERO_POWER_COST}
-            canHeroAttack={isMyTurn && isPlaying && ((!!gs.myWeapon && gs.myWeapon.currentAttack > 0) || (gs.myHeroAttackThisTurn ?? 0) > 0)}
+            canHeroAttack={isMyTurn && isPlaying && ((gs as any).myHeroAttacksRemaining ?? 1) > 0 && ((!!gs.myWeapon && gs.myWeapon.currentAttack > 0) || (gs.myHeroAttackThisTurn ?? 0) > 0)}
             isValidTarget={validTargetIds.has(`hero-${gs.myPlayerIndex}`)}
             onHeroPowerClick={handleHeroPower}
             onHeroClick={(e?: React.MouseEvent) => {

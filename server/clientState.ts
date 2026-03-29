@@ -83,6 +83,7 @@ export function getClientState(game: GameState, playerId: string): ClientGameSta
     myWeapon: me.weapon,
     myHeroPowerUsed: me.heroPowerUsed,
     myHeroAttackThisTurn: me.heroAttackThisTurn,
+    myHeroAttacksRemaining: me.heroAttacksRemaining ?? 1,
     myFatigueDamage: me.fatigueDamage,
     myGraveyardCount: me.graveyard.length,
     mySecrets: me.secrets,

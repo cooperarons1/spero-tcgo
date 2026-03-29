@@ -55,6 +55,7 @@ export function attack(
   if (isHeroAttack) {
     const heroAtk = (me.weapon?.currentAttack ?? 0) + (me.heroAttackThisTurn ?? 0);
     if (heroAtk <= 0) return { success: false, error: 'No weapon equipped' };
+    if ((me.heroAttacksRemaining ?? 1) <= 0) return { success: false, error: 'Hero has already attacked this turn' };
   } else {
     attackerMinion = me.board.find(m => m.instanceId === attackerInstanceId) ?? null;
     if (!attackerMinion) return { success: false, error: 'Attacker not found on your board' };
@@ -140,6 +141,8 @@ export function attack(
     }
     // Hero attack from hero power is one-use per turn
     me.heroAttackThisTurn = 0;
+    // Decrement hero attacks remaining
+    me.heroAttacksRemaining = Math.max(0, (me.heroAttacksRemaining ?? 1) - 1);
   } else {
     // Remove stealth when attacking
     if (attackerMinion!.hasStealthUntilAttack) {

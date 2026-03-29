@@ -25,6 +25,7 @@ function makePlayerState(id: string, name: string, heroClass: HeroClass): Player
     locations: [],
     heroPowerUsed: false,
     heroAttackThisTurn: 0,
+    heroAttacksRemaining: 1,
     fatigueDamage: 0,
     graveyard: [],
     secrets: [],
@@ -198,6 +199,9 @@ export function startTurn(game: GameState): void {
 
   // Reset temporary hero attack (guard against skipped endTurn cleanup)
   player.heroAttackThisTurn = 0;
+
+  // Reset hero attacks remaining (1 per turn)
+  player.heroAttacksRemaining = 1;
 
   // Reset locations: decrement cooldown, allow activation
   for (const loc of player.locations) {

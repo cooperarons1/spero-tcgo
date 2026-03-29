@@ -197,6 +197,7 @@ export interface PlayerState {
   locations: BoardLocation[];
   heroPowerUsed: boolean;
   heroAttackThisTurn: number; // temporary hero attack (e.g. Lucas hero power)
+  heroAttacksRemaining: number; // 1 per turn (0 after attacking), reset on turn start
   fatigueDamage: number;   // increments each draw from empty deck
   graveyard: CardInstance[];
   secrets: ActiveSecret[];
