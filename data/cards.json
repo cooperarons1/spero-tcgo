@@ -1470,7 +1470,7 @@
     "keywords": [
       "BATTLECRY"
     ],
-    "minionType": "MECH",
+    "minionType": "HUMAN",
     "battlecryEffect": {
       "type": "DRAW_CARDS",
       "target": "NONE",

@@ -1,0 +1,22 @@
+{
+  "name": "Miro TCG Online",
+  "short_name": "Miro TCG",
+  "description": "A Hearthstone-style trading card game set in the Miro Chronicles universe",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0c0a09",
+  "theme_color": "#b45309",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/cards/card-back.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/cards/card-back.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
