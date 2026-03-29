@@ -794,15 +794,26 @@ function HeroPortrait({
           })}
         </div>
       )}
-      {/* Weapon (left side) */}
+      {/* Weapon (left side) — Hearthstone-style circular with art */}
       {weapon && (
-        <div className={`flex h-12 w-12 md:h-16 md:w-16 flex-col items-center justify-center rounded-lg border-2 bg-stone-800
-          ${canHeroAttack ? 'border-green-400 shadow-[0_0_12px_3px_rgba(34,197,94,0.6)]' : 'border-stone-600'}
-          ${weaponEquipFlash ? 'animate-weapon-equip' : ''}`}>
-          <span className="text-[10px] md:text-xs text-stone-400">Weapon</span>
-          <div className="flex gap-2 text-xs md:text-sm">
-            <span className="font-bold text-amber-400">{weapon.currentAttack}</span>
-            <span className="font-bold text-stone-300">{weapon.durability}</span>
+        <div className={`relative h-14 w-14 md:h-[72px] md:w-[72px] rounded-full overflow-hidden border-[3px] bg-stone-900
+          ${canHeroAttack ? 'border-green-400 shadow-[0_0_16px_4px_rgba(34,197,94,0.6)]' : 'border-stone-500'}
+          ${weaponEquipFlash ? 'animate-weapon-equip' : ''}`}
+          style={{ boxShadow: canHeroAttack ? undefined : 'inset 0 2px 8px rgba(0,0,0,0.6)' }}
+        >
+          {/* Weapon card art */}
+          <CardArt cardCode={weapon.cardCode} className="absolute inset-0 w-full h-full object-cover" />
+          {/* Dark overlay for readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20" />
+          {/* Serrated edge decorations */}
+          <div className="absolute inset-0 rounded-full" style={{ boxShadow: 'inset 0 0 0 2px rgba(100,90,70,0.5)' }} />
+          {/* Attack badge (bottom-left) */}
+          <div className="absolute -bottom-0.5 -left-0.5 md:bottom-0 md:left-0 w-6 h-6 md:w-7 md:h-7 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 border-2 border-amber-300 flex items-center justify-center shadow-lg z-10">
+            <span className="text-white font-extrabold text-[10px] md:text-xs drop-shadow-md">{weapon.currentAttack}</span>
+          </div>
+          {/* Durability badge (bottom-right) */}
+          <div className="absolute -bottom-0.5 -right-0.5 md:bottom-0 md:right-0 w-6 h-6 md:w-7 md:h-7 rounded-full bg-gradient-to-br from-stone-400 to-stone-600 border-2 border-stone-300 flex items-center justify-center shadow-lg z-10">
+            <span className="text-white font-extrabold text-[10px] md:text-xs drop-shadow-md">{weapon.durability}</span>
           </div>
         </div>
       )}
@@ -2364,7 +2375,7 @@ export default function GameBoard({
             {emoteOpen && (
               <>
               <div className="fixed inset-0 z-40" onClick={() => setEmoteOpen(false)} />
-              <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-50 bg-stone-900 border border-stone-600 rounded-xl p-2 shadow-2xl grid grid-cols-3 gap-1 animate-fade-in"
+              <div className="absolute bottom-12 right-0 z-50 bg-stone-900/95 border border-stone-600 rounded-xl p-1.5 shadow-2xl flex flex-col gap-0.5 animate-fade-in min-w-[180px] backdrop-blur-sm"
               >
                 {(() => {
                   const heroLines: Record<string, Record<string, string>> = {
@@ -2397,7 +2408,7 @@ export default function GameBoard({
                       setTimeout(() => setMyEmote(null), 3000);
                       setEmoteOpen(false);
                     }}
-                    className="px-3 py-1.5 text-[11px] text-stone-200 hover:bg-amber-700/30 rounded-lg whitespace-nowrap transition-colors text-left"
+                    className="w-full px-3 py-2 text-[11px] text-stone-200 hover:bg-amber-700/30 rounded-lg whitespace-nowrap transition-colors text-left cursor-pointer"
                   >
                     {emote.label}
                   </button>

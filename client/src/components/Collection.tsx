@@ -118,7 +118,9 @@ export function Collection({ uid, onBack }: CollectionProps) {
 
   // Pagination
   const [page, setPage] = useState(0);
-  const CARDS_PER_PAGE = 8;
+  const [pageDir, setPageDir] = useState<'left' | 'right' | null>(null);
+  const [animating, setAnimating] = useState(false);
+  const CARDS_PER_PAGE = 15;
 
   // Crafting state
   const [craftingCard, setCraftingCard] = useState<string | null>(null);
@@ -557,10 +559,13 @@ export function Collection({ uid, onBack }: CollectionProps) {
             </div>
           </div>
 
-          {/* Card grid — paginated */}
-          <div className="flex-1 flex flex-col bg-slate-900/80">
-            <div className="flex-1 flex items-center justify-center p-4">
-              <div className="grid grid-cols-4 gap-3 max-w-3xl">
+          {/* Card grid — paginated with slide animation */}
+          <div className="flex-1 flex flex-col bg-slate-900/80 overflow-hidden">
+            <div className="flex-1 flex items-center justify-center p-3 relative">
+              <div
+                key={`page-${page}`}
+                className="grid grid-cols-5 gap-2.5 w-full max-w-4xl animate-page-slide-in"
+              >
                 {paginatedCards.map(c => {
                   const count = editingCounts.get(c.cardCode) || 0;
                   const max = c.rarity === 'LEGENDARY' ? MAX_COPIES_LEGENDARY : MAX_COPIES_PER_CARD;
@@ -605,23 +610,31 @@ export function Collection({ uid, onBack }: CollectionProps) {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-4 py-3 border-t border-stone-700/30">
+              <div className="flex items-center justify-center gap-6 py-2.5 border-t border-stone-700/30 shrink-0">
                 <button
-                  onClick={() => setPage(p => Math.max(0, p - 1))}
+                  onClick={() => { setPageDir('left'); setPage(p => Math.max(0, p - 1)); }}
                   disabled={page === 0}
-                  className="text-gray-400 hover:text-white text-xl font-bold px-3 cursor-pointer disabled:opacity-20 disabled:cursor-not-allowed"
+                  className="text-gray-400 hover:text-amber-300 text-2xl font-bold px-4 py-1 cursor-pointer disabled:opacity-15 disabled:cursor-not-allowed transition-colors"
                 >
-                  &larr;
+                  &#9664;
                 </button>
-                <span className="text-gray-400 text-sm">
-                  Page {page + 1} of {totalPages}
-                </span>
+                <div className="flex items-center gap-1.5">
+                  {Array.from({ length: totalPages }, (_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => { setPageDir(i > page ? 'right' : 'left'); setPage(i); }}
+                      className={`w-2 h-2 rounded-full transition-all cursor-pointer ${
+                        i === page ? 'bg-amber-400 scale-125' : 'bg-gray-600 hover:bg-gray-400'
+                      }`}
+                    />
+                  ))}
+                </div>
                 <button
-                  onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+                  onClick={() => { setPageDir('right'); setPage(p => Math.min(totalPages - 1, p + 1)); }}
                   disabled={page >= totalPages - 1}
-                  className="text-gray-400 hover:text-white text-xl font-bold px-3 cursor-pointer disabled:opacity-20 disabled:cursor-not-allowed"
+                  className="text-gray-400 hover:text-amber-300 text-2xl font-bold px-4 py-1 cursor-pointer disabled:opacity-15 disabled:cursor-not-allowed transition-colors"
                 >
-                  &rarr;
+                  &#9654;
                 </button>
               </div>
             )}

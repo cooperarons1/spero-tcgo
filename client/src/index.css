@@ -420,6 +420,16 @@ body {
   user-select: none;
 }
 
+/* Collection page slide animation */
+@keyframes page-slide-in {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.animate-page-slide-in {
+  animation: page-slide-in 0.25s ease-out;
+}
+
 /* Responsive card scaling breakpoints */
 @media (max-width: 767px) {
   .minion-oval,
