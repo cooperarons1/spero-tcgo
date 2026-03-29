@@ -2458,6 +2458,11 @@ export default function GameBoard({
                   <p className="text-gray-200 text-xs leading-snug">{def.text}</p>
                 </div>
               )}
+              {def.flavor && (
+                <div className="px-3 py-1 bg-black/10">
+                  <p className="text-gray-500 text-[10px] italic leading-snug">{def.flavor}</p>
+                </div>
+              )}
               {/* Stats */}
               {(isMinion || isWeapon) && (
                 <div className="flex justify-between px-3 py-1.5">

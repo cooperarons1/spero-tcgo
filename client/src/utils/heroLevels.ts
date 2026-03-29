@@ -21,12 +21,12 @@ export async function loadHeroLevels(uid: string): Promise<HeroLevelsMap> {
 }
 
 export function getHeroLevel(heroXP: number): number {
-  return Math.min(Math.floor(heroXP / 50) + 1, 69);
+  return Math.min(Math.floor(heroXP / 50) + 1, 60);
 }
 
 export function getHeroLevelProgress(heroXP: number): number {
   const level = getHeroLevel(heroXP);
-  if (level >= 69) return 1;
+  if (level >= 60) return 1;
   const currentLevelXP = (level - 1) * 50;
   const nextLevelXP = level * 50;
   return (heroXP - currentLevelXP) / (nextLevelXP - currentLevelXP);

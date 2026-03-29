@@ -735,6 +735,11 @@ export function Collection({ uid, onBack }: CollectionProps) {
                 <span className="text-gray-300 text-[10px]">{def.minionType}</span>
               </div>
             )}
+            {def.flavor && (
+              <div className="mt-1 bg-stone-900/95 border border-stone-700/40 rounded-lg px-3 py-1.5 max-w-[200px] shadow-xl">
+                <p className="text-gray-500 text-[9px] italic leading-snug">{def.flavor}</p>
+              </div>
+            )}
           </div>
         );
       })()}

@@ -33,13 +33,26 @@ export function PackOpening({ onBack, gold }: PackOpeningProps) {
   const [revealed, setRevealed] = useState<boolean[]>([]);
   const [dustGained, setDustGained] = useState(0);
   const [currentGold, setCurrentGold] = useState(gold);
+  const [currentDust, setCurrentDust] = useState(0);
   const [error, setError] = useState('');
+
+  // Fetch real gold balance on mount
+  useEffect(() => {
+    socket.emit('get-inventory');
+    const onInventory = (data: { gold: number; dust: number }) => {
+      setCurrentGold(data.gold);
+      setCurrentDust(data.dust);
+    };
+    socket.on('inventory-update', onInventory);
+    return () => { socket.off('inventory-update', onInventory); };
+  }, []);
 
   useEffect(() => {
     const onPackOpened = (data: { cards: PackCard[]; dustGained: number; newGold: number; newDust: number }) => {
       setCards(data.cards);
       setDustGained(data.dustGained);
       setCurrentGold(data.newGold);
+      setCurrentDust(data.newDust);
       setRevealed(new Array(data.cards.length).fill(false));
       setOpening(false);
     };
@@ -94,7 +107,10 @@ export function PackOpening({ onBack, gold }: PackOpeningProps) {
           &larr; Back
         </button>
         <h1 className="text-lg font-bold text-amber-100 tracking-wide">OPEN PACKS</h1>
-        <span className="text-yellow-400 font-bold text-sm">{currentGold} Gold</span>
+        <div className="flex items-center gap-3">
+          <span className="text-yellow-400 font-bold text-sm">{currentGold} Gold</span>
+          <span className="text-blue-400 font-bold text-sm">{currentDust} Dust</span>
+        </div>
       </div>
 
       {/* Main area */}

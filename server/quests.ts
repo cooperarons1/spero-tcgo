@@ -109,16 +109,16 @@ export function getHeroXPForLevel(level: number): number {
   return (level - 1) * 50;
 }
 
-/** Calculate hero level from total hero XP (max 69) */
+/** Calculate hero level from total hero XP (max 60) */
 export function getHeroLevel(heroXP: number): number {
   const level = Math.floor(heroXP / 50) + 1;
-  return Math.min(level, 69);
+  return Math.min(level, 60);
 }
 
 /** Get hero progress to next level as 0-1 */
 export function getHeroLevelProgress(heroXP: number): number {
   const level = getHeroLevel(heroXP);
-  if (level >= 69) return 1;
+  if (level >= 60) return 1;
   const currentLevelXP = (level - 1) * 50;
   const nextLevelXP = level * 50;
   return (heroXP - currentLevelXP) / (nextLevelXP - currentLevelXP);
