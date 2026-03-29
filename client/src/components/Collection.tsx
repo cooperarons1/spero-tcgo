@@ -296,8 +296,8 @@ export function Collection({ uid, onBack }: CollectionProps) {
       </div>
 
       <div className="flex-1 flex min-h-0">
-        {/* Left sidebar — My Decks */}
-        <div className="w-56 md:w-[240px] flex flex-col border-r border-amber-800/20 bg-stone-900/50 shrink-0">
+        {/* My Decks sidebar — RIGHT side */}
+        <div className="w-56 md:w-[240px] flex flex-col border-l border-amber-800/20 bg-stone-900/50 shrink-0 order-2">
           <div className="p-3 border-b border-amber-800/30 bg-stone-900/50">
             <h2 className="text-sm uppercase tracking-wider text-amber-200/80 font-bold text-center">My Decks</h2>
             <p className="text-[9px] text-gray-500 text-center mt-0.5">{decks.length}/27</p>
@@ -380,8 +380,8 @@ export function Collection({ uid, onBack }: CollectionProps) {
           </div>
         </div>
 
-        {/* Center — Card Collection */}
-        <div className="flex-1 flex flex-col min-w-0">
+        {/* Card Collection — main area */}
+        <div className="flex-1 flex flex-col min-w-0 order-1">
           {/* ── Filter bar — compact Hearthstone-style ── */}
           <div className="border-b border-amber-800/30 bg-stone-900/40 shrink-0">
             {/* Row 1: Class tabs */}
@@ -525,9 +525,9 @@ export function Collection({ uid, onBack }: CollectionProps) {
           </div>
         </div>
 
-        {/* Right panel — Deck Editor (visible when editing) */}
+        {/* Deck Editor panel — far right when editing */}
         {editingDeck && (
-          <div className="hidden md:flex md:w-[260px] flex-col border-l border-slate-700/30 bg-slate-800/30 shrink-0">
+          <div className="hidden md:flex md:w-[260px] flex-col border-l border-slate-700/30 bg-slate-800/30 shrink-0 order-3">
             {/* Deck header */}
             <div className={`p-3 border-b border-slate-700/30 ${HERO_BG_MAP[editingDeck.heroClass] || ''}`}>
               <input

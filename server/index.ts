@@ -53,7 +53,7 @@ import { scheduleAITurn, generateAIPlayerId, randomAIName, isAIPlayer, getAIMull
 import { STARTER_DECKS } from '../shared/starterDecks.js';
 import { validateDeck } from '../shared/deckRules.js';
 import { getCardDef } from './cards.js';
-import { generateDailyQuests, shouldRefreshQuests, updateQuestProgress, calculateXP, getLevel } from './quests.js';
+import { generateDailyQuests, shouldRefreshQuests, updateQuestProgress, calculateXP, getLevel, calculateHeroXP, getHeroLevel } from './quests.js';
 import { getSpectatorState } from './clientState.js';
 import { getRankTier } from '../shared/types.js';
 
@@ -378,6 +378,19 @@ async function finalizeGame(room: ReturnType<typeof getRoom>) {
       const newLevel = getLevel(newXp);
       const newElo = newElos[i];
 
+      // Hero-specific XP and level
+      const heroXPGain = calculateHeroXP(isWin);
+      const heroLevels = userData.heroLevels ?? {};
+      const oldHeroXP = heroLevels[heroClass]?.xp ?? 0;
+      const oldHeroWins = heroLevels[heroClass]?.wins ?? 0;
+      const newHeroXP = oldHeroXP + heroXPGain;
+      const newHeroLevel = getHeroLevel(newHeroXP);
+      heroLevels[heroClass] = {
+        xp: newHeroXP,
+        level: newHeroLevel,
+        wins: oldHeroWins + (isWin ? 1 : 0),
+      };
+
       // Quest progress
       let quests = userData.quests ?? [];
       let questGold = 0;
@@ -397,6 +410,7 @@ async function finalizeGame(room: ReturnType<typeof getRoom>) {
         xp: newXp,
         level: newLevel,
         gold: (userData.gold ?? 0) + questGold,
+        heroLevels,
         quests,
         questsRefreshedAt: shouldRefreshQuests(userData.questsRefreshedAt) ? Date.now() : (userData.questsRefreshedAt ?? Date.now()),
       }, { merge: true });
@@ -413,6 +427,9 @@ async function finalizeGame(room: ReturnType<typeof getRoom>) {
           rankTier: getRankTier(newElo),
           questsCompleted: questResult.quests.filter(q => q.completed).map(q => ({ description: q.description, reward: q.reward })),
           goldEarned: questGold,
+          heroXPGain,
+          heroLevel: newHeroLevel,
+          heroWins: heroLevels[heroClass].wins,
         });
       }
     } catch (err) {

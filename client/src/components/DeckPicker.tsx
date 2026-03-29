@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { loadDecks, getSelectedDeckId, setSelectedDeckId, type DeckList } from '../utils/deckStorage';
+import { loadHeroLevels, type HeroLevelsMap } from '../utils/heroLevels';
 import { DECK_SIZE } from '../../../shared/deckRules';
 import { socket } from '../socket';
 import type { CardDef, HeroClass } from '../../../shared/types';
@@ -40,6 +41,11 @@ export function DeckPicker({ mode, uid, onBack }: DeckPickerProps) {
   const [loading, setLoading] = useState(true);
   const [starting, setStarting] = useState(false);
   const [matchmaking, setMatchmaking] = useState(false);
+  const [heroLevels, setHeroLevels] = useState<HeroLevelsMap>({});
+
+  useEffect(() => {
+    loadHeroLevels(uid).then(setHeroLevels);
+  }, [uid]);
 
   useEffect(() => {
     loadDecks(uid).then(d => {
@@ -227,14 +233,37 @@ export function DeckPicker({ mode, uid, onBack }: DeckPickerProps) {
 
         {/* Right — Selected deck preview (30%) */}
         <div className="flex-[3] flex flex-col border-t md:border-t-0 md:border-l border-slate-700/30 bg-slate-800/30">
-          {selectedDeck ? (
+          {selectedDeck ? (() => {
+            const hl = heroLevels[selectedDeck.heroClass as HeroClass];
+            const heroLevel = hl?.level ?? 1;
+            const heroWins = hl?.wins ?? 0;
+            const heroPortrait = ({ JIMMY: '/heroes/JIMMY.png', TALA: '/heroes/TALA.png', DEREK: '/heroes/DEREK.png' } as Record<string, string>)[selectedDeck.heroClass];
+            return (
             <>
-              {/* Deck info */}
-              <div className={`p-4 border-b border-slate-700/30 ${HERO_COLORS[selectedDeck.heroClass]?.bg ?? ''}`}>
-                <h2 className="text-white font-bold text-base">{selectedDeck.name}</h2>
+              {/* Hero portrait + level */}
+              <div className={`p-4 border-b border-slate-700/30 ${HERO_COLORS[selectedDeck.heroClass]?.bg ?? ''} flex flex-col items-center`}>
+                {/* Hero portrait circle with level badge */}
+                <div className="relative mb-2">
+                  <div className="w-24 h-24 rounded-full border-4 overflow-hidden"
+                    style={{ borderColor: HERO_COLORS[selectedDeck.heroClass]?.border.replace('border-', '') || '#666' }}>
+                    {heroPortrait ? (
+                      <img src={heroPortrait} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className={`w-full h-full ${HERO_COLORS[selectedDeck.heroClass]?.bg ?? 'bg-slate-700'} flex items-center justify-center`}>
+                        <span className="text-3xl font-bold text-white/30">{HERO_LABELS[selectedDeck.heroClass]?.[0]}</span>
+                      </div>
+                    )}
+                  </div>
+                  {/* Level badge */}
+                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-amber-600 border-2 border-amber-400 rounded-full w-8 h-8 flex items-center justify-center shadow-lg">
+                    <span className="text-white font-extrabold text-xs">{heroLevel}</span>
+                  </div>
+                </div>
+                <h2 className="text-white font-bold text-base text-center">{selectedDeck.name}</h2>
                 <span className={`text-xs font-bold ${HERO_COLORS[selectedDeck.heroClass]?.text ?? 'text-gray-400'}`}>
                   {HERO_LABELS[selectedDeck.heroClass]}
                 </span>
+                <span className="text-[10px] text-gray-500 mt-0.5">Wins: {heroWins}</span>
               </div>
 
               {/* Mana curve */}
@@ -275,7 +304,8 @@ export function DeckPicker({ mode, uid, onBack }: DeckPickerProps) {
                 ))}
               </div>
             </>
-          ) : (
+          );
+          })() : (
             <div className="flex-1 flex items-center justify-center">
               <p className="text-gray-600 text-sm">Select a deck</p>
             </div>
