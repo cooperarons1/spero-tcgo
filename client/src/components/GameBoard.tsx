@@ -1771,6 +1771,10 @@ export default function GameBoard({
   // Hero pointer down → start attack drag
   const handleHeroPointerDown = useCallback((e: React.PointerEvent) => {
     if (!isMyTurn || !isPlaying || isGameOver) return;
+    // Hero needs a weapon or temporary attack to attack
+    const heroAtk = (gs.myWeapon?.currentAttack ?? 0) + (gs.myHeroAttackThisTurn ?? 0);
+    if (heroAtk <= 0) return;
+    if ((gs.myHeroAttacksRemaining ?? 1) <= 0) return;
     const heroId = `hero-${gs.myPlayerIndex}`;
     e.preventDefault();
     (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
