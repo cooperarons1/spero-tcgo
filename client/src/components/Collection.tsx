@@ -330,6 +330,26 @@ export function Collection({ uid, onBack }: CollectionProps) {
     return validateDeck(editingCards, editingDeck.heroClass, getCardDef as any);
   }, [editingCards, editingDeck]);
 
+  // Collection stats
+  const collectionStats = useMemo(() => {
+    const collectible = allCards.filter(c => c.cardCode !== 'COIN' && !c.cardCode.includes('_TOKEN_'));
+    let totalOwned = 0;
+    let totalPossible = 0;
+    for (const c of collectible) {
+      const max = c.rarity === 'LEGENDARY' ? 1 : 2;
+      totalPossible += max;
+      totalOwned += Math.min(ownedCards[c.cardCode] ?? 0, max);
+    }
+    const uniqueOwned = collectible.filter(c => (ownedCards[c.cardCode] ?? 0) > 0).length;
+    return {
+      uniqueOwned,
+      totalCards: collectible.length,
+      totalOwned,
+      totalPossible,
+      pct: totalPossible > 0 ? Math.round((totalOwned / totalPossible) * 100) : 0,
+    };
+  }, [ownedCards]);
+
   return (
     <div className="flex flex-col h-screen bg-gradient-to-b from-slate-950 to-slate-900">
       {/* Header */}
@@ -337,8 +357,16 @@ export function Collection({ uid, onBack }: CollectionProps) {
         <button onClick={onBack} className="text-gray-400 hover:text-white text-sm cursor-pointer">
           &larr; Back
         </button>
-        <h1 className="text-lg font-bold text-amber-100 tracking-wide">MY COLLECTION</h1>
-        <span className="text-blue-400 font-bold text-sm">{dust} Dust</span>
+        <div className="text-center">
+          <h1 className="text-lg font-bold text-amber-100 tracking-wide">MY COLLECTION</h1>
+          <div className="flex items-center gap-3 justify-center text-[10px] text-gray-500">
+            <span>{collectionStats.uniqueOwned}/{collectionStats.totalCards} cards</span>
+            <span>{collectionStats.pct}% complete</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="text-yellow-400 font-bold text-xs">{dust} Dust</span>
+        </div>
       </div>
 
       <div className="flex-1 flex min-h-0">
@@ -559,6 +587,11 @@ export function Collection({ uid, onBack }: CollectionProps) {
                       {editingDeck && count > 0 && (
                         <div className="absolute -top-1 -right-1 bg-blue-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center z-10">
                           {count}/{max}
+                        </div>
+                      )}
+                      {!editingDeck && (ownedCards[c.cardCode] ?? 0) > 0 && (
+                        <div className="absolute -bottom-1 -right-1 bg-green-600 text-white text-[8px] font-bold px-1 py-px rounded z-10">
+                          x{ownedCards[c.cardCode]}
                         </div>
                       )}
                   </div>
