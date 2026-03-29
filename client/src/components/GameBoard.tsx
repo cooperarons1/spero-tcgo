@@ -2320,14 +2320,29 @@ export default function GameBoard({
               <div className="fixed inset-0 z-40" onClick={() => setEmoteOpen(false)} />
               <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-50 bg-stone-900 border border-stone-600 rounded-xl p-2 shadow-2xl grid grid-cols-3 gap-1 animate-fade-in"
               >
-                {[
-                  { id: 'Well Played', label: 'Well Played' },
-                  { id: 'Thanks', label: 'Thanks' },
-                  { id: 'Greetings', label: 'Greetings' },
-                  { id: 'Wow', label: 'Wow' },
-                  { id: 'Oops', label: 'Oops' },
-                  { id: 'Threaten', label: 'Threaten' },
-                ].map(emote => (
+                {(() => {
+                  const heroLines: Record<string, Record<string, string>> = {
+                    JIMMY: { Greetings: "Let's light it up!", Thanks: "Much appreciated!", 'Well Played': "You fought well!", Wow: "Whoa, hot stuff!", Oops: "That wasn't supposed to explode...", Threaten: "I'll burn everything you love!" },
+                    TALA: { Greetings: "Nature guides us!", Thanks: "The forest thanks you.", 'Well Played': "A beautiful game.", Wow: "By the World Root!", Oops: "Even flowers have thorns...", Threaten: "Nature will reclaim you." },
+                    DEREK: { Greetings: "Systems online!", Thanks: "Data received!", 'Well Played': "Impressive algorithms.", Wow: "Processing... wow!", Oops: "Critical error detected.", Threaten: "You're about to be scrapped." },
+                    ANDERS: { Greetings: "The ice speaks.", Thanks: "Cool. Literally.", 'Well Played': "A worthy opponent.", Wow: "Frozen in awe!", Oops: "That was... cold of me.", Threaten: "Winter is coming for you." },
+                    DES: { Greetings: "Darkness rises.", Thanks: "Your suffering pleases me.", 'Well Played': "You delayed the inevitable.", Wow: "Even I'm impressed.", Oops: "A minor setback.", Threaten: "Your soul will serve the Dominion." },
+                    ASTRID: { Greetings: "Shield up!", Thanks: "For the Academy!", 'Well Played': "Honor in battle.", Wow: "By the peak!", Oops: "My shield slipped.", Threaten: "You shall not pass!" },
+                    AVA: { Greetings: "Deploying drones!", Thanks: "Input appreciated!", 'Well Played': "Great engineering!", Wow: "That's innovative!", Oops: "Calibration error.", Threaten: "Initiating offensive protocol." },
+                    LUCAS: { Greetings: "Catch me if you can!", Thanks: "I owe you one. Maybe.", 'Well Played': "Not bad... for you.", Wow: "Didn't see that coming!", Oops: "That was on purpose. Totally.", Threaten: "You'll never see me coming." },
+                    IZZY: { Greetings: "Adventure awaits!", Thanks: "Sparkle thanks!", 'Well Played': "What a journey!", Wow: "Sparkling!", Oops: "Slight navigational error.", Threaten: "I'll chart a course through you!" },
+                  };
+                  const myHero = gameState?.players[gameState.myPlayerIndex]?.heroClass || 'JIMMY';
+                  const lines = heroLines[myHero] || heroLines.JIMMY;
+                  return [
+                    { id: 'Greetings', label: lines.Greetings },
+                    { id: 'Well Played', label: lines['Well Played'] },
+                    { id: 'Thanks', label: lines.Thanks },
+                    { id: 'Wow', label: lines.Wow },
+                    { id: 'Oops', label: lines.Oops },
+                    { id: 'Threaten', label: lines.Threaten },
+                  ];
+                })().map(emote => (
                   <button
                     key={emote.id}
                     onClick={() => {
@@ -2336,7 +2351,7 @@ export default function GameBoard({
                       setTimeout(() => setMyEmote(null), 3000);
                       setEmoteOpen(false);
                     }}
-                    className="px-3 py-1.5 text-xs text-stone-200 hover:bg-stone-700 rounded-lg whitespace-nowrap transition-colors"
+                    className="px-3 py-1.5 text-[11px] text-stone-200 hover:bg-amber-700/30 rounded-lg whitespace-nowrap transition-colors text-left"
                   >
                     {emote.label}
                   </button>
