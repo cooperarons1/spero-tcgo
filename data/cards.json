@@ -5622,5 +5622,50 @@
     "battlecryEffect": {
       "type": "HEAL_ALL_FRIENDLY_FULL"
     }
+  },
+  {
+    "cardCode": "DES039",
+    "name": "Orra Siphon Blade",
+    "manaCost": 3,
+    "type": "WEAPON",
+    "heroClass": "DES",
+    "rarity": "COMMON",
+    "attack": 3,
+    "health": 2,
+    "text": "",
+    "flavor": "It drains a little life with every swing.",
+    "keywords": []
+  },
+  {
+    "cardCode": "DES040",
+    "name": "Dominion Control Rod",
+    "manaCost": 2,
+    "type": "WEAPON",
+    "heroClass": "DES",
+    "rarity": "RARE",
+    "attack": 1,
+    "health": 4,
+    "text": "After your hero attacks, deal 1 damage to all enemy minions.",
+    "flavor": "Obedience is not optional.",
+    "keywords": []
+  },
+  {
+    "cardCode": "DES041",
+    "name": "Crucible Scythe",
+    "manaCost": 5,
+    "type": "WEAPON",
+    "heroClass": "DES",
+    "rarity": "EPIC",
+    "attack": 4,
+    "health": 2,
+    "text": "Deathrattle: Deal 2 damage to all characters.",
+    "flavor": "When the scythe breaks, everyone bleeds.",
+    "keywords": [
+      "DEATHRATTLE"
+    ],
+    "deathrattleEffect": {
+      "type": "DEAL_DAMAGE_ALL_CHARACTERS",
+      "value": 2
+    }
   }
 ]
