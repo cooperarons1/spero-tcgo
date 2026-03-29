@@ -9,218 +9,237 @@ export interface StarterDeckDef {
 
 // Jimmy — Aggro/Burn (30 cards)
 const JIMMY_STARTER: string[] = [
-  // Class cards (12) + Secrets (2) + Bond pair (2)
-  'JIM001', 'JIM001', // Ember Sprite 1 mana
-  'JIM002', 'JIM002', // Flame Imp 1 mana
-  'JIM003', 'JIM003', // Fire Axe 2 mana weapon
-  'JIM005', 'JIM005', // Blazing Firehawk 3 mana
-  'JIM009',            // Volcanus, Pyromancer King (legendary — 1 copy)
-  'JIM016',            // Emberstorm Phoenix 6 mana 5/6 (legendary — 1 copy)
+  // Class (16) + Bond (2) + Secrets (2)
+  'JIM038', 'JIM038', // Warning Shot 0 mana
+  'JIM020', 'JIM020', // Bottled Flame 1 mana
   'JIM_BOND_01',       // Otto, Loyal Otter 2 mana (Bond)
+  'JIM017', 'JIM017', // Anvil to Iron 2 mana
+  'JIM023', 'JIM023', // Chuck 2 mana 3/2
   'JIM_BOND_02',       // Bella, Snow Guardian 4 mana (Bond)
   'JIM_S01',           // Ember Trap (secret)
   'JIM_S02',           // Blaze Snare (secret)
-  // Neutral filler (16)
-  'NEU003', 'NEU003', // Scrappy Fighter 1 mana 2/1
-  'NEU005', 'NEU005', // Raptor 2 mana 3/2
-  'NEU009', 'NEU009', // Iron Sentinel 3 mana 3/4
-  'NEU015', 'NEU015', // Chillwind Yeti 4 mana 4/5
-  'NEU022', 'NEU022', // Stranglethorn Tiger 5 mana 5/5 Stealth
-  'NEU026', 'NEU026', // Boulderfist Ogre 6 mana 6/7
-  'NEU041', 'NEU041', // Loot Hoarder 2 mana 2/1 DR
-  'NEU012', 'NEU012', // Jungle Panther 3 mana 4/2 Stealth
+  'JIM024', 'JIM024', // Eddie 3 mana 3/3
+  'JIM034',            // Spear of Penetration 3 mana weapon
+  'JIM029',            // Giant Slayer 3 mana
+  'JIM021',            // Bronson 4 mana Charge
+  'JIM035',            // Stern 4 mana 5/3
+  'JIM025',            // Embra 5 mana 4/4
+  'JIM027',            // Fenris 5 mana 5/4
+  // Neutral (10)
+  'NEU100', 'NEU100', // Yip 1 mana 1/2
+  'NEU082', 'NEU082', // Tumbler 2 mana 3/2
+  'NEU069', 'NEU069', // Garf 3 mana 4/3
+  'NEU074', 'NEU074', // Jorge 4 mana 4/4
+  'NEU097',            // Trav 4 mana 4/4
+  'NEU099',            // Voulder 7 mana 7/7
 ];
 
 // Tala — Nature/Heal (30 cards)
 const TALA_STARTER: string[] = [
-  // Class cards (10) + Bond pair (2) + Orra Charge (1)
-  'TAL001', 'TAL001', // Seedling 1 mana
-  'TAL003', 'TAL003', // Wild Growth 2 mana ramp
-  'TAL005', 'TAL005', // Thornguard 3 mana 2/4 Taunt
-  'TAL007', 'TAL007', // Swipe 4 mana spell
-  'TAL008', 'TAL008', // Healing Touch 3 mana spell
-  'TAL_BOND_01',       // Rootwhisper 2 mana (Bond)
-  'TAL_BOND_02',       // Bloomkeeper 3 mana (Bond)
-  'TAL_ORRA_01',       // Tala's Healing Bloom 2 mana (Orra Charge)
-  // Neutral filler (17)
-  'NEU002', 'NEU002', // Squire 1 mana 1/2
-  'NEU004', 'NEU004', // River Crocolisk 2 mana 2/3
-  'NEU010', 'NEU010', // Woodland Defender 3 mana 2/4 Taunt
-  'NEU016', 'NEU016', // Oasis Snapjaw 4 mana 2/7
-  'NEU021', 'NEU021', // Fen Creeper 5 mana 3/6 Taunt
-  'NEU026', 'NEU026', // Boulderfist Ogre 6 mana 6/7
-  'NEU027', 'NEU027', // Sunwalker 6 mana 4/5 Taunt DS
-  'NEU045', 'NEU045', // Ironfur Grizzly 3 mana 3/3 Taunt
-  'NEU015',            // Chillwind Yeti 4 mana 4/5
+  // Class (16) + Bond (2)
+  'TAL031', 'TAL031', // Plup 1 mana 1/2
+  'TAL033', 'TAL033', // Stix 1 mana 2/1
+  'TAL_BOND_01',       // Snowball, Arctic Scout 2 mana (Bond)
+  'TAL017', 'TAL017', // Brea 2 mana 2/3
+  'TAL018', 'TAL018', // Cultivating Acacia 2 mana spell
+  'TAL_BOND_02',       // Tala's Ice Orb 3 mana (Bond)
+  'TAL020',            // Emmy 3 mana 2/4
+  'TAL036',            // Vanilla 3 mana 2/4
+  'TAL030',            // Pineapple Armor 3 mana weapon
+  'TAL016',            // Asmita 4 mana 3/5
+  'TAL024',            // Kandu 4 mana 3/5
+  'TAL028',            // Nature's End 4 mana spell
+  'TAL021',            // Freya 5 mana 3/6
+  'TAL032',            // Relentless Stampede 5 mana spell
+  'TAL029',            // Nature's Wrath 6 mana spell
+  // Neutral (11)
+  'NEU100', 'NEU100', // Yip 1 mana 1/2
+  'NEU068', 'NEU068', // Felix 2 mana 2/3
+  'NEU090', 'NEU090', // Percy 3 mana 2/4
+  'NEU092', 'NEU092', // Rhea 4 mana 3/5
+  'NEU098',            // Tybiel 6 mana 5/6
+  'NEU099',            // Voulder 7 mana 7/7
+  'TAL034',            // The Grand Sequoia 8 mana legendary
 ];
 
-// Derek — Tech/Utility (30 cards)
+// Derek — Mech/Tech (30 cards)
 const DEREK_STARTER: string[] = [
-  // Class cards (12) + Bond pair (2) + Orra Charge (1)
-  'DRK001', 'DRK001', // Clockwork Gnome 1 mana
-  'DRK003', 'DRK003', // Arcane Intellect 3 mana draw
-  'DRK005', 'DRK005', // Gadget Goblin 3 mana
-  'DRK007', 'DRK007', // Sap 2 mana bounce
-  'DRK009',            // Sprint 7 mana draw
-  'DRK010',            // Tinker's Oil 4 mana weapon (legendary — 1 copy)
+  // Class (18) + Bond (2)
+  'DRK039', 'DRK039', // Skip 1 mana 1/2 MECH
+  'DRK_BOND_02',       // Rosie, Bottlenose Scout 2 mana (Bond)
+  'DRK031', 'DRK031', // Pero 2 mana 2/2 MECH
+  'DRK036',            // Recorder 2 mana 1/3 draw
+  'DRK047', 'DRK047', // Zims 2 mana 2/3 MECH
   'DRK_BOND_01',       // Sengo, Shadow Leopard 3 mana (Bond)
-  'DRK_BOND_02',       // Derek's Drone 2 mana (Bond)
-  'DRK_ORRA_01',       // Orra Overloader 5 mana (Orra Charge)
-  // Neutral filler (17)
-  'NEU003', 'NEU003', // Scrappy Fighter 1 mana 2/1
-  'NEU005', 'NEU005', // Raptor 2 mana 3/2
-  'NEU011', 'NEU011', // Harvest Golem 3 mana 2/3 DR
-  'NEU015', 'NEU015', // Chillwind Yeti 4 mana 4/5
-  'NEU022', 'NEU022', // Stranglethorn Tiger 5 mana 5/5 Stealth
-  'NEU026', 'NEU026', // Boulderfist Ogre 6 mana 6/7
-  'NEU024', 'NEU024', // Azure Drake 5 mana 4/4 BC draw
-  'NEU007', 'NEU007', // Novice Explorer 2 mana 1/1 BC draw
-  'NEU012',            // Jungle Panther 3 mana 4/2 Stealth
+  'DRK020', 'DRK020', // Candice 3 mana 3/3 MECH
+  'DRK025',            // Helix Robot 3 mana Charge MECH
+  'DRK027',            // Klein 3 mana 2/4
+  'DRK038',            // Scrap Scythe 3 mana weapon
+  'DRK017',            // Andrii 4 mana 4/3 MECH
+  'DRK021',            // Caytum 4 mana 3/4 draw MECH
+  'DRK024',            // GPU 4 mana 3/4 epic MECH
+  'DRK019',            // Bjorn 5 mana 4/5 MECH
+  'DRK029',            // Megabyte 5 mana 4/5
+  'DRK032',            // Prema 6 mana 5/6 MECH
+  // Neutral (8)
+  'NEU068', 'NEU068', // Felix 2 mana 2/3
+  'NEU085', 'NEU085', // Morris 3 mana 3/3
+  'NEU074', 'NEU074', // Jorge 4 mana 4/4
+  'NEU093', 'NEU093', // Skales 5 mana 4/5
 ];
 
 // Anders — Control/Frost (30 cards)
 const ANDERS_STARTER: string[] = [
-  // Class cards (10) + Secrets (2) + Bond pair (2) + Orra Charge (1)
-  'AND001', 'AND001', // Frost Sprite 1 mana
-  'AND003', 'AND003', // Permafrost Bulwark 3 mana
-  'AND005', 'AND005', // Deepwater Elemental 4 mana 3/6
-  'AND007',           // Avalanche Warden 6 mana AoE
-  'AND010', 'AND010', // Frostpiercer 2 mana spell
-  'AND009',           // Anders, Warden of the Depths (legendary)
-  'AND_BOND_01',       // Frostfang 3 mana (Bond)
+  // Class (14) + Bond (2) + Secrets (2)
+  'AND016', 'AND016', // Bottled Water 1 mana spell
   'AND_BOND_02',       // Icelash 2 mana (Bond)
-  'AND_ORRA_01',       // Frostcore Sentinel 4 mana (Orra Charge)
+  'AND020', 'AND020', // Concealed in Ice 2 mana
+  'AND028', 'AND028', // Monico 2 mana 2/3
+  'AND_BOND_01',       // Frostfang 3 mana (Bond)
   'AND_S01',           // Runic Counter (secret)
-  'AND_S02',           // Mirror Reflection (secret)
-  // Neutral filler (15)
-  'NEU004', 'NEU004', // Riptide Lurker 2 mana 2/3
-  'NEU010', 'NEU010', // Everbloom Warden 3 mana 2/4 Taunt
-  'NEU015', 'NEU015', // Summit Yeti 4 mana 4/5
-  'NEU021', 'NEU021', // Tundra Behemoth 5 mana 3/6 Taunt
-  'NEU026', 'NEU026', // Frostpeak Ogre 6 mana 7/6
-  'NEU035',           // Polar Colossus 8 mana 8/8
-  'NEU046', 'NEU046', // Orra Wellspring Healer 3 mana 3/3 BC heal
-  'NEU002', 'NEU002', // Aster Recruit 1 mana 1/2
+  'AND_S03',           // Frost Barrier (secret)
+  'AND017',            // Calix 3 mana 2/4
+  'AND021',            // Fiddle of Silence 3 mana weapon
+  'AND023',            // Glasglow 4 mana 3/4
+  'AND024',            // Hailstorm 4 mana spell
+  'AND018',            // Caspian 5 mana 4/5
+  'AND025',            // Ice Storm 5 mana spell
+  'AND022',            // Glacius 6 mana 5/6
+  // Neutral (10)
+  'NEU100', 'NEU100', // Yip 1 mana 1/2
+  'NEU084', 'NEU084', // Mina 2 mana 1/3 Taunt
+  'NEU065', 'NEU065', // Emyren 4 mana 3/5 Taunt
+  'NEU063', 'NEU063', // Boris 5 mana 5/5 Taunt
+  'NEU078',            // Kron 6 mana 6/6
+  'NEU099',            // Voulder 7 mana 7/7
 ];
 
-// Des — Dark Orra Aggro/Control (30 cards)
+// Des — Dark/Destruction (30 cards)
 const DES_STARTER: string[] = [
-  // Class cards (10) + Secrets (2) + Collar cards (3) + Orra Charge (1)
-  'DES001', 'DES001', // Shadow Recruit 1 mana
-  'DES003', 'DES003', // Dark Orra Siphon 1 mana spell
-  'DES_NEW_01', 'DES_NEW_01', // Dark Pact 2 mana (Life Tap draw)
-  'DES011', 'DES011', // Corrupting Influence 3 mana
-  'DES_COLLAR_01',     // Dominion Handler 4 mana (Collar)
-  'DES_COLLAR_02',     // Collar Drone 3 mana (Collar + DR)
-  'DES_COLLAR_05',     // Collar of Submission 3 mana (Collar spell)
-  'DES_ORRA_01',       // Polara Core 5 mana (Orra Charge)
+  // Class (16) + Collar (2) + Secrets (2)
+  'DES021', 'DES021', // Crimson Cells 2 mana spell
+  'DES028', 'DES028', // Maso 2 mana 3/2
   'DES_S01',           // Shadow Ambush (secret)
   'DES_S02',           // Dark Bargain (secret)
-  // Neutral filler (14)
-  'NEU003', 'NEU003', // Gavalon Scrapper 1 mana 2/1
-  'NEU005', 'NEU005', // Snowfield Raptor 2 mana 3/2
-  'NEU041', 'NEU041', // Orra Scavenger 2 mana 2/1 DR draw
-  'NEU012', 'NEU012', // Polara Stalker 3 mana 4/2 Stealth
-  'NEU015', 'NEU015', // Summit Yeti 4 mana 4/5
-  'NEU023', 'NEU023', // Dominion Assassin 5 mana 4/4 BC 3 dmg hero
-  'NEU026', 'NEU026', // Frostpeak Ogre 6 mana 7/6
-  'NEU029', 'NEU029', // Gavalon Rocketeer 5 mana 4/2 Charge
+  'DES_COLLAR_02',     // Collar Drone 2 mana (hardcoded)
+  'DES037', 'DES037', // Vrasp 3 mana 4/2 Stealth
+  'DES025',            // Ezra 3 mana 4/3
+  'DES032',            // Stolen Identity 3 mana spell
+  'DES_COLLAR_03',     // Des Aster, Puppetmaster 8 mana (hardcoded)
+  'DES027',            // Lateo 4 mana 4/4
+  'DES030',            // Selena 4 mana 3/4
+  'DES034',            // Twilight's Judgment 4 mana spell
+  'DES026',            // Kabistan 5 mana 5/4
+  'DES033',            // The Anarchist 5 mana legendary
+  'DES022',            // Death's Descent 6 mana spell
+  'DES031',            // Shazarda 7 mana 6/6
+  // Neutral (8)
+  'NEU094', 'NEU094', // RoRo 1 mana 1/1 DR draw
+  'NEU082', 'NEU082', // Tumbler 2 mana 3/2
+  'NEU069', 'NEU069', // Garf 3 mana 4/3
+  'NEU099',            // Voulder 7 mana 7/7
+  'NEU091',            // Pierre 5 mana 4/5
 ];
 
-// Astrid — Protector (30 cards)
+// Astrid — Protector/Divine Shield (30 cards)
 const ASTRID_STARTER: string[] = [
-  // Class cards (10) + Secrets (2) + Bond pair (2) + New cards
-  'AST001', 'AST001', // Aster Shieldbearer 1 mana
-  'AST003', 'AST003', // Orra Barrier 1 mana spell
-  'AST005', 'AST005', // Shield of the Ameti 2 mana spell
-  'AST007', 'AST007', // Mink Companion 3 mana
-  'AST_NEW_01',        // Shield Maiden's Insight 3 mana (draw)
-  'AST_NEW_02',        // Radiant Protector 6 mana
-  'AST_BOND_01',       // Mighty, Loyal Mink 2 mana (Bond)
-  'AST_BOND_02',       // Astrid's Shield 3 mana (Bond)
+  // Class (14) + Bond (2) + Secrets (2)
   'AST_S01',           // Guardian's Oath (secret)
   'AST_S02',           // Second Chance (secret)
-  // Neutral filler (16)
-  'NEU002', 'NEU002', // Aster Recruit 1 mana 1/2
-  'NEU006', 'NEU006', // Orraglass Trainee 2 mana 2/2 Divine Shield
-  'NEU010', 'NEU010', // Everbloom Warden 3 mana 2/4 Taunt
-  'NEU013', 'NEU013', // Orra Templar 3 mana 3/1 Divine Shield
-  'NEU019', 'NEU019', // Orra Drake 4 mana 4/4 Divine Shield
-  'NEU021', 'NEU021', // Tundra Behemoth 5 mana 3/6 Taunt
-  'NEU046', 'NEU046', // Orra Wellspring Healer 3 mana 3/3 BC heal
-  'NEU016',           // Glacial Shellback 4 mana 2/7
-  'AST009',           // Astrid's Resolve 3 mana spell
+  'AST_BOND_01',       // Mighty, Loyal Mink 2 mana (Bond)
+  'AST026', 'AST026', // Chest of Fortitude 2 mana
+  'AST028', 'AST028', // Elle 2 mana 2/3 DS
+  'AST_BOND_02',       // Astrid's Shield 3 mana (Bond)
+  'AST023', 'AST023', // Alexis 3 mana 2/5 Taunt
+  'AST037',            // Tamara 3 mana 2/4 DS
+  'AST040',            // Yvette 3 mana 2/4
+  'AST029',            // Jasten 4 mana 3/5 Taunt DS
+  'AST034',            // Roderick 4 mana 3/5 Taunt
+  'AST039',            // Triumphant 4 mana spell
+  'AST025',            // Call to Arms 5 mana summon
+  'AST033',            // Raphael 5 mana 4/6
+  'AST038',            // Trinity 5 mana 3/6 Taunt DS
+  'AST031',            // Lady Arinna 6 mana legendary
+  // Neutral (11)
+  'NEU100', 'NEU100', // Yip 1 mana 1/2
+  'NEU068', 'NEU068', // Felix 2 mana 2/3
+  'NEU090', 'NEU090', // Percy 3 mana 2/4 Taunt
+  'NEU065', 'NEU065', // Emyren 4 mana 3/5 Taunt
+  'NEU063', 'NEU063', // Boris 5 mana 5/5 Taunt
+  'NEU099',            // Voulder 7 mana 7/7
 ];
 
-// Ava — Tech Inventor (30 cards)
+// Ava — Inventor/Drone Swarm (30 cards)
 const AVA_STARTER: string[] = [
-  // Class cards (10) + Bond pair (2) + Orra Charge (1)
-  'AVA001', 'AVA001', // Gadget Sparker 1 mana
-  'AVA003', 'AVA003', // Drone Assembly 2 mana
-  'AVA005', 'AVA005', // Workshop Tinkerer 2 mana
-  'AVA011', 'AVA011', // Drone Carrier 4 mana
-  'AVA004',           // Luna Interface 2 mana draw
+  // Class (16) + Bond (2)
+  'AVA024', 'AVA024', // Chip 1 mana 1/2 MECH
+  'AVA030', 'AVA030', // Peep 1 mana 1/1 DR draw
+  'AVA036', 'AVA036', // Tiny Spark 1 mana spell
   'AVA_BOND_01',       // Fiona, Sky Glider 2 mana (Bond)
+  'AVA037', 'AVA037', // Whizz 2 mana 2/2 summon drone
+  'AVA027',            // Recycle 2 mana spell
   'AVA_BOND_02',       // Luna Device 3 mana (Bond)
-  'AVA_ORRA_01',       // Orra Turret 4 mana (Orra Charge)
-  // Neutral filler (17)
-  'NEU003', 'NEU003', // Gavalon Scrapper 1 mana 2/1
-  'NEU007', 'NEU007', // Academy Cartographer 2 mana 1/2 BC draw
-  'NEU011', 'NEU011', // Orra-Forged Golem 3 mana 2/3 DR summon 2/1
-  'NEU014', 'NEU014', // Miro Beastkeeper 3 mana 2/3 BC summon 1/1
-  'NEU012', 'NEU012', // Polara Stalker 3 mana 4/2 Stealth
-  'NEU022', 'NEU022', // Polar Predator 5 mana 5/5 Stealth
-  'NEU024', 'NEU024', // Miro Skywyrm 5 mana 4/4 BC draw
-  'NEU015', 'NEU015', // Summit Yeti 4 mana 4/5
-  'NEU047', 'NEU047', // Ameti Knight 5 mana 4/4 BC summon 2/2
+  'AVA023',            // Airdrop 3 mana summon
+  'AVA035',            // Sall-E 3 mana 2/4 MECH
+  'AVA025',            // Fiona, Acrobat 4 mana
+  'AVA028',            // Manufacture Reinforcements 4 mana
+  'AVA031',            // Q Launcher 4 mana weapon
+  'AVA026',            // Giga 5 mana 4/5 MECH
+  'AVA029',            // Nullification Field 5 mana spell
+  'AVA021',            // Breakthrough Innovation 6 mana
+  // Neutral (8)
+  'NEU094', 'NEU094', // RoRo 1 mana 1/1 DR draw
+  'NEU084', 'NEU084', // Mina 2 mana 1/3 Taunt
+  'NEU085', 'NEU085', // Morris 3 mana 3/3
+  'NEU074', 'NEU074', // Jorge 4 mana 4/4
 ];
 
-// Lucas — Trickster (30 cards)
+// Lucas — Combo/Stealth Trickster (30 cards)
 const LUCAS_STARTER: string[] = [
-  // Class cards (10) + Bond pair (2) + Orra Charge (1)
-  'LUC001', 'LUC001', // Coyote Pup 1 mana
-  'LUC003', 'LUC003', // Gavalon Pickpocket 1 mana
-  'LUC005',           // Jax, Coyote Scout 2 mana draw
-  'LUC006', 'LUC006', // Trickster's Gambit 2 mana bounce
-  'LUC009',           // Polara Infiltrator 3 mana Stealth bounce
+  // Class (16) + Bond (2)
+  'LUC036', 'LUC036', // Pinch 1 mana Combo
+  'LUC040', 'LUC040', // Poke 1 mana Combo Stealth
   'LUC_BOND_01',       // Jax, Desert Coyote 2 mana (Bond)
+  'LUC021', 'LUC021', // Agile Strength 2 mana spell
+  'LUC025', 'LUC025', // Farrah 3 mana Stealth
   'LUC_BOND_02',       // Owl Sketch 3 mana (Bond)
-  'LUC_ORRA_01',       // Sandtrap Orraglyph 3 mana (Orra Charge)
-  // Neutral filler (17)
-  'NEU003', 'NEU003', // Gavalon Scrapper 1 mana 2/1
-  'NEU041', 'NEU041', // Orra Scavenger 2 mana 2/1 DR draw
-  'NEU005', 'NEU005', // Snowfield Raptor 2 mana 3/2
-  'NEU012', 'NEU012', // Polara Stalker 3 mana 4/2 Stealth
-  'NEU009', 'NEU009', // Aster Patroller 3 mana 3/4
-  'NEU017', 'NEU017', // Hoverboard Charger 4 mana 2/5 Charge
-  'NEU022', 'NEU022', // Polar Predator 5 mana 5/5 Stealth
-  'NEU029', 'NEU029', // Gavalon Rocketeer 5 mana 4/2 Charge
-  'NEU026', 'NEU026', // Frostpeak Ogre 6 mana 7/6
-  'LUC008',           // Coyote Pack Runner 3 mana Charge
+  'LUC028',            // Face to Face 2 mana spell
+  'LUC022',            // Ayto 2 mana Combo
+  'LUC027',            // Jie 3 mana Combo bounce
+  'LUC038',            // Sho 3 mana Combo draw
+  'LUC024',            // Cicero 4 mana Stealth
+  'LUC031',            // Kato 4 mana Combo
+  'LUC035',            // Mercurio 5 mana Stealth Combo
+  'LUC032',            // Hugo, Shadow Blade 5 mana
+  // Neutral (8)
+  'NEU082', 'NEU082', // Tumbler 2 mana 3/2
+  'NEU069', 'NEU069', // Garf 3 mana 4/3
+  'NEU074', 'NEU074', // Jorge 4 mana 4/4
+  'NEU091', 'NEU091', // Pierre 5 mana 4/5
 ];
 
-// Izzy — Navigator (30 cards)
+// Izzy — Armor/Sparkle Navigator (30 cards)
 const IZZY_STARTER: string[] = [
-  // Class cards (10) + Bond pair (2) + Orra Charge (1) + New card
-  'IZZ001', 'IZZ001', // Sparkle Initiate 1 mana
-  'IZZ003', 'IZZ003', // Sparkle Burst 1 mana armor
-  'IZZ005', 'IZZ005', // Puffin Navigator 2 mana
-  'IZZ007', 'IZZ007', // Sparkle Channeler 3 mana
-  'IZZ009',           // Diamond Ice Warden 3 mana Taunt
+  // Class (16) + Bond (2)
+  'IZZ025', 'IZZ025', // Little Dipper 1 mana 1/2 armor
   'IZZ_BOND_01',       // Bling, Puffin Navigator 2 mana (Bond)
+  'IZZ023', 'IZZ023', // Carmi 2 mana 2/3 armor
+  'IZZ030', 'IZZ030', // Kite 2 mana Windfury
   'IZZ_BOND_02',       // Sparkle Compass 3 mana (Bond)
-  'IZZ_ORRA_01',       // Orra Battery 3 mana (Orra Charge)
-  'IZZ_NEW_01',        // Sparkle Avalanche 7 mana (armor AoE finisher)
-  // Neutral filler (16)
-  'NEU002', 'NEU002', // Aster Recruit 1 mana 1/2
-  'NEU004', 'NEU004', // Riptide Lurker 2 mana 2/3
-  'NEU045', 'NEU045', // Snowpeak Bear 3 mana 3/3 Taunt
-  'NEU015', 'NEU015', // Summit Yeti 4 mana 4/5
-  'NEU021', 'NEU021', // Tundra Behemoth 5 mana 3/6 Taunt
-  'NEU026', 'NEU026', // Frostpeak Ogre 6 mana 7/6
-  'NEU035',           // Polar Colossus 8 mana 8/8
-  'NEU046', 'NEU046', // Orra Wellspring Healer 3 mana 3/3 BC heal
-  'NEU011', 'NEU011', // Orra-Forged Golem 3 mana 2/3 DR summon 2/1
+  'IZZ027',            // Brittana, Sparkle Scout 3 mana
+  'IZZ021', 'IZZ021', // Balanced Progress 3 mana buff spell
+  'IZZ024',            // Coastal Typhoon 5 mana spell
+  'IZZ029',            // Extreme Gusts 3 mana bounce
+  'IZZ026',            // Cynthie 3 mana 2/4
+  'IZZ033',            // Raye 4 mana 3/4
+  'IZZ034',            // Senga, Wind Rider 4 mana Windfury
+  'IZZ037',            // Sygna 5 mana 4/5 armor
+  'IZZ039',            // Zahava 6 mana 5/6 armor
+  // Neutral (8)
+  'NEU068', 'NEU068', // Felix 2 mana 2/3
+  'NEU090', 'NEU090', // Percy 3 mana 2/4 Taunt
+  'NEU065', 'NEU065', // Emyren 4 mana 3/5 Taunt
+  'NEU093', 'NEU093', // Skales 5 mana 4/5 Taunt
 ];
 
 function validateStarterDeck(name: string, cards: string[]): string[] {
@@ -240,58 +259,13 @@ function validateStarterDeck(name: string, cards: string[]): string[] {
 }
 
 export const STARTER_DECKS: StarterDeckDef[] = [
-  {
-    id: 'starter-jimmy',
-    name: "Jimmy's Inferno",
-    heroClass: 'JIMMY',
-    cards: validateStarterDeck("Jimmy's Inferno", JIMMY_STARTER),
-  },
-  {
-    id: 'starter-tala',
-    name: "Tala's Grove",
-    heroClass: 'TALA',
-    cards: validateStarterDeck("Tala's Grove", TALA_STARTER),
-  },
-  {
-    id: 'starter-derek',
-    name: "Derek's Workshop",
-    heroClass: 'DEREK',
-    cards: validateStarterDeck("Derek's Workshop", DEREK_STARTER),
-  },
-  {
-    id: 'starter-anders',
-    name: "Anders' Glacier",
-    heroClass: 'ANDERS',
-    cards: validateStarterDeck("Anders' Glacier", ANDERS_STARTER),
-  },
-  {
-    id: 'starter-des',
-    name: "Des' Shadow",
-    heroClass: 'DES',
-    cards: validateStarterDeck("Des' Shadow", DES_STARTER),
-  },
-  {
-    id: 'starter-astrid',
-    name: "Astrid's Bastion",
-    heroClass: 'ASTRID',
-    cards: validateStarterDeck("Astrid's Bastion", ASTRID_STARTER),
-  },
-  {
-    id: 'starter-ava',
-    name: "Ava's Laboratory",
-    heroClass: 'AVA',
-    cards: validateStarterDeck("Ava's Laboratory", AVA_STARTER),
-  },
-  {
-    id: 'starter-lucas',
-    name: "Lucas' Gambit",
-    heroClass: 'LUCAS',
-    cards: validateStarterDeck("Lucas' Gambit", LUCAS_STARTER),
-  },
-  {
-    id: 'starter-izzy',
-    name: "Izzy's Expedition",
-    heroClass: 'IZZY',
-    cards: validateStarterDeck("Izzy's Expedition", IZZY_STARTER),
-  },
+  { id: 'starter-jimmy', name: "Jimmy's Inferno", heroClass: 'JIMMY', cards: validateStarterDeck("Jimmy's Inferno", JIMMY_STARTER) },
+  { id: 'starter-tala', name: "Tala's Grove", heroClass: 'TALA', cards: validateStarterDeck("Tala's Grove", TALA_STARTER) },
+  { id: 'starter-derek', name: "Derek's Workshop", heroClass: 'DEREK', cards: validateStarterDeck("Derek's Workshop", DEREK_STARTER) },
+  { id: 'starter-anders', name: "Anders' Glacier", heroClass: 'ANDERS', cards: validateStarterDeck("Anders' Glacier", ANDERS_STARTER) },
+  { id: 'starter-des', name: "Des' Shadow", heroClass: 'DES', cards: validateStarterDeck("Des' Shadow", DES_STARTER) },
+  { id: 'starter-astrid', name: "Astrid's Bastion", heroClass: 'ASTRID', cards: validateStarterDeck("Astrid's Bastion", ASTRID_STARTER) },
+  { id: 'starter-ava', name: "Ava's Laboratory", heroClass: 'AVA', cards: validateStarterDeck("Ava's Laboratory", AVA_STARTER) },
+  { id: 'starter-lucas', name: "Lucas' Gambit", heroClass: 'LUCAS', cards: validateStarterDeck("Lucas' Gambit", LUCAS_STARTER) },
+  { id: 'starter-izzy', name: "Izzy's Expedition", heroClass: 'IZZY', cards: validateStarterDeck("Izzy's Expedition", IZZY_STARTER) },
 ];

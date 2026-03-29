@@ -25,25 +25,38 @@ interface CardProps {
   className?: string;
 }
 
-const rarityBorder: Record<CardDef['rarity'], string> = {
-  COMMON: 'border-gray-400',
-  RARE: 'border-blue-400',
-  EPIC: 'border-purple-500',
-  LEGENDARY: 'border-yellow-400',
+// ── Hero class frame colors ──
+const classBorder: Record<string, string> = {
+  JIMMY: 'border-red-600',
+  TALA: 'border-green-600',
+  DEREK: 'border-yellow-500',
+  ANDERS: 'border-blue-500',
+  DES: 'border-purple-600',
+  ASTRID: 'border-amber-400',
+  AVA: 'border-pink-500',
+  LUCAS: 'border-teal-500',
+  IZZY: 'border-orange-500',
+  NEUTRAL: 'border-stone-500',
 };
 
-const rarityGlow: Record<CardDef['rarity'], string> = {
-  COMMON: 'shadow-gray-400/30',
-  RARE: 'shadow-blue-400/40',
-  EPIC: 'shadow-purple-500/40',
-  LEGENDARY: 'shadow-yellow-400/50',
+const classFrameBg: Record<string, string> = {
+  JIMMY: 'bg-gradient-to-b from-red-950 via-red-900/80 to-red-950',
+  TALA: 'bg-gradient-to-b from-green-950 via-green-900/80 to-green-950',
+  DEREK: 'bg-gradient-to-b from-yellow-950 via-yellow-900/80 to-yellow-950',
+  ANDERS: 'bg-gradient-to-b from-blue-950 via-blue-900/80 to-blue-950',
+  DES: 'bg-gradient-to-b from-purple-950 via-purple-900/80 to-purple-950',
+  ASTRID: 'bg-gradient-to-b from-amber-950 via-amber-900/80 to-amber-950',
+  AVA: 'bg-gradient-to-b from-pink-950 via-pink-900/80 to-pink-950',
+  LUCAS: 'bg-gradient-to-b from-teal-950 via-teal-900/80 to-teal-950',
+  IZZY: 'bg-gradient-to-b from-orange-950 via-orange-900/80 to-orange-950',
+  NEUTRAL: 'bg-gradient-to-b from-stone-800 via-stone-700/80 to-stone-800',
 };
 
-const rarityBannerBg: Record<CardDef['rarity'], string> = {
-  COMMON: 'bg-gray-600',
-  RARE: 'bg-blue-700',
-  EPIC: 'bg-purple-700',
-  LEGENDARY: 'bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-600',
+const rarityColor: Record<string, string> = {
+  COMMON: '#9ca3af',
+  RARE: '#3b82f6',
+  EPIC: '#a855f7',
+  LEGENDARY: '#f59e0b',
 };
 
 const cardsByCode: Record<string, CardDef> = {};
@@ -59,14 +72,13 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
         onClick={onClick}
         className={`
           ${small ? 'w-[100px] h-[143px]' : 'w-[140px] h-[200px]'}
-          rounded-xl border-2 border-amber-700 flex-shrink-0
-          bg-gradient-to-br from-amber-950 via-stone-900 to-amber-950
-          flex items-center justify-center relative overflow-hidden
+          rounded-lg border-2 border-amber-700 flex-shrink-0
+          bg-stone-900 relative overflow-hidden
           ${onClick ? 'cursor-pointer hover:brightness-110 active:scale-95' : ''}
           ${className ?? ''}
         `}
       >
-        <img src="/cards/card-back.png" alt="" className="absolute inset-0 w-full h-full object-cover rounded-xl" />
+        <img src="/cards/card-back.png" alt="" className="absolute inset-0 w-full h-full object-cover rounded-md" />
       </button>
     );
   }
@@ -77,7 +89,7 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
       <div
         className={`
           ${small ? 'w-[100px] h-[143px]' : 'w-[140px] h-[200px]'}
-          rounded-xl border-2 border-red-800 bg-gray-900
+          rounded-lg border-2 border-red-800 bg-gray-900
           flex items-center justify-center text-red-400 text-xs text-center p-2
           ${className ?? ''}
         `}
@@ -93,127 +105,87 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
   const isLocation = def.type === 'LOCATION';
   const isSecret = isSpell && !!def.secretTrigger;
   const hasStats = isMinion || isWeapon;
-
-  // Frame background based on card type
-  const frameBg = isLocation
-    ? 'bg-gradient-to-b from-green-900 via-green-950 to-green-900'
-    : isSpell
-      ? 'bg-gradient-to-b from-indigo-900 via-violet-950 to-indigo-900'
-      : isWeapon
-        ? 'bg-gradient-to-b from-stone-800 via-stone-900 to-stone-800'
-        : 'bg-gradient-to-b from-stone-600 via-stone-700 to-stone-600';
-
-  // Top accent based on type (frame style)
-  const frameAccent = isLocation
-    ? 'from-emerald-500/30 to-transparent'
-    : isSpell
-      ? 'from-violet-500/30 to-transparent'
-      : isWeapon
-        ? 'from-amber-600/30 to-transparent'
-        : 'from-slate-500/20 to-transparent';
-
-  const rarityColor: Record<string, string> = {
-    COMMON: '#9ca3af',
-    RARE: '#3b82f6',
-    EPIC: '#a855f7',
-    LEGENDARY: '#f59e0b',
-  };
-
-  // Hero class text box background
-  const classTextBg: Record<string, string> = {
-    JIMMY: 'bg-red-900/40',
-    TALA: 'bg-green-900/40',
-    DEREK: 'bg-yellow-900/40',
-    ANDERS: 'bg-blue-900/40',
-    DES: 'bg-purple-900/40',
-    ASTRID: 'bg-yellow-900/40',
-    AVA: 'bg-pink-900/40',
-    LUCAS: 'bg-teal-900/40',
-    IZZY: 'bg-orange-900/40',
-    NEUTRAL: 'bg-gray-800/60',
-  };
-  const textBg = classTextBg[def.heroClass] || 'bg-gray-800/60';
+  const border = classBorder[def.heroClass] || classBorder.NEUTRAL;
+  const frameBg = classFrameBg[def.heroClass] || classFrameBg.NEUTRAL;
 
   return (
     <button
       onClick={onClick}
       className={`
         ${small ? 'w-[100px] h-[143px]' : 'w-[140px] h-[200px]'}
-        rounded-xl border-2 ${rarityBorder[def.rarity]} flex-shrink-0
+        rounded-lg border-2 ${border} flex-shrink-0
         ${frameBg} relative overflow-hidden
         flex flex-col transition-all duration-200
         ${onClick ? 'cursor-pointer hover:-translate-y-1 hover:shadow-lg active:scale-95' : ''}
-        ${selected ? `ring-2 ring-white ring-offset-1 ring-offset-black shadow-lg ${rarityGlow[def.rarity]}` : ''}
+        ${selected ? 'ring-2 ring-white ring-offset-1 ring-offset-black shadow-lg shadow-white/20' : ''}
         ${greyed ? 'opacity-40 grayscale' : ''}
         ${className ?? ''}
       `}
     >
-      {/* Mana cost gem — top-left */}
+      {/* ── Mana cost gem — top-left, overlapping art ── */}
       <div className={`
-        absolute ${small ? 'top-0.5 left-0.5 w-5 h-5 text-[10px]' : 'top-0.5 left-0.5 w-7 h-7 text-xs'}
+        absolute ${small ? '-top-0.5 -left-0.5 w-6 h-6 text-[10px]' : '-top-0.5 -left-0.5 w-8 h-8 text-sm'}
         rounded-full bg-gradient-to-br from-blue-400 to-blue-700
-        border border-blue-300 shadow-md shadow-blue-500/50
-        flex items-center justify-center font-extrabold text-white z-10
+        border-2 border-blue-300 shadow-lg shadow-blue-500/50
+        flex items-center justify-center font-extrabold text-white z-20
       `}>
         {def.manaCost}
       </div>
 
-      {/* Secret badge overlay */}
+      {/* ── Secret badge — top-right ── */}
       {isSecret && (
         <div className={`
-          absolute ${small ? 'top-0.5 right-0.5 w-4 h-4 text-[8px]' : 'top-0.5 right-0.5 w-6 h-6 text-[10px]'}
+          absolute ${small ? 'top-0 right-0 w-5 h-5 text-[8px]' : 'top-0 right-0 w-6 h-6 text-[10px]'}
           rounded-full bg-gradient-to-b from-amber-400 to-amber-600
           border border-amber-300 shadow-md
-          flex items-center justify-center font-bold text-white z-10
+          flex items-center justify-center font-bold text-white z-20
         `}>
           ?
         </div>
       )}
 
-      {/* Card art area — contained with border */}
+      {/* ── Card art — large, edge-to-edge, ~60% of card ── */}
       <div className={`
-        ${small ? 'h-[58px] mt-2 mx-0.5' : 'h-[90px] mt-3 mx-1'}
-        rounded border border-gray-600/50 overflow-hidden
-        bg-stone-700/60 flex items-center justify-center shrink-0
+        ${small ? 'h-[82px]' : 'h-[118px]'}
+        w-full overflow-hidden shrink-0
+        bg-stone-800 flex items-center justify-center
       `}>
         <CardArt cardCode={cardCode} className="w-full h-full" />
       </div>
 
-      {/* Rarity gem — diamond between art and name */}
-      {def.rarity !== 'COMMON' && (
-        <div className={`flex justify-center ${small ? '-mt-1 z-10' : '-mt-1.5 z-10'}`}>
-          <div
-            className={`${small ? 'w-2 h-2' : 'w-2.5 h-2.5'} rotate-45 shadow-md`}
-            style={{ backgroundColor: rarityColor[def.rarity], boxShadow: `0 0 4px ${rarityColor[def.rarity]}80` }}
-          />
-        </div>
-      )}
+      {/* ── Rarity gem — centered between art and name, ALL rarities ── */}
+      <div className={`flex justify-center ${small ? '-mt-1.5 z-10' : '-mt-2 z-10'}`}>
+        <div
+          className={`${small ? 'w-2.5 h-2.5' : 'w-3 h-3'} rotate-45 shadow-md border border-white/30`}
+          style={{ backgroundColor: rarityColor[def.rarity], boxShadow: `0 0 6px ${rarityColor[def.rarity]}80` }}
+        />
+      </div>
 
-      {/* Card name banner — distinct background */}
+      {/* ── Card name banner ── */}
       <div className={`
-        ${small ? 'mx-0.5 px-1 py-px mt-0.5' : 'mx-1 px-1.5 py-0.5 mt-0.5'}
-        ${textBg} rounded-sm border-y border-gray-600/30
+        ${small ? 'mx-0.5 px-1 py-px' : 'mx-1 px-1.5 py-0.5'}
+        bg-stone-900/80 border-y border-amber-700/40
         text-center z-10 shrink-0 overflow-hidden
       `}>
         <span className={`
-          text-white font-bold leading-tight block truncate
-          ${small ? 'text-[6px]' : 'text-[9px]'}
+          text-amber-100 font-bold leading-tight block truncate
+          ${small ? 'text-[6px]' : 'text-[8.5px]'}
           drop-shadow-md
         `}>
           {def.name}
         </span>
       </div>
 
-      {/* Card text — separate boxed area */}
+      {/* ── Card text ── */}
       {def.text ? (
         <div className={`
-          flex-1 ${small ? 'mx-0.5 mt-0.5 px-0.5 py-px' : 'mx-1 mt-0.5 px-1 py-0.5'}
-          bg-black/25 rounded-sm
+          flex-1 ${small ? 'mx-0.5 px-0.5 py-px' : 'mx-1 px-1 py-0.5'}
+          bg-stone-900/50 rounded-sm
           flex items-start justify-center overflow-hidden min-h-0
         `}>
           <p className={`
             text-gray-300 text-center leading-tight
-            ${small ? 'text-[5px] line-clamp-2' : 'text-[6.5px] line-clamp-3'}
+            ${small ? 'text-[5px] line-clamp-2' : 'text-[6.5px] line-clamp-2'}
           `}>
             {def.text}
           </p>
@@ -222,39 +194,42 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
         <div className="flex-1" />
       )}
 
-      {/* Bottom stat area — minions & weapons */}
+      {/* ── Bottom stats — minions & weapons ── */}
       {hasStats && (
         <div className={`
           flex justify-between items-end shrink-0
-          ${small ? 'px-0.5 pb-0.5 pt-0.5' : 'px-1 pb-1 pt-0.5'}
+          ${small ? 'px-0 pb-0 -mb-0.5' : 'px-0 pb-0 -mb-0.5'}
           z-10
         `}>
-          {/* Attack */}
+          {/* Attack — bottom-left */}
           <div className={`
-            ${small ? 'w-5 h-5 text-[9px]' : 'w-7 h-7 text-xs'}
+            ${small ? 'w-6 h-6 text-[10px] -ml-1' : 'w-8 h-8 text-sm -ml-1'}
             rounded-full bg-gradient-to-br from-yellow-500 to-yellow-700
-            border border-yellow-400 shadow-md shadow-yellow-500/40
+            border-2 border-yellow-400 shadow-md shadow-yellow-500/40
             flex items-center justify-center font-extrabold text-white
           `}>
             {def.attack}
           </div>
 
-          {/* Minion type label — centered between attack/health */}
+          {/* Tribe label — centered */}
           {isMinion && def.minionType && (
-            <span className={`${small ? 'text-[5px]' : 'text-[7px]'} font-bold text-amber-300/70`}>
+            <span className={`
+              ${small ? 'text-[5px] px-1' : 'text-[7px] px-1.5'}
+              font-bold text-amber-300/80 bg-stone-900/60 rounded-sm
+            `}>
               {def.minionType}
             </span>
           )}
 
-          {/* Health (red) or Durability (green for weapon) */}
+          {/* Health/Durability — bottom-right */}
           <div className={`
-            ${small ? 'w-5 h-5 text-[9px]' : 'w-7 h-7 text-xs'}
+            ${small ? 'w-6 h-6 text-[10px] -mr-1' : 'w-8 h-8 text-sm -mr-1'}
             rounded-full
             ${isWeapon
               ? 'bg-gradient-to-br from-emerald-400 to-emerald-700 border-emerald-300 shadow-emerald-500/40'
               : 'bg-gradient-to-br from-red-500 to-red-800 border-red-400 shadow-red-500/40'
             }
-            border shadow-md
+            border-2 shadow-md
             flex items-center justify-center font-extrabold text-white
           `}>
             {def.health}
@@ -262,17 +237,13 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
         </div>
       )}
 
-      {/* Location durability — centered green circle */}
+      {/* Location durability */}
       {isLocation && (
-        <div className={`
-          flex justify-center items-end shrink-0
-          ${small ? 'px-0.5 pb-0.5 pt-0.5' : 'px-1 pb-1 pt-0.5'}
-          z-10
-        `}>
+        <div className={`flex justify-center shrink-0 ${small ? 'pb-0.5' : 'pb-1'} z-10`}>
           <div className={`
-            ${small ? 'w-5 h-5 text-[9px]' : 'w-7 h-7 text-xs'}
+            ${small ? 'w-6 h-6 text-[10px]' : 'w-8 h-8 text-sm'}
             rounded-full bg-gradient-to-br from-emerald-400 to-emerald-700
-            border border-emerald-300 shadow-md shadow-emerald-500/40
+            border-2 border-emerald-300 shadow-md shadow-emerald-500/40
             flex items-center justify-center font-extrabold text-white
           `}>
             {def.health}
@@ -280,12 +251,12 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
         </div>
       )}
 
-      {/* Spell bottom spacer (no stats) */}
-      {isSpell && !isLocation && <div className={small ? 'h-1' : 'h-2'} />}
+      {/* Spell bottom spacer */}
+      {isSpell && !isLocation && <div className={small ? 'h-1' : 'h-1.5'} />}
 
-      {/* Selected glow overlay */}
+      {/* Selected glow */}
       {selected && (
-        <div className="absolute inset-0 rounded-xl border-2 border-white/40 pointer-events-none animate-pulse" />
+        <div className="absolute inset-0 rounded-lg border-2 border-white/40 pointer-events-none animate-pulse" />
       )}
     </button>
   );
@@ -302,14 +273,13 @@ export function CardBack({ size = 'md', onClick, disabled }: { size?: 'sm' | 'md
       onClick={onClick}
       disabled={disabled}
       className={`
-        ${sizeMap[size]} rounded-xl border-2 border-amber-700
-        bg-gradient-to-br from-amber-950 via-stone-900 to-amber-950
-        flex items-center justify-center relative overflow-hidden
+        ${sizeMap[size]} rounded-lg border-2 border-amber-700
+        bg-stone-900 relative overflow-hidden
         ${onClick && !disabled ? 'cursor-pointer hover:brightness-110' : ''}
         ${disabled ? 'cursor-not-allowed' : ''}
       `}
     >
-      <img src="/cards/card-back.png" alt="" className="absolute inset-0 w-full h-full object-cover rounded-xl" />
+      <img src="/cards/card-back.png" alt="" className="absolute inset-0 w-full h-full object-cover rounded-md" />
     </button>
   );
 }

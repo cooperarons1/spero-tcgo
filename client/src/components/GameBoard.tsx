@@ -788,11 +788,11 @@ function HeroPortrait({
           `}
         >
           {/* Character portrait */}
-          <div className="absolute inset-1 rounded-full overflow-hidden opacity-80">
+          <div className="absolute inset-0 rounded-full overflow-hidden">
             {HERO_PORTRAIT_PNGS[heroClass] ? (
               <img src={HERO_PORTRAIT_PNGS[heroClass]} alt="" className="w-full h-full object-cover" />
             ) : (
-              HERO_PORTRAIT_SVG[heroClass]
+              <div className="w-full h-full opacity-80">{HERO_PORTRAIT_SVG[heroClass]}</div>
             )}
           </div>
           {/* HP overlay at bottom */}

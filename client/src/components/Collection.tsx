@@ -51,6 +51,19 @@ const HERO_BG_MAP: Record<string, string> = {
 const allCards = cardData as CardDef[];
 const cardsByCode = new Map(allCards.map(c => [c.cardCode, c]));
 
+// Hero portrait images (PNG for heroes that have them, fallback to colored circle)
+const HERO_PORTRAIT_IMGS: Partial<Record<string, string>> = {
+  JIMMY: '/heroes/JIMMY.png',
+  TALA: '/heroes/TALA.png',
+  DEREK: '/heroes/DEREK.png',
+};
+
+const HERO_ACCENT: Record<string, string> = {
+  JIMMY: '#dc2626', TALA: '#16a34a', DEREK: '#ca8a04', ANDERS: '#2563eb',
+  DES: '#7c3aed', ASTRID: '#eab308', AVA: '#db2777', LUCAS: '#0d9488',
+  IZZY: '#ea580c', NEUTRAL: '#6b7280',
+};
+
 function getCardDef(code: string): CardDef | undefined {
   return cardsByCode.get(code);
 }
@@ -269,8 +282,9 @@ export function Collection({ uid, onBack }: CollectionProps) {
       <div className="flex-1 flex min-h-0">
         {/* Left sidebar — My Decks */}
         <div className="w-48 md:w-[200px] flex flex-col border-r border-slate-700/30 bg-slate-800/30 shrink-0">
-          <div className="p-3 border-b border-slate-700/30">
-            <h2 className="text-xs uppercase tracking-wider text-gray-500 font-bold mb-2">My Decks</h2>
+          <div className="p-3 border-b border-amber-800/30 bg-stone-900/50">
+            <h2 className="text-sm uppercase tracking-wider text-amber-200/80 font-bold text-center">My Decks</h2>
+            <p className="text-[9px] text-gray-500 text-center mt-0.5">{decks.length}/27</p>
           </div>
           <div className="flex-1 overflow-y-auto p-2 space-y-1.5">
             {loading ? (
@@ -286,22 +300,35 @@ export function Collection({ uid, onBack }: CollectionProps) {
                     <div key={deck.id} className="relative">
                       <button
                         onClick={() => editingDeck ? undefined : startEditing(deck)}
-                        className={`w-full text-left px-2.5 py-2 rounded-lg text-xs cursor-pointer transition-all border-l-[3px]
-                          ${deckBorder}
+                        className={`w-full text-left rounded-lg text-xs cursor-pointer transition-all overflow-hidden
                           ${isEditing
-                            ? `${deckBg} border border-white/30 text-white font-bold`
-                            : `${deckBg} text-gray-300 hover:brightness-125`
+                            ? 'border-2 border-white/40 shadow-lg'
+                            : 'border border-gray-700/50 hover:brightness-125'
                           }
                         `}
                       >
-                        <div className="flex items-center justify-between">
-                          <span className="truncate flex items-center gap-1">
-                            {deck.isStarterDeck && <span className="text-yellow-400 text-[10px]">&#9733;</span>}
-                            {deck.name}
-                          </span>
-                          <span className={`text-[9px] ${isComplete ? 'text-green-400' : 'text-red-400'}`}>
-                            {deck.cards.length}/{DECK_SIZE}
-                          </span>
+                        {/* Hero portrait background with deck name overlay */}
+                        <div className="relative h-12 flex items-end" style={{ backgroundColor: HERO_ACCENT[deck.heroClass] + '33' }}>
+                          {HERO_PORTRAIT_IMGS[deck.heroClass] && (
+                            <img
+                              src={HERO_PORTRAIT_IMGS[deck.heroClass]}
+                              alt=""
+                              className="absolute right-0 top-0 h-full w-12 object-cover opacity-60"
+                            />
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-r from-stone-900/90 via-stone-900/60 to-transparent" />
+                          <div className="relative px-2 pb-1 w-full">
+                            <div className="flex items-center gap-1">
+                              {deck.isStarterDeck && <span className="text-yellow-400 text-[10px]">&#9733;</span>}
+                              <span className="text-white font-bold text-[11px] truncate">{deck.name}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-gray-400 text-[9px]">{HERO_CLASSES.find(h => h.id === deck.heroClass)?.label}</span>
+                              <span className={`text-[9px] font-bold ${isComplete ? 'text-green-400' : 'text-yellow-400'}`}>
+                                {deck.cards.length}/{DECK_SIZE}
+                              </span>
+                            </div>
+                          </div>
                         </div>
                       </button>
                       {!editingDeck && (
