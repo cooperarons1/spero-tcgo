@@ -122,9 +122,9 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
         ${className ?? ''}
       `}
     >
-      {/* ── Mana cost gem — top-left, overlapping art ── */}
+      {/* ── Mana cost gem — top-left, inside card ── */}
       <div className={`
-        absolute ${small ? '-top-0.5 -left-0.5 w-6 h-6 text-[10px]' : '-top-0.5 -left-0.5 w-8 h-8 text-sm'}
+        absolute ${small ? 'top-1 left-1 w-5 h-5 text-[9px]' : 'top-1 left-1 w-7 h-7 text-xs'}
         rounded-full bg-gradient-to-br from-blue-400 to-blue-700
         border-2 border-blue-300 shadow-lg shadow-blue-500/50
         flex items-center justify-center font-extrabold text-white z-20
@@ -132,10 +132,10 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
         {def.manaCost}
       </div>
 
-      {/* ── Secret badge — top-right ── */}
+      {/* ── Secret badge — top-right, inside card ── */}
       {isSecret && (
         <div className={`
-          absolute ${small ? 'top-0 right-0 w-5 h-5 text-[8px]' : 'top-0 right-0 w-6 h-6 text-[10px]'}
+          absolute ${small ? 'top-1 right-1 w-4 h-4 text-[7px]' : 'top-1 right-1 w-6 h-6 text-[10px]'}
           rounded-full bg-gradient-to-b from-amber-400 to-amber-600
           border border-amber-300 shadow-md
           flex items-center justify-center font-bold text-white z-20
@@ -153,11 +153,14 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
         <CardArt cardCode={cardCode} className="w-full h-full" />
       </div>
 
-      {/* ── Rarity gem — centered between art and name, ALL rarities ── */}
+      {/* ── Rarity gem — centered between art and name ── */}
       <div className={`flex justify-center ${small ? '-mt-1.5 z-10' : '-mt-2 z-10'}`}>
         <div
-          className={`${small ? 'w-2.5 h-2.5' : 'w-3 h-3'} rotate-45 shadow-md border border-white/30`}
-          style={{ backgroundColor: rarityColor[def.rarity], boxShadow: `0 0 6px ${rarityColor[def.rarity]}80` }}
+          className={`${small ? 'w-3 h-3' : 'w-3.5 h-3.5'} rotate-45 border border-white/40`}
+          style={{
+            backgroundColor: rarityColor[def.rarity],
+            boxShadow: `0 0 8px ${rarityColor[def.rarity]}aa, inset 0 1px 2px rgba(255,255,255,0.4)`,
+          }}
         />
       </div>
 
@@ -179,7 +182,7 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
       {/* ── Card text ── */}
       {def.text ? (
         <div className={`
-          flex-1 ${small ? 'mx-0.5 px-0.5 py-px' : 'mx-1 px-1 py-0.5'}
+          flex-1 ${small ? 'mx-0.5 px-0.5 py-px pb-4' : 'mx-1 px-1.5 py-0.5 pb-5'}
           bg-stone-900/50 rounded-sm
           flex items-start justify-center overflow-hidden min-h-0
         `}>
@@ -199,7 +202,7 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
         <>
           {/* Attack — bottom-left */}
           <div className={`
-            absolute ${small ? 'bottom-0.5 left-0.5 w-6 h-6 text-[10px]' : 'bottom-0.5 left-0.5 w-8 h-8 text-sm'}
+            absolute ${small ? 'bottom-1 left-1 w-5 h-5 text-[9px]' : 'bottom-1.5 left-1.5 w-7 h-7 text-xs'}
             rounded-full bg-gradient-to-br from-yellow-500 to-yellow-700
             border-2 border-yellow-400 shadow-md shadow-yellow-500/40
             flex items-center justify-center font-extrabold text-white z-20
@@ -209,7 +212,7 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
 
           {/* Health/Durability — bottom-right */}
           <div className={`
-            absolute ${small ? 'bottom-0.5 right-0.5 w-6 h-6 text-[10px]' : 'bottom-0.5 right-0.5 w-8 h-8 text-sm'}
+            absolute ${small ? 'bottom-1 right-1 w-5 h-5 text-[9px]' : 'bottom-1.5 right-1.5 w-7 h-7 text-xs'}
             rounded-full
             ${isWeapon
               ? 'bg-gradient-to-br from-emerald-400 to-emerald-700 border-emerald-300 shadow-emerald-500/40'
@@ -223,9 +226,9 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
 
           {/* Tribe label — bottom center */}
           {isMinion && def.minionType && (
-            <div className={`absolute ${small ? 'bottom-0.5' : 'bottom-1'} left-1/2 -translate-x-1/2 z-20`}>
+            <div className={`absolute ${small ? 'bottom-1' : 'bottom-2'} left-1/2 -translate-x-1/2 z-20`}>
               <span className={`
-                ${small ? 'text-[5px] px-1' : 'text-[6px] px-1.5 py-px'}
+                ${small ? 'text-[4px] px-0.5' : 'text-[6px] px-1.5 py-px'}
                 font-bold text-amber-200 bg-stone-900/80 rounded-sm border border-amber-700/30
               `}>
                 {def.minionType}
@@ -237,9 +240,9 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
 
       {/* Location durability — bottom center */}
       {isLocation && (
-        <div className={`absolute ${small ? 'bottom-0.5' : 'bottom-0.5'} left-1/2 -translate-x-1/2 z-20`}>
+        <div className={`absolute ${small ? 'bottom-1' : 'bottom-1.5'} left-1/2 -translate-x-1/2 z-20`}>
           <div className={`
-            ${small ? 'w-6 h-6 text-[10px]' : 'w-8 h-8 text-sm'}
+            ${small ? 'w-5 h-5 text-[9px]' : 'w-7 h-7 text-xs'}
             rounded-full bg-gradient-to-br from-emerald-400 to-emerald-700
             border-2 border-emerald-300 shadow-md shadow-emerald-500/40
             flex items-center justify-center font-extrabold text-white
