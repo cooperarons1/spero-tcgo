@@ -1253,6 +1253,91 @@ io.on('connection', (socket) => {
     }
   });
 
+  // ── Craft / Disenchant ──
+
+  socket.on('craft-card', async (data: { cardCode: string }) => {
+    try {
+      const { CRAFT_COSTS } = await import('./packs.js');
+      const { getCardDef } = await import('./cards.js');
+      const def = getCardDef(data.cardCode);
+      const cost = CRAFT_COSTS[def.rarity] ?? 40;
+
+      const userRef = adminDb.collection('users').doc(uid);
+      const userDoc = await userRef.get();
+      const userData = userDoc.data() ?? {};
+      const dust = userData.dust ?? 0;
+
+      if (dust < cost) {
+        socket.emit('craft-error', 'Not enough dust');
+        return;
+      }
+
+      const ownedCards: Record<string, number> = userData.ownedCards ?? {};
+      const current = ownedCards[data.cardCode] ?? 0;
+      const max = def.rarity === 'LEGENDARY' ? 1 : 2;
+      if (current >= max) {
+        socket.emit('craft-error', 'Already own max copies');
+        return;
+      }
+
+      ownedCards[data.cardCode] = current + 1;
+      const newDust = dust - cost;
+
+      await userRef.set({ ...userData, dust: newDust, ownedCards }, { merge: true });
+      socket.emit('craft-success', { cardCode: data.cardCode, newDust, newCount: current + 1 });
+    } catch (err) {
+      console.error('craft-card error:', err);
+      socket.emit('craft-error', 'Failed to craft');
+    }
+  });
+
+  socket.on('disenchant-card', async (data: { cardCode: string }) => {
+    try {
+      const { DUST_VALUES } = await import('./packs.js');
+      const { getCardDef } = await import('./cards.js');
+      const def = getCardDef(data.cardCode);
+      const dustValue = DUST_VALUES[def.rarity] ?? 5;
+
+      const userRef = adminDb.collection('users').doc(uid);
+      const userDoc = await userRef.get();
+      const userData = userDoc.data() ?? {};
+
+      const ownedCards: Record<string, number> = userData.ownedCards ?? {};
+      const current = ownedCards[data.cardCode] ?? 0;
+      if (current <= 0) {
+        socket.emit('disenchant-error', 'You don\'t own this card');
+        return;
+      }
+
+      ownedCards[data.cardCode] = current - 1;
+      const newDust = (userData.dust ?? 0) + dustValue;
+
+      await userRef.set({ ...userData, dust: newDust, ownedCards }, { merge: true });
+      socket.emit('disenchant-success', { cardCode: data.cardCode, newDust, dustGained: dustValue, newCount: current - 1 });
+    } catch (err) {
+      console.error('disenchant-card error:', err);
+      socket.emit('disenchant-error', 'Failed to disenchant');
+    }
+  });
+
+  // ── Get inventory (dust, gold, owned cards) ──
+
+  socket.on('get-inventory', async () => {
+    try {
+      const userDoc = await adminDb.collection('users').doc(uid).get();
+      const userData = userDoc.data() ?? {};
+      socket.emit('inventory-update', {
+        dust: userData.dust ?? 0,
+        gold: userData.gold ?? 0,
+        ownedCards: userData.ownedCards ?? {},
+        packsOpened: userData.packsOpened ?? 0,
+      });
+    } catch (err) {
+      console.error('get-inventory error:', err);
+      socket.emit('inventory-update', { dust: 0, gold: 0, ownedCards: {}, packsOpened: 0 });
+    }
+  });
+
   // ── Disconnect ──
 
   socket.on('disconnect', () => {

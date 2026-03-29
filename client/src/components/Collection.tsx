@@ -4,7 +4,11 @@ import { DECK_SIZE, MAX_COPIES_PER_CARD, MAX_COPIES_LEGENDARY } from '../../../s
 import { validateDeck } from '../../../shared/deckRules';
 import { loadDecks, saveDeck, deleteDeck, generateId, type DeckList } from '../utils/deckStorage';
 import { Card } from './Card';
+import { socket } from '../socket';
 import type { HeroClass, CardDef } from '../../../shared/types';
+
+const CRAFT_COSTS: Record<string, number> = { COMMON: 40, RARE: 100, EPIC: 400, LEGENDARY: 1600 };
+const DUST_VALUES: Record<string, number> = { COMMON: 5, RARE: 20, EPIC: 100, LEGENDARY: 400 };
 
 interface CollectionProps {
   uid: string;
@@ -111,6 +115,38 @@ export function Collection({ uid, onBack }: CollectionProps) {
 
   // Card hover preview
   const [hoveredCard, setHoveredCard] = useState<{ code: string; x: number; y: number } | null>(null);
+
+  // Crafting state
+  const [craftingCard, setCraftingCard] = useState<string | null>(null);
+  const [dust, setDust] = useState(0);
+  const [ownedCards, setOwnedCards] = useState<Record<string, number>>({});
+
+  // Load inventory on mount
+  useEffect(() => {
+    socket.emit('get-inventory');
+    const onInventory = (data: { dust: number; ownedCards: Record<string, number> }) => {
+      setDust(data.dust);
+      setOwnedCards(data.ownedCards);
+    };
+    const onCraftSuccess = (data: { cardCode: string; newDust: number; newCount: number }) => {
+      setDust(data.newDust);
+      setOwnedCards(prev => ({ ...prev, [data.cardCode]: data.newCount }));
+      setCraftingCard(null);
+    };
+    const onDisenchantSuccess = (data: { cardCode: string; newDust: number; newCount: number }) => {
+      setDust(data.newDust);
+      setOwnedCards(prev => ({ ...prev, [data.cardCode]: data.newCount }));
+      setCraftingCard(null);
+    };
+    socket.on('inventory-update', onInventory);
+    socket.on('craft-success', onCraftSuccess);
+    socket.on('disenchant-success', onDisenchantSuccess);
+    return () => {
+      socket.off('inventory-update', onInventory);
+      socket.off('craft-success', onCraftSuccess);
+      socket.off('disenchant-success', onDisenchantSuccess);
+    };
+  }, []);
 
   const refresh = useCallback(async () => {
     const d = await loadDecks(uid);
@@ -291,8 +327,8 @@ export function Collection({ uid, onBack }: CollectionProps) {
         <button onClick={onBack} className="text-gray-400 hover:text-white text-sm cursor-pointer">
           &larr; Back
         </button>
-        <h1 className="text-lg font-bold text-white tracking-wide">MY COLLECTION</h1>
-        <div className="w-16" />
+        <h1 className="text-lg font-bold text-amber-100 tracking-wide">MY COLLECTION</h1>
+        <span className="text-blue-400 font-bold text-sm">{dust} Dust</span>
       </div>
 
       <div className="flex-1 flex min-h-0">
@@ -500,7 +536,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
                     className={`relative transition-all select-none ${
                       editingDeck && !greyed ? 'cursor-pointer hover:scale-105' : greyed ? 'cursor-not-allowed' : ''
                     }`}
-                    onClick={() => editingDeck && !greyed && addCard(c.cardCode)}
+                    onClick={() => editingDeck ? (!greyed && addCard(c.cardCode)) : setCraftingCard(c.cardCode)}
                     onMouseEnter={(e) => setHoveredCard({ code: c.cardCode, x: e.clientX, y: e.clientY })}
                     onMouseMove={(e) => hoveredCard && setHoveredCard({ code: c.cardCode, x: e.clientX, y: e.clientY })}
                     onMouseLeave={() => setHoveredCard(null)}
@@ -665,6 +701,66 @@ export function Collection({ uid, onBack }: CollectionProps) {
                 <span className="text-gray-300 text-[10px]">{def.minionType}</span>
               </div>
             )}
+          </div>
+        );
+      })()}
+
+      {/* Crafting Modal */}
+      {craftingCard && (() => {
+        const def = getCardDef(craftingCard);
+        if (!def) return null;
+        const owned = ownedCards[craftingCard] ?? 0;
+        const maxCopies = def.rarity === 'LEGENDARY' ? 1 : 2;
+        const craftCost = CRAFT_COSTS[def.rarity] ?? 40;
+        const dustValue = DUST_VALUES[def.rarity] ?? 5;
+        const canCraft = owned < maxCopies && dust >= craftCost;
+        const canDisenchant = owned > 0;
+        return (
+          <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center" onClick={() => setCraftingCard(null)}>
+            <div className="bg-stone-800 rounded-2xl p-6 border border-amber-700/40 max-w-sm w-full mx-4 shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-start gap-4">
+                <Card cardCode={craftingCard} className="!w-[120px] !h-[171px] shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-white font-bold text-lg">{def.name}</h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-[10px] px-1.5 py-0.5 rounded" style={{
+                      backgroundColor: def.rarity === 'LEGENDARY' ? '#f59e0b' : def.rarity === 'EPIC' ? '#a855f7' : def.rarity === 'RARE' ? '#3b82f6' : '#9ca3af',
+                      color: def.rarity === 'LEGENDARY' ? '#000' : '#fff',
+                    }}>
+                      {def.rarity}
+                    </span>
+                    <span className="text-gray-400 text-xs">{def.type}</span>
+                    {def.minionType && <span className="text-amber-400/70 text-xs">{def.minionType}</span>}
+                  </div>
+                  <p className="text-gray-400 text-xs mt-2">{def.text || 'No text.'}</p>
+                  <div className="mt-3 text-sm">
+                    <span className="text-gray-500">Owned: </span>
+                    <span className="text-white font-bold">{owned}/{maxCopies}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-2 mt-5">
+                <button
+                  onClick={() => socket.emit('craft-card', { cardCode: craftingCard })}
+                  disabled={!canCraft}
+                  className="flex-1 bg-blue-600 text-white font-bold py-2.5 rounded-xl text-sm hover:brightness-110 active:scale-95 transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  Craft — {craftCost} Dust
+                </button>
+                <button
+                  onClick={() => socket.emit('disenchant-card', { cardCode: craftingCard })}
+                  disabled={!canDisenchant}
+                  className="flex-1 bg-red-600/80 text-white font-bold py-2.5 rounded-xl text-sm hover:brightness-110 active:scale-95 transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  Disenchant — +{dustValue} Dust
+                </button>
+              </div>
+
+              <div className="text-center mt-3">
+                <span className="text-blue-400 text-xs font-bold">Your Dust: {dust}</span>
+              </div>
+            </div>
           </div>
         );
       })()}
