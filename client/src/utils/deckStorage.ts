@@ -140,6 +140,16 @@ export async function seedStarterDecks(uid: string): Promise<void> {
       isStarterDeck: true,
     });
   }
+
+  // Give new players starting gold (500) on first setup
+  if (firstTime) {
+    const userRef = doc(db, 'users', uid);
+    const { getDoc: getDocFS } = await import('firebase/firestore');
+    const userDoc = await getDocFS(userRef);
+    if (!userDoc.exists() || !(userDoc.data()?.gold)) {
+      await setDoc(userRef, { gold: 500, dust: 0 }, { merge: true });
+    }
+  }
 }
 
 export async function migrateLocalStorageDecks(uid: string): Promise<void> {

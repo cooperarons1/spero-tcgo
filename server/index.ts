@@ -401,6 +401,15 @@ async function finalizeGame(room: ReturnType<typeof getRoom>) {
       quests = questResult.quests;
       questGold = questResult.goldEarned;
 
+      // Base gold reward: 10 gold per win, bonus 10 every 3 wins
+      let baseGold = 0;
+      if (isWin) {
+        baseGold = 10;
+        const totalWins = (userData.gamesWon ?? 0) + 1;
+        if (totalWins % 3 === 0) baseGold += 10; // bonus every 3 wins
+      }
+      const totalGoldEarned = questGold + baseGold;
+
       await userRef.set({
         ...userData,
         gamesPlayed: (userData.gamesPlayed ?? 0) + 1,
@@ -409,7 +418,7 @@ async function finalizeGame(room: ReturnType<typeof getRoom>) {
         rankTier: getRankTier(newElo),
         xp: newXp,
         level: newLevel,
-        gold: (userData.gold ?? 0) + questGold,
+        gold: (userData.gold ?? 0) + totalGoldEarned,
         heroLevels,
         quests,
         questsRefreshedAt: shouldRefreshQuests(userData.questsRefreshedAt) ? Date.now() : (userData.questsRefreshedAt ?? Date.now()),
@@ -426,7 +435,7 @@ async function finalizeGame(room: ReturnType<typeof getRoom>) {
           newElo,
           rankTier: getRankTier(newElo),
           questsCompleted: questResult.quests.filter(q => q.completed).map(q => ({ description: q.description, reward: q.reward })),
-          goldEarned: questGold,
+          goldEarned: totalGoldEarned,
           heroXPGain,
           heroLevel: newHeroLevel,
           heroWins: heroLevels[heroClass].wins,
