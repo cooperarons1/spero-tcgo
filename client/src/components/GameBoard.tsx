@@ -534,7 +534,7 @@ function BoardMinionCard({
         ${isStealth ? 'opacity-40' : ''}
         ${canAct && isMyMinion ? 'border-[3px] border-green-400 shadow-[0_0_12px_4px_rgba(34,197,94,0.5)] cursor-pointer hover:scale-110 animate-ready-pulse' : ''}
         ${isMyMinion && !canAct && !isFrozen ? 'opacity-80' : ''}
-        ${isValidTarget ? 'shadow-[0_0_12px_2px_rgba(34,197,94,0.7)] cursor-crosshair' : ''}
+        ${isValidTarget ? 'shadow-[0_0_18px_6px_rgba(34,197,94,0.7)] ring-2 ring-green-400/80 cursor-crosshair scale-105 z-20' : ''}
         ${isSelected ? 'ring-[3px] ring-green-400 shadow-[0_0_24px_8px_rgba(34,197,94,0.6)] -translate-y-2 scale-110 z-30 animate-attacker-pulse' : ''}
         ${isBuffed ? 'animate-buff-pulse' : ''}
         ${animationClass ?? ''}
@@ -1016,25 +1016,24 @@ function HandCard({
 
 // ─── Card Backs (opponent hand) ───
 function OpponentHand({ count, cardBackId }: { count: number; cardBackId?: string }) {
-  const cb = cardBackId ? CARD_BACK_STYLES[cardBackId] : null;
+  const cb = CARD_BACK_STYLES[cardBackId ?? 'default'] ?? CARD_BACK_STYLES['default'];
   return (
     <div className="flex items-center justify-center gap-0.5 md:gap-1">
       {Array.from({ length: count }).map((_, i) => (
         cb?.type === 'image' ? (
-          <div key={i} className="h-14 w-10 md:h-24 md:w-16 rounded-lg border-2 border-amber-700 overflow-hidden relative">
+          <div key={i} className="h-14 w-10 md:h-24 md:w-16 rounded-lg border-2 border-amber-700 overflow-hidden relative shadow-md">
             <img src={cb.value} alt="" className="absolute inset-0 w-full h-full object-cover" />
           </div>
-        ) : cb?.type === 'gradient' ? (
-          <div
-            key={i}
-            className={`h-14 w-10 md:h-24 md:w-16 rounded-lg border-2 ${cb.borderColor} shadow-inner`}
-            style={{ background: cb.value }}
-          />
         ) : (
           <div
             key={i}
-            className="h-14 w-10 md:h-24 md:w-16 rounded-lg border-2 border-amber-700 bg-gradient-to-b from-amber-800 to-amber-950 shadow-inner"
-          />
+            className={`h-14 w-10 md:h-24 md:w-16 rounded-lg border-2 ${cb?.borderColor ?? 'border-amber-700'} shadow-md`}
+            style={{ background: cb?.value ?? 'linear-gradient(to bottom, #92400e, #1c0f00)' }}
+          >
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-5 h-5 rounded-full border border-white/15 bg-white/5" />
+            </div>
+          </div>
         )
       ))}
     </div>
@@ -2235,7 +2234,7 @@ export default function GameBoard({
       {/* MY AREA (entire bottom half is drop zone) */}
       {/* ═══════════════════════════════════════════ */}
       <div
-        className={`flex flex-1 min-h-0 flex-col items-center px-2 md:px-4 pt-0 pb-2 transition-all ${dropZoneActive ? 'bg-green-500/5' : ''}`}
+        className={`flex flex-1 min-h-0 flex-col items-center px-2 md:px-4 pt-0 pb-2 transition-all ${dropZoneActive ? 'bg-green-500/10 ring-2 ring-inset ring-green-400/30' : ''}`}
       >
         {/* My locations */}
         {gs.myLocations && gs.myLocations.length > 0 && (
