@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { socket } from '../socket';
 import { getHistory, type MatchRecord } from '../utils/matchHistory';
+import { loadHeroLevels, type HeroLevelsMap } from '../utils/heroLevels';
 import type { RankTier } from '../../../shared/types';
 
 interface ProfileProps {
@@ -59,11 +60,13 @@ export function Profile({ uid, displayName, onBack }: ProfileProps) {
   const [rank, setRank] = useState<RankData | null>(null);
   const [quests, setQuests] = useState<QuestsData | null>(null);
   const [history, setHistory] = useState<MatchRecord[]>([]);
+  const [heroLevels, setHeroLevels] = useState<HeroLevelsMap>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     socket.emit('get-rank');
     socket.emit('get-quests');
+    loadHeroLevels(uid).then(setHeroLevels);
 
     const onRank = (data: RankData) => setRank(data);
     const onQuests = (data: QuestsData) => setQuests(data);
@@ -147,6 +150,38 @@ export function Profile({ uid, displayName, onBack }: ProfileProps) {
             color={streak > 0 ? 'text-green-400' : streak < 0 ? 'text-red-400' : 'text-gray-400'}
           />
           {quests && <StatCard label="Gold" value={quests.gold} color="text-yellow-400" />}
+        </div>
+
+        {/* Hero Levels */}
+        <div className="mb-4">
+          <h4 className="font-bold text-sm text-gray-300 mb-2">Hero Levels</h4>
+          <div className="grid grid-cols-3 gap-2">
+            {(['JIMMY','TALA','DEREK','ANDERS','DES','ASTRID','AVA','LUCAS','IZZY'] as const).map(hero => {
+              const hl = heroLevels[hero];
+              const level = hl?.level ?? 1;
+              const wins = hl?.wins ?? 0;
+              const isGolden = wins >= 500;
+              const heroColor: Record<string, string> = {
+                JIMMY: 'border-red-600 bg-red-900/20', TALA: 'border-green-600 bg-green-900/20',
+                DEREK: 'border-yellow-500 bg-yellow-900/20', ANDERS: 'border-blue-500 bg-blue-900/20',
+                DES: 'border-purple-600 bg-purple-900/20', ASTRID: 'border-amber-400 bg-amber-900/20',
+                AVA: 'border-pink-500 bg-pink-900/20', LUCAS: 'border-teal-500 bg-teal-900/20',
+                IZZY: 'border-orange-500 bg-orange-900/20',
+              };
+              const label: Record<string, string> = {
+                JIMMY: 'Jimmy', TALA: 'Tala', DEREK: 'Derek', ANDERS: 'Anders',
+                DES: 'Des', ASTRID: 'Astrid', AVA: 'Ava', LUCAS: 'Lucas', IZZY: 'Izzy',
+              };
+              return (
+                <div key={hero} className={`rounded-lg border p-2 text-center ${heroColor[hero]} ${isGolden ? 'shadow-md shadow-yellow-400/30' : ''}`}>
+                  <div className="text-[10px] text-gray-400 font-bold">{label[hero]}</div>
+                  <div className={`text-lg font-extrabold ${isGolden ? 'text-yellow-400' : 'text-white'}`}>{level}</div>
+                  <div className="text-[9px] text-gray-500">{wins} wins</div>
+                  {isGolden && <div className="text-[8px] text-yellow-400 font-bold">GOLDEN</div>}
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         {/* Recent Matches */}

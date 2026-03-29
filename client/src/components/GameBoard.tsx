@@ -504,6 +504,7 @@ function BoardMinionCard({
   isBuffed?: boolean;
   onPointerDown?: (e: React.PointerEvent) => void;
 }) {
+  const [showTooltip, setShowTooltip] = useState(false);
   const def = getCard(minion.cardCode);
   const isDamaged = minion.currentHealth < minion.maxHealth;
   const isSilenced = minion.isSilenced;
@@ -517,6 +518,8 @@ function BoardMinionCard({
     <button
       onClick={onClick}
       onPointerDown={onPointerDown}
+      onMouseEnter={() => setShowTooltip(true)}
+      onMouseLeave={() => setShowTooltip(false)}
       className={`relative w-[9rem] h-[10.5rem] select-none touch-none transition-all
         ${hasTaunt ? 'minion-oval-taunt' : 'minion-oval'}
         ${hasDivine && !isSilenced ? 'ring-[3px] ring-yellow-300 ring-offset-1 ring-offset-transparent animate-divine-sparkle' : ''}
@@ -604,6 +607,29 @@ function BoardMinionCard({
           {def?.name}
         </span>
       </div>
+
+      {/* Hover tooltip */}
+      {showTooltip && def && (
+        <div className="absolute -top-2 left-1/2 -translate-x-1/2 -translate-y-full z-50 pointer-events-none">
+          <div className="bg-stone-900/95 border border-amber-700/40 rounded-lg px-3 py-2 shadow-2xl min-w-[160px] max-w-[200px]">
+            <div className="text-amber-100 font-bold text-xs mb-0.5">{def.name}</div>
+            <div className="text-[9px] text-gray-500 mb-1">
+              {minion.currentAttack}/{minion.currentHealth}
+              {isDamaged && <span className="text-red-400 ml-1">(damaged)</span>}
+              {minion.currentAttack !== def.attack && <span className="text-green-400 ml-1">(buffed)</span>}
+            </div>
+            {def.text && <p className="text-gray-300 text-[9px] leading-snug mb-1">{def.text}</p>}
+            <div className="flex flex-wrap gap-1">
+              {hasTaunt && <span className="text-[8px] bg-stone-700 text-amber-300 px-1 rounded">Taunt</span>}
+              {hasDivine && <span className="text-[8px] bg-stone-700 text-yellow-300 px-1 rounded">Divine Shield</span>}
+              {isFrozen && <span className="text-[8px] bg-stone-700 text-blue-300 px-1 rounded">Frozen</span>}
+              {isStealth && <span className="text-[8px] bg-stone-700 text-gray-300 px-1 rounded">Stealth</span>}
+              {isSilenced && <span className="text-[8px] bg-stone-700 text-red-300 px-1 rounded">Silenced</span>}
+              {def.minionType && <span className="text-[8px] bg-stone-700 text-amber-200 px-1 rounded">{def.minionType}</span>}
+            </div>
+          </div>
+        </div>
+      )}
     </button>
   );
 }
