@@ -116,6 +116,10 @@ export function Collection({ uid, onBack }: CollectionProps) {
   // Card hover preview
   const [hoveredCard, setHoveredCard] = useState<{ code: string; x: number; y: number } | null>(null);
 
+  // Pagination
+  const [page, setPage] = useState(0);
+  const CARDS_PER_PAGE = 8;
+
   // Crafting state
   const [craftingCard, setCraftingCard] = useState<string | null>(null);
   const [dust, setDust] = useState(0);
@@ -185,6 +189,12 @@ export function Collection({ uid, onBack }: CollectionProps) {
       return true;
     }).sort((a, b) => a.manaCost - b.manaCost || a.name.localeCompare(b.name));
   }, [filterClass, filterMana, filterSearch, filterRarity, filterType]);
+
+  // Reset page on filter change
+  useEffect(() => { setPage(0); }, [filterClass, filterMana, filterSearch, filterRarity, filterType]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredCards.length / CARDS_PER_PAGE));
+  const paginatedCards = filteredCards.slice(page * CARDS_PER_PAGE, (page + 1) * CARDS_PER_PAGE);
 
   // Card counts per filter category (computed from class-filtered base, excluding tokens)
   const filterCounts = useMemo(() => {
@@ -519,44 +529,68 @@ export function Collection({ uid, onBack }: CollectionProps) {
             </div>
           </div>
 
-          {/* Card grid */}
-          <div className="flex-1 overflow-y-auto p-2 bg-slate-900/80">
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-1.5">
-              {filteredCards.map(c => {
-                const count = editingCounts.get(c.cardCode) || 0;
-                const max = c.rarity === 'LEGENDARY' ? MAX_COPIES_LEGENDARY : MAX_COPIES_PER_CARD;
-                const isMaxed = editingDeck ? count >= max : false;
-                const isWrongClass = editingDeck
-                  ? c.heroClass !== 'NEUTRAL' && c.heroClass !== editingDeck.heroClass
-                  : false;
-                const greyed = isMaxed || isWrongClass;
-                return (
-                  <div
-                    key={c.cardCode}
-                    className={`relative transition-all select-none ${
-                      editingDeck && !greyed ? 'cursor-pointer hover:scale-105' : greyed ? 'cursor-not-allowed' : ''
-                    }`}
-                    onClick={() => editingDeck ? (!greyed && addCard(c.cardCode)) : setCraftingCard(c.cardCode)}
-                    onMouseEnter={(e) => setHoveredCard({ code: c.cardCode, x: e.clientX, y: e.clientY })}
-                    onMouseMove={(e) => hoveredCard && setHoveredCard({ code: c.cardCode, x: e.clientX, y: e.clientY })}
-                    onMouseLeave={() => setHoveredCard(null)}
-                  >
-                    <Card
-                      cardCode={c.cardCode}
-                      small
-                      greyed={greyed}
-                    />
-                    {editingDeck && count > 0 && (
-                      <div className="absolute -top-1 -right-1 bg-blue-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center z-10">
-                        {count}/{max}
-                      </div>
-                    )}
+          {/* Card grid — paginated */}
+          <div className="flex-1 flex flex-col bg-slate-900/80">
+            <div className="flex-1 flex items-center justify-center p-4">
+              <div className="grid grid-cols-4 gap-3 max-w-3xl">
+                {paginatedCards.map(c => {
+                  const count = editingCounts.get(c.cardCode) || 0;
+                  const max = c.rarity === 'LEGENDARY' ? MAX_COPIES_LEGENDARY : MAX_COPIES_PER_CARD;
+                  const isMaxed = editingDeck ? count >= max : false;
+                  const isWrongClass = editingDeck
+                    ? c.heroClass !== 'NEUTRAL' && c.heroClass !== editingDeck.heroClass
+                    : false;
+                  const greyed = isMaxed || isWrongClass;
+                  return (
+                    <div
+                      key={c.cardCode}
+                      className={`relative transition-all select-none ${
+                        editingDeck && !greyed ? 'cursor-pointer hover:scale-105' : greyed ? 'cursor-not-allowed' : 'cursor-pointer hover:scale-105'
+                      }`}
+                      onClick={() => editingDeck ? (!greyed && addCard(c.cardCode)) : setCraftingCard(c.cardCode)}
+                      onMouseEnter={(e) => setHoveredCard({ code: c.cardCode, x: e.clientX, y: e.clientY })}
+                      onMouseMove={(e) => hoveredCard && setHoveredCard({ code: c.cardCode, x: e.clientX, y: e.clientY })}
+                      onMouseLeave={() => setHoveredCard(null)}
+                    >
+                      <Card
+                        cardCode={c.cardCode}
+                        greyed={greyed}
+                      />
+                      {editingDeck && count > 0 && (
+                        <div className="absolute -top-1 -right-1 bg-blue-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center z-10">
+                          {count}/{max}
+                        </div>
+                      )}
                   </div>
                 );
               })}
             </div>
-            {filteredCards.length === 0 && (
+            {paginatedCards.length === 0 && (
               <p className="text-gray-600 text-sm text-center py-12">No cards match your filters</p>
+            )}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-4 py-3 border-t border-stone-700/30">
+                <button
+                  onClick={() => setPage(p => Math.max(0, p - 1))}
+                  disabled={page === 0}
+                  className="text-gray-400 hover:text-white text-xl font-bold px-3 cursor-pointer disabled:opacity-20 disabled:cursor-not-allowed"
+                >
+                  &larr;
+                </button>
+                <span className="text-gray-400 text-sm">
+                  Page {page + 1} of {totalPages}
+                </span>
+                <button
+                  onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+                  disabled={page >= totalPages - 1}
+                  className="text-gray-400 hover:text-white text-xl font-bold px-3 cursor-pointer disabled:opacity-20 disabled:cursor-not-allowed"
+                >
+                  &rarr;
+                </button>
+              </div>
             )}
           </div>
         </div>
