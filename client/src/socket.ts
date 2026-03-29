@@ -7,15 +7,16 @@ const SERVER_URL = import.meta.env.DEV
 export const socket = io(SERVER_URL, {
   autoConnect: false,
   reconnection: true,
-  reconnectionAttempts: 10,
+  reconnectionAttempts: Infinity,   // never stop trying
   reconnectionDelay: 1000,
-  reconnectionDelayMax: 5000,
+  reconnectionDelayMax: 10000,
+  timeout: 45000,                   // 45s connection timeout
   transports: ['websocket', 'polling'],
   auth: async (cb) => {
     const { auth } = await import('./firebase');
     const user = auth.currentUser;
     if (user) {
-      cb({ token: await user.getIdToken() });
+      cb({ token: await user.getIdToken(true) }); // force refresh token on reconnect
     } else {
       cb({});
     }

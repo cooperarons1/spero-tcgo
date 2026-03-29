@@ -91,6 +91,11 @@ app.get('*', (_req, res, next) => {
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: { origin: allowedOrigins },
+  pingTimeout: 60000,       // 60s before considering connection dead (default 20s)
+  pingInterval: 25000,      // ping every 25s to keep Cloud Run alive (default 25s)
+  connectTimeout: 45000,    // 45s to establish connection
+  transports: ['websocket', 'polling'],
+  allowUpgrades: true,
 });
 
 // ── Rate limiting ──
