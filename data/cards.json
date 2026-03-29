@@ -4403,7 +4403,7 @@
     "minionType": "HUMAN",
     "battlecryEffect": {
       "type": "DEAL_DAMAGE_ALL_ENEMIES",
-      "target": "ALL_ENEMY_MINIONS",
+      "target": "ALL_ENEMIES",
       "value": 1
     }
   },
