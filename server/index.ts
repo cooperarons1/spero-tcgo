@@ -429,6 +429,27 @@ async function finalizeGame(room: ReturnType<typeof getRoom>) {
         questsRefreshedAt: shouldRefreshQuests(userData.questsRefreshedAt) ? Date.now() : (userData.questsRefreshedAt ?? Date.now()),
       }, { merge: true });
 
+      // Check achievements
+      const { checkAchievements } = await import('../shared/achievements.js');
+      const achResult = checkAchievements(
+        { ...userData, gamesPlayed: (userData.gamesPlayed ?? 0) + 1, gamesWon: (userData.gamesWon ?? 0) + (isWin ? 1 : 0), elo: newElo },
+        heroLevels,
+        userData.achievements ?? [],
+      );
+      let achievementGold = 0;
+      let achievementDust = 0;
+      for (const ach of achResult.newlyUnlocked) {
+        if (ach.reward.type === 'GOLD') achievementGold += ach.reward.amount;
+        if (ach.reward.type === 'DUST') achievementDust += ach.reward.amount;
+      }
+      if (achResult.newlyUnlocked.length > 0) {
+        await userRef.set({
+          achievements: achResult.allUnlocked,
+          gold: (userData.gold ?? 0) + totalGoldEarned + achievementGold,
+          dust: (userData.dust ?? 0) + achievementDust,
+        }, { merge: true });
+      }
+
       // Notify client of quest/XP updates
       const sid = room.sockets.get(uid);
       if (sid && sid !== '__ai__') {
@@ -444,6 +465,7 @@ async function finalizeGame(room: ReturnType<typeof getRoom>) {
           heroXPGain,
           heroLevel: newHeroLevel,
           heroWins: heroLevels[heroClass].wins,
+          achievementsUnlocked: achResult.newlyUnlocked.map(a => ({ name: a.name, description: a.description, reward: `${a.reward.amount} ${a.reward.type}` })),
         });
       }
     } catch (err) {
@@ -1264,6 +1286,68 @@ io.on('connection', (socket) => {
     } catch (err) {
       console.error('open-pack error:', err);
       socket.emit('pack-error', 'Failed to open pack');
+    }
+  });
+
+  // ── Daily Login Bonus ──
+
+  socket.on('claim-daily-login', async () => {
+    try {
+      const userRef = adminDb.collection('users').doc(uid);
+      const userDoc = await userRef.get();
+      const userData = userDoc.data() ?? {};
+
+      const lastLogin = userData.lastDailyLogin ?? 0;
+      const now = Date.now();
+      const today = new Date(now);
+      const lastDate = new Date(lastLogin);
+      const isSameDay = today.getUTCDate() === lastDate.getUTCDate() &&
+        today.getUTCMonth() === lastDate.getUTCMonth() &&
+        today.getUTCFullYear() === lastDate.getUTCFullYear();
+
+      if (isSameDay && lastLogin > 0) {
+        socket.emit('daily-login-result', { alreadyClaimed: true, streak: userData.loginStreak ?? 1 });
+        return;
+      }
+
+      // Check if consecutive day
+      const yesterday = new Date(now - 86400000);
+      const isConsecutive = lastLogin > 0 &&
+        yesterday.getUTCDate() === lastDate.getUTCDate() &&
+        yesterday.getUTCMonth() === lastDate.getUTCMonth() &&
+        yesterday.getUTCFullYear() === lastDate.getUTCFullYear();
+
+      const streak = isConsecutive ? (userData.loginStreak ?? 0) + 1 : 1;
+
+      // Rewards scale with streak (capped at 7-day cycle)
+      const day = ((streak - 1) % 7) + 1;
+      const rewards: Record<number, { gold: number; label: string }> = {
+        1: { gold: 10, label: '10 Gold' },
+        2: { gold: 15, label: '15 Gold' },
+        3: { gold: 20, label: '20 Gold' },
+        4: { gold: 25, label: '25 Gold' },
+        5: { gold: 30, label: '30 Gold' },
+        6: { gold: 40, label: '40 Gold' },
+        7: { gold: 100, label: '100 Gold (Weekly Bonus!)' },
+      };
+      const reward = rewards[day] ?? rewards[1];
+
+      await userRef.set({
+        ...userData,
+        gold: (userData.gold ?? 0) + reward.gold,
+        lastDailyLogin: now,
+        loginStreak: streak,
+      }, { merge: true });
+
+      socket.emit('daily-login-result', {
+        alreadyClaimed: false,
+        streak,
+        day,
+        reward: reward.label,
+        goldGained: reward.gold,
+      });
+    } catch (err) {
+      console.error('daily-login error:', err);
     }
   });
 

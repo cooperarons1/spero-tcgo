@@ -152,6 +152,22 @@ function RewardsPanel({ rewards, isMe }: { rewards: PostGameRewards; isMe: boole
         </div>
       )}
 
+      {/* Achievements Unlocked */}
+      {(rewards as any).achievementsUnlocked?.length > 0 && (
+        <div className="space-y-1">
+          {(rewards as any).achievementsUnlocked.map((a: any, i: number) => (
+            <div key={i} className="flex items-center gap-2 text-sm bg-amber-900/20 border border-amber-700/30 rounded-lg px-3 py-1.5">
+              <span className="text-amber-400">🏆</span>
+              <div className="flex-1">
+                <span className="text-amber-200 font-bold text-xs">{a.name}</span>
+                <span className="text-gray-400 text-[10px] ml-2">{a.description}</span>
+              </div>
+              <span className="text-yellow-400 font-bold text-[10px]">+{a.reward}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Quests Completed */}
       {rewards.questsCompleted.length > 0 && (
         <div className="space-y-1">

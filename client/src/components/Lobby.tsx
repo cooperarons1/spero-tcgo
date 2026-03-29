@@ -31,18 +31,27 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
   const [mode, setMode] = useState<'menu' | 'join'>('menu');
   const [rank, setRank] = useState<{ elo: number; rankTier: string } | null>(null);
   const [quests, setQuests] = useState<{ quests: any[]; gold: number; xp: number; level: number } | null>(null);
+  const [dailyLogin, setDailyLogin] = useState<{ show: boolean; streak: number; reward: string; day: number } | null>(null);
 
   useEffect(() => {
     socket.emit('get-rank');
     socket.emit('get-quests');
+    socket.emit('claim-daily-login');
 
     const onRank = (data: any) => setRank(data);
     const onQuests = (data: any) => setQuests(data);
+    const onDailyLogin = (data: any) => {
+      if (!data.alreadyClaimed) {
+        setDailyLogin({ show: true, streak: data.streak, reward: data.reward, day: data.day });
+      }
+    };
     socket.on('rank-update', onRank);
     socket.on('quests-update', onQuests);
+    socket.on('daily-login-result', onDailyLogin);
     return () => {
       socket.off('rank-update', onRank);
       socket.off('quests-update', onQuests);
+      socket.off('daily-login-result', onDailyLogin);
     };
   }, []);
 
@@ -207,6 +216,37 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
           </div>
         )}
       </div>
+
+      {/* ── Daily Login Bonus Popup ── */}
+      {dailyLogin?.show && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
+          <div className="bg-stone-800 rounded-2xl p-8 border border-amber-600/40 text-center shadow-2xl max-w-sm mx-4">
+            <div className="text-3xl mb-2">🎁</div>
+            <h2 className="text-amber-100 font-bold text-xl mb-1">Daily Login Bonus!</h2>
+            <p className="text-gray-400 text-sm mb-4">Day {dailyLogin.day} — {dailyLogin.streak} day streak</p>
+            <div className="flex justify-center gap-1 mb-4">
+              {[1,2,3,4,5,6,7].map(d => (
+                <div key={d} className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                  d < dailyLogin.day ? 'bg-amber-600/30 text-amber-400' :
+                  d === dailyLogin.day ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/50 scale-110' :
+                  'bg-stone-700 text-gray-600'
+                }`}>
+                  {d}
+                </div>
+              ))}
+            </div>
+            <div className="bg-amber-700/20 border border-amber-600/30 rounded-xl p-3 mb-4">
+              <span className="text-yellow-400 font-bold text-lg">{dailyLogin.reward}</span>
+            </div>
+            <button
+              onClick={() => setDailyLogin(null)}
+              className="bg-gradient-to-r from-amber-600 to-amber-700 text-white font-bold py-2.5 px-8 rounded-xl hover:brightness-110 active:scale-95 transition-all cursor-pointer border border-amber-500/50"
+            >
+              Collect!
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── Bottom bar — like Hearthstone ── */}
       <div className="shrink-0 bg-stone-900/80 border-t border-amber-800/30 px-4 py-3">
