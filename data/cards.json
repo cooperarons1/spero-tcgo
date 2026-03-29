@@ -42,7 +42,8 @@
     "health": 2,
     "text": "",
     "flavor": "A fragment of pure sparkle energy, still glowing.",
-    "keywords": []
+    "keywords": [],
+    "minionType": "ELEMENTAL"
   },
   {
     "cardCode": "NEU_TOKEN_01",
@@ -625,7 +626,8 @@
     "keywords": [
       "COLLAR",
       "BATTLECRY"
-    ]
+    ],
+    "minionType": "HUMAN"
   },
   {
     "cardCode": "AVA_BOND_01",
@@ -711,7 +713,7 @@
     "keywords": [
       "BOND"
     ],
-    "minionType": "SPIRIT",
+    "minionType": "BEAST",
     "bondPartnerCode": "LUC_BOND_01",
     "bondEffect": {
       "type": "BUFF_MINION",
@@ -1067,7 +1069,8 @@
     "flavor": "",
     "keywords": [
       "COMBO"
-    ]
+    ],
+    "minionType": "HUMAN"
   },
   {
     "cardCode": "IZZ021",
@@ -1234,7 +1237,7 @@
     "keywords": [
       "CHARGE"
     ],
-    "minionType": "ELEMENTAL"
+    "minionType": "HUMAN"
   },
   {
     "cardCode": "JIM022",
@@ -1250,7 +1253,7 @@
     "keywords": [
       "CHARGE"
     ],
-    "minionType": "ELEMENTAL"
+    "minionType": "HUMAN"
   },
   {
     "cardCode": "AND017",
@@ -1336,7 +1339,8 @@
       "type": "GAIN_ARMOR",
       "target": "NONE",
       "value": 1
-    }
+    },
+    "minionType": "HUMAN"
   },
   {
     "cardCode": "AND018",
@@ -1452,7 +1456,7 @@
     "text": "",
     "flavor": "",
     "keywords": [],
-    "minionType": "ELEMENTAL"
+    "minionType": "BEAST"
   },
   {
     "cardCode": "LUC023",
@@ -1473,7 +1477,8 @@
       "type": "DRAW_CARDS",
       "target": "NONE",
       "value": 1
-    }
+    },
+    "minionType": "HUMAN"
   },
   {
     "cardCode": "IZZ024",
@@ -1611,7 +1616,8 @@
       "type": "GAIN_ARMOR",
       "target": "NONE",
       "value": 2
-    }
+    },
+    "minionType": "AMETI"
   },
   {
     "cardCode": "DES022",
@@ -1675,7 +1681,7 @@
     "keywords": [
       "BATTLECRY"
     ],
-    "minionType": "ELEMENTAL",
+    "minionType": "HUMAN",
     "battlecryEffect": {
       "type": "DEAL_DAMAGE_RANDOM_ENEMY",
       "target": "RANDOM_ENEMY",
@@ -1788,7 +1794,8 @@
     "flavor": "",
     "keywords": [
       "TAUNT"
-    ]
+    ],
+    "minionType": "BEAST"
   },
   {
     "cardCode": "JIM026",
@@ -1899,7 +1906,8 @@
     "flavor": "",
     "keywords": [
       "STEALTH"
-    ]
+    ],
+    "minionType": "HUMAN"
   },
   {
     "cardCode": "LUC026",
@@ -2071,7 +2079,8 @@
     "health": 3,
     "text": "",
     "flavor": "",
-    "keywords": []
+    "keywords": [],
+    "minionType": "BEAST"
   },
   {
     "cardCode": "JIM029",
@@ -2131,7 +2140,8 @@
       "type": "DRAW_CARDS",
       "target": "NONE",
       "value": 1
-    }
+    },
+    "minionType": "BEAST"
   },
   {
     "cardCode": "AND022",
@@ -2211,7 +2221,8 @@
     "flavor": "",
     "keywords": [
       "COMBO"
-    ]
+    ],
+    "minionType": "AMETI"
   },
   {
     "cardCode": "TAL022",
@@ -2339,7 +2350,7 @@
     "keywords": [
       "BATTLECRY"
     ],
-    "minionType": "BEAST",
+    "minionType": "DRAGON",
     "battlecryEffect": {
       "type": "DEAL_DAMAGE_ALL_ENEMIES",
       "target": "ALL_ENEMY_MINIONS",
@@ -2442,7 +2453,8 @@
     "comboEffect": {
       "type": "RETURN_TO_HAND",
       "target": "TARGET_ENEMY_MINION"
-    }
+    },
+    "minionType": "HUMAN"
   },
   {
     "cardCode": "NEU072",
@@ -2455,7 +2467,8 @@
     "health": 4,
     "text": "",
     "flavor": "",
-    "keywords": []
+    "keywords": [],
+    "minionType": "HUMAN"
   },
   {
     "cardCode": "TAL023",
@@ -2475,7 +2488,8 @@
       "type": "RESTORE_HEALTH",
       "target": "TARGET_ANY",
       "value": 3
-    }
+    },
+    "minionType": "HUMAN"
   },
   {
     "cardCode": "DRK026",
@@ -2580,7 +2594,8 @@
       "type": "DEAL_DAMAGE",
       "target": "TARGET_ENEMY_HERO",
       "value": 2
-    }
+    },
+    "minionType": "HUMAN"
   },
   {
     "cardCode": "IZZ030",
@@ -2612,7 +2627,7 @@
     "keywords": [
       "BATTLECRY"
     ],
-    "minionType": "MECH"
+    "minionType": "HUMAN"
   },
   {
     "cardCode": "NEU073",
@@ -2625,7 +2640,8 @@
     "health": 6,
     "text": "",
     "flavor": "",
-    "keywords": []
+    "keywords": [],
+    "minionType": "BEAST"
   },
   {
     "cardCode": "DRK028",
@@ -2639,7 +2655,7 @@
     "text": "Taunt. Divine Shield.",
     "flavor": "",
     "keywords": [],
-    "minionType": "AMETI"
+    "minionType": "MECH"
   },
   {
     "cardCode": "LUC032",
@@ -2759,7 +2775,8 @@
       "type": "GAIN_ARMOR",
       "target": "NONE",
       "value": 1
-    }
+    },
+    "minionType": "BEAST"
   },
   {
     "cardCode": "TAL025",
@@ -2779,7 +2796,8 @@
       "type": "RESTORE_HEALTH",
       "target": "ALL_FRIENDLY_MINIONS",
       "value": 2
-    }
+    },
+    "minionType": "BEAST"
   },
   {
     "cardCode": "TAL026",
@@ -2841,7 +2859,8 @@
       "type": "DRAW_CARDS",
       "target": "NONE",
       "value": 2
-    }
+    },
+    "minionType": "HUMAN"
   },
   {
     "cardCode": "AVA028",
@@ -2876,7 +2895,7 @@
     "keywords": [
       "CHARGE"
     ],
-    "minionType": "ELEMENTAL"
+    "minionType": "HUMAN"
   },
   {
     "cardCode": "DES028",
@@ -2905,7 +2924,8 @@
     "health": 2,
     "text": "",
     "flavor": "",
-    "keywords": []
+    "keywords": [],
+    "minionType": "HUMAN"
   },
   {
     "cardCode": "DRK_LOC03",
@@ -2955,7 +2975,8 @@
     "keywords": [
       "STEALTH",
       "COMBO"
-    ]
+    ],
+    "minionType": "HUMAN"
   },
   {
     "cardCode": "TAL027",
@@ -2976,7 +2997,8 @@
       "type": "RESTORE_HEALTH",
       "target": "TARGET_ANY",
       "value": 2
-    }
+    },
+    "minionType": "AMETI"
   },
   {
     "cardCode": "DRK030",
@@ -3004,7 +3026,8 @@
     "flavor": "",
     "keywords": [
       "TAUNT"
-    ]
+    ],
+    "minionType": "BEAST"
   },
   {
     "cardCode": "NEU080",
@@ -3039,7 +3062,7 @@
     "text": "",
     "flavor": "",
     "keywords": [],
-    "minionType": "ELEMENTAL"
+    "minionType": "HUMAN"
   },
   {
     "cardCode": "NEU081",
@@ -3052,7 +3075,8 @@
     "health": 3,
     "text": "",
     "flavor": "",
-    "keywords": []
+    "keywords": [],
+    "minionType": "BEAST"
   },
   {
     "cardCode": "AND_LOC02",
@@ -3160,7 +3184,7 @@
     "keywords": [
       "BATTLECRY"
     ],
-    "minionType": "ELEMENTAL",
+    "minionType": "AMETI",
     "battlecryEffect": {
       "type": "DEAL_DAMAGE_ALL_ENEMIES",
       "target": "ALL_ENEMY_MINIONS",
@@ -3339,7 +3363,8 @@
     "health": 5,
     "text": "",
     "flavor": "",
-    "keywords": []
+    "keywords": [],
+    "minionType": "AMETI"
   },
   {
     "cardCode": "LUC036",
@@ -3359,7 +3384,8 @@
       "type": "DEAL_DAMAGE",
       "target": "TARGET_ENEMY_HERO",
       "value": 1
-    }
+    },
+    "minionType": "BEAST"
   },
   {
     "cardCode": "TAL030",
@@ -3568,7 +3594,8 @@
       "type": "GAIN_ARMOR",
       "target": "NONE",
       "value": 3
-    }
+    },
+    "minionType": "AMETI"
   },
   {
     "cardCode": "IZZ035",
@@ -3791,7 +3818,7 @@
     "keywords": [
       "DEATHRATTLE"
     ],
-    "minionType": "DOMINION",
+    "minionType": "DRAGON",
     "deathrattleEffect": {
       "type": "SUMMON_MINION",
       "target": "NONE",
@@ -3813,7 +3840,7 @@
     "keywords": [
       "BATTLECRY"
     ],
-    "minionType": "ELEMENTAL",
+    "minionType": "HUMAN",
     "battlecryEffect": {
       "type": "DEAL_DAMAGE_RANDOM_ENEMY",
       "target": "RANDOM_ENEMY",
@@ -3918,7 +3945,7 @@
     "keywords": [
       "DEATHRATTLE"
     ],
-    "minionType": "DOMINION",
+    "minionType": "DRAGON",
     "deathrattleEffect": {
       "type": "DEAL_DAMAGE_ALL_ENEMIES",
       "target": "ALL_ENEMY_MINIONS",
@@ -3956,7 +3983,8 @@
       "type": "DRAW_CARDS",
       "target": "NONE",
       "value": 1
-    }
+    },
+    "minionType": "HUMAN"
   },
   {
     "cardCode": "NEU090",
@@ -4064,7 +4092,7 @@
     "keywords": [
       "BATTLECRY"
     ],
-    "minionType": "MECH"
+    "minionType": "HUMAN"
   },
   {
     "cardCode": "JIM035",
@@ -4080,7 +4108,7 @@
     "keywords": [
       "BATTLECRY"
     ],
-    "minionType": "ELEMENTAL",
+    "minionType": "HUMAN",
     "battlecryEffect": {
       "type": "DEAL_DAMAGE_ALL_ENEMIES",
       "target": "ALL_ENEMY_MINIONS",
@@ -4236,7 +4264,8 @@
     "flavor": "",
     "keywords": [
       "COMBO"
-    ]
+    ],
+    "minionType": "HUMAN"
   },
   {
     "cardCode": "JIM036",
@@ -4252,7 +4281,7 @@
     "keywords": [
       "BATTLECRY"
     ],
-    "minionType": "ELEMENTAL",
+    "minionType": "HUMAN",
     "battlecryEffect": {
       "type": "DEAL_DAMAGE_RANDOM_ENEMY",
       "target": "RANDOM_ENEMY",
@@ -4298,7 +4327,8 @@
       "type": "RESTORE_HEALTH",
       "target": "ALL_FRIENDLY_MINIONS",
       "value": 5
-    }
+    },
+    "minionType": "ELEMENTAL"
   },
   {
     "cardCode": "JIM037",
@@ -4312,7 +4342,7 @@
     "text": "Your other minions have +1 Attack.",
     "flavor": "",
     "keywords": [],
-    "minionType": "ELEMENTAL"
+    "minionType": "HUMAN"
   },
   {
     "cardCode": "DRK044",
@@ -4331,7 +4361,8 @@
     "battlecryEffect": {
       "type": "RETURN_TO_HAND",
       "target": "TARGET_FRIENDLY_MINION"
-    }
+    },
+    "minionType": "MECH"
   },
   {
     "cardCode": "NEU093",
@@ -4407,7 +4438,8 @@
     "health": 4,
     "text": "",
     "flavor": "",
-    "keywords": []
+    "keywords": [],
+    "minionType": "HUMAN"
   },
   {
     "cardCode": "DRK045",
@@ -4445,7 +4477,7 @@
     "keywords": [
       "STEALTH"
     ],
-    "minionType": "BEAST"
+    "minionType": "DRAGON"
   },
   {
     "cardCode": "DRK046",
@@ -4515,7 +4547,8 @@
     "health": 2,
     "text": "",
     "flavor": "",
-    "keywords": []
+    "keywords": [],
+    "minionType": "BEAST"
   },
   {
     "cardCode": "DES034",
@@ -4553,7 +4586,8 @@
       "type": "RESTORE_HEALTH",
       "target": "TARGET_HERO",
       "value": 4
-    }
+    },
+    "minionType": "BEAST"
   },
   {
     "cardCode": "DES035",
@@ -4619,7 +4653,8 @@
       "type": "RESTORE_HEALTH",
       "target": "TARGET_ANY",
       "value": 3
-    }
+    },
+    "minionType": "BEAST"
   },
   {
     "cardCode": "NEU098",
@@ -4634,7 +4669,8 @@
     "flavor": "",
     "keywords": [
       "CHARGE"
-    ]
+    ],
+    "minionType": "HUMAN"
   },
   {
     "cardCode": "DES036",
@@ -4696,7 +4732,8 @@
     "flavor": "",
     "keywords": [
       "TAUNT"
-    ]
+    ],
+    "minionType": "AMETI"
   },
   {
     "cardCode": "DES037",
@@ -4812,7 +4849,7 @@
     "text": "Freeze any character damaged by this minion.",
     "flavor": "",
     "keywords": [],
-    "minionType": "ELEMENTAL"
+    "minionType": "AMETI"
   },
   {
     "cardCode": "NEU100",
@@ -4826,7 +4863,7 @@
     "text": "",
     "flavor": "",
     "keywords": [],
-    "minionType": "BEAST"
+    "minionType": "DRAGON"
   },
   {
     "cardCode": "AST040",
@@ -4889,7 +4926,8 @@
       "type": "DEAL_DAMAGE_RANDOM_ENEMY",
       "target": "RANDOM_ENEMY",
       "value": 2
-    }
+    },
+    "minionType": "HUMAN"
   },
   {
     "cardCode": "DRK047",
