@@ -391,6 +391,10 @@ async function finalizeGame(room: ReturnType<typeof getRoom>) {
         wins: oldHeroWins + (isWin ? 1 : 0),
       };
 
+      // Battle pass XP (same as game XP)
+      const bp = userData.battlePass ?? { seasonId: 'season-1', xp: 0, isPremium: false, claimedFree: [], claimedPremium: [] };
+      bp.xp = (bp.xp ?? 0) + xpGain;
+
       // Quest progress
       let quests = userData.quests ?? [];
       let questGold = 0;
@@ -420,6 +424,7 @@ async function finalizeGame(room: ReturnType<typeof getRoom>) {
         level: newLevel,
         gold: (userData.gold ?? 0) + totalGoldEarned,
         heroLevels,
+        battlePass: bp,
         quests,
         questsRefreshedAt: shouldRefreshQuests(userData.questsRefreshedAt) ? Date.now() : (userData.questsRefreshedAt ?? Date.now()),
       }, { merge: true });
@@ -1259,6 +1264,82 @@ io.on('connection', (socket) => {
     } catch (err) {
       console.error('open-pack error:', err);
       socket.emit('pack-error', 'Failed to open pack');
+    }
+  });
+
+  // ── Battle Pass ──
+
+  socket.on('get-battlepass', async () => {
+    try {
+      const { CURRENT_SEASON, getTierFromXP } = await import('../shared/battlePass.js');
+      const userDoc = await adminDb.collection('users').doc(uid).get();
+      const userData = userDoc.data() ?? {};
+      const bp = userData.battlePass ?? { seasonId: CURRENT_SEASON, xp: 0, isPremium: false, claimedFree: [], claimedPremium: [] };
+      bp.tier = getTierFromXP(bp.xp);
+      socket.emit('battlepass-update', bp);
+    } catch (err) {
+      console.error('get-battlepass error:', err);
+    }
+  });
+
+  socket.on('claim-battlepass-reward', async (data: { tier: number; track: 'free' | 'premium' }) => {
+    try {
+      const { BATTLE_PASS_TIERS, CURRENT_SEASON, getTierFromXP } = await import('../shared/battlePass.js');
+      const userRef = adminDb.collection('users').doc(uid);
+      const userDoc = await userRef.get();
+      const userData = userDoc.data() ?? {};
+      const bp = userData.battlePass ?? { seasonId: CURRENT_SEASON, xp: 0, isPremium: false, claimedFree: [], claimedPremium: [] };
+      bp.tier = getTierFromXP(bp.xp);
+
+      if (data.tier > bp.tier) {
+        socket.emit('battlepass-error', 'Haven\'t reached this tier yet');
+        return;
+      }
+
+      const claimed = data.track === 'free' ? (bp.claimedFree ?? []) : (bp.claimedPremium ?? []);
+      if (claimed.includes(data.tier)) {
+        socket.emit('battlepass-error', 'Already claimed');
+        return;
+      }
+      if (data.track === 'premium' && !bp.isPremium) {
+        socket.emit('battlepass-error', 'Premium pass required');
+        return;
+      }
+
+      const tierDef = BATTLE_PASS_TIERS.find(t => t.tier === data.tier);
+      if (!tierDef) return;
+
+      const reward = data.track === 'free' ? tierDef.freeReward : tierDef.premiumReward;
+      claimed.push(data.tier);
+
+      // Apply reward
+      let goldGain = 0, dustGain = 0;
+      if (reward.type === 'GOLD') goldGain = reward.amount ?? 0;
+      if (reward.type === 'DUST') dustGain = reward.amount ?? 0;
+      // PACK rewards would grant packs (simplified: give 100 gold equivalent)
+      if (reward.type === 'PACK') goldGain = (reward.amount ?? 1) * 100;
+
+      if (data.track === 'free') bp.claimedFree = claimed;
+      else bp.claimedPremium = claimed;
+
+      await userRef.set({
+        ...userData,
+        gold: (userData.gold ?? 0) + goldGain,
+        dust: (userData.dust ?? 0) + dustGain,
+        battlePass: bp,
+      }, { merge: true });
+
+      socket.emit('battlepass-reward-claimed', {
+        tier: data.tier,
+        track: data.track,
+        reward: reward.label,
+        goldGain,
+        dustGain,
+      });
+      bp.tier = getTierFromXP(bp.xp);
+      socket.emit('battlepass-update', bp);
+    } catch (err) {
+      console.error('claim-battlepass error:', err);
     }
   });
 
