@@ -600,19 +600,16 @@ function BoardMinionCard({
       `}>
         {minion.currentHealth}
       </div>
-      {/* Minion type label — between attack/health */}
-      {def?.minionType && (
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
-          <span className="text-[7px] font-bold text-amber-300/90 bg-black/60 px-1.5 py-0.5 rounded-sm">
+      {/* Name + tribe label — inside frame, above attack/health */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 pointer-events-none text-center w-full px-2">
+        <div className="text-[9px] font-bold text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] leading-tight truncate">
+          {def?.name}
+        </div>
+        {def?.minionType && (
+          <span className="text-[7px] font-bold text-amber-300/90 bg-black/50 px-1 py-px rounded-sm">
             {def.minionType}
           </span>
-        </div>
-      )}
-      {/* Name label */}
-      <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap z-20">
-        <span className="text-[9px] font-semibold text-amber-200/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
-          {def?.name}
-        </span>
+        )}
       </div>
 
       {/* Hover tooltip */}
