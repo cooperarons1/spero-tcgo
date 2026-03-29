@@ -171,9 +171,11 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
         text-center z-10 shrink-0 overflow-hidden
       `}>
         <span className={`
-          text-amber-100 font-bold leading-tight block truncate
-          ${small ? 'text-[6px]' : 'text-[8.5px]'}
-          drop-shadow-md
+          text-amber-100 font-bold leading-tight block truncate drop-shadow-md
+          ${small
+            ? 'text-[6px]'
+            : def.name.length > 20 ? 'text-[7px]' : def.name.length > 15 ? 'text-[8px]' : 'text-[8.5px]'
+          }
         `}>
           {def.name}
         </span>
@@ -188,7 +190,10 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
         `}>
           <p className={`
             text-gray-300 text-center leading-tight
-            ${small ? 'text-[5px] line-clamp-2' : 'text-[6.5px] line-clamp-2'}
+            ${small
+              ? 'text-[5px] line-clamp-2'
+              : def.text.length > 60 ? 'text-[5.5px] line-clamp-3' : 'text-[6.5px] line-clamp-2'
+            }
           `}>
             {def.text}
           </p>
