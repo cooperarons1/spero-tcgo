@@ -143,6 +143,15 @@ function RewardsPanel({ rewards, isMe }: { rewards: PostGameRewards; isMe: boole
         </div>
       )}
 
+      {/* Hero Level */}
+      {(rewards as any).heroLevel && (
+        <div className="flex items-center gap-2 text-sm">
+          <span className="text-amber-400 font-bold text-xs">Hero Level {(rewards as any).heroLevel}</span>
+          <span className="text-gray-500 text-[10px]">+{(rewards as any).heroXPGain} XP</span>
+          <span className="text-gray-600 text-[10px]">({(rewards as any).heroWins} wins)</span>
+        </div>
+      )}
+
       {/* Quests Completed */}
       {rewards.questsCompleted.length > 0 && (
         <div className="space-y-1">
