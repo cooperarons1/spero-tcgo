@@ -238,16 +238,17 @@ export function DeckPicker({ mode, uid, onBack }: DeckPickerProps) {
             const heroLevel = hl?.level ?? 1;
             const heroWins = hl?.wins ?? 0;
             const heroPortrait = ({ JIMMY: '/heroes/JIMMY.png', TALA: '/heroes/TALA.png', DEREK: '/heroes/DEREK.png' } as Record<string, string>)[selectedDeck.heroClass];
+            const isGolden = heroWins >= 500;
             return (
             <>
               {/* Hero portrait + level */}
               <div className={`p-4 border-b border-slate-700/30 ${HERO_COLORS[selectedDeck.heroClass]?.bg ?? ''} flex flex-col items-center`}>
                 {/* Hero portrait circle with level badge */}
                 <div className="relative mb-2">
-                  <div className="w-24 h-24 rounded-full border-4 overflow-hidden"
-                    style={{ borderColor: HERO_COLORS[selectedDeck.heroClass]?.border.replace('border-', '') || '#666' }}>
+                  <div className={`w-24 h-24 rounded-full border-4 overflow-hidden ${isGolden ? 'shadow-lg shadow-yellow-400/50' : ''}`}
+                    style={{ borderColor: isGolden ? '#fbbf24' : (HERO_COLORS[selectedDeck.heroClass]?.border.replace('border-', '') || '#666') }}>
                     {heroPortrait ? (
-                      <img src={heroPortrait} alt="" className="w-full h-full object-cover" />
+                      <img src={heroPortrait} alt="" className={`w-full h-full object-cover ${isGolden ? 'saturate-150 brightness-110' : ''}`} />
                     ) : (
                       <div className={`w-full h-full ${HERO_COLORS[selectedDeck.heroClass]?.bg ?? 'bg-slate-700'} flex items-center justify-center`}>
                         <span className="text-3xl font-bold text-white/30">{HERO_LABELS[selectedDeck.heroClass]?.[0]}</span>
@@ -255,15 +256,35 @@ export function DeckPicker({ mode, uid, onBack }: DeckPickerProps) {
                     )}
                   </div>
                   {/* Level badge */}
-                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-amber-600 border-2 border-amber-400 rounded-full w-8 h-8 flex items-center justify-center shadow-lg">
+                  <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 ${isGolden ? 'bg-yellow-500 border-yellow-300' : 'bg-amber-600 border-amber-400'} border-2 rounded-full w-8 h-8 flex items-center justify-center shadow-lg`}>
                     <span className="text-white font-extrabold text-xs">{heroLevel}</span>
                   </div>
+                  {isGolden && (
+                    <div className="absolute -top-1 -right-1 bg-yellow-400 text-yellow-900 text-[7px] font-extrabold px-1.5 py-0.5 rounded-full shadow-md">
+                      GOLDEN
+                    </div>
+                  )}
                 </div>
                 <h2 className="text-white font-bold text-base text-center">{selectedDeck.name}</h2>
                 <span className={`text-xs font-bold ${HERO_COLORS[selectedDeck.heroClass]?.text ?? 'text-gray-400'}`}>
                   {HERO_LABELS[selectedDeck.heroClass]}
                 </span>
-                <span className="text-[10px] text-gray-500 mt-0.5">Wins: {heroWins}</span>
+                {/* Wins progress toward golden */}
+                <div className="mt-1 w-full max-w-[160px]">
+                  <div className="flex items-center justify-between text-[10px]">
+                    <span className={`font-bold ${isGolden ? 'text-yellow-400' : 'text-gray-500'}`}>
+                      {isGolden ? 'Golden Hero!' : `Wins: ${heroWins}/500`}
+                    </span>
+                  </div>
+                  {!isGolden && (
+                    <div className="mt-0.5 bg-stone-900 rounded-full h-1 overflow-hidden">
+                      <div
+                        className="h-full bg-amber-500 rounded-full transition-all"
+                        style={{ width: `${Math.min(100, (heroWins / 500) * 100)}%` }}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Mana curve */}
