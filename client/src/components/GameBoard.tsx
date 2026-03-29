@@ -956,14 +956,12 @@ function HandCard({
         <CardArt cardCode={card.cardCode!} className="w-full h-full" />
       </div>
       {/* Rarity gem — diamond shape centered between art and name */}
-      {def.rarity !== 'COMMON' && (
-        <div className="flex justify-center -mt-1.5 z-10">
-          <div
-            className="w-3 h-3 rotate-45 shadow-md"
-            style={{ backgroundColor: rarityColor, boxShadow: `0 0 6px 1px ${rarityColor}80` }}
-          />
-        </div>
-      )}
+      <div className="flex justify-center -mt-1.5 z-10">
+        <div
+          className="w-3.5 h-3.5 rotate-45 border border-white/30"
+          style={{ backgroundColor: rarityColor, boxShadow: `0 0 8px 2px ${rarityColor}90, inset 0 1px 2px rgba(255,255,255,0.3)` }}
+        />
+      </div>
       {/* Name banner */}
       <div className="w-full card-name-banner px-1 py-0.5 mt-0.5">
         <span className="text-[10px] font-bold text-amber-100 leading-tight truncate w-full text-center block">
