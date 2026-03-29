@@ -12,6 +12,7 @@ interface LobbyProps {
   onProfile: () => void;
   onPlayOnline: () => void;
   onPlayAI: () => void;
+  onPacks: () => void;
   onSignOut: () => void;
 }
 
@@ -23,7 +24,7 @@ const RANK_COLORS: Record<string, string> = {
   LEGEND: 'text-purple-400',
 };
 
-export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, onProfile, onPlayOnline, onPlayAI, onSignOut }: LobbyProps) {
+export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, onProfile, onPlayOnline, onPlayAI, onPacks, onSignOut }: LobbyProps) {
   const [joinCode, setJoinCode] = useState('');
   const [mode, setMode] = useState<'menu' | 'join'>('menu');
   const [rank, setRank] = useState<{ elo: number; rankTier: string } | null>(null);
@@ -236,6 +237,12 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
               className="bg-stone-800 border border-stone-700 text-gray-400 font-bold py-2 px-4 rounded-lg text-xs hover:bg-stone-700 active:scale-95 transition-all cursor-pointer"
             >
               History
+            </button>
+            <button
+              onClick={onPacks}
+              className="bg-stone-800 border border-amber-700/50 text-amber-300 font-bold py-2 px-4 rounded-lg text-xs hover:bg-stone-700 active:scale-95 transition-all cursor-pointer"
+            >
+              Open Packs
             </button>
             <button
               onClick={onCollection}

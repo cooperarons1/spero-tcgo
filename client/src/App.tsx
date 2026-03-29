@@ -12,6 +12,7 @@ import { DeckPicker } from './components/DeckPicker';
 import { MatchHistory } from './components/MatchHistory';
 import { Friends } from './components/Friends';
 import { Profile } from './components/Profile';
+import { PackOpening } from './components/PackOpening';
 import { ReconnectionOverlay } from './components/ReconnectionOverlay';
 
 class ErrorBoundary extends Component<{ children: ReactNode }, { errorMsg: string | null }> {
@@ -36,7 +37,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { errorMsg: strin
   }
 }
 
-type View = 'lobby' | 'game' | 'collection' | 'deckpicker' | 'deckpicker-ai' | 'matchhistory' | 'friends' | 'profile';
+type View = 'lobby' | 'game' | 'collection' | 'deckpicker' | 'deckpicker-ai' | 'matchhistory' | 'friends' | 'profile' | 'packs';
 type RematchState = 'default' | 'proposed' | 'received' | 'declined';
 type ConnectionStatus = 'connected' | 'disconnected' | 'opponent-disconnected';
 
@@ -374,6 +375,8 @@ function App() {
         <Friends uid={user.uid} onBack={() => setView('lobby')} incomingChallenge={incomingChallenge} onChallengeHandled={() => setIncomingChallenge(null)} />
       ) : view === 'profile' ? (
         <Profile uid={user.uid} displayName={user.displayName || 'Player'} onBack={() => setView('lobby')} />
+      ) : view === 'packs' ? (
+        <PackOpening onBack={() => setView('lobby')} gold={0} />
       ) : (
         <Lobby
           lobby={lobby}
@@ -384,6 +387,7 @@ function App() {
           onProfile={() => setView('profile')}
           onPlayOnline={() => setView('deckpicker')}
           onPlayAI={() => setView('deckpicker-ai')}
+          onPacks={() => setView('packs')}
           onSignOut={signOut}
         />
       )}

@@ -1197,6 +1197,62 @@ io.on('connection', (socket) => {
     }
   });
 
+  // ── Pack Opening ──
+
+  socket.on('open-pack', async () => {
+    try {
+      const { openPack, PACK_COST, DUST_VALUES } = await import('./packs.js');
+      const userRef = adminDb.collection('users').doc(uid);
+      const userDoc = await userRef.get();
+      const userData = userDoc.data() ?? {};
+      const gold = userData.gold ?? 0;
+
+      if (gold < PACK_COST) {
+        socket.emit('pack-error', 'Not enough gold');
+        return;
+      }
+
+      const ownedCards: Record<string, number> = userData.ownedCards ?? {};
+      const packsSinceLegendary = userData.packsSinceLegendary ?? 0;
+      const packsSinceEpic = userData.packsSinceEpic ?? 0;
+
+      const result = openPack(ownedCards, packsSinceLegendary, packsSinceEpic);
+
+      // Update owned cards and calculate dust from extras
+      let dustGained = 0;
+      for (const card of result.cards) {
+        const current = ownedCards[card.cardCode] ?? 0;
+        const max = card.rarity === 'LEGENDARY' ? 1 : 2;
+        if (current < max) {
+          ownedCards[card.cardCode] = current + 1;
+        } else {
+          // Extra card — auto-disenchant to dust
+          dustGained += DUST_VALUES[card.rarity] ?? 5;
+        }
+      }
+
+      await userRef.set({
+        ...userData,
+        gold: gold - PACK_COST,
+        dust: (userData.dust ?? 0) + dustGained,
+        ownedCards,
+        packsOpened: (userData.packsOpened ?? 0) + 1,
+        packsSinceLegendary: result.packsSinceLegendary,
+        packsSinceEpic: result.packsSinceEpic,
+      }, { merge: true });
+
+      socket.emit('pack-opened', {
+        cards: result.cards,
+        dustGained,
+        newGold: gold - PACK_COST,
+        newDust: (userData.dust ?? 0) + dustGained,
+      });
+    } catch (err) {
+      console.error('open-pack error:', err);
+      socket.emit('pack-error', 'Failed to open pack');
+    }
+  });
+
   // ── Disconnect ──
 
   socket.on('disconnect', () => {
