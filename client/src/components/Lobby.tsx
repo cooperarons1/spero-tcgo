@@ -14,6 +14,7 @@ interface LobbyProps {
   onPlayAI: () => void;
   onPacks: () => void;
   onBattlePass: () => void;
+  onShop: () => void;
   onSignOut: () => void;
 }
 
@@ -25,7 +26,7 @@ const RANK_COLORS: Record<string, string> = {
   LEGEND: 'text-purple-400',
 };
 
-export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, onProfile, onPlayOnline, onPlayAI, onPacks, onBattlePass, onSignOut }: LobbyProps) {
+export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, onProfile, onPlayOnline, onPlayAI, onPacks, onBattlePass, onShop, onSignOut }: LobbyProps) {
   const [joinCode, setJoinCode] = useState('');
   const [mode, setMode] = useState<'menu' | 'join'>('menu');
   const [rank, setRank] = useState<{ elo: number; rankTier: string } | null>(null);
@@ -210,8 +211,14 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
       {/* ── Bottom bar — like Hearthstone ── */}
       <div className="shrink-0 bg-stone-900/80 border-t border-amber-800/30 px-4 py-3">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
-          {/* Left: Profile + Sign out */}
+          {/* Left: Shop + Profile */}
           <div className="flex items-center gap-3">
+            <button
+              onClick={onShop}
+              className="bg-amber-700/60 border border-amber-600/40 text-amber-200 font-bold py-2 px-3 rounded-lg text-xs hover:bg-amber-700 active:scale-95 transition-all cursor-pointer"
+            >
+              Shop
+            </button>
             <button
               onClick={onProfile}
               className="flex items-center gap-2 bg-stone-800 border border-stone-700 rounded-lg px-3 py-2 hover:bg-stone-700 transition-all cursor-pointer"
