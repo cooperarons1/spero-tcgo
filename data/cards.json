@@ -829,7 +829,12 @@
     "keywords": [
       "BATTLECRY"
     ],
-    "minionType": "AMETI"
+    "minionType": "AMETI",
+    "battlecryEffect": {
+      "type": "GRANT_KEYWORD",
+      "target": "ALL_FRIENDLY_MINIONS",
+      "grantKeyword": "DIVINE_SHIELD"
+    }
   },
   {
     "cardCode": "AVA021",
@@ -845,7 +850,13 @@
     "keywords": [
       "BATTLECRY"
     ],
-    "minionType": "AMETI"
+    "minionType": "AMETI",
+    "battlecryEffect": {
+      "type": "SUMMON_MINION",
+      "target": "NONE",
+      "summonCardCode": "AVA_TOKEN_02",
+      "summonCount": 3
+    }
   },
   {
     "cardCode": "NEU_LOC03",
@@ -968,8 +979,15 @@
     "health": 3,
     "text": "Deathrattle: Deal 2 damage to a random enemy.",
     "flavor": "",
-    "keywords": [],
-    "minionType": "MECH"
+    "keywords": [
+      "DEATHRATTLE"
+    ],
+    "minionType": "MECH",
+    "deathrattleEffect": {
+      "type": "DEAL_DAMAGE_RANDOM_ENEMY",
+      "target": "RANDOM_ENEMY",
+      "value": 2
+    }
   },
   {
     "cardCode": "NEU062",
@@ -1078,7 +1096,13 @@
     "keywords": [
       "COMBO"
     ],
-    "minionType": "HUMAN"
+    "minionType": "HUMAN",
+    "comboEffect": {
+      "type": "BUFF_MINION",
+      "target": "SELF",
+      "attackBuff": 1,
+      "healthBuff": 1
+    }
   },
   {
     "cardCode": "IZZ021",
@@ -1137,7 +1161,12 @@
     "health": 0,
     "text": "Deal 4 damage to an enemy minion.",
     "flavor": "",
-    "keywords": []
+    "keywords": [],
+    "spellEffect": {
+      "type": "DEAL_DAMAGE",
+      "target": "TARGET_MINION",
+      "value": 4
+    }
   },
   {
     "cardCode": "IZZ022",
@@ -1375,8 +1404,15 @@
     "health": 4,
     "text": "Battlecry: Draw a card.",
     "flavor": "",
-    "keywords": [],
-    "minionType": "MECH"
+    "keywords": [
+      "BATTLECRY"
+    ],
+    "minionType": "MECH",
+    "battlecryEffect": {
+      "type": "DRAW_CARDS",
+      "target": "NONE",
+      "value": 1
+    }
   },
   {
     "cardCode": "AST026",
@@ -1434,7 +1470,12 @@
     "keywords": [
       "BATTLECRY"
     ],
-    "minionType": "MECH"
+    "minionType": "MECH",
+    "battlecryEffect": {
+      "type": "DRAW_CARDS",
+      "target": "NONE",
+      "value": 1
+    }
   },
   {
     "cardCode": "NEU066",
@@ -1450,7 +1491,12 @@
     "keywords": [
       "BATTLECRY"
     ],
-    "minionType": "BEAST"
+    "minionType": "BEAST",
+    "battlecryEffect": {
+      "type": "DEAL_DAMAGE_ALL_ENEMIES",
+      "target": "ALL_MINIONS",
+      "value": 2
+    }
   },
   {
     "cardCode": "JIM023",
@@ -1844,7 +1890,13 @@
     "health": 0,
     "text": "Give your weapon +1/+1.",
     "flavor": "",
-    "keywords": []
+    "keywords": [],
+    "spellEffect": {
+      "type": "BUFF_MINION",
+      "target": "SELF",
+      "attackBuff": 1,
+      "healthBuff": 1
+    }
   },
   {
     "cardCode": "IZZ026",
@@ -1877,7 +1929,12 @@
     "keywords": [
       "BATTLECRY"
     ],
-    "minionType": "DOMINION"
+    "minionType": "DOMINION",
+    "battlecryEffect": {
+      "type": "DEAL_DAMAGE",
+      "target": "SELF",
+      "value": 2
+    }
   },
   {
     "cardCode": "AVA025",
@@ -1890,8 +1947,16 @@
     "health": 3,
     "text": "Stealth. Deathrattle: Draw a card.",
     "flavor": "",
-    "keywords": [],
-    "minionType": "BEAST"
+    "keywords": [
+      "STEALTH",
+      "DEATHRATTLE"
+    ],
+    "minionType": "BEAST",
+    "deathrattleEffect": {
+      "type": "DRAW_CARDS",
+      "target": "NONE",
+      "value": 1
+    }
   },
   {
     "cardCode": "LUC024",
@@ -2180,7 +2245,17 @@
     "keywords": [
       "BATTLECRY"
     ],
-    "minionType": "BEAST"
+    "minionType": "BEAST",
+    "battlecryEffects": [
+      {
+        "type": "FREEZE_TARGET",
+        "target": "RANDOM_ENEMY"
+      },
+      {
+        "type": "FREEZE_TARGET",
+        "target": "RANDOM_ENEMY"
+      }
+    ]
   },
   {
     "cardCode": "AND023",
@@ -2259,7 +2334,13 @@
     "keywords": [
       "COMBO"
     ],
-    "minionType": "AMETI"
+    "minionType": "AMETI",
+    "comboEffect": {
+      "type": "BUFF_MINION",
+      "target": "SELF",
+      "attackBuff": 2,
+      "healthBuff": 0
+    }
   },
   {
     "cardCode": "TAL022",
@@ -2358,8 +2439,15 @@
     "health": 4,
     "text": "Battlecry: Gain 2 Armor.",
     "flavor": "",
-    "keywords": [],
-    "minionType": "AMETI"
+    "keywords": [
+      "BATTLECRY"
+    ],
+    "minionType": "AMETI",
+    "battlecryEffect": {
+      "type": "GAIN_ARMOR",
+      "target": "NONE",
+      "value": 2
+    }
   },
   {
     "cardCode": "AND025",
@@ -2558,7 +2646,12 @@
     "keywords": [
       "DEATHRATTLE"
     ],
-    "minionType": "MECH"
+    "minionType": "MECH",
+    "deathrattleEffect": {
+      "type": "DRAW_CARDS",
+      "target": "NONE",
+      "value": 1
+    }
   },
   {
     "cardCode": "DES026",
@@ -2685,7 +2778,13 @@
     "keywords": [
       "BATTLECRY"
     ],
-    "minionType": "HUMAN"
+    "minionType": "HUMAN",
+    "battlecryEffect": {
+      "type": "BUFF_MINION",
+      "target": "TARGET_FRIENDLY_MINION",
+      "attackBuff": 1,
+      "healthBuff": 1
+    }
   },
   {
     "cardCode": "NEU073",
@@ -2702,7 +2801,12 @@
       "TAUNT",
       "BATTLECRY"
     ],
-    "minionType": "BEAST"
+    "minionType": "BEAST",
+    "battlecryEffect": {
+      "type": "RESTORE_HEALTH",
+      "target": "TARGET_HERO",
+      "value": 5
+    }
   },
   {
     "cardCode": "DRK028",
@@ -2733,7 +2837,12 @@
       "STEALTH",
       "COMBO"
     ],
-    "minionType": "AMETI"
+    "minionType": "AMETI",
+    "comboEffect": {
+      "type": "DEAL_DAMAGE",
+      "target": "TARGET_ANY",
+      "value": 3
+    }
   },
   {
     "cardCode": "AST031",
@@ -2748,10 +2857,14 @@
     "flavor": "",
     "keywords": [
       "TAUNT",
-      "DIVINE_SHIELD",
       "BATTLECRY"
     ],
-    "minionType": "AMETI"
+    "minionType": "AMETI",
+    "battlecryEffect": {
+      "type": "GRANT_KEYWORD",
+      "target": "ALL_FRIENDLY_MINIONS",
+      "grantKeyword": "DIVINE_SHIELD"
+    }
   },
   {
     "cardCode": "DES027",
@@ -2883,7 +2996,20 @@
     "keywords": [
       "BATTLECRY"
     ],
-    "minionType": "AMETI"
+    "minionType": "AMETI",
+    "battlecryEffects": [
+      {
+        "type": "RESTORE_HEALTH",
+        "target": "ALL_FRIENDLY_MINIONS",
+        "value": 5
+      },
+      {
+        "type": "BUFF_ALL_FRIENDLY",
+        "target": "ALL_FRIENDLY_MINIONS",
+        "attackBuff": 1,
+        "healthBuff": 1
+      }
+    ]
   },
   {
     "cardCode": "NEU075",
@@ -2896,8 +3022,15 @@
     "health": 4,
     "text": "Battlecry: Deal 2 damage to a random enemy.",
     "flavor": "",
-    "keywords": [],
-    "minionType": "AMETI"
+    "keywords": [
+      "BATTLECRY"
+    ],
+    "minionType": "AMETI",
+    "battlecryEffect": {
+      "type": "DEAL_DAMAGE_RANDOM_ENEMY",
+      "target": "RANDOM_ENEMY",
+      "value": 2
+    }
   },
   {
     "cardCode": "NEU076",
@@ -2910,8 +3043,15 @@
     "health": 5,
     "text": "Battlecry: Draw 2 cards.",
     "flavor": "",
-    "keywords": [],
-    "minionType": "AMETI"
+    "keywords": [
+      "BATTLECRY"
+    ],
+    "minionType": "AMETI",
+    "battlecryEffect": {
+      "type": "DRAW_CARDS",
+      "target": "NONE",
+      "value": 2
+    }
   },
   {
     "cardCode": "NEU077",
@@ -2983,7 +3123,12 @@
     "keywords": [
       "BATTLECRY"
     ],
-    "minionType": "DOMINION"
+    "minionType": "DOMINION",
+    "battlecryEffect": {
+      "type": "DEAL_DAMAGE",
+      "target": "SELF",
+      "value": 1
+    }
   },
   {
     "cardCode": "NEU078",
@@ -3054,7 +3199,13 @@
       "STEALTH",
       "COMBO"
     ],
-    "minionType": "HUMAN"
+    "minionType": "HUMAN",
+    "comboEffect": {
+      "type": "BUFF_MINION",
+      "target": "SELF",
+      "attackBuff": 3,
+      "healthBuff": 3
+    }
   },
   {
     "cardCode": "TAL027",
@@ -3542,10 +3693,14 @@
     "text": "Combo: Gain Stealth.",
     "flavor": "",
     "keywords": [
-      "STEALTH",
       "COMBO"
     ],
-    "minionType": "BEAST"
+    "minionType": "BEAST",
+    "comboEffect": {
+      "type": "GRANT_KEYWORD",
+      "target": "SELF",
+      "grantKeyword": "STEALTH"
+    }
   },
   {
     "cardCode": "NEU086",
@@ -3581,7 +3736,13 @@
       "TAUNT",
       "DEATHRATTLE"
     ],
-    "minionType": "MECH"
+    "minionType": "MECH",
+    "deathrattleEffect": {
+      "type": "SUMMON_MINION",
+      "target": "NONE",
+      "summonCardCode": "NEU_TOKEN_01",
+      "summonCount": 2
+    }
   },
   {
     "cardCode": "AST032",
@@ -3968,7 +4129,12 @@
       "WINDFURY",
       "BATTLECRY"
     ],
-    "minionType": "BEAST"
+    "minionType": "BEAST",
+    "battlecryEffect": {
+      "type": "GAIN_ARMOR",
+      "target": "NONE",
+      "value": 2
+    }
   },
   {
     "cardCode": "AVA035",
@@ -4140,8 +4306,15 @@
     "health": 2,
     "text": "Deathrattle: Draw a card.",
     "flavor": "",
-    "keywords": [],
-    "minionType": "MECH"
+    "keywords": [
+      "DEATHRATTLE"
+    ],
+    "minionType": "MECH",
+    "deathrattleEffect": {
+      "type": "DRAW_CARDS",
+      "target": "NONE",
+      "value": 1
+    }
   },
   {
     "cardCode": "NEU092",
@@ -4206,7 +4379,12 @@
     "keywords": [
       "BATTLECRY"
     ],
-    "minionType": "HUMAN"
+    "minionType": "HUMAN",
+    "battlecryEffect": {
+      "type": "DRAW_CARDS",
+      "target": "NONE",
+      "value": 1
+    }
   },
   {
     "cardCode": "JIM035",
@@ -4322,7 +4500,13 @@
       "TAUNT",
       "DEATHRATTLE"
     ],
-    "minionType": "MECH"
+    "minionType": "MECH",
+    "deathrattleEffect": {
+      "type": "SUMMON_MINION",
+      "target": "NONE",
+      "summonCardCode": "NEU_TOKEN_01",
+      "summonCount": 1
+    }
   },
   {
     "cardCode": "DRK042",
@@ -4349,8 +4533,16 @@
     "health": 3,
     "text": "Deathrattle: Summon a 1/1 mech.",
     "flavor": "",
-    "keywords": [],
-    "minionType": "MECH"
+    "keywords": [
+      "DEATHRATTLE"
+    ],
+    "minionType": "MECH",
+    "deathrattleEffect": {
+      "type": "SUMMON_MINION",
+      "target": "NONE",
+      "summonCardCode": "NEU_TOKEN_01",
+      "summonCount": 1
+    }
   },
   {
     "cardCode": "AST037",
@@ -4382,7 +4574,13 @@
     "keywords": [
       "COMBO"
     ],
-    "minionType": "HUMAN"
+    "minionType": "HUMAN",
+    "comboEffect": {
+      "type": "BUFF_MINION",
+      "target": "SELF",
+      "attackBuff": 2,
+      "healthBuff": 1
+    }
   },
   {
     "cardCode": "JIM036",
@@ -4542,7 +4740,12 @@
     "health": 0,
     "text": "A friendly minion deals its Attack damage to an adjacent enemy.",
     "flavor": "",
-    "keywords": []
+    "keywords": [],
+    "spellEffect": {
+      "type": "DEAL_DAMAGE",
+      "target": "TARGET_MINION",
+      "value": 3
+    }
   },
   {
     "cardCode": "NEU095",
@@ -5063,7 +5266,15 @@
     "health": 3,
     "text": "Battlecry: Give a friendly MECH +1 Attack.",
     "flavor": "",
-    "keywords": [],
-    "minionType": "MECH"
+    "keywords": [
+      "BATTLECRY"
+    ],
+    "minionType": "MECH",
+    "battlecryEffect": {
+      "type": "BUFF_MINION",
+      "target": "TARGET_FRIENDLY_MINION",
+      "attackBuff": 1,
+      "healthBuff": 0
+    }
   }
 ]
