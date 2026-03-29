@@ -5276,5 +5276,351 @@
       "attackBuff": 1,
       "healthBuff": 0
     }
+  },
+  {
+    "cardCode": "NEU102",
+    "name": "Alpha Glacier Bear",
+    "manaCost": 8,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "EPIC",
+    "attack": 6,
+    "health": 8,
+    "text": "Taunt. Battlecry: Gain 4 Armor.",
+    "flavor": "Ancient protector of the frozen peaks.",
+    "keywords": [
+      "TAUNT",
+      "BATTLECRY"
+    ],
+    "minionType": "BEAST",
+    "battlecryEffect": {
+      "type": "GAIN_ARMOR",
+      "value": 4
+    }
+  },
+  {
+    "cardCode": "NEU103",
+    "name": "Orra Colossus",
+    "manaCost": 8,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "RARE",
+    "attack": 8,
+    "health": 8,
+    "text": "",
+    "flavor": "Pure Orra energy given form. Simple, devastating.",
+    "keywords": [],
+    "minionType": "ELEMENTAL"
+  },
+  {
+    "cardCode": "NEU104",
+    "name": "Miro World Shaper",
+    "manaCost": 9,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "EPIC",
+    "attack": 7,
+    "health": 9,
+    "text": "Battlecry: Draw 3 cards.",
+    "flavor": "She reshapes the world one thought at a time.",
+    "keywords": [
+      "BATTLECRY"
+    ],
+    "minionType": "AMETI",
+    "battlecryEffect": {
+      "type": "DRAW_CARDS",
+      "value": 3
+    }
+  },
+  {
+    "cardCode": "NEU105",
+    "name": "Titan of the Crust",
+    "manaCost": 9,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "RARE",
+    "attack": 9,
+    "health": 9,
+    "text": "Taunt.",
+    "flavor": "Born from the planet's deepest Orragems.",
+    "keywords": [
+      "TAUNT"
+    ],
+    "minionType": "ELEMENTAL"
+  },
+  {
+    "cardCode": "NEU106",
+    "name": "Gavalon Sandwyrm",
+    "manaCost": 10,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "EPIC",
+    "attack": 10,
+    "health": 10,
+    "text": "Battlecry: Deal 5 damage to all enemy minions.",
+    "flavor": "When the desert moves, everything dies.",
+    "keywords": [
+      "BATTLECRY"
+    ],
+    "minionType": "BEAST",
+    "battlecryEffect": {
+      "type": "DEAL_DAMAGE_ALL_ENEMIES",
+      "target": "ALL_ENEMY_MINIONS",
+      "value": 5
+    }
+  },
+  {
+    "cardCode": "NEU107",
+    "name": "The Crucible's Heart",
+    "manaCost": 10,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "LEGENDARY",
+    "attack": 8,
+    "health": 8,
+    "text": "Battlecry: Destroy all enemy minions.",
+    "flavor": "At the core of Miro, all things end.",
+    "keywords": [
+      "BATTLECRY"
+    ],
+    "minionType": "ELEMENTAL",
+    "battlecryEffect": {
+      "type": "DESTROY_ALL_ENEMY_MINIONS"
+    }
+  },
+  {
+    "cardCode": "NEU108",
+    "name": "Ancient Alpha Whale",
+    "manaCost": 10,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "LEGENDARY",
+    "attack": 12,
+    "health": 12,
+    "text": "",
+    "flavor": "It breaches the ocean once a century. Cities tremble.",
+    "keywords": [],
+    "minionType": "BEAST"
+  },
+  {
+    "cardCode": "AND032",
+    "name": "Frostbite Leviathan",
+    "manaCost": 7,
+    "type": "MINION",
+    "heroClass": "ANDERS",
+    "rarity": "EPIC",
+    "attack": 5,
+    "health": 6,
+    "text": "Battlecry: Freeze all enemy minions.",
+    "flavor": "The ice does not forgive.",
+    "keywords": [
+      "BATTLECRY",
+      "FREEZE"
+    ],
+    "minionType": "ELEMENTAL",
+    "battlecryEffect": {
+      "type": "FREEZE_ALL_ENEMIES"
+    }
+  },
+  {
+    "cardCode": "AND033",
+    "name": "Blizzard of Aster Peak",
+    "manaCost": 8,
+    "type": "SPELL",
+    "heroClass": "ANDERS",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 3 damage to all enemy minions and Freeze them.",
+    "flavor": "When the mountain breathes, the world shivers.",
+    "keywords": [
+      "FREEZE"
+    ],
+    "spellEffect": {
+      "type": "DEAL_DAMAGE_ALL_ENEMIES",
+      "target": "ALL_ENEMY_MINIONS",
+      "value": 3,
+      "alsoFreeze": true
+    }
+  },
+  {
+    "cardCode": "AST041",
+    "name": "Guardian of the Academy",
+    "manaCost": 7,
+    "type": "MINION",
+    "heroClass": "ASTRID",
+    "rarity": "EPIC",
+    "attack": 4,
+    "health": 8,
+    "text": "Taunt. Divine Shield. Battlecry: Give a friendly minion Divine Shield.",
+    "flavor": "She holds the line so others can advance.",
+    "keywords": [
+      "TAUNT",
+      "DIVINE_SHIELD",
+      "BATTLECRY"
+    ],
+    "minionType": "HUMAN",
+    "battlecryEffect": {
+      "type": "GIVE_DIVINE_SHIELD",
+      "target": "FRIENDLY_MINION"
+    }
+  },
+  {
+    "cardCode": "AST042",
+    "name": "Mighty's Wrath",
+    "manaCost": 8,
+    "type": "SPELL",
+    "heroClass": "ASTRID",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Give all friendly minions +2/+2 and Divine Shield.",
+    "flavor": "Mighty protects those who protect others.",
+    "keywords": [
+      "DIVINE_SHIELD"
+    ],
+    "spellEffect": {
+      "type": "BUFF_ALL_FRIENDLY_MINIONS",
+      "attackBuff": 2,
+      "healthBuff": 2,
+      "grantDivineShield": true
+    }
+  },
+  {
+    "cardCode": "AVA038",
+    "name": "Fiona's Mega Mech",
+    "manaCost": 7,
+    "type": "MINION",
+    "heroClass": "AVA",
+    "rarity": "EPIC",
+    "attack": 6,
+    "health": 6,
+    "text": "Battlecry: Summon two 2/2 Drones with Taunt.",
+    "flavor": "Fiona outdid herself this time.",
+    "keywords": [
+      "BATTLECRY"
+    ],
+    "minionType": "MECH",
+    "battlecryEffect": {
+      "type": "SUMMON_TOKENS",
+      "count": 2,
+      "tokenCode": "AVA_TOKEN_02"
+    }
+  },
+  {
+    "cardCode": "AVA039",
+    "name": "Luna Override",
+    "manaCost": 8,
+    "type": "SPELL",
+    "heroClass": "AVA",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 4 damage to all minions. Summon a 4/4 Mech.",
+    "flavor": "When Luna goes critical, everything resets.",
+    "keywords": [],
+    "spellEffect": {
+      "type": "DEAL_DAMAGE_ALL_MINIONS",
+      "value": 4
+    }
+  },
+  {
+    "cardCode": "LUC043",
+    "name": "Jax, Alpha Coyote",
+    "manaCost": 7,
+    "type": "MINION",
+    "heroClass": "LUCAS",
+    "rarity": "EPIC",
+    "attack": 5,
+    "health": 5,
+    "text": "Stealth. Deathrattle: Return this to your hand.",
+    "flavor": "The pack always comes back.",
+    "keywords": [
+      "STEALTH",
+      "DEATHRATTLE"
+    ],
+    "minionType": "BEAST",
+    "deathrattleEffect": {
+      "type": "RETURN_TO_HAND_SELF"
+    }
+  },
+  {
+    "cardCode": "LUC044",
+    "name": "Shadow of Polara",
+    "manaCost": 8,
+    "type": "MINION",
+    "heroClass": "LUCAS",
+    "rarity": "RARE",
+    "attack": 7,
+    "health": 6,
+    "text": "Battlecry: Return all enemy minions with 3 or less Attack to their owner's hand.",
+    "flavor": "Mount Polara's shadow swallows the weak.",
+    "keywords": [
+      "BATTLECRY"
+    ],
+    "minionType": "HUMAN",
+    "battlecryEffect": {
+      "type": "BOUNCE_ENEMY_MINIONS_CONDITIONAL",
+      "maxAttack": 3
+    }
+  },
+  {
+    "cardCode": "IZZ040",
+    "name": "Bling's Grand Discovery",
+    "manaCost": 7,
+    "type": "SPELL",
+    "heroClass": "IZZY",
+    "rarity": "EPIC",
+    "attack": 0,
+    "health": 0,
+    "text": "Gain 8 Armor. Draw 3 cards.",
+    "flavor": "Bling found the mother lode!",
+    "keywords": [],
+    "spellEffect": {
+      "type": "GAIN_ARMOR_AND_DRAW",
+      "armor": 8,
+      "draw": 3
+    }
+  },
+  {
+    "cardCode": "IZZ041",
+    "name": "Navigator's Flagship",
+    "manaCost": 8,
+    "type": "MINION",
+    "heroClass": "IZZY",
+    "rarity": "RARE",
+    "attack": 5,
+    "health": 7,
+    "text": "Taunt. Battlecry: Gain Armor equal to this minion's Health.",
+    "flavor": "The flagship never sinks.",
+    "keywords": [
+      "TAUNT",
+      "BATTLECRY"
+    ],
+    "minionType": "MECH",
+    "battlecryEffect": {
+      "type": "GAIN_ARMOR",
+      "value": 7
+    }
+  },
+  {
+    "cardCode": "TAL037",
+    "name": "Snowball, Alpha Fox",
+    "manaCost": 9,
+    "type": "MINION",
+    "heroClass": "TALA",
+    "rarity": "LEGENDARY",
+    "attack": 6,
+    "health": 8,
+    "text": "Taunt. Battlecry: Restore all friendly characters to full Health.",
+    "flavor": "Snowball's warmth heals all wounds.",
+    "keywords": [
+      "TAUNT",
+      "BATTLECRY"
+    ],
+    "minionType": "BEAST",
+    "battlecryEffect": {
+      "type": "HEAL_ALL_FRIENDLY_FULL"
+    }
   }
 ]
