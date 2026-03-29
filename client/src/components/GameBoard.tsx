@@ -590,27 +590,27 @@ function BoardMinionCard({
         </div>
       )}
 
-      {/* Attack circle — bottom-left */}
-      <div className="absolute -bottom-2 -left-2 flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-yellow-700 border-2 border-yellow-300 text-base font-extrabold text-white shadow-lg z-20">
+      {/* Attack circle — bottom-left, inside frame */}
+      <div className="absolute bottom-1 left-1 flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-yellow-700 border-2 border-yellow-300 text-sm font-extrabold text-white shadow-lg z-20 drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]">
         {minion.currentAttack}
       </div>
-      {/* Health circle — bottom-right */}
-      <div className={`absolute -bottom-2 -right-2 flex h-9 w-9 items-center justify-center rounded-full text-base font-extrabold text-white shadow-lg z-20 border-2
+      {/* Health circle — bottom-right, inside frame */}
+      <div className={`absolute bottom-1 right-1 flex h-8 w-8 items-center justify-center rounded-full text-sm font-extrabold text-white shadow-lg z-20 border-2 drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]
         ${isDamaged ? 'bg-gradient-to-br from-red-500 to-red-700 border-red-300' : 'bg-gradient-to-br from-red-700 to-red-900 border-red-400'}
       `}>
         {minion.currentHealth}
       </div>
       {/* Minion type label — between attack/health */}
       {def?.minionType && (
-        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
-          <span className="text-[7px] font-bold text-amber-300/80 bg-black/50 px-1.5 py-0.5 rounded-sm">
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+          <span className="text-[7px] font-bold text-amber-300/90 bg-black/60 px-1.5 py-0.5 rounded-sm">
             {def.minionType}
           </span>
         </div>
       )}
       {/* Name label */}
-      <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap z-20">
-        <span className="text-[8px] font-semibold text-amber-200/70 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
+      <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap z-20">
+        <span className="text-[9px] font-semibold text-amber-200/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
           {def?.name}
         </span>
       </div>
