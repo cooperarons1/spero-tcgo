@@ -297,7 +297,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
 
       <div className="flex-1 flex min-h-0">
         {/* Left sidebar — My Decks */}
-        <div className="w-48 md:w-[200px] flex flex-col border-r border-slate-700/30 bg-slate-800/30 shrink-0">
+        <div className="w-56 md:w-[240px] flex flex-col border-r border-amber-800/20 bg-stone-900/50 shrink-0">
           <div className="p-3 border-b border-amber-800/30 bg-stone-900/50">
             <h2 className="text-sm uppercase tracking-wider text-amber-200/80 font-bold text-center">My Decks</h2>
             <p className="text-[9px] text-gray-500 text-center mt-0.5">{decks.length}/27</p>
@@ -382,14 +382,14 @@ export function Collection({ uid, onBack }: CollectionProps) {
 
         {/* Center — Card Collection */}
         <div className="flex-1 flex flex-col min-w-0">
-          {/* Filter bar */}
-          <div className="p-3 space-y-2 border-b border-slate-700/30 shrink-0">
-            {/* Class tabs */}
-            <div className="flex gap-1 flex-wrap">
+          {/* ── Filter bar — compact Hearthstone-style ── */}
+          <div className="border-b border-amber-800/30 bg-stone-900/40 shrink-0">
+            {/* Row 1: Class tabs */}
+            <div className="flex items-center border-b border-slate-700/20 px-2 py-1.5 gap-0.5 overflow-x-auto">
               <button
                 onClick={() => setFilterClass('ALL')}
-                className={`text-xs px-2.5 py-1 rounded-full cursor-pointer transition-all ${
-                  filterClass === 'ALL' ? 'bg-white text-black font-bold' : 'bg-slate-700 text-gray-400 hover:bg-slate-700/80'
+                className={`text-[11px] px-3 py-1 rounded cursor-pointer transition-all whitespace-nowrap ${
+                  filterClass === 'ALL' ? 'bg-amber-600 text-white font-bold' : 'text-gray-400 hover:text-white hover:bg-slate-700/50'
                 }`}
               >
                 All
@@ -398,8 +398,8 @@ export function Collection({ uid, onBack }: CollectionProps) {
                 <button
                   key={h.id}
                   onClick={() => setFilterClass(filterClass === h.id ? 'ALL' : h.id)}
-                  className={`text-xs px-2.5 py-1 rounded-full cursor-pointer transition-all flex items-center gap-1 ${
-                    filterClass === h.id ? `${h.color} text-white font-bold` : 'bg-slate-700 text-gray-400 hover:bg-slate-700/80'
+                  className={`text-[11px] px-3 py-1 rounded cursor-pointer transition-all whitespace-nowrap ${
+                    filterClass === h.id ? `${h.color} text-white font-bold` : 'text-gray-400 hover:text-white hover:bg-slate-700/50'
                   }`}
                 >
                   {h.label}
@@ -407,69 +407,78 @@ export function Collection({ uid, onBack }: CollectionProps) {
               ))}
               <button
                 onClick={() => setFilterClass(filterClass === 'NEUTRAL' as any ? 'ALL' : 'NEUTRAL' as any)}
-                className={`text-xs px-2.5 py-1 rounded-full cursor-pointer transition-all ${
-                  filterClass === 'NEUTRAL' ? 'bg-gray-500 text-white font-bold' : 'bg-slate-700 text-gray-400 hover:bg-slate-700/80'
+                className={`text-[11px] px-3 py-1 rounded cursor-pointer transition-all whitespace-nowrap ${
+                  filterClass === 'NEUTRAL' ? 'bg-gray-600 text-white font-bold' : 'text-gray-400 hover:text-white hover:bg-slate-700/50'
                 }`}
               >
                 Neutral
               </button>
             </div>
-            {/* Rarity filters */}
-            <div className="flex gap-1 flex-wrap">
-              {(['ALL', 'COMMON', 'RARE', 'EPIC', 'LEGENDARY'] as const).map(r => {
-                const colors: Record<string, string> = { ALL: 'bg-white text-black', COMMON: 'bg-gray-500 text-white', RARE: 'bg-blue-500 text-white', EPIC: 'bg-purple-500 text-white', LEGENDARY: 'bg-yellow-500 text-black' };
-                return (
-                  <button
-                    key={r}
-                    onClick={() => setFilterRarity(filterRarity === r ? 'ALL' : r)}
-                    className={`text-[10px] px-2 py-0.5 rounded-full cursor-pointer transition-all ${
-                      filterRarity === r ? `${colors[r]} font-bold` : 'bg-slate-700 text-gray-400 hover:bg-slate-700/80'
-                    }`}
-                  >
-                    {r === 'ALL' ? 'All' : r.charAt(0) + r.slice(1).toLowerCase()}
-                    <span className="ml-1 opacity-60">{filterCounts.rarity[r]}</span>
-                  </button>
-                );
-              })}
-            </div>
-            {/* Type filters */}
-            <div className="flex gap-1 flex-wrap">
-              {(['ALL', 'MINION', 'SPELL', 'WEAPON', 'LOCATION'] as const).map(t => (
-                <button
-                  key={t}
-                  onClick={() => setFilterType(filterType === t ? 'ALL' : t)}
-                  className={`text-[10px] px-2 py-0.5 rounded-full cursor-pointer transition-all ${
-                    filterType === t ? 'bg-white text-black font-bold' : 'bg-slate-700 text-gray-400 hover:bg-slate-700/80'
-                  }`}
-                >
-                  {t === 'ALL' ? 'All Types' : t.charAt(0) + t.slice(1).toLowerCase()}
-                  <span className="ml-1 opacity-60">{filterCounts.type[t]}</span>
-                </button>
-              ))}
-            </div>
-            {/* Mana + search */}
-            <div className="flex gap-2 items-center">
-              <div className="flex gap-0.5">
+
+            {/* Row 2: Mana curve + Type + Rarity + Search — all in one row */}
+            <div className="flex items-center gap-3 px-2 py-1.5">
+              {/* Mana filter */}
+              <div className="flex gap-px">
                 {MANA_FILTERS.map(m => (
                   <button
                     key={m}
                     onClick={() => setFilterMana(filterMana === m ? null : m)}
-                    className={`w-6 h-6 text-[10px] font-bold rounded-full cursor-pointer transition-all flex items-center justify-center ${
+                    className={`w-5 h-5 text-[9px] font-bold rounded cursor-pointer transition-all flex items-center justify-center ${
                       filterMana === m
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-slate-700 text-gray-500 hover:bg-slate-700/80'
+                        ? 'bg-blue-500 text-white shadow-sm shadow-blue-500/50'
+                        : 'bg-slate-800 text-gray-500 hover:bg-slate-700'
                     }`}
                   >
-                    {m === 10 ? '10+' : m}
+                    {m === 10 ? '+' : m}
                   </button>
                 ))}
               </div>
+
+              <div className="w-px h-4 bg-slate-700" />
+
+              {/* Type filter */}
+              <div className="flex gap-0.5">
+                {(['ALL', 'MINION', 'SPELL', 'WEAPON', 'LOCATION'] as const).map(t => (
+                  <button
+                    key={t}
+                    onClick={() => setFilterType(filterType === t ? 'ALL' : t)}
+                    className={`text-[9px] px-1.5 py-0.5 rounded cursor-pointer transition-all ${
+                      filterType === t ? 'bg-slate-600 text-white font-bold' : 'text-gray-500 hover:text-gray-300'
+                    }`}
+                  >
+                    {t === 'ALL' ? 'All' : t.charAt(0) + t.slice(1).toLowerCase()}
+                  </button>
+                ))}
+              </div>
+
+              <div className="w-px h-4 bg-slate-700" />
+
+              {/* Rarity filter */}
+              <div className="flex gap-0.5">
+                {(['ALL', 'COMMON', 'RARE', 'EPIC', 'LEGENDARY'] as const).map(r => {
+                  const dotColor: Record<string, string> = { ALL: '', COMMON: 'bg-gray-400', RARE: 'bg-blue-400', EPIC: 'bg-purple-400', LEGENDARY: 'bg-yellow-400' };
+                  return (
+                    <button
+                      key={r}
+                      onClick={() => setFilterRarity(filterRarity === r ? 'ALL' : r)}
+                      className={`text-[9px] px-1.5 py-0.5 rounded cursor-pointer transition-all flex items-center gap-1 ${
+                        filterRarity === r ? 'bg-slate-600 text-white font-bold' : 'text-gray-500 hover:text-gray-300'
+                      }`}
+                    >
+                      {r !== 'ALL' && <span className={`w-1.5 h-1.5 rounded-full ${dotColor[r]}`} />}
+                      {r === 'ALL' ? 'All' : r.charAt(0) + r.slice(1).toLowerCase()}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Search */}
               <input
                 type="text"
                 value={filterSearch}
                 onChange={e => setFilterSearch(e.target.value)}
                 placeholder="Search..."
-                className="w-32 text-xs bg-slate-800 text-white rounded-lg px-2 py-1 border border-slate-600 focus:border-blue-500 focus:outline-none"
+                className="ml-auto w-28 text-[11px] bg-slate-800 text-white rounded px-2 py-1 border border-slate-700 focus:border-amber-500 focus:outline-none"
               />
             </div>
           </div>
