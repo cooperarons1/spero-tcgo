@@ -396,6 +396,7 @@ export interface Room {
   selectedDecks: Map<string, { heroClass: HeroClass; cards: string[] }>;
   isAIGame?: boolean;
   aiPlayerId?: string;
+  cardBacks?: Map<string, string>; // uid -> selected card back id
 }
 
 // ─── Post-Game Rewards ───

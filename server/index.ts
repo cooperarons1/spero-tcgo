@@ -7,7 +7,9 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import type { ZodSchema } from 'zod';
 import type { HeroClass } from '../shared/types.js';
-import { TURN_TIMEOUT_MS } from '../shared/types.js';
+import { TURN_TIMEOUT_MS, getRankTier } from '../shared/types.js';
+import { getSeasonForDate, getPreviousSeason, getSeasonReward, getSeasonDaysLeft, softResetElo, getCardBack, CARD_BACKS, CURRENT_SEASON } from '../shared/seasons.js';
+import type { UserSeasonData } from '../shared/seasons.js';
 import { adminAuth, adminDb } from './firebaseAdmin.js';
 import { createRoom, joinRoom, getRoom, getRoomByPlayer, removePlayer, clearRoomTimer, cleanupStaleRooms, markDisconnected, tryReconnect, isDisconnected } from './room.js';
 import { createGame, confirmMulligan, endTurn } from './game.js';
@@ -55,7 +57,6 @@ import { validateDeck } from '../shared/deckRules.js';
 import { getCardDef } from './cards.js';
 import { generateDailyQuests, shouldRefreshQuests, updateQuestProgress, calculateXP, getLevel, calculateHeroXP, getHeroLevel } from './quests.js';
 import { getSpectatorState } from './clientState.js';
-import { getRankTier } from '../shared/types.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -179,7 +180,7 @@ setInterval(() => {
   if (matched) {
     const [p1, p2] = matched;
 
-    setTimeout(() => {
+    setTimeout(async () => {
       const s1 = io.sockets.sockets.get(p1.socketId);
       const s2 = io.sockets.sockets.get(p2.socketId);
       if (!s1 || !s2) return;
@@ -189,6 +190,15 @@ setInterval(() => {
 
       room.selectedDecks.set(p1.uid, { heroClass: p1.heroClass, cards: p1.deckCards });
       room.selectedDecks.set(p2.uid, { heroClass: p2.heroClass, cards: p2.deckCards });
+
+      // Load card backs for both players
+      room.cardBacks = new Map();
+      for (const pUid of [p1.uid, p2.uid]) {
+        try {
+          const doc = await adminDb.collection('users').doc(pUid).get();
+          room.cardBacks.set(pUid, doc.data()?.selectedCardBack ?? 'default');
+        } catch { room.cardBacks.set(pUid, 'default'); }
+      }
 
       s1.join(room.code);
       s2.join(room.code);
@@ -255,6 +265,10 @@ function broadcastGameState(roomCode: string) {
   for (const [uid, socketId] of room.sockets) {
     if (socketId === '__ai__') continue;
     const state = getClientState(room.game, uid);
+    // Attach card back info for rendering
+    const oppUid = Array.from(room.players.keys()).find(u => u !== uid);
+    (state as any).opponentCardBack = room.cardBacks?.get(oppUid ?? '') ?? 'default';
+    (state as any).myCardBack = room.cardBacks?.get(uid) ?? 'default';
     io.to(socketId).emit('game-state', state);
   }
 
@@ -414,6 +428,26 @@ async function finalizeGame(room: ReturnType<typeof getRoom>) {
       }
       const totalGoldEarned = questGold + baseGold;
 
+      // Track peak rank for current season
+      const currentSeason = getSeasonForDate();
+      const existingSeasonData: UserSeasonData = userData.seasonData ?? { seasonId: currentSeason.id, peakElo: 0, peakRankTier: 'BRONZE', rewardsClaimed: false };
+      let seasonData = existingSeasonData;
+      if (existingSeasonData.seasonId !== currentSeason.id) {
+        // New season — initialize fresh season data
+        seasonData = { seasonId: currentSeason.id, peakElo: newElo, peakRankTier: getRankTier(newElo), rewardsClaimed: false };
+      } else if (newElo > existingSeasonData.peakElo) {
+        seasonData = { ...existingSeasonData, peakElo: newElo, peakRankTier: getRankTier(newElo) };
+      }
+
+      // Award card backs for reaching Diamond or Legend
+      const cardBacks: string[] = userData.cardBacks ?? ['default'];
+      if (getRankTier(newElo) === 'DIAMOND' && !cardBacks.includes('diamond-frost')) {
+        cardBacks.push('diamond-frost');
+      }
+      if (getRankTier(newElo) === 'LEGEND' && !cardBacks.includes('legend')) {
+        cardBacks.push('legend');
+      }
+
       await userRef.set({
         ...userData,
         gamesPlayed: (userData.gamesPlayed ?? 0) + 1,
@@ -427,6 +461,8 @@ async function finalizeGame(room: ReturnType<typeof getRoom>) {
         battlePass: bp,
         quests,
         questsRefreshedAt: shouldRefreshQuests(userData.questsRefreshedAt) ? Date.now() : (userData.questsRefreshedAt ?? Date.now()),
+        seasonData,
+        cardBacks,
       }, { merge: true });
 
       // Check achievements
@@ -575,7 +611,7 @@ io.on('connection', (socket) => {
     broadcastLobby(room.code);
   }));
 
-  socket.on('start-game', () => {
+  socket.on('start-game', async () => {
     if (!lobbyLimiter.allow(uid)) return;
     const room = getRoomByPlayer(uid);
     if (!room || uid !== room.hostId) return;
@@ -587,6 +623,15 @@ io.on('connection', (socket) => {
     const uids = Array.from(room.players.keys());
     const d0 = room.selectedDecks.get(uids[0]);
     const d1 = room.selectedDecks.get(uids[1]);
+
+    // Load card backs for both players
+    room.cardBacks = new Map();
+    for (const pUid of uids) {
+      try {
+        const doc = await adminDb.collection('users').doc(pUid).get();
+        room.cardBacks.set(pUid, doc.data()?.selectedCardBack ?? 'default');
+      } catch { room.cardBacks.set(pUid, 'default'); }
+    }
 
     const entries = [
       { id: uids[0], name: room.players.get(uids[0])!, heroClass: (d0?.heroClass ?? 'JIMMY') as HeroClass },
@@ -603,7 +648,7 @@ io.on('connection', (socket) => {
 
   // ── Play vs AI ──
 
-  socket.on('start-ai-game', validated(StartAIGameSchema, (data) => {
+  socket.on('start-ai-game', validated(StartAIGameSchema, async (data) => {
     if (!lobbyLimiter.allow(uid)) return;
     if (getRoomByPlayer(uid)) {
       socket.emit('error', 'Already in a room');
@@ -628,6 +673,14 @@ io.on('connection', (socket) => {
 
     room.selectedDecks.set(uid, { heroClass: data.heroClass, cards: data.deckCards });
     room.selectedDecks.set(aiId, { heroClass: aiDeck.heroClass, cards: aiDeck.cards });
+
+    // Load card back for human player
+    room.cardBacks = new Map();
+    try {
+      const doc = await adminDb.collection('users').doc(uid).get();
+      room.cardBacks.set(uid, doc.data()?.selectedCardBack ?? 'default');
+    } catch { room.cardBacks.set(uid, 'default'); }
+    room.cardBacks.set(aiId, 'default');
 
     socket.join(room.code);
 
@@ -1213,7 +1266,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  // ── Get Rank / ELO ──
+  // ── Get Rank / ELO + Season Info ──
 
   socket.on('get-rank', async () => {
     if (!socialLimiter.allow(uid)) return;
@@ -1221,15 +1274,151 @@ io.on('connection', (socket) => {
       const userDoc = await adminDb.collection('users').doc(uid).get();
       const userData = userDoc.data() ?? {};
       const elo = userData.elo ?? 1000;
+      const season = getSeasonForDate();
+      const seasonData: UserSeasonData = userData.seasonData ?? { seasonId: season.id, peakElo: elo, peakRankTier: getRankTier(elo), rewardsClaimed: false };
+
+      // If user's season data is for a different (old) season, they need a reset
+      const needsSeasonReset = seasonData.seasonId !== season.id;
+      const prevSeason = needsSeasonReset ? getPreviousSeason() : null;
+
       socket.emit('rank-update', {
         elo,
         rankTier: getRankTier(elo),
         gamesPlayed: userData.gamesPlayed ?? 0,
         gamesWon: userData.gamesWon ?? 0,
+        season: {
+          id: season.id,
+          name: season.name,
+          number: season.number,
+          daysLeft: getSeasonDaysLeft(),
+          peakRankTier: needsSeasonReset ? 'BRONZE' : (seasonData.peakRankTier ?? getRankTier(elo)),
+          peakElo: needsSeasonReset ? elo : (seasonData.peakElo ?? elo),
+        },
+        // Flag if there are unclaimed rewards from previous season
+        unclaimedSeasonRewards: needsSeasonReset && !seasonData.rewardsClaimed ? {
+          seasonId: prevSeason!.id,
+          seasonName: prevSeason!.name,
+          peakRankTier: seasonData.peakRankTier,
+          rewards: getSeasonReward(seasonData.peakRankTier),
+        } : null,
       });
     } catch (err) {
       console.error('get-rank error:', err);
-      socket.emit('rank-update', { elo: 1000, rankTier: 'BRONZE', gamesPlayed: 0, gamesWon: 0 });
+      socket.emit('rank-update', { elo: 1000, rankTier: 'BRONZE', gamesPlayed: 0, gamesWon: 0, season: { id: CURRENT_SEASON.id, name: CURRENT_SEASON.name, number: CURRENT_SEASON.number, daysLeft: getSeasonDaysLeft(), peakRankTier: 'BRONZE', peakElo: 1000 }, unclaimedSeasonRewards: null });
+    }
+  });
+
+  // ── Claim Season Rewards ──
+
+  socket.on('claim-season-rewards', async () => {
+    if (!socialLimiter.allow(uid)) return;
+    try {
+      const userRef = adminDb.collection('users').doc(uid);
+      const userDoc = await userRef.get();
+      const userData = userDoc.data() ?? {};
+      const season = getSeasonForDate();
+      const seasonData: UserSeasonData = userData.seasonData ?? { seasonId: season.id, peakElo: 1000, peakRankTier: 'BRONZE', rewardsClaimed: false };
+
+      // Only claim if user has old season data that hasn't been claimed
+      if (seasonData.seasonId === season.id || seasonData.rewardsClaimed) {
+        socket.emit('season-rewards-result', { success: false, reason: 'No rewards to claim' });
+        return;
+      }
+
+      const reward = getSeasonReward(seasonData.peakRankTier);
+      const cardBacks: string[] = userData.cardBacks ?? ['default'];
+
+      // Award card back if applicable
+      if (reward.cardBack && !cardBacks.includes(reward.cardBack)) {
+        cardBacks.push(reward.cardBack);
+      }
+      // Award season-specific card back based on season number
+      const prevSeason = getPreviousSeason();
+      const prevSeasonDef = getSeasonForDate(new Date(prevSeason.startDate));
+      const seasonCardBacks = CARD_BACKS.filter(cb => cb.source === 'season-reward' && cb.seasonNumber === prevSeasonDef.number);
+      for (const cb of seasonCardBacks) {
+        if (!cardBacks.includes(cb.id)) cardBacks.push(cb.id);
+      }
+
+      // Soft-reset ELO for new season
+      const currentElo = userData.elo ?? 1000;
+      const resetElo = softResetElo(currentElo);
+
+      await userRef.set({
+        gold: (userData.gold ?? 0) + reward.goldReward,
+        dust: (userData.dust ?? 0) + reward.dustReward,
+        cardBacks,
+        elo: resetElo,
+        rankTier: getRankTier(resetElo),
+        seasonData: {
+          seasonId: season.id,
+          peakElo: resetElo,
+          peakRankTier: getRankTier(resetElo),
+          rewardsClaimed: false,
+        },
+        // Store season history
+        [`seasonHistory.${seasonData.seasonId}`]: {
+          peakElo: seasonData.peakElo,
+          peakRankTier: seasonData.peakRankTier,
+        },
+      }, { merge: true });
+
+      socket.emit('season-rewards-result', {
+        success: true,
+        goldReward: reward.goldReward,
+        dustReward: reward.dustReward,
+        packReward: reward.packReward,
+        cardBack: reward.cardBack ?? null,
+        newElo: resetElo,
+        newRankTier: getRankTier(resetElo),
+      });
+
+      // Give packs by updating pack count (client will open them)
+      // We add gold equivalent for packs (100g per pack)
+      if (reward.packReward > 0) {
+        await userRef.set({ gold: (userData.gold ?? 0) + reward.goldReward + (reward.packReward * 100) }, { merge: true });
+      }
+    } catch (err) {
+      console.error('claim-season-rewards error:', err);
+      socket.emit('season-rewards-result', { success: false, reason: 'Server error' });
+    }
+  });
+
+  // ── Card Backs ──
+
+  socket.on('get-card-backs', async () => {
+    if (!socialLimiter.allow(uid)) return;
+    try {
+      const userDoc = await adminDb.collection('users').doc(uid).get();
+      const userData = userDoc.data() ?? {};
+      const owned: string[] = userData.cardBacks ?? ['default'];
+      const selected: string = userData.selectedCardBack ?? 'default';
+      socket.emit('card-backs-update', { owned, selected });
+    } catch (err) {
+      console.error('get-card-backs error:', err);
+      socket.emit('card-backs-update', { owned: ['default'], selected: 'default' });
+    }
+  });
+
+  socket.on('select-card-back', async (data: { cardBackId: string }) => {
+    if (!socialLimiter.allow(uid)) return;
+    const id = typeof data?.cardBackId === 'string' ? data.cardBackId : '';
+    if (!id || !CARD_BACKS.find(cb => cb.id === id)) {
+      socket.emit('error', 'Invalid card back');
+      return;
+    }
+    try {
+      const userDoc = await adminDb.collection('users').doc(uid).get();
+      const userData = userDoc.data() ?? {};
+      const owned: string[] = userData.cardBacks ?? ['default'];
+      if (!owned.includes(id)) {
+        socket.emit('error', 'You do not own this card back');
+        return;
+      }
+      await adminDb.collection('users').doc(uid).set({ selectedCardBack: id }, { merge: true });
+      socket.emit('card-backs-update', { owned, selected: id });
+    } catch (err) {
+      console.error('select-card-back error:', err);
     }
   });
 

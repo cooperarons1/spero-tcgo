@@ -25,6 +25,13 @@ import { SpellCastEffect } from './SpellCastEffect';
 import { GameOver } from './GameOver';
 import { TurnBanner } from './TurnBanner';
 import cardsJson from '../../../data/cards.json';
+import { CARD_BACKS } from '../../../shared/seasons';
+
+// ─── Card back style lookup ───
+const CARD_BACK_STYLES: Record<string, { type: 'gradient' | 'image'; value: string; borderColor: string }> = {};
+for (const cb of CARD_BACKS) {
+  CARD_BACK_STYLES[cb.id] = cb.style;
+}
 
 // ─── Responsive card scale hook ───
 function useCardScale(): number {
@@ -997,14 +1004,27 @@ function HandCard({
 }
 
 // ─── Card Backs (opponent hand) ───
-function OpponentHand({ count }: { count: number }) {
+function OpponentHand({ count, cardBackId }: { count: number; cardBackId?: string }) {
+  const cb = cardBackId ? CARD_BACK_STYLES[cardBackId] : null;
   return (
     <div className="flex items-center justify-center gap-0.5 md:gap-1">
       {Array.from({ length: count }).map((_, i) => (
-        <div
-          key={i}
-          className="h-14 w-10 md:h-24 md:w-16 rounded-lg border-2 border-amber-700 bg-gradient-to-b from-amber-800 to-amber-950 shadow-inner"
-        />
+        cb?.type === 'image' ? (
+          <div key={i} className="h-14 w-10 md:h-24 md:w-16 rounded-lg border-2 border-amber-700 overflow-hidden relative">
+            <img src={cb.value} alt="" className="absolute inset-0 w-full h-full object-cover" />
+          </div>
+        ) : cb?.type === 'gradient' ? (
+          <div
+            key={i}
+            className={`h-14 w-10 md:h-24 md:w-16 rounded-lg border-2 ${cb.borderColor} shadow-inner`}
+            style={{ background: cb.value }}
+          />
+        ) : (
+          <div
+            key={i}
+            className="h-14 w-10 md:h-24 md:w-16 rounded-lg border-2 border-amber-700 bg-gradient-to-b from-amber-800 to-amber-950 shadow-inner"
+          />
+        )
       ))}
     </div>
   );
@@ -2027,7 +2047,7 @@ export default function GameBoard({
       {/* ═══════════════════════════════════════════ */}
       <div className="flex flex-1 min-h-0 flex-col items-center px-2 md:px-4 pt-1 md:pt-2 pb-0">
         {/* Opponent hand */}
-        <OpponentHand count={gs.opponent.handCount} />
+        <OpponentHand count={gs.opponent.handCount} cardBackId={(gs as any).opponentCardBack} />
 
         {/* Opponent hero row: [Mana] [Hero+Power] — right under hand */}
         <div className="flex items-center justify-center w-full gap-2 md:gap-4">
@@ -2358,7 +2378,7 @@ export default function GameBoard({
                     LUCAS: { Greetings: "Catch me if you can!", Thanks: "I owe you one. Maybe.", 'Well Played': "Not bad... for you.", Wow: "Didn't see that coming!", Oops: "That was on purpose. Totally.", Threaten: "You'll never see me coming." },
                     IZZY: { Greetings: "Adventure awaits!", Thanks: "Sparkle thanks!", 'Well Played': "What a journey!", Wow: "Sparkling!", Oops: "Slight navigational error.", Threaten: "I'll chart a course through you!" },
                   };
-                  const myHero = gameState?.players[gameState.myPlayerIndex]?.heroClass || 'JIMMY';
+                  const myHero = gs.myHeroClass || 'JIMMY';
                   const lines = heroLines[myHero] || heroLines.JIMMY;
                   return [
                     { id: 'Greetings', label: lines.Greetings },

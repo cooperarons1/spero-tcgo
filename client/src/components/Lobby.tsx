@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import type { LobbyState } from '../../../shared/types';
 import type { User } from 'firebase/auth';
 import { socket } from '../socket';
+import { SEASON_REWARDS } from '../../../shared/seasons';
 
 interface LobbyProps {
   lobby: LobbyState | null;
@@ -26,32 +27,77 @@ const RANK_COLORS: Record<string, string> = {
   LEGEND: 'text-purple-400',
 };
 
+const RANK_ICONS: Record<string, string> = {
+  BRONZE: '🥉',
+  SILVER: '🥈',
+  GOLD: '🥇',
+  DIAMOND: '💎',
+  LEGEND: '👑',
+};
+
+interface SeasonInfo {
+  id: string;
+  name: string;
+  number: number;
+  daysLeft: number;
+  peakRankTier: string;
+  peakElo: number;
+}
+
+interface UnclaimedRewards {
+  seasonId: string;
+  seasonName: string;
+  peakRankTier: string;
+  rewards: { goldReward: number; dustReward: number; packReward: number; cardBack?: string };
+}
+
 export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, onProfile, onPlayOnline, onPlayAI, onPacks, onBattlePass, onShop, onSignOut }: LobbyProps) {
   const [joinCode, setJoinCode] = useState('');
   const [mode, setMode] = useState<'menu' | 'join'>('menu');
-  const [rank, setRank] = useState<{ elo: number; rankTier: string } | null>(null);
+  const [rank, setRank] = useState<{ elo: number; rankTier: string; season?: SeasonInfo; unclaimedSeasonRewards?: UnclaimedRewards | null } | null>(null);
   const [quests, setQuests] = useState<{ quests: any[]; gold: number; xp: number; level: number } | null>(null);
   const [dailyLogin, setDailyLogin] = useState<{ show: boolean; streak: number; reward: string; day: number } | null>(null);
+  const [showSeasonRewards, setShowSeasonRewards] = useState(false);
+  const [claimingRewards, setClaimingRewards] = useState(false);
+  const [rewardsClaimed, setRewardsClaimed] = useState<{ goldReward: number; dustReward: number; packReward: number; cardBack: string | null; newRankTier: string } | null>(null);
 
   useEffect(() => {
     socket.emit('get-rank');
     socket.emit('get-quests');
     socket.emit('claim-daily-login');
 
-    const onRank = (data: any) => setRank(data);
+    const onRank = (data: any) => {
+      setRank(data);
+      // If there are unclaimed season rewards, show the popup
+      if (data.unclaimedSeasonRewards) {
+        setShowSeasonRewards(true);
+      }
+    };
     const onQuests = (data: any) => setQuests(data);
     const onDailyLogin = (data: any) => {
       if (!data.alreadyClaimed) {
         setDailyLogin({ show: true, streak: data.streak, reward: data.reward, day: data.day });
       }
     };
+    const onSeasonResult = (data: any) => {
+      setClaimingRewards(false);
+      if (data.success) {
+        setRewardsClaimed(data);
+        // Re-fetch rank to update display
+        socket.emit('get-rank');
+        socket.emit('get-quests');
+      }
+    };
+
     socket.on('rank-update', onRank);
     socket.on('quests-update', onQuests);
     socket.on('daily-login-result', onDailyLogin);
+    socket.on('season-rewards-result', onSeasonResult);
     return () => {
       socket.off('rank-update', onRank);
       socket.off('quests-update', onQuests);
       socket.off('daily-login-result', onDailyLogin);
+      socket.off('season-rewards-result', onSeasonResult);
     };
   }, []);
 
@@ -68,6 +114,11 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
 
   const handleStart = () => {
     socket.emit('start-game');
+  };
+
+  const handleClaimSeasonRewards = () => {
+    setClaimingRewards(true);
+    socket.emit('claim-season-rewards');
   };
 
   if (lobby) {
@@ -111,13 +162,33 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
     );
   }
 
+  const season = rank?.season;
+  const unclaimed = rank?.unclaimedSeasonRewards;
+
   return (
     <div className="flex flex-col h-screen bg-gradient-to-b from-stone-950 via-stone-900 to-stone-950">
       {/* ── Main content area ── */}
       <div className="flex-1 flex flex-col items-center justify-center p-4 relative">
         {/* Title */}
         <h1 className="text-6xl font-extrabold text-amber-100 mb-0 drop-shadow-lg tracking-wide">MIRO</h1>
-        <p className="text-amber-400 font-bold text-sm mb-8 tracking-[0.3em] uppercase">Trading Card Game</p>
+        <p className="text-amber-400 font-bold text-sm mb-2 tracking-[0.3em] uppercase">Trading Card Game</p>
+
+        {/* Season banner */}
+        {season && (
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-xs text-amber-300/70 font-bold">{season.name}</span>
+            <span className="text-[10px] text-gray-500">|</span>
+            <span className="text-[10px] text-gray-400">{season.daysLeft} days left</span>
+            {season.peakRankTier && (
+              <>
+                <span className="text-[10px] text-gray-500">|</span>
+                <span className={`text-[10px] font-bold ${RANK_COLORS[season.peakRankTier] ?? 'text-gray-400'}`}>
+                  Peak: {season.peakRankTier}
+                </span>
+              </>
+            )}
+          </div>
+        )}
 
         {mode === 'menu' && (
           <>
@@ -159,9 +230,25 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
               </div>
             </div>
 
+            {/* Season Rewards Preview — below mode box */}
+            {season && (
+              <div className="mt-3 bg-stone-800/40 border border-amber-700/15 rounded-lg px-4 py-2 w-full max-w-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] text-amber-200/60 uppercase tracking-wider font-bold">Season Rewards</span>
+                  <div className="flex items-center gap-2">
+                    {SEASON_REWARDS.map(r => (
+                      <span key={r.rankTier} className={`text-[9px] font-bold ${RANK_COLORS[r.rankTier] ?? 'text-gray-500'}`}>
+                        {r.rankTier.charAt(0)}: {r.goldReward}g+{r.packReward}pk
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Daily Quests — below the mode box */}
             {quests && quests.quests.length > 0 && (
-              <div className="mt-4 bg-stone-800/60 border border-amber-700/20 rounded-xl p-4 w-full max-w-sm">
+              <div className="mt-3 bg-stone-800/60 border border-amber-700/20 rounded-xl p-4 w-full max-w-sm">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-bold text-xs text-amber-200/80 uppercase tracking-wider">Daily Quests</h3>
                   <span className="text-[10px] text-yellow-400 font-bold">{quests.gold}g | Lvl {quests.level}</span>
@@ -216,6 +303,76 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
           </div>
         )}
       </div>
+
+      {/* ── Season Rewards Claim Popup ── */}
+      {showSeasonRewards && unclaimed && !rewardsClaimed && (
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center">
+          <div className="bg-stone-800 rounded-2xl p-8 border border-amber-600/40 text-center shadow-2xl max-w-md mx-4">
+            <div className="text-3xl mb-2">{RANK_ICONS[unclaimed.peakRankTier] ?? '🏆'}</div>
+            <h2 className="text-amber-100 font-bold text-xl mb-1">Season Complete!</h2>
+            <p className="text-gray-400 text-sm mb-1">{unclaimed.seasonName}</p>
+            <p className="text-sm mb-4">
+              Peak Rank: <span className={`font-bold ${RANK_COLORS[unclaimed.peakRankTier] ?? 'text-white'}`}>{unclaimed.peakRankTier}</span>
+            </p>
+
+            <div className="bg-stone-900/60 rounded-xl p-4 mb-4 space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-400">Gold</span>
+                <span className="text-yellow-400 font-bold">+{unclaimed.rewards.goldReward}</span>
+              </div>
+              {unclaimed.rewards.dustReward > 0 && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-400">Dust</span>
+                  <span className="text-blue-300 font-bold">+{unclaimed.rewards.dustReward}</span>
+                </div>
+              )}
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-400">Packs</span>
+                <span className="text-amber-300 font-bold">+{unclaimed.rewards.packReward}</span>
+              </div>
+              {unclaimed.rewards.cardBack && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-400">Card Back</span>
+                  <span className="text-purple-300 font-bold">Legend Card Back</span>
+                </div>
+              )}
+            </div>
+
+            <p className="text-[10px] text-gray-500 mb-4">Your rank will be soft-reset for the new season.</p>
+
+            <button
+              onClick={handleClaimSeasonRewards}
+              disabled={claimingRewards}
+              className="bg-gradient-to-r from-amber-600 to-amber-700 text-white font-bold py-3 px-8 rounded-xl hover:brightness-110 active:scale-95 transition-all cursor-pointer border border-amber-500/50 disabled:opacity-50"
+            >
+              {claimingRewards ? 'Claiming...' : 'Claim Rewards!'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Season Rewards Claimed Confirmation ── */}
+      {rewardsClaimed && (
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center">
+          <div className="bg-stone-800 rounded-2xl p-8 border border-green-600/40 text-center shadow-2xl max-w-md mx-4">
+            <div className="text-3xl mb-2">🎉</div>
+            <h2 className="text-green-300 font-bold text-xl mb-3">Rewards Claimed!</h2>
+            <div className="bg-stone-900/60 rounded-xl p-4 mb-4 space-y-2 text-sm">
+              <div className="text-yellow-400 font-bold">+{rewardsClaimed.goldReward} Gold</div>
+              {rewardsClaimed.dustReward > 0 && <div className="text-blue-300 font-bold">+{rewardsClaimed.dustReward} Dust</div>}
+              <div className="text-amber-300 font-bold">+{rewardsClaimed.packReward} Packs ({rewardsClaimed.packReward * 100}g)</div>
+              {rewardsClaimed.cardBack && <div className="text-purple-300 font-bold">New Card Back!</div>}
+            </div>
+            <p className="text-xs text-gray-400 mb-4">New rank: <span className={`font-bold ${RANK_COLORS[rewardsClaimed.newRankTier] ?? 'text-white'}`}>{rewardsClaimed.newRankTier}</span></p>
+            <button
+              onClick={() => { setRewardsClaimed(null); setShowSeasonRewards(false); }}
+              className="bg-gradient-to-r from-green-600 to-green-700 text-white font-bold py-2.5 px-8 rounded-xl hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+            >
+              Continue
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── Daily Login Bonus Popup ── */}
       {dailyLogin?.show && (
