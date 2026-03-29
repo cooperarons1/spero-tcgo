@@ -39,7 +39,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { errorMsg: strin
   }
 }
 
-type View = 'lobby' | 'game' | 'collection' | 'deckpicker' | 'deckpicker-ai' | 'matchhistory' | 'friends' | 'profile' | 'packs' | 'battlepass' | 'shop';
+type View = 'lobby' | 'game' | 'collection' | 'deckpicker' | 'deckpicker-casual' | 'deckpicker-ranked' | 'deckpicker-ai' | 'matchhistory' | 'friends' | 'profile' | 'packs' | 'battlepass' | 'shop';
 type RematchState = 'default' | 'proposed' | 'received' | 'declined';
 type ConnectionStatus = 'connected' | 'disconnected' | 'opponent-disconnected';
 
@@ -359,9 +359,17 @@ function App() {
           uid={user.uid}
           onBack={() => setView('lobby')}
         />
-      ) : view === 'deckpicker' ? (
+      ) : view === 'deckpicker' || view === 'deckpicker-casual' ? (
         <DeckPicker
           mode="online"
+          queueMode="casual"
+          uid={user.uid}
+          onBack={() => setView('lobby')}
+        />
+      ) : view === 'deckpicker-ranked' ? (
+        <DeckPicker
+          mode="online"
+          queueMode="ranked"
           uid={user.uid}
           onBack={() => setView('lobby')}
         />
@@ -391,7 +399,8 @@ function App() {
           onMatchHistory={() => setView('matchhistory')}
           onFriends={() => setView('friends')}
           onProfile={() => setView('profile')}
-          onPlayOnline={() => setView('deckpicker')}
+          onPlayCasual={() => setView('deckpicker-casual')}
+          onPlayRanked={() => setView('deckpicker-ranked')}
           onPlayAI={() => setView('deckpicker-ai')}
           onPacks={() => setView('packs')}
           onBattlePass={() => setView('battlepass')}

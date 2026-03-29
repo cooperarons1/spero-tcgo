@@ -8,6 +8,7 @@ export interface QueueEntry {
   deckCards: string[];
   queuedAt: number;
   elo: number;
+  mode: 'casual' | 'ranked';
 }
 
 const queue: QueueEntry[] = [];
@@ -16,7 +17,7 @@ const QUEUE_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 
 export function addToQueue(entry: Omit<QueueEntry, 'elo'> & { elo?: number }): void {
   removeFromQueue(entry.uid);
-  queue.push({ ...entry, elo: entry.elo ?? 1000 });
+  queue.push({ ...entry, elo: entry.elo ?? 1000, mode: entry.mode ?? 'casual' });
 }
 
 export function removeFromQueue(uid: string): void {
@@ -59,6 +60,7 @@ export function processQueue(): { matched: [QueueEntry, QueueEntry] | null; time
       let bestEloDiff = Infinity;
       for (let j = 0; j < queue.length; j++) {
         if (j === i) continue;
+        if (queue[j].mode !== p1.mode) continue; // only match same mode
         const diff = Math.abs(p1.elo - queue[j].elo);
         if (diff <= allowedRange && diff < bestEloDiff) {
           bestEloDiff = diff;

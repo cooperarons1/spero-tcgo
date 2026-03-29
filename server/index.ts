@@ -192,6 +192,7 @@ setInterval(() => {
 
       const room = createRoom(p1.uid, p1.socketId, p1.displayName);
       joinRoom(room.code, p2.uid, p2.socketId, p2.displayName);
+      room.mode = p1.mode; // casual or ranked
 
       room.selectedDecks.set(p1.uid, { heroClass: p1.heroClass, cards: p1.deckCards });
       room.selectedDecks.set(p2.uid, { heroClass: p2.heroClass, cards: p2.deckCards });
@@ -356,10 +357,11 @@ async function finalizeGame(room: ReturnType<typeof getRoom>) {
     } catch {}
   }
 
-  // Calculate new ELO (only for PvP games)
+  // Calculate new ELO (only for ranked PvP games)
   const isPvP = !uids.some(u => isAIPlayer(u));
+  const isRanked = isPvP && room?.mode === 'ranked';
   let newElos = elos;
-  if (isPvP) {
+  if (isRanked) {
     const result = calculateElo(elos[winnerIdx], elos[loserIdx]);
     newElos = [...elos];
     newElos[winnerIdx] = result.newWinnerElo;
@@ -910,6 +912,7 @@ io.on('connection', (socket) => {
       deckCards: data.deckCards,
       queuedAt: Date.now(),
       elo,
+      mode: data.mode ?? 'casual',
     });
   }));
 

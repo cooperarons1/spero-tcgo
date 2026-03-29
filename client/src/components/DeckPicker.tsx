@@ -8,6 +8,7 @@ import cardData from '../../../data/cards.json';
 
 interface DeckPickerProps {
   mode: 'online' | 'ai';
+  queueMode?: 'casual' | 'ranked';
   uid: string;
   onBack: () => void;
 }
@@ -46,7 +47,7 @@ const HERO_PORTRAIT_IMGS: Partial<Record<string, string>> = {
 
 const MANA_BUCKETS = [0, 1, 2, 3, 4, 5, 6, 7] as const;
 
-export function DeckPicker({ mode, uid, onBack }: DeckPickerProps) {
+export function DeckPicker({ mode, queueMode = 'casual', uid, onBack }: DeckPickerProps) {
   const [decks, setDecks] = useState<DeckList[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -127,6 +128,7 @@ export function DeckPicker({ mode, uid, onBack }: DeckPickerProps) {
       socket.emit('join-queue', {
         heroClass: selectedDeck.heroClass,
         deckCards: selectedDeck.cards,
+        mode: queueMode,
       });
 
       const onMatch = () => {
@@ -187,7 +189,7 @@ export function DeckPicker({ mode, uid, onBack }: DeckPickerProps) {
               &larr; Back
             </button>
             <h1 className="text-base font-bold text-amber-100 tracking-wider uppercase">
-              {mode === 'ai' ? 'Play vs AI' : 'Find Match'}
+              {mode === 'ai' ? 'Play vs AI' : queueMode === 'ranked' ? 'Ranked Match' : 'Casual Match'}
             </h1>
             <div className="w-14" />
           </div>

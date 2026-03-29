@@ -399,6 +399,7 @@ export interface Room {
   isAIGame?: boolean;
   aiPlayerId?: string;
   cardBacks?: Map<string, string>; // uid -> selected card back id
+  mode?: 'casual' | 'ranked'; // PvP game mode
 }
 
 // ─── Post-Game Rewards ───

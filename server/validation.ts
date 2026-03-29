@@ -56,6 +56,7 @@ export const DeckListSchema = z.object({
 export const JoinQueueSchema = z.object({
   heroClass: z.enum(['DEREK', 'TALA', 'JIMMY', 'ANDERS', 'DES', 'ASTRID', 'AVA', 'LUCAS', 'IZZY']),
   deckCards: z.array(z.string()).length(30),
+  mode: z.enum(['casual', 'ranked']).default('casual'),
 });
 
 export const StartAIGameSchema = z.object({

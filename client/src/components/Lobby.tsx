@@ -10,7 +10,8 @@ interface LobbyProps {
   onMatchHistory: () => void;
   onFriends: () => void;
   onProfile: () => void;
-  onPlayOnline: () => void;
+  onPlayCasual: () => void;
+  onPlayRanked: () => void;
   onPlayAI: () => void;
   onPacks: () => void;
   onBattlePass: () => void;
@@ -58,7 +59,7 @@ interface UnclaimedRewards {
   rewards: { goldReward: number; dustReward: number; packReward: number; cardBack?: string };
 }
 
-export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, onProfile, onPlayOnline, onPlayAI, onPacks, onBattlePass, onShop, onSignOut }: LobbyProps) {
+export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, onProfile, onPlayCasual, onPlayRanked, onPlayAI, onPacks, onBattlePass, onShop, onSignOut }: LobbyProps) {
   const [joinCode, setJoinCode] = useState('');
   const [mode, setMode] = useState<'menu' | 'join'>('menu');
   const [rank, setRank] = useState<{ elo: number; rankTier: string; season?: SeasonInfo; unclaimedSeasonRewards?: UnclaimedRewards | null } | null>(null);
@@ -208,12 +209,20 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
               >
                 Play vs AI
               </button>
-              <button
-                onClick={onPlayOnline}
-                className="w-full bg-gradient-to-r from-blue-600 via-blue-600 to-blue-700 text-white font-bold py-4 px-6 rounded-xl text-lg hover:brightness-110 active:scale-[0.97] transition-all shadow-lg cursor-pointer border border-blue-500/40"
-              >
-                Play Online
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={onPlayCasual}
+                  className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold py-4 px-4 rounded-xl text-base hover:brightness-110 active:scale-[0.97] transition-all shadow-lg cursor-pointer border border-blue-500/40"
+                >
+                  Casual
+                </button>
+                <button
+                  onClick={onPlayRanked}
+                  className="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-bold py-4 px-4 rounded-xl text-base hover:brightness-110 active:scale-[0.97] transition-all shadow-lg cursor-pointer border border-purple-500/40"
+                >
+                  Ranked
+                </button>
+              </div>
               <div className="flex gap-2 pt-1">
                 <button
                   onClick={handleCreate}
