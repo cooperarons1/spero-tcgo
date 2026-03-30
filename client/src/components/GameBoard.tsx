@@ -881,7 +881,7 @@ function HeroPortrait({
           )}
         </button>
         {/* Styled tooltip on hover */}
-        <div className={`absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover/hp:block text-[11px] px-3 py-1.5 rounded-lg whitespace-normal text-center z-50 shadow-lg pointer-events-none max-w-[250px]
+        <div className={`absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover/hp:block text-[10px] px-2.5 py-1 rounded-lg whitespace-normal text-center z-50 shadow-lg pointer-events-none max-w-[180px]
           ${heroPowerUpgraded
             ? 'bg-gradient-to-b from-amber-900 to-stone-900 text-amber-100 border border-amber-400/60 shadow-[0_0_8px_rgba(245,158,11,0.3)]'
             : 'bg-stone-900 text-amber-200 border border-amber-600/40'}`}>
@@ -932,7 +932,7 @@ function HandCard({
     <button
       onClick={onClick}
       onPointerDown={onPointerDown}
-      className={`group relative flex h-52 w-[8.5rem] flex-shrink-0 flex-col items-center rounded-xl border-2 p-1 transition-all overflow-hidden card-frame touch-none
+      className={`group relative flex h-44 w-[7.5rem] flex-shrink-0 flex-col items-center rounded-xl border-2 p-1 transition-all overflow-hidden card-frame touch-none
         ${isSelected
           ? 'border-green-400 -translate-y-6 scale-110 z-20 shadow-[0_0_20px_4px_rgba(34,197,94,0.5)]'
           : canPlay
@@ -2633,27 +2633,48 @@ export default function GameBoard({
               style={{ left: ptrDrag.curX - 50, top: ptrDrag.curY - 70 }}
             >
               <div
-                className="w-[100px] h-[140px] rounded-[10px] flex flex-col items-center overflow-hidden shadow-[0_4px_16px_rgba(0,0,0,0.5)]"
+                className="w-[100px] h-[140px] rounded-[10px] flex flex-col items-center overflow-hidden shadow-[0_8px_24px_rgba(0,0,0,0.6)] relative"
                 style={{
                   background: 'linear-gradient(to bottom, #3d2a14, #4a3520, #2a1a08)',
                   border: `3px solid ${def ? CLASS_COLORS[def.heroClass] || '#d4a520' : '#d4a520'}`,
                 }}
               >
-                <div className="absolute -top-0.5 -left-0.5 w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-blue-700 border-2 border-blue-300 text-[12px] font-black text-white flex items-center justify-center z-10">
+                {/* Card art fills the ghost */}
+                {card?.cardCode && (
+                  <div className="absolute inset-0 overflow-hidden rounded-[7px]">
+                    <CardArt cardCode={card.cardCode} className="w-full h-full" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                  </div>
+                )}
+                {/* Mana cost badge */}
+                <div className="absolute -top-0.5 -left-0.5 w-7 h-7 rounded-full bg-gradient-to-br from-blue-400 to-blue-700 border-2 border-blue-300 text-[13px] font-black text-white flex items-center justify-center z-10">
                   {def?.manaCost ?? '?'}
                 </div>
-                <div className="mt-[26px] text-[10px] font-bold text-amber-100 text-center w-full overflow-hidden whitespace-nowrap text-ellipsis px-1">
+                {/* Card name */}
+                <div className="absolute bottom-5 left-0 right-0 text-[9px] font-bold text-white text-center px-1 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
                   {def?.name ?? 'Card'}
                 </div>
+                {/* Minion stats */}
                 {def?.type === 'MINION' && (
-                  <div className="absolute bottom-1 left-1 right-1 flex justify-between">
-                    <div className="w-[22px] h-[22px] rounded-full bg-gradient-to-br from-yellow-400 to-yellow-700 border-2 border-yellow-300 text-[11px] font-black text-white flex items-center justify-center">
+                  <>
+                    <div className="absolute -bottom-1 -left-1 w-6 h-6 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-700 border-2 border-yellow-300 text-[11px] font-black text-white flex items-center justify-center z-10">
                       {def.attack}
                     </div>
-                    <div className="w-[22px] h-[22px] rounded-full bg-gradient-to-br from-red-500 to-red-800 border-2 border-red-400 text-[11px] font-black text-white flex items-center justify-center">
+                    <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-gradient-to-br from-red-500 to-red-800 border-2 border-red-400 text-[11px] font-black text-white flex items-center justify-center z-10">
                       {def.health}
                     </div>
-                  </div>
+                  </>
+                )}
+                {/* Weapon stats */}
+                {def?.type === 'WEAPON' && (
+                  <>
+                    <div className="absolute -bottom-1 -left-1 w-6 h-6 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 border-2 border-amber-300 text-[11px] font-black text-white flex items-center justify-center z-10">
+                      {def.attack}
+                    </div>
+                    <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-gradient-to-br from-stone-400 to-stone-600 border-2 border-stone-300 text-[11px] font-black text-white flex items-center justify-center z-10">
+                      {def.health}
+                    </div>
+                  </>
                 )}
               </div>
             </div>
