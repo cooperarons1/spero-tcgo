@@ -538,10 +538,15 @@ io.on('connection', (socket) => {
   console.log(`Connected: ${uid} (${displayName}) [${socket.id}]`);
   onlineUsers.set(uid, socket.id);
 
-  adminDb.collection('users').doc(uid).set(
-    { displayName, displayNameLower: displayName.toLowerCase(), lastSeen: Date.now() },
-    { merge: true }
-  ).catch(() => {});
+  adminDb.collection('users').doc(uid).get().then(doc => {
+    const data = doc.data() ?? {};
+    const updates: Record<string, any> = { displayName, displayNameLower: displayName.toLowerCase(), lastSeen: Date.now() };
+    // Initialize gold/dust for new users
+    if (data.gold === undefined) updates.gold = 500;
+    if (data.dust === undefined) updates.dust = 0;
+    if (data.cardBacks === undefined) updates.cardBacks = ['default'];
+    adminDb.collection('users').doc(uid).set(updates, { merge: true });
+  }).catch(() => {});
 
   // Check for reconnection
   const reconnectedRoom = tryReconnect(uid, socket.id);
