@@ -2193,21 +2193,25 @@ export default function GameBoard({
 
       {/* ═══ Right sidebar: Deck → End Turn → Timer → Deck ═══ */}
       {/* Desktop: absolutely positioned right side; Mobile: End Turn at bottom-center */}
-      <div className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 z-20 flex-col items-center gap-2">
-        <DeckPile count={gs.opponentDeckCount} graveyardCount={gs.opponent.graveyardCount} />
+      <div className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 z-20 flex-col items-center gap-3">
+        {/* Opponent deck — slightly tilted */}
+        <div style={{ transform: 'rotate(3deg)' }}>
+          <DeckPile count={gs.opponentDeckCount} graveyardCount={gs.opponent.graveyardCount} />
+        </div>
+        {/* End Turn — Hearthstone-style wide pill */}
         <button
           onClick={handleEndTurn}
           disabled={!isMyTurn || !isPlaying}
-          className={`w-20 h-20 rounded-xl font-bold text-[11px] leading-tight text-center transition-all
+          className={`w-28 h-14 rounded-xl font-bold text-sm text-center transition-all border-2
             ${isMyTurn && isPlaying
-              ? 'bg-gradient-to-b from-amber-500 to-yellow-600 text-black shadow-[0_0_20px_rgba(234,179,8,0.4)] hover:from-amber-400 hover:to-yellow-500 active:scale-95 animate-end-turn-glow'
-              : 'bg-stone-700 text-stone-500 cursor-not-allowed'}
+              ? 'bg-gradient-to-b from-amber-400 to-yellow-600 text-stone-900 border-amber-300 shadow-[0_0_24px_rgba(234,179,8,0.5)] hover:from-amber-300 hover:to-yellow-500 active:scale-95 cursor-pointer'
+              : 'bg-stone-700/80 text-stone-500 border-stone-600 cursor-not-allowed'}
           `}
         >
-          {isMyTurn ? <>END{'\n'}TURN</> : <>ENEMY{'\n'}TURN</>}
+          {isMyTurn ? 'END TURN' : 'ENEMY TURN'}
         </button>
         {isMyTurn && timeLeft !== null && timeLeft <= 20 && (
-          <div className="w-16 h-1.5 rounded-full bg-stone-700 overflow-hidden">
+          <div className="w-20 h-1.5 rounded-full bg-stone-700 overflow-hidden">
             <div
               className={`h-full rounded-full transition-all duration-200 ${
                 timeLeft <= 5 ? 'bg-red-500 animate-pulse' : timeLeft <= 10 ? 'bg-orange-500' : 'bg-yellow-500'
@@ -2216,7 +2220,10 @@ export default function GameBoard({
             />
           </div>
         )}
-        <DeckPile count={gs.deckCount} graveyardCount={gs.myGraveyardCount} />
+        {/* My deck — slightly tilted opposite */}
+        <div style={{ transform: 'rotate(-3deg)' }}>
+          <DeckPile count={gs.deckCount} graveyardCount={gs.myGraveyardCount} />
+        </div>
       </div>
       {/* Mobile: End Turn button at bottom-center + decks in corners */}
       <div className="md:hidden absolute bottom-1 left-1/2 -translate-x-1/2 z-30">

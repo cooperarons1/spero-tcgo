@@ -390,6 +390,111 @@ export function executeEffect(
       }
       break;
     }
+    case 'DESTROY_ALL_ENEMY_MINIONS': {
+      for (const m of [...opp.board]) {
+        m.currentHealth = 0;
+      }
+      addLog(game, casterIndex, 'Destroys all enemy minions', 'EFFECT');
+      checkDeaths(game);
+      break;
+    }
+    case 'FREEZE_ALL_ENEMIES': {
+      for (const m of opp.board) {
+        m.isFrozen = true;
+      }
+      addLog(game, casterIndex, 'Freezes all enemy minions', 'EFFECT');
+      break;
+    }
+    case 'GIVE_DIVINE_SHIELD': {
+      // Targets a friendly minion
+      if (targetId) {
+        const target = me.board.find(m => m.instanceId === targetId);
+        if (target) {
+          target.hasDivineShield = true;
+          addLog(game, casterIndex, `Gives Divine Shield to ${getCardDef(target.cardCode).name}`, 'EFFECT');
+        }
+      }
+      break;
+    }
+    case 'BUFF_ALL_FRIENDLY_MINIONS': {
+      const atkBuff = (effect as any).attackBuff ?? 0;
+      const hpBuff = (effect as any).healthBuff ?? 0;
+      const grantDS = (effect as any).grantDivineShield ?? false;
+      for (const m of me.board) {
+        m.currentAttack += atkBuff;
+        m.maxHealth += hpBuff;
+        m.currentHealth += hpBuff;
+        if (grantDS) m.hasDivineShield = true;
+        m.enchantments.push({ source: 'buff-all', attackMod: atkBuff, healthMod: hpBuff });
+      }
+      addLog(game, casterIndex, `Gives all friendly minions +${atkBuff}/+${hpBuff}${grantDS ? ' and Divine Shield' : ''}`, 'EFFECT');
+      break;
+    }
+    case 'SUMMON_TOKENS': {
+      const count = (effect as any).count ?? 1;
+      const tokenCode = (effect as any).tokenCode;
+      for (let i = 0; i < count; i++) {
+        if (me.board.length >= MAX_BOARD_SIZE) break;
+        if (tokenCode) {
+          const token = createBoardMinion(tokenCode);
+          me.board.push(token);
+        }
+      }
+      addLog(game, casterIndex, `Summons ${count} token(s)`, 'EFFECT');
+      break;
+    }
+    case 'RETURN_TO_HAND_SELF': {
+      // Deathrattle: return the dying minion to hand (handled specially in combat death processing)
+      // For now, just add a card to hand
+      if (me.hand.length < MAX_HAND_SIZE) {
+        const cardCode = (effect as any).cardCode ?? '';
+        if (cardCode) me.hand.push(makeInstance(cardCode));
+      }
+      break;
+    }
+    case 'BOUNCE_ENEMY_MINIONS_CONDITIONAL': {
+      const maxAttack = (effect as any).maxAttack ?? 3;
+      const bounced: string[] = [];
+      for (let i = opp.board.length - 1; i >= 0; i--) {
+        if (opp.board[i].currentAttack <= maxAttack) {
+          const m = opp.board.splice(i, 1)[0];
+          if (opp.hand.length < MAX_HAND_SIZE) {
+            opp.hand.push(makeInstance(m.cardCode));
+          }
+          bounced.push(getCardDef(m.cardCode).name);
+        }
+      }
+      if (bounced.length > 0) {
+        addLog(game, casterIndex, `Returns ${bounced.join(', ')} to opponent's hand`, 'EFFECT');
+      }
+      break;
+    }
+    case 'GAIN_ARMOR_AND_DRAW': {
+      const armor = (effect as any).armor ?? 0;
+      const draw = (effect as any).draw ?? 0;
+      me.armor += armor;
+      for (let i = 0; i < draw; i++) drawCard(game, casterIndex, true);
+      addLog(game, casterIndex, `Gains ${armor} Armor and draws ${draw} card(s)`, 'EFFECT');
+      break;
+    }
+    case 'HEAL_ALL_FRIENDLY_FULL': {
+      me.health = me.maxHealth;
+      for (const m of me.board) {
+        m.currentHealth = m.maxHealth;
+      }
+      addLog(game, casterIndex, 'Restores all friendly characters to full Health', 'EFFECT');
+      break;
+    }
+    case 'DEAL_DAMAGE_ALL_CHARACTERS': {
+      const dmg = value;
+      for (const m of [...me.board]) applyDamageToMinion(m, dmg);
+      for (const m of [...opp.board]) applyDamageToMinion(m, dmg);
+      applyDamageToHero(me, dmg);
+      applyDamageToHero(opp, dmg);
+      addLog(game, casterIndex, `Deals ${dmg} damage to ALL characters`, 'EFFECT');
+      checkDeaths(game);
+      break;
+    }
   }
 }
 
