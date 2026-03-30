@@ -917,7 +917,7 @@
   {
     "cardCode": "LUC021",
     "name": "Agile Strength",
-    "manaCost": 2,
+    "manaCost": 1,
     "type": "SPELL",
     "heroClass": "LUCAS",
     "rarity": "COMMON",
@@ -1687,7 +1687,7 @@
   {
     "cardCode": "DES022",
     "name": "Death's Descent",
-    "manaCost": 7,
+    "manaCost": 8,
     "type": "SPELL",
     "heroClass": "DES",
     "rarity": "EPIC",
@@ -1962,7 +1962,7 @@
   {
     "cardCode": "LUC024",
     "name": "Face to Face",
-    "manaCost": 2,
+    "manaCost": 1,
     "type": "SPELL",
     "heroClass": "LUCAS",
     "rarity": "RARE",
@@ -2329,7 +2329,7 @@
     "heroClass": "LUCAS",
     "rarity": "RARE",
     "attack": 2,
-    "health": 2,
+    "health": 3,
     "text": "Combo: Gain +2 Attack.",
     "flavor": "Lightning in her veins, thunder in her fists.",
     "keywords": [
@@ -2415,7 +2415,7 @@
   {
     "cardCode": "LUC029",
     "name": "Hunting Trophy",
-    "manaCost": 3,
+    "manaCost": 2,
     "type": "SPELL",
     "heroClass": "LUCAS",
     "rarity": "COMMON",
@@ -2586,7 +2586,7 @@
     "heroClass": "LUCAS",
     "rarity": "COMMON",
     "attack": 3,
-    "health": 3,
+    "health": 4,
     "text": "Combo: Return an enemy minion to their hand.",
     "flavor": "Quiet as a shadow. Twice as dark.",
     "keywords": [
@@ -2736,7 +2736,7 @@
     "heroClass": "LUCAS",
     "rarity": "EPIC",
     "attack": 5,
-    "health": 3,
+    "health": 4,
     "text": "Combo: Deal 2 damage to the enemy hero.",
     "flavor": "Old man. Young birds. Ancient wisdom.",
     "keywords": [
@@ -3625,8 +3625,8 @@
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "COMMON",
-    "attack": 1,
-    "health": 2,
+    "attack": 2,
+    "health": 1,
     "text": "Combo: Deal 1 damage to the enemy hero.",
     "flavor": "Small pinch. Big ouchie.",
     "keywords": [
@@ -4256,7 +4256,7 @@
     "heroClass": "LUCAS",
     "rarity": "RARE",
     "attack": 4,
-    "health": 2,
+    "health": 3,
     "text": "Combo: Draw a card.",
     "flavor": "Sho shoots. Sho scores. Sho disappears.",
     "keywords": [
@@ -4571,7 +4571,7 @@
     "heroClass": "LUCAS",
     "rarity": "COMMON",
     "attack": 4,
-    "health": 3,
+    "health": 4,
     "text": "Combo: Gain +2/+1.",
     "flavor": "Together they're unstoppable. Apart they're just... stoppable.",
     "keywords": [
@@ -5550,7 +5550,7 @@
   {
     "cardCode": "LUC044",
     "name": "Shadow of Polara",
-    "manaCost": 8,
+    "manaCost": 7,
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "RARE",
