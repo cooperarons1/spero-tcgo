@@ -597,7 +597,7 @@
     "heroClass": "DES",
     "rarity": "RARE",
     "attack": 1,
-    "health": 3,
+    "health": 2,
     "text": "Collar. Deathrattle: Apply Collar to a random enemy minion.",
     "flavor": "Even in death, the collar persists.",
     "keywords": [
@@ -1230,13 +1230,14 @@
     "rarity": "COMMON",
     "attack": 0,
     "health": 0,
-    "text": "Restore 3 Health to a character.",
+    "text": "Freeze a character. Draw a card.",
     "flavor": "Refreshing. Restorative. Remarkably cold.",
     "keywords": [],
     "spellEffect": {
       "type": "RESTORE_HEALTH",
       "target": "TARGET_ANY",
-      "value": 3
+      "value": 3,
+      "alsoDraw": 1
     }
   },
   {
@@ -1686,7 +1687,7 @@
   {
     "cardCode": "DES022",
     "name": "Death's Descent",
-    "manaCost": 6,
+    "manaCost": 7,
     "type": "SPELL",
     "heroClass": "DES",
     "rarity": "EPIC",
@@ -1924,7 +1925,7 @@
     "rarity": "COMMON",
     "attack": 4,
     "health": 3,
-    "text": "Battlecry: Deal 2 damage to your hero.",
+    "text": "Battlecry: Deal 3 damage to your hero.",
     "flavor": "Pain is just weakness leaving the body. He has a lot of weakness.",
     "keywords": [
       "BATTLECRY"
@@ -1933,7 +1934,7 @@
     "battlecryEffect": {
       "type": "DEAL_DAMAGE",
       "target": "SELF",
-      "value": 2
+      "value": 3
     }
   },
   {
@@ -2264,7 +2265,7 @@
     "type": "MINION",
     "heroClass": "ANDERS",
     "rarity": "EPIC",
-    "attack": 3,
+    "attack": 4,
     "health": 4,
     "text": "Battlecry: Freeze a random enemy.",
     "flavor": "She glows with an inner frost that never melts.",
@@ -2873,7 +2874,7 @@
     "type": "MINION",
     "heroClass": "DES",
     "rarity": "RARE",
-    "attack": 4,
+    "attack": 3,
     "health": 4,
     "text": "Deathrattle: Deal 3 damage to the enemy hero.",
     "flavor": "The dead tell tales. He makes sure they do.",
@@ -3118,7 +3119,7 @@
     "rarity": "COMMON",
     "attack": 3,
     "health": 2,
-    "text": "Battlecry: Deal 1 damage to your hero.",
+    "text": "Battlecry: Deal 2 damage to your hero.",
     "flavor": "Small pain now. Bigger pain later.",
     "keywords": [
       "BATTLECRY"
@@ -3127,7 +3128,7 @@
     "battlecryEffect": {
       "type": "DEAL_DAMAGE",
       "target": "SELF",
-      "value": 1
+      "value": 2
     }
   },
   {
@@ -3288,9 +3289,11 @@
     "rarity": "COMMON",
     "attack": 2,
     "health": 3,
-    "text": "",
+    "text": "Freeze any character damaged by this minion.",
     "flavor": "Still waters run deep. And cold.",
-    "keywords": [],
+    "keywords": [
+      "FREEZE"
+    ],
     "minionType": "HUMAN"
   },
   {
@@ -3367,7 +3370,7 @@
     "heroClass": "IZZY",
     "rarity": "COMMON",
     "attack": 2,
-    "health": 2,
+    "health": 3,
     "text": "",
     "flavor": "Aim. Fire. Apologize later.",
     "keywords": []
@@ -3502,7 +3505,7 @@
     "heroClass": "ANDERS",
     "rarity": "LEGENDARY",
     "attack": 4,
-    "health": 4,
+    "health": 5,
     "text": "Battlecry: Freeze all enemy minions.",
     "flavor": "He is the storm that Aster Peak fears most.",
     "keywords": [
@@ -4610,7 +4613,7 @@
     "type": "MINION",
     "heroClass": "DES",
     "rarity": "LEGENDARY",
-    "attack": 6,
+    "attack": 5,
     "health": 4,
     "text": "Battlecry: Destroy a random enemy minion.",
     "flavor": "Rules are for those who lack the power to break them.",
@@ -5405,7 +5408,7 @@
   {
     "cardCode": "AND032",
     "name": "Frostbite Leviathan",
-    "manaCost": 7,
+    "manaCost": 6,
     "type": "MINION",
     "heroClass": "ANDERS",
     "rarity": "EPIC",
@@ -5425,7 +5428,7 @@
   {
     "cardCode": "AND033",
     "name": "Blizzard of Aster Peak",
-    "manaCost": 8,
+    "manaCost": 6,
     "type": "SPELL",
     "heroClass": "ANDERS",
     "rarity": "RARE",
@@ -5567,7 +5570,7 @@
   {
     "cardCode": "IZZ040",
     "name": "Bling's Grand Discovery",
-    "manaCost": 7,
+    "manaCost": 6,
     "type": "SPELL",
     "heroClass": "IZZY",
     "rarity": "EPIC",
@@ -5585,7 +5588,7 @@
   {
     "cardCode": "IZZ041",
     "name": "Navigator's Flagship",
-    "manaCost": 8,
+    "manaCost": 7,
     "type": "MINION",
     "heroClass": "IZZY",
     "rarity": "RARE",

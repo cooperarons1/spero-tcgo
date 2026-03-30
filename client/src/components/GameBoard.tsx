@@ -156,12 +156,12 @@ const HERO_POWER_DESC: Record<HeroClass, string> = {
   JIMMY: 'Orra Arrow: Deal 2 damage to any target',
   TALA: "Nature's Touch: Give a friendly minion +1/+1",
   DEREK: 'Tinker: Draw a card',
-  ANDERS: 'Hockbandy Strike: Deal 1 damage to a minion and Freeze it',
-  DES: 'Orra Siphon: Deal 2 damage to the enemy hero',
+  ANDERS: 'Hockbandy Strike: Deal 2 damage to a minion and Freeze it',
+  DES: 'Orra Siphon: Deal 1 damage to the enemy hero',
   ASTRID: 'Mighty Guard: Give a friendly minion Divine Shield',
   AVA: 'Deploy Drone: Summon a 1/1 Gadget Drone',
   LUCAS: "Coyote's Veil: +1 Attack this turn and gain 1 Armor",
-  IZZY: 'Chart Course: Gain 2 Armor',
+  IZZY: 'Chart Course: Gain 2 Armor. Draw 1 if you have 5+ Armor',
   NEUTRAL: 'Hero Power',
 };
 
@@ -169,12 +169,12 @@ const HERO_POWER_DESC_UPGRADED: Record<HeroClass, string> = {
   JIMMY: 'Orra Barrage: Deal 2 damage + 1 to adjacent minions',
   TALA: "Nature's Embrace: Give a friendly minion +1/+2",
   DEREK: 'Master Tinker: Draw a card (1 mana refunded)',
-  ANDERS: 'Avalanche Strike: Deal 1 damage + Freeze target and 1 adjacent',
-  DES: 'Dark Siphon: Deal 2 damage + random enemy gets -1 Attack',
+  ANDERS: 'Avalanche Strike: Deal 2 damage + Freeze target and 1 adjacent',
+  DES: 'Dark Siphon: Deal 1 damage + random enemy gets -1 Attack',
   ASTRID: 'Radiant Guard: Divine Shield + 0/+2',
   AVA: 'Deploy Guardian: Summon a 1/1 Drone with Taunt',
   LUCAS: "Shadow Veil: +2 Attack this turn and gain 2 Armor",
-  IZZY: 'Master Navigator: Gain 2 Armor and draw 1',
+  IZZY: 'Master Navigator: Gain 3 Armor and draw 1',
   NEUTRAL: 'Hero Power',
 };
 
@@ -596,7 +596,7 @@ function BoardMinionCard({
       </div>
       {/* Health circle — bottom-right, inside frame */}
       <div className={`absolute bottom-1 right-1 flex h-8 w-8 items-center justify-center rounded-full text-sm font-extrabold text-white shadow-lg z-20 border-2 drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]
-        ${isDamaged ? 'bg-gradient-to-br from-red-500 to-red-700 border-red-300' : 'bg-gradient-to-br from-red-700 to-red-900 border-red-400'}
+        ${isDamaged ? 'bg-gradient-to-br from-red-400 to-red-500 border-red-200' : 'bg-gradient-to-br from-red-700 to-red-900 border-red-400'}
       `}>
         {minion.currentHealth}
       </div>

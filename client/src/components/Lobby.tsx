@@ -161,6 +161,13 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
           ) : (
             <p className="text-gray-400 italic">Waiting for host to start...</p>
           )}
+
+          <button
+            onClick={() => { socket.emit('leave-room'); }}
+            className="mt-4 text-gray-500 text-sm hover:text-gray-300 cursor-pointer transition-colors"
+          >
+            &larr; Leave Room
+          </button>
         </div>
       </div>
     );

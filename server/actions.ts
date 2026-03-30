@@ -350,7 +350,7 @@ export function useHeroPower(
       player.heroPowerUsed = true;
       game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
       game.playerStats[pIdx as 0 | 1].heroPowerUses++;
-      executeEffect(game, pIdx as 0 | 1, { type: 'DEAL_DAMAGE', target: 'TARGET_MINION', value: 1 }, targetId);
+      executeEffect(game, pIdx as 0 | 1, { type: 'DEAL_DAMAGE', target: 'TARGET_MINION', value: 2 }, targetId);
       executeEffect(game, pIdx as 0 | 1, { type: 'FREEZE_TARGET', target: 'TARGET_MINION' }, targetId);
       if (upgraded) {
         // Freeze 1 adjacent minion (the one to the right, or left if rightmost)
@@ -367,8 +367,8 @@ export function useHeroPower(
       break;
     }
     case 'DES': {
-      // Orra Siphon: 2 dmg to enemy hero (upgraded: 2 dmg + random enemy gets -1 atk)
-      const dmg = 2;
+      // Orra Siphon: 1 dmg to enemy hero (upgraded: 1 dmg + random enemy gets -1 atk)
+      const dmg = 1;
       player.mana -= HERO_POWER_COST;
       player.heroPowerUsed = true;
       game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
@@ -440,13 +440,14 @@ export function useHeroPower(
       break;
     }
     case 'IZZY': {
-      // Chart Course: 2 armor (upgraded: 2 armor + draw 1)
+      // Chart Course: 2 armor, draw 1 if 5+ armor (upgraded: 3 armor + draw 1)
       player.mana -= HERO_POWER_COST;
       player.heroPowerUsed = true;
       game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
       game.playerStats[pIdx as 0 | 1].heroPowerUses++;
-      executeEffect(game, pIdx as 0 | 1, { type: 'GAIN_ARMOR', target: 'NONE', value: 2 });
-      if (upgraded) {
+      const armorGain = upgraded ? 3 : 2;
+      executeEffect(game, pIdx as 0 | 1, { type: 'GAIN_ARMOR', target: 'NONE', value: armorGain });
+      if (upgraded || player.armor >= 5) {
         drawCard(game, pIdx as 0 | 1, true);
       }
       addLog(game, pIdx as 0 | 1, `${player.playerName} uses ${upgraded ? 'Master Navigator' : 'Chart Course'}`, 'PLAY');
