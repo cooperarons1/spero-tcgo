@@ -519,6 +519,7 @@ function BoardMinionCard({
   const hasDivine = minion.hasDivineShield;
   const isFrozen = minion.isFrozen;
   const isStealth = minion.hasStealthUntilAttack;
+  const hasDeathrattle = !isSilenced && def?.keywords.includes('DEATHRATTLE');
   const rarityColor = def ? RARITY_COLORS[def.rarity] : undefined;
 
   return (
@@ -600,6 +601,23 @@ function BoardMinionCard({
       `}>
         {minion.currentHealth}
       </div>
+      {/* Deathrattle skull icon — bottom center */}
+      {hasDeathrattle && (
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-30 pointer-events-none">
+          <svg viewBox="0 0 24 24" className="w-6 h-6 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" fill="none">
+            <circle cx="12" cy="10" r="7" fill="#1a1a1a" stroke="#888" strokeWidth="1.5"/>
+            <circle cx="9.5" cy="9" r="1.8" fill="#e8e8e8"/>
+            <circle cx="14.5" cy="9" r="1.8" fill="#e8e8e8"/>
+            <rect x="10" y="13" width="1.5" height="3" rx="0.5" fill="#e8e8e8"/>
+            <rect x="12.5" y="13" width="1.5" height="3" rx="0.5" fill="#e8e8e8"/>
+            <rect x="5" y="17" width="14" height="2.5" rx="1" fill="#1a1a1a" stroke="#888" strokeWidth="1"/>
+            <rect x="7" y="16" width="2" height="5" rx="0.5" fill="#e8e8e8"/>
+            <rect x="11" y="16" width="2" height="5" rx="0.5" fill="#e8e8e8"/>
+            <rect x="15" y="16" width="2" height="5" rx="0.5" fill="#e8e8e8"/>
+          </svg>
+        </div>
+      )}
+
       {/* Name + tribe label — inside frame, above attack/health */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 pointer-events-none text-center w-full px-2">
         <div className="text-[9px] font-bold text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] leading-tight truncate">
