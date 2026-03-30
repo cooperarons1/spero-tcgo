@@ -964,7 +964,9 @@ function HandCard({
       </div>
       {/* Name banner */}
       <div className="w-full card-name-banner px-1 py-0.5 mt-0.5">
-        <span className="text-[10px] font-bold text-amber-100 leading-tight truncate w-full text-center block">
+        <span className={`font-bold text-amber-100 leading-tight w-full text-center block ${
+          def.name.length > 18 ? 'text-[8px]' : def.name.length > 12 ? 'text-[9px]' : 'text-[10px]'
+        }`}>
           {def.name}
         </span>
       </div>
