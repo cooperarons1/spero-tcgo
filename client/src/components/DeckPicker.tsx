@@ -195,8 +195,8 @@ export function DeckPicker({ mode, queueMode = 'casual', uid, onBack }: DeckPick
           </div>
 
           {/* Deck grid area */}
-          <div className="flex-1 flex flex-col items-center justify-center px-6 py-4 min-h-0">
-            <h2 className="text-sm text-amber-200/60 font-bold uppercase tracking-wider mb-5 self-start">Choose Your Deck</h2>
+          <div className="flex-1 flex flex-col px-6 pt-5 pb-4 min-h-0 overflow-y-auto">
+            <h2 className="text-sm text-amber-200/60 font-bold uppercase tracking-wider mb-4">Choose Your Deck</h2>
 
             {loading ? (
               <div className="flex-1 flex items-center justify-center">
@@ -207,7 +207,7 @@ export function DeckPicker({ mode, queueMode = 'casual', uid, onBack }: DeckPick
                 <p className="text-gray-500">No decks yet. Visit Collection to create one!</p>
               </div>
             ) : (
-              <div className="grid grid-cols-3 gap-3 w-full max-w-[680px]">
+              <div className="grid grid-cols-3 gap-4 w-full">
                 {sortedDecks.map(deck => {
                   const isValid = deck.cards.length === DECK_SIZE;
                   const isSelected = selectedId === deck.id;
@@ -218,7 +218,7 @@ export function DeckPicker({ mode, queueMode = 'casual', uid, onBack }: DeckPick
                       key={deck.id}
                       onClick={() => isValid && handleSelect(deck.id)}
                       disabled={!isValid}
-                      className={`relative h-[80px] rounded-lg overflow-hidden transition-all cursor-pointer group
+                      className={`relative rounded-lg overflow-hidden transition-all cursor-pointer group
                         ${isSelected
                           ? 'scale-[1.03] z-10'
                           : isValid
@@ -228,40 +228,39 @@ export function DeckPicker({ mode, queueMode = 'casual', uid, onBack }: DeckPick
                       `}
                       style={{
                         border: isSelected ? `3px solid ${accent}` : '2px solid rgba(80,60,40,0.5)',
-                        boxShadow: isSelected ? `0 0 20px ${accent}55, inset 0 1px 0 rgba(255,255,255,0.1)` : '0 2px 6px rgba(0,0,0,0.4)',
+                        boxShadow: isSelected ? `0 0 20px ${accent}55` : '0 2px 6px rgba(0,0,0,0.4)',
                       }}
                     >
-                      {/* Background fill */}
-                      <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${accent}25 0%, ${accent}10 100%)` }} />
-                      <div className="absolute inset-0 bg-stone-900/60" />
-
-                      {/* Hero portrait — left side, taller */}
-                      <div className="absolute left-0 top-0 bottom-0 w-[70px] overflow-hidden">
+                      {/* Hero portrait fills entire tile background */}
+                      <div className="relative w-full aspect-[2.2/1]">
                         {portrait ? (
-                          <img src={portrait} alt="" className="h-full w-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" />
+                          <img src={portrait} alt="" className="absolute inset-0 h-full w-full object-cover opacity-50 group-hover:opacity-70 transition-opacity" />
                         ) : (
-                          <div className="h-full w-full flex items-center justify-center" style={{ backgroundColor: accent + '25' }}>
-                            <span className="text-2xl font-extrabold" style={{ color: accent + '80' }}>{HERO_LABELS[deck.heroClass]?.[0]}</span>
+                          <div className="absolute inset-0 flex items-center justify-center" style={{ backgroundColor: accent + '20' }}>
+                            <span className="text-4xl font-extrabold" style={{ color: accent + '60' }}>{HERO_LABELS[deck.heroClass]?.[0]}</span>
                           </div>
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-stone-900/90" />
-                      </div>
+                        {/* Dark overlay for text readability */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
+                        {/* Class color bar at top */}
+                        <div className="absolute top-0 left-0 right-0 h-1" style={{ backgroundColor: accent }} />
 
-                      {/* Content — right of portrait */}
-                      <div className="relative h-full flex flex-col justify-center pl-[78px] pr-3">
-                        {/* Class name */}
-                        <span className="text-[10px] font-bold leading-none mb-1" style={{ color: accent }}>
-                          {HERO_LABELS[deck.heroClass]}
-                        </span>
-                        {/* Deck name */}
-                        <div className="flex items-center gap-1.5">
-                          {deck.isStarterDeck && <span className="text-amber-400 text-[11px]">&#9733;</span>}
-                          <span className="text-white font-bold text-[13px] truncate leading-tight">{deck.name}</span>
+                        {/* Content overlay */}
+                        <div className="absolute inset-0 flex flex-col justify-end p-3">
+                          <div className="flex items-center justify-between">
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-1">
+                                {deck.isStarterDeck && <span className="text-amber-400 text-xs">&#9733;</span>}
+                                <span className="text-white font-bold text-sm truncate">{deck.name}</span>
+                              </div>
+                            </div>
+                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ml-2 shrink-0 ${
+                              isValid ? 'bg-green-500/30 text-green-300' : 'bg-red-500/30 text-red-300'
+                            }`}>
+                              {deck.cards.length}/{DECK_SIZE}
+                            </span>
+                          </div>
                         </div>
-                        {/* Card count */}
-                        <span className={`text-[9px] font-bold mt-1 ${isValid ? 'text-green-400/70' : 'text-red-400/70'}`}>
-                          {deck.cards.length}/{DECK_SIZE}
-                        </span>
                       </div>
                     </button>
                   );
@@ -271,8 +270,8 @@ export function DeckPicker({ mode, queueMode = 'casual', uid, onBack }: DeckPick
           </div>
         </div>
 
-        {/* ═══ Right: Deck Preview Panel ═══ */}
-        <div className="w-[280px] md:w-[300px] flex flex-col border-l border-amber-900/20 bg-stone-900/50 shrink-0">
+        {/* ═══ Right: Hero Preview Panel — Hearthstone style ═══ */}
+        <div className="w-[280px] md:w-[320px] flex flex-col border-l border-amber-900/20 bg-stone-900/50 shrink-0">
           {selectedDeck ? (() => {
             const hl = heroLevels[selectedDeck.heroClass as HeroClass];
             const heroLevel = hl?.level ?? 1;
@@ -282,97 +281,60 @@ export function DeckPicker({ mode, queueMode = 'casual', uid, onBack }: DeckPick
             const accent = HERO_ACCENT[selectedDeck.heroClass] ?? '#666';
             return (
             <>
-              {/* Hero portrait area */}
-              <div className="flex flex-col items-center pt-6 pb-4 px-4 border-b border-stone-700/30"
-                style={{ background: `linear-gradient(180deg, ${accent}15 0%, transparent 100%)` }}>
-                {/* Hero portrait in ornate frame */}
-                <div className="relative mb-3">
-                  <div className={`w-28 h-28 rounded-full border-4 overflow-hidden shadow-xl ${isGolden ? 'shadow-yellow-400/40' : ''}`}
+              {/* Mode badge at top */}
+              <div className="flex items-center justify-center gap-3 pt-4 pb-2">
+                <div className={`px-4 py-1.5 rounded-full text-xs font-bold ${
+                  mode === 'ai' ? 'bg-amber-700/40 text-amber-200 border border-amber-600/30'
+                  : queueMode === 'ranked' ? 'bg-purple-700/40 text-purple-200 border border-purple-600/30'
+                  : 'bg-blue-700/40 text-blue-200 border border-blue-600/30'
+                }`}>
+                  {mode === 'ai' ? 'vs AI' : queueMode === 'ranked' ? 'Ranked' : 'Casual'}
+                </div>
+              </div>
+
+              {/* Large hero portrait — Hearthstone arch frame */}
+              <div className="flex-1 flex flex-col items-center justify-center px-6">
+                <div className="relative mb-4">
+                  {/* Ornate arch frame */}
+                  <div className={`w-40 h-48 rounded-t-full rounded-b-lg border-4 overflow-hidden shadow-2xl ${isGolden ? 'shadow-yellow-400/40' : ''}`}
                     style={{ borderColor: isGolden ? '#fbbf24' : accent }}>
                     {heroPortrait ? (
                       <img src={heroPortrait} alt="" className={`w-full h-full object-cover ${isGolden ? 'saturate-125 brightness-110' : ''}`} />
                     ) : (
                       <div className="w-full h-full bg-stone-800 flex items-center justify-center">
-                        <span className="text-4xl font-bold" style={{ color: accent + '40' }}>
+                        <span className="text-5xl font-extrabold" style={{ color: accent + '50' }}>
                           {HERO_LABELS[selectedDeck.heroClass]?.[0]}
                         </span>
                       </div>
                     )}
+                    {/* Bottom gradient for text */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
                   </div>
                   {/* Level badge */}
-                  <div className={`absolute -bottom-1.5 left-1/2 -translate-x-1/2 border-2 rounded-full w-9 h-9 flex items-center justify-center shadow-lg ${
+                  <div className={`absolute -bottom-2 left-1/2 -translate-x-1/2 border-2 rounded-full w-10 h-10 flex items-center justify-center shadow-lg ${
                     isGolden ? 'bg-yellow-500 border-yellow-300' : 'bg-stone-700 border-stone-500'
                   }`}>
-                    <span className="text-white font-extrabold text-sm">{heroLevel}</span>
+                    <span className="text-white font-extrabold text-base">{heroLevel}</span>
                   </div>
                   {isGolden && (
-                    <div className="absolute -top-1 -right-1 bg-yellow-400 text-yellow-900 text-[7px] font-extrabold px-1.5 py-0.5 rounded-full shadow-md">
+                    <div className="absolute -top-1 -right-2 bg-yellow-400 text-yellow-900 text-[8px] font-extrabold px-2 py-0.5 rounded-full shadow-md">
                       GOLDEN
                     </div>
                   )}
                 </div>
 
-                <h2 className="text-white font-bold text-base text-center mt-1">{selectedDeck.name}</h2>
-                <span className="text-xs font-bold mt-0.5" style={{ color: accent }}>
-                  {HERO_LABELS[selectedDeck.heroClass]}
+                {/* Deck name */}
+                <h2 className="text-white font-bold text-lg text-center mt-2">{selectedDeck.name}</h2>
+
+                {/* Wins counter */}
+                <span className={`text-xs font-bold mt-1 ${isGolden ? 'text-yellow-400' : 'text-gray-500'}`}>
+                  {isGolden ? 'Golden Hero!' : `Wins: ${heroWins}/500`}
                 </span>
-
-                {/* Wins progress */}
-                <div className="mt-2 w-full max-w-[180px]">
-                  <div className="text-center text-[10px] mb-0.5">
-                    <span className={`font-bold ${isGolden ? 'text-yellow-400' : 'text-gray-500'}`}>
-                      {isGolden ? 'Golden Hero!' : `Wins: ${heroWins}/500`}
-                    </span>
+                {!isGolden && (
+                  <div className="mt-1 w-32 bg-stone-800 rounded-full h-1.5 overflow-hidden">
+                    <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(100, (heroWins / 500) * 100)}%`, backgroundColor: accent }} />
                   </div>
-                  {!isGolden && (
-                    <div className="bg-stone-800 rounded-full h-1 overflow-hidden">
-                      <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(100, (heroWins / 500) * 100)}%`, backgroundColor: accent }} />
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Orra Curve */}
-              <div className="px-4 py-3 border-b border-stone-700/30">
-                <div className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1.5">Orra Curve</div>
-                <div className="flex items-end gap-1 h-10">
-                  {MANA_BUCKETS.map(m => (
-                    <div key={m} className="flex-1 flex flex-col items-center">
-                      {(manaCurve[m] || 0) > 0 && (
-                        <div className="text-[8px] text-gray-500 mb-0.5">{manaCurve[m]}</div>
-                      )}
-                      <div
-                        className="w-full rounded-t transition-all"
-                        style={{
-                          height: `${((manaCurve[m] || 0) / maxCurveValue) * 24}px`,
-                          backgroundColor: accent + '80',
-                        }}
-                      />
-                    </div>
-                  ))}
-                </div>
-                <div className="flex gap-1 mt-0.5">
-                  {MANA_BUCKETS.map(m => (
-                    <div key={m} className="flex-1 text-center text-[8px] text-gray-600">
-                      {m === 7 ? '7+' : m}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Card list */}
-              <div className="flex-1 overflow-y-auto min-h-0">
-                {deckCardList.map(({ code, def, count }) => (
-                  <div key={code} className="flex items-center gap-2 px-4 py-[3px] hover:bg-white/5 transition-colors">
-                    <span className="w-5 h-5 rounded bg-blue-600/80 text-white text-[10px] font-bold flex items-center justify-center shrink-0">
-                      {def.manaCost}
-                    </span>
-                    <span className="text-[12px] text-gray-300 truncate flex-1">{def.name}</span>
-                    {count > 1 && (
-                      <span className="text-[10px] text-amber-400 font-bold shrink-0">x{count}</span>
-                    )}
-                  </div>
-                ))}
+                )}
               </div>
             </>
           );
@@ -382,18 +344,18 @@ export function DeckPicker({ mode, queueMode = 'casual', uid, onBack }: DeckPick
             </div>
           )}
 
-          {/* Play button */}
-          <div className="p-4 border-t border-stone-700/30">
+          {/* Play button — large centered like Hearthstone */}
+          <div className="flex flex-col items-center gap-3 p-6">
             <button
               onClick={handleStart}
               disabled={!isValidDeck || starting || matchmaking}
-              className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white font-bold py-3.5 px-6 rounded-xl text-lg hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-green-900/40 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:scale-100 border border-green-500/40"
+              className="w-36 h-36 rounded-full bg-gradient-to-br from-green-500 to-green-700 text-white font-extrabold text-2xl hover:brightness-110 hover:scale-105 active:scale-95 transition-all shadow-[0_0_30px_rgba(34,197,94,0.4)] cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed disabled:scale-100 border-4 border-green-400/60 flex items-center justify-center"
             >
-              {starting ? 'Starting...' : matchmaking ? 'Searching...' : mode === 'ai' ? 'Start Game' : 'Find Match'}
+              {starting ? '...' : matchmaking ? '...' : 'Play'}
             </button>
             <button
               onClick={onBack}
-              className="w-full mt-2 text-gray-500 text-xs hover:text-gray-300 cursor-pointer transition-colors"
+              className="text-gray-500 text-sm hover:text-gray-300 cursor-pointer transition-colors bg-stone-800/60 border border-stone-700/50 rounded-lg px-6 py-1.5"
             >
               Back
             </button>
