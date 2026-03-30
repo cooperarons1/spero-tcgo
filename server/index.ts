@@ -599,6 +599,10 @@ io.on('connection', (socket) => {
         if (existingRoom.game) {
           broadcastGameState(existingRoom.code);
         }
+      } else {
+        // Room doesn't exist (server restarted) — tell client to go back to lobby
+        socket.emit('room-lost');
+        sessionStorage?.removeItem?.('spero-room-code');
       }
     }
   });

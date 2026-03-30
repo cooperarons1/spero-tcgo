@@ -120,11 +120,21 @@ function App() {
       setConnectionStatus('connected');
     };
 
+    const onRoomLost = () => {
+      // Server restarted — game room no longer exists
+      setConnectionStatus('connected');
+      setGameState(null);
+      setView('lobby');
+      setPostGameRewards(null);
+      sessionStorage.removeItem('spero-room-code');
+    };
+
     socket.on('disconnect', onDisconnect);
     socket.on('connect', onConnect);
     socket.on('reconnected', onReconnected);
     socket.on('opponent-disconnected', onOpponentDisconnected);
     socket.on('opponent-reconnected', onOpponentReconnected);
+    socket.on('room-lost', onRoomLost);
 
     return () => {
       socket.off('disconnect', onDisconnect);
@@ -132,6 +142,7 @@ function App() {
       socket.off('reconnected', onReconnected);
       socket.off('opponent-disconnected', onOpponentDisconnected);
       socket.off('opponent-reconnected', onOpponentReconnected);
+      socket.off('room-lost', onRoomLost);
     };
   }, []);
 
