@@ -2443,9 +2443,9 @@ export default function GameBoard({
           </div>
         </div>
 
-        {/* My hand — fanned arc layout */}
+        {/* My hand — fanned arc layout, expands on hover */}
         <div
-          className="flex items-end justify-center pb-1"
+          className="flex items-end justify-center pb-1 group/hand transition-transform duration-300 hover:scale-110 hover:-translate-y-4"
           style={{
             gap: gs.myHand.length > 6 ? (isMobile ? '-1rem' : '-0.5rem') : (isMobile ? '-0.25rem' : '0.25rem'),
             transform: isMobile ? `scale(${cardScale})` : undefined,
