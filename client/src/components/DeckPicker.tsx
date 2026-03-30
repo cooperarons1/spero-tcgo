@@ -207,66 +207,68 @@ export function DeckPicker({ mode, queueMode = 'casual', uid, onBack }: DeckPick
                 <p className="text-gray-500">No decks yet. Visit Collection to create one!</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 overflow-y-auto pr-1">
+              <div className="grid grid-cols-3 gap-x-3 gap-y-4 overflow-y-auto pr-1">
                 {sortedDecks.map(deck => {
                   const isValid = deck.cards.length === DECK_SIZE;
                   const isSelected = selectedId === deck.id;
                   const accent = HERO_ACCENT[deck.heroClass] ?? '#666';
-                  const gradient = HERO_GRADIENT[deck.heroClass] ?? 'from-stone-800 to-stone-900';
                   const portrait = HERO_PORTRAIT_IMGS[deck.heroClass];
                   return (
-                    <button
-                      key={deck.id}
-                      onClick={() => isValid && handleSelect(deck.id)}
-                      disabled={!isValid}
-                      className={`relative text-left rounded-xl overflow-hidden transition-all cursor-pointer group
-                        ${isSelected
-                          ? 'ring-2 shadow-lg scale-[1.02]'
-                          : isValid
-                            ? 'hover:brightness-125 hover:scale-[1.01]'
-                            : 'opacity-30 cursor-not-allowed'
-                        }
-                      `}
-                      style={{
-                        ['--tw-ring-color' as any]: isSelected ? accent : undefined,
-                        boxShadow: isSelected ? `0 0 20px ${accent}44, 0 0 0 2px ${accent}` : undefined,
-                      }}
-                    >
-                      {/* Background with hero portrait */}
-                      <div className={`relative h-[72px] bg-gradient-to-r ${gradient}`}>
-                        {portrait && (
-                          <img
-                            src={portrait}
-                            alt=""
-                            className="absolute right-0 top-0 h-full w-20 object-cover opacity-40 group-hover:opacity-60 transition-opacity"
-                          />
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent" />
+                    <div key={deck.id} className="flex flex-col items-center gap-1">
+                      {/* Deck tile — Hearthstone-style horizontal bar */}
+                      <button
+                        onClick={() => isValid && handleSelect(deck.id)}
+                        disabled={!isValid}
+                        className={`relative w-full h-[52px] rounded-lg overflow-hidden transition-all cursor-pointer group
+                          ${isSelected
+                            ? 'scale-[1.04] z-10'
+                            : isValid
+                              ? 'hover:brightness-125 hover:scale-[1.02]'
+                              : 'opacity-30 cursor-not-allowed'
+                          }
+                        `}
+                        style={{
+                          border: isSelected ? `2px solid ${accent}` : '2px solid rgba(80,60,40,0.6)',
+                          boxShadow: isSelected ? `0 0 16px ${accent}55, inset 0 1px 0 rgba(255,255,255,0.1)` : 'inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 4px rgba(0,0,0,0.3)',
+                        }}
+                      >
+                        {/* Class-colored background bar */}
+                        <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${accent}30 0%, ${accent}15 50%, ${accent}05 100%)` }} />
+                        <div className="absolute inset-0 bg-gradient-to-r from-stone-900/80 via-stone-900/40 to-stone-900/70" />
 
-                        {/* Selected indicator bar */}
-                        {isSelected && (
-                          <div className="absolute left-0 top-0 bottom-0 w-1 rounded-r" style={{ backgroundColor: accent }} />
-                        )}
-
-                        {/* Content */}
-                        <div className="relative h-full flex flex-col justify-between p-3">
-                          <div className="flex items-center justify-between">
-                            <span className="text-[11px] font-bold" style={{ color: accent }}>
-                              {HERO_LABELS[deck.heroClass]}
-                            </span>
-                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                              isValid ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
-                            }`}>
-                              {deck.cards.length}/{DECK_SIZE}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            {deck.isStarterDeck && <span className="text-amber-400 text-xs">&#9733;</span>}
-                            <span className="text-white font-bold text-sm truncate">{deck.name}</span>
-                          </div>
+                        {/* Hero portrait thumbnail — left side */}
+                        <div className="absolute left-0 top-0 bottom-0 w-14 overflow-hidden">
+                          {portrait ? (
+                            <img src={portrait} alt="" className="h-full w-full object-cover opacity-70 group-hover:opacity-90 transition-opacity" />
+                          ) : (
+                            <div className="h-full w-full flex items-center justify-center" style={{ backgroundColor: accent + '30' }}>
+                              <span className="text-lg font-bold" style={{ color: accent }}>{HERO_LABELS[deck.heroClass]?.[0]}</span>
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent to-stone-900/80" />
                         </div>
-                      </div>
-                    </button>
+
+                        {/* Deck name + card count */}
+                        <div className="relative h-full flex items-center pl-16 pr-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="text-white font-bold text-[13px] truncate leading-tight">
+                              {deck.isStarterDeck && <span className="text-amber-400 mr-1">&#9733;</span>}
+                              {deck.name}
+                            </div>
+                          </div>
+                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ml-2 shrink-0 ${
+                            isValid ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                          }`}>
+                            {deck.cards.length}/{DECK_SIZE}
+                          </span>
+                        </div>
+                      </button>
+
+                      {/* Hero class label below tile */}
+                      <span className="text-[10px] font-bold" style={{ color: accent }}>
+                        {HERO_LABELS[deck.heroClass]}
+                      </span>
+                    </div>
                   );
                 })}
               </div>
