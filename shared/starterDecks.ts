@@ -33,6 +33,8 @@ const LUCAS_STARTER: string[] = [
   'LUC034',             // Mercurio (5m 4/4 stealth+combo: +3/+3 windfury)
   'NEU065', 'NEU065',  // Cardboard Pickaxe x2 (1m 1/3 weapon — cheap combo enabler)
   'NEU090', 'NEU090',  // Short Sword x2 (1m 2/2 weapon)
+  'LUC026',             // Feather Cloak (2m 1/3 weapon)
+  'LUC041',             // Trickwing (2m 2/2 stealth)
 ];
 const IZZY_STARTER: string[] = ['IZZ025', 'IZZ025', 'IZZ023', 'IZZ023', 'IZZ030', 'IZZ030', 'IZZ021', 'IZZ021', 'IZZ_BOND_01', 'IZZ_BOND_02', 'IZZ027', 'IZZ029', 'IZZ026', 'IZZ033', 'IZZ034', 'IZZ024', 'IZZ037', 'IZZ039', 'NEU068', 'NEU068', 'NEU090', 'NEU090', 'NEU065', 'NEU065', 'NEU093', 'NEU093', 'NEU100', 'NEU100', 'NEU084', 'NEU099'];
 
