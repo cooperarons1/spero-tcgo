@@ -195,8 +195,8 @@ export function DeckPicker({ mode, queueMode = 'casual', uid, onBack }: DeckPick
           </div>
 
           {/* Deck grid area */}
-          <div className="flex-1 flex flex-col p-6 min-h-0">
-            <h2 className="text-sm text-amber-200/60 font-bold uppercase tracking-wider mb-4">Choose Your Deck</h2>
+          <div className="flex-1 flex flex-col items-center justify-center px-6 py-4 min-h-0">
+            <h2 className="text-sm text-amber-200/60 font-bold uppercase tracking-wider mb-5 self-start">Choose Your Deck</h2>
 
             {loading ? (
               <div className="flex-1 flex items-center justify-center">
@@ -207,68 +207,63 @@ export function DeckPicker({ mode, queueMode = 'casual', uid, onBack }: DeckPick
                 <p className="text-gray-500">No decks yet. Visit Collection to create one!</p>
               </div>
             ) : (
-              <div className="grid grid-cols-3 gap-x-3 gap-y-4 overflow-y-auto pr-1">
+              <div className="grid grid-cols-3 gap-3 w-full max-w-[680px]">
                 {sortedDecks.map(deck => {
                   const isValid = deck.cards.length === DECK_SIZE;
                   const isSelected = selectedId === deck.id;
                   const accent = HERO_ACCENT[deck.heroClass] ?? '#666';
                   const portrait = HERO_PORTRAIT_IMGS[deck.heroClass];
                   return (
-                    <div key={deck.id} className="flex flex-col items-center gap-1">
-                      {/* Deck tile — Hearthstone-style horizontal bar */}
-                      <button
-                        onClick={() => isValid && handleSelect(deck.id)}
-                        disabled={!isValid}
-                        className={`relative w-full h-[52px] rounded-lg overflow-hidden transition-all cursor-pointer group
-                          ${isSelected
-                            ? 'scale-[1.04] z-10'
-                            : isValid
-                              ? 'hover:brightness-125 hover:scale-[1.02]'
-                              : 'opacity-30 cursor-not-allowed'
-                          }
-                        `}
-                        style={{
-                          border: isSelected ? `2px solid ${accent}` : '2px solid rgba(80,60,40,0.6)',
-                          boxShadow: isSelected ? `0 0 16px ${accent}55, inset 0 1px 0 rgba(255,255,255,0.1)` : 'inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 4px rgba(0,0,0,0.3)',
-                        }}
-                      >
-                        {/* Class-colored background bar */}
-                        <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${accent}30 0%, ${accent}15 50%, ${accent}05 100%)` }} />
-                        <div className="absolute inset-0 bg-gradient-to-r from-stone-900/80 via-stone-900/40 to-stone-900/70" />
+                    <button
+                      key={deck.id}
+                      onClick={() => isValid && handleSelect(deck.id)}
+                      disabled={!isValid}
+                      className={`relative h-[80px] rounded-lg overflow-hidden transition-all cursor-pointer group
+                        ${isSelected
+                          ? 'scale-[1.03] z-10'
+                          : isValid
+                            ? 'hover:brightness-110 hover:scale-[1.01]'
+                            : 'opacity-30 cursor-not-allowed'
+                        }
+                      `}
+                      style={{
+                        border: isSelected ? `3px solid ${accent}` : '2px solid rgba(80,60,40,0.5)',
+                        boxShadow: isSelected ? `0 0 20px ${accent}55, inset 0 1px 0 rgba(255,255,255,0.1)` : '0 2px 6px rgba(0,0,0,0.4)',
+                      }}
+                    >
+                      {/* Background fill */}
+                      <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${accent}25 0%, ${accent}10 100%)` }} />
+                      <div className="absolute inset-0 bg-stone-900/60" />
 
-                        {/* Hero portrait thumbnail — left side */}
-                        <div className="absolute left-0 top-0 bottom-0 w-14 overflow-hidden">
-                          {portrait ? (
-                            <img src={portrait} alt="" className="h-full w-full object-cover opacity-70 group-hover:opacity-90 transition-opacity" />
-                          ) : (
-                            <div className="h-full w-full flex items-center justify-center" style={{ backgroundColor: accent + '30' }}>
-                              <span className="text-lg font-bold" style={{ color: accent }}>{HERO_LABELS[deck.heroClass]?.[0]}</span>
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent to-stone-900/80" />
-                        </div>
-
-                        {/* Deck name + card count */}
-                        <div className="relative h-full flex items-center pl-16 pr-3">
-                          <div className="flex-1 min-w-0">
-                            <div className="text-white font-bold text-[13px] truncate leading-tight">
-                              {deck.isStarterDeck && <span className="text-amber-400 mr-1">&#9733;</span>}
-                              {deck.name}
-                            </div>
+                      {/* Hero portrait — left side, taller */}
+                      <div className="absolute left-0 top-0 bottom-0 w-[70px] overflow-hidden">
+                        {portrait ? (
+                          <img src={portrait} alt="" className="h-full w-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" />
+                        ) : (
+                          <div className="h-full w-full flex items-center justify-center" style={{ backgroundColor: accent + '25' }}>
+                            <span className="text-2xl font-extrabold" style={{ color: accent + '80' }}>{HERO_LABELS[deck.heroClass]?.[0]}</span>
                           </div>
-                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ml-2 shrink-0 ${
-                            isValid ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
-                          }`}>
-                            {deck.cards.length}/{DECK_SIZE}
-                          </span>
-                        </div>
-                      </button>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-stone-900/90" />
+                      </div>
 
-                      {/* Hero class label below tile */}
-                      <span className="text-[10px] font-bold" style={{ color: accent }}>
-                        {HERO_LABELS[deck.heroClass]}
-                      </span>
-                    </div>
+                      {/* Content — right of portrait */}
+                      <div className="relative h-full flex flex-col justify-center pl-[78px] pr-3">
+                        {/* Class name */}
+                        <span className="text-[10px] font-bold leading-none mb-1" style={{ color: accent }}>
+                          {HERO_LABELS[deck.heroClass]}
+                        </span>
+                        {/* Deck name */}
+                        <div className="flex items-center gap-1.5">
+                          {deck.isStarterDeck && <span className="text-amber-400 text-[11px]">&#9733;</span>}
+                          <span className="text-white font-bold text-[13px] truncate leading-tight">{deck.name}</span>
+                        </div>
+                        {/* Card count */}
+                        <span className={`text-[9px] font-bold mt-1 ${isValid ? 'text-green-400/70' : 'text-red-400/70'}`}>
+                          {deck.cards.length}/{DECK_SIZE}
+                        </span>
+                      </div>
+                    </button>
                   );
                 })}
               </div>
