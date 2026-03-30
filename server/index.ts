@@ -275,6 +275,7 @@ function broadcastGameState(roomCode: string) {
     const oppUid = Array.from(room.players.keys()).find(u => u !== uid);
     (state as any).opponentCardBack = room.cardBacks?.get(oppUid ?? '') ?? 'default';
     (state as any).myCardBack = room.cardBacks?.get(uid) ?? 'default';
+    (state as any).gameMode = room.mode ?? (room.isAIGame ? 'ai' : 'casual');
     io.to(socketId).emit('game-state', state);
   }
 
