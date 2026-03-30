@@ -561,7 +561,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
 
           {/* Card grid — paginated with slide animation */}
           <div className="flex-1 flex flex-col bg-slate-900/80 overflow-hidden">
-            <div className="flex-1 flex items-center justify-center p-3 relative">
+            <div className="flex-1 flex items-start justify-center p-3 pt-4 relative">
               <div
                 key={`page-${page}`}
                 className="grid grid-cols-5 gap-2.5 w-full max-w-4xl animate-page-slide-in"
@@ -588,6 +588,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
                       <Card
                         cardCode={c.cardCode}
                         greyed={greyed}
+                        small
                       />
                       {editingDeck && count > 0 && (
                         <div className="absolute -top-1 -right-1 bg-blue-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center z-10">
