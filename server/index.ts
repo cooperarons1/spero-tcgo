@@ -845,6 +845,15 @@ io.on('connection', (socket) => {
     removePlayer(uid);
   });
 
+  socket.on('leave-room', () => {
+    const room = getRoomByPlayer(uid);
+    if (!room) return;
+    if (room.game) return; // can't leave mid-game, use leave-game
+    const code = room.code;
+    removePlayer(uid);
+    broadcastLobby(code);
+  });
+
   // ── Hover Hand ──
 
   socket.on('hover-hand', validated(HoverHandSchema, (data) => {

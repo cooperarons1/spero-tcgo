@@ -2088,13 +2088,10 @@ export default function GameBoard({
             heroPowerUpgraded={gs.opponent.heroPowerUpgraded}
             upgradeProgress={gs.opponent.upgradeProgress}
           />
-          {/* Opponent mana gem — right side */}
-          <div className="hidden md:flex items-center justify-center bg-gradient-to-br from-blue-600 to-blue-800 border-2 border-blue-400 rounded-full w-12 h-12 shadow-lg">
-            <span className="text-white font-extrabold text-sm">{gs.opponent.mana}/{gs.opponent.maxMana}</span>
-          </div>
-          {/* Mobile mana */}
-          <div className="md:hidden">
+          {/* Opponent mana — crystals + X/Y */}
+          <div className="flex items-center gap-1.5">
             <ManaCrystals current={gs.opponent.mana} max={gs.opponent.maxMana} />
+            <span className="text-blue-300 font-bold text-sm md:text-base">{gs.opponent.mana}/{gs.opponent.maxMana}</span>
           </div>
         </div>
 
@@ -2340,10 +2337,6 @@ export default function GameBoard({
           <div className="absolute left-4 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-2">
             <span className="text-xs text-amber-200 font-bold drop-shadow-md">{gs.myPlayerName}</span>
           </div>
-          {/* Mobile mana */}
-          <div className="md:hidden">
-            <ManaCrystals current={gs.myMana} max={gs.myMaxMana} />
-          </div>
           <HeroPortrait
             heroClass={gs.myHeroClass}
             health={gs.myHealth}
@@ -2377,9 +2370,10 @@ export default function GameBoard({
             weaponEquipFlash={weaponEquipFlash}
           />
 
-          {/* My mana gem — right of hero on desktop */}
-          <div className="hidden md:flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-700 border-2 border-blue-300 rounded-full w-14 h-14 shadow-[0_0_12px_rgba(59,130,246,0.4)]">
-            <span className="text-white font-extrabold text-base">{gs.myMana}/{gs.myMaxMana}</span>
+          {/* My mana — crystals + X/Y */}
+          <div className="flex items-center gap-1.5">
+            <ManaCrystals current={gs.myMana} max={gs.myMaxMana} />
+            <span className="text-blue-300 font-bold text-sm md:text-base">{gs.myMana}/{gs.myMaxMana}</span>
           </div>
 
           {/* Emote button */}
