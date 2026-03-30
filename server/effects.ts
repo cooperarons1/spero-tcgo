@@ -111,6 +111,14 @@ export function executeEffect(
         checkHeroDeath(game);
         break;
       }
+      // TARGET_ENEMY_HERO = auto-target opponent hero (no targetId needed)
+      if ((effect.target as string) === 'TARGET_ENEMY_HERO') {
+        applyDamageToHero(opp, value);
+        game.playerStats[casterIndex].damageDealtToHeroes += value;
+        addLog(game, casterIndex, `Deals ${value} damage to enemy hero`, 'EFFECT');
+        checkHeroDeath(game);
+        break;
+      }
       if (!targetId) break;
       dealDamageToTarget(game, casterIndex, targetId, value);
       break;
