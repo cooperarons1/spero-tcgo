@@ -2088,11 +2088,8 @@ export default function GameBoard({
             heroPowerUpgraded={gs.opponent.heroPowerUpgraded}
             upgradeProgress={gs.opponent.upgradeProgress}
           />
-          {/* Opponent mana — crystals + X/Y */}
-          <div className="flex items-center gap-1.5">
-            <ManaCrystals current={gs.opponent.mana} max={gs.opponent.maxMana} />
-            <span className="text-blue-300 font-bold text-sm md:text-base">{gs.opponent.mana}/{gs.opponent.maxMana}</span>
-          </div>
+          {/* Opponent mana */}
+          <ManaCrystals current={gs.opponent.mana} max={gs.opponent.maxMana} />
         </div>
 
         {/* Spacer — pushes board toward center divider */}
@@ -2370,11 +2367,8 @@ export default function GameBoard({
             weaponEquipFlash={weaponEquipFlash}
           />
 
-          {/* My mana — crystals + X/Y */}
-          <div className="flex items-center gap-1.5">
-            <ManaCrystals current={gs.myMana} max={gs.myMaxMana} />
-            <span className="text-blue-300 font-bold text-sm md:text-base">{gs.myMana}/{gs.myMaxMana}</span>
-          </div>
+          {/* My mana */}
+          <ManaCrystals current={gs.myMana} max={gs.myMaxMana} />
 
           {/* Emote button */}
           <div className="relative">
