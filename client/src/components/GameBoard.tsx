@@ -856,7 +856,7 @@ function HeroPortrait({
           onClick={onHeroPowerClick}
           onPointerDown={onHeroPowerPointerDown}
           disabled={!canUseHeroPower}
-          className={`relative flex h-16 w-16 md:h-20 md:w-20 items-center justify-center rounded-xl border-2 transition-all touch-none
+          className={`relative flex h-16 w-16 md:h-20 md:w-20 items-center justify-center rounded-full border-[3px] transition-all touch-none
             ${heroPowerUpgraded
               ? (canUseHeroPower
                 ? 'border-amber-300 bg-gradient-to-br from-amber-700/60 to-amber-500/40 hover:from-amber-600/80 hover:to-amber-400/60 hover:scale-110 cursor-pointer shadow-[0_0_12px_2px_rgba(245,158,11,0.5)]'
