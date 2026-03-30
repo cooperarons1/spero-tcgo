@@ -282,19 +282,25 @@ export function useHeroPower(
       player.heroPowerUsed = true;
       game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
       game.playerStats[pIdx as 0 | 1].heroPowerUses++;
-      executeEffect(game, pIdx as 0 | 1, { type: 'DEAL_DAMAGE', target: 'TARGET_ANY', value: dmg }, targetId);
+      // Collect adjacent minion IDs BEFORE dealing damage (death removes from board)
+      let adjacentIds: string[] = [];
       if (upgraded) {
-        // Upgraded: also deal 1 dmg to adjacent minions
         for (const p of game.players) {
           const idx = p.board.findIndex(m => m.instanceId === targetId);
           if (idx >= 0) {
-            if (idx > 0) {
-              executeEffect(game, pIdx as 0 | 1, { type: 'DEAL_DAMAGE', target: 'TARGET_ANY', value: 1 }, p.board[idx - 1].instanceId);
-            }
-            if (idx < p.board.length - 1) {
-              executeEffect(game, pIdx as 0 | 1, { type: 'DEAL_DAMAGE', target: 'TARGET_ANY', value: 1 }, p.board[idx + 1].instanceId);
-            }
+            if (idx > 0) adjacentIds.push(p.board[idx - 1].instanceId);
+            if (idx < p.board.length - 1) adjacentIds.push(p.board[idx + 1].instanceId);
             break;
+          }
+        }
+      }
+      executeEffect(game, pIdx as 0 | 1, { type: 'DEAL_DAMAGE', target: 'TARGET_ANY', value: dmg }, targetId);
+      if (upgraded && adjacentIds.length > 0) {
+        for (const adjId of adjacentIds) {
+          // Only damage if still alive on board
+          const stillAlive = game.players.some(p => p.board.some(m => m.instanceId === adjId));
+          if (stillAlive) {
+            executeEffect(game, pIdx as 0 | 1, { type: 'DEAL_DAMAGE', target: 'TARGET_ANY', value: 1 }, adjId);
           }
         }
       }
