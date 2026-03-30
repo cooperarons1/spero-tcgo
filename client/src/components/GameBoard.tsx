@@ -2059,6 +2059,31 @@ export default function GameBoard({
         <AttackArrow from={attackerPos} to={mousePos} />
       )}
 
+      {/* Spell targeting arrow — shown when dragging a targeted spell */}
+      {draggingCardType === 'SPELL' && draggingTargetType && ptrDrag?.activated && (
+        <svg className="pointer-events-none fixed inset-0 z-40" style={{ width: '100vw', height: '100vh' }}>
+          <defs>
+            <marker id="spell-arrowhead" markerWidth="12" markerHeight="8" refX="12" refY="4" orient="auto">
+              <polygon points="0 0, 12 4, 0 8" fill="#8b5cf6" />
+            </marker>
+            <filter id="spell-arrow-shadow">
+              <feDropShadow dx="0" dy="0" stdDeviation="3" floodColor="#8b5cf6" floodOpacity="0.6" />
+            </filter>
+          </defs>
+          <line
+            x1={ptrDrag.startX}
+            y1={ptrDrag.startY}
+            x2={ptrDrag.curX}
+            y2={ptrDrag.curY}
+            stroke="#8b5cf6"
+            strokeWidth="3"
+            strokeDasharray="8 4"
+            markerEnd="url(#spell-arrowhead)"
+            filter="url(#spell-arrow-shadow)"
+          />
+        </svg>
+      )}
+
       {/* Opponent Emote */}
       {opponentEmote && (
         <div className="fixed right-8 top-24 z-30 animate-bounce rounded-lg bg-stone-800 px-4 py-2 text-2xl shadow-lg border border-stone-600">
