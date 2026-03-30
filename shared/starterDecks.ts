@@ -14,7 +14,26 @@ const ANDERS_STARTER: string[] = ['AND016', 'AND016', 'AND020', 'AND020', 'AND02
 const DES_STARTER: string[] = ['DES021', 'DES021', 'DES028', 'DES028', 'DES037', 'DES037', 'DES_S01', 'DES_S02', 'DES_COLLAR_02', 'DES_COLLAR_03', 'DES025', 'DES032', 'DES027', 'DES030', 'DES034', 'DES026', 'DES033', 'DES022', 'NEU094', 'NEU094', 'NEU082', 'NEU082', 'NEU069', 'NEU069', 'NEU091', 'NEU091', 'NEU099', 'NEU074', 'NEU078', 'NEU097'];
 const ASTRID_STARTER: string[] = ['AST026', 'AST026', 'AST028', 'AST028', 'AST023', 'AST023', 'AST_S01', 'AST_S02', 'AST_BOND_01', 'AST_BOND_02', 'AST037', 'AST040', 'AST029', 'AST034', 'AST039', 'AST025', 'AST033', 'AST031', 'NEU068', 'NEU068', 'NEU090', 'NEU090', 'NEU065', 'NEU065', 'NEU063', 'NEU063', 'NEU100', 'NEU100', 'NEU099', 'NEU092'];
 const AVA_STARTER: string[] = ['AVA024', 'AVA024', 'AVA030', 'AVA030', 'AVA036', 'AVA036', 'AVA037', 'AVA037', 'AVA_BOND_01', 'AVA_BOND_02', 'AVA027', 'AVA023', 'AVA035', 'AVA025', 'AVA028', 'AVA031', 'AVA026', 'AVA029', 'AVA021', 'NEU094', 'NEU094', 'NEU084', 'NEU084', 'NEU085', 'NEU085', 'NEU074', 'NEU074', 'NEU068', 'NEU090', 'NEU099'];
-const LUCAS_STARTER: string[] = ['LUC036', 'LUC036', 'LUC040', 'LUC040', 'LUC021', 'LUC021', 'LUC025', 'LUC025', 'LUC_BOND_01', 'LUC_BOND_02', 'LUC028', 'LUC022', 'LUC027', 'LUC038', 'LUC024', 'LUC031', 'LUC041', 'LUC035', 'LUC032', 'NEU082', 'NEU082', 'NEU069', 'NEU069', 'NEU074', 'NEU074', 'NEU091', 'NEU091', 'NEU094', 'NEU099', 'NEU097'];
+// Combo-focused: cheap spells to enable combo minions, burst damage finishers
+const LUCAS_STARTER: string[] = [
+  'LUC036', 'LUC036',  // Pinch x2 (1m 2/1 combo: 1 face dmg)
+  'LUC037', 'LUC037',  // Poke x2 (1m 2/1 combo: stealth)
+  'LUC024', 'LUC024',  // Face to Face x2 (1m spell: 3 face dmg)
+  'LUC021', 'LUC021',  // Agile Strength x2 (1m spell: +2 atk)
+  'LUC022', 'LUC022',  // Ayto x2 (2m 3/2 combo: +1/+1)
+  'LUC028', 'LUC028',  // Harley x2 (2m 2/3 combo: +2 atk)
+  'LUC029', 'LUC029',  // Hunting Trophy x2 (2m spell: destroy damaged)
+  'LUC038', 'LUC038',  // Sho x2 (3m 4/3 combo: draw)
+  'LUC030',             // Jie (3m 3/4 combo: bounce enemy)
+  'LUC027',             // Focus of Return (1m spell: bounce friendly)
+  'LUC023',             // Cicero (4m 3/4 stealth+combo: draw)
+  'LUC031', 'LUC031',  // Kato x2 (4m 5/4 combo: 2 face dmg)
+  'LUC040',             // Tandem (4m 4/4 combo: +2/+1)
+  'LUC032',             // Hugo (5m 5/4 stealth+combo: 3 dmg+draw)
+  'LUC034',             // Mercurio (5m 4/4 stealth+combo: +3/+3 windfury)
+  'NEU065', 'NEU065',  // Cardboard Pickaxe x2 (1m 1/3 weapon — cheap combo enabler)
+  'NEU090', 'NEU090',  // Short Sword x2 (1m 2/2 weapon)
+];
 const IZZY_STARTER: string[] = ['IZZ025', 'IZZ025', 'IZZ023', 'IZZ023', 'IZZ030', 'IZZ030', 'IZZ021', 'IZZ021', 'IZZ_BOND_01', 'IZZ_BOND_02', 'IZZ027', 'IZZ029', 'IZZ026', 'IZZ033', 'IZZ034', 'IZZ024', 'IZZ037', 'IZZ039', 'NEU068', 'NEU068', 'NEU090', 'NEU090', 'NEU065', 'NEU065', 'NEU093', 'NEU093', 'NEU100', 'NEU100', 'NEU084', 'NEU099'];
 
 function validateStarterDeck(name: string, cards: string[]): string[] {

@@ -1562,12 +1562,13 @@
     "rarity": "COMMON",
     "attack": 0,
     "health": 0,
-    "text": "Freeze an enemy minion.",
+    "text": "Freeze a minion. Draw a card.",
     "flavor": "You won't see it coming. You won't feel it going.",
     "keywords": [],
     "spellEffect": {
       "type": "FREEZE_TARGET",
-      "target": "TARGET_MINION"
+      "target": "TARGET_MINION",
+      "alsoDraw": 1
     }
   },
   {
@@ -1693,7 +1694,7 @@
     "rarity": "EPIC",
     "attack": 0,
     "health": 0,
-    "text": "Destroy all minions with 3 or less Attack.",
+    "text": "Destroy all minions with 2 or less Attack.",
     "flavor": "Everything that rises must eventually descend.",
     "keywords": [],
     "spellEffect": {
@@ -2048,7 +2049,7 @@
     "type": "WEAPON",
     "heroClass": "ANDERS",
     "rarity": "RARE",
-    "attack": 1,
+    "attack": 2,
     "health": 4,
     "text": "",
     "flavor": "When it plays, the world goes quiet.",
@@ -2453,7 +2454,7 @@
   {
     "cardCode": "AND025",
     "name": "Ice Storm",
-    "manaCost": 5,
+    "manaCost": 4,
     "type": "SPELL",
     "heroClass": "ANDERS",
     "rarity": "RARE",
@@ -3646,7 +3647,7 @@
     "type": "WEAPON",
     "heroClass": "TALA",
     "rarity": "RARE",
-    "attack": 2,
+    "attack": 3,
     "health": 3,
     "text": "",
     "flavor": "Surprisingly effective. Delicious afterwards.",
@@ -5066,7 +5067,7 @@
     "type": "MINION",
     "heroClass": "DES",
     "rarity": "RARE",
-    "attack": 4,
+    "attack": 3,
     "health": 2,
     "text": "Stealth.",
     "flavor": "You never see Vrasp. You only see what Vrasp left behind.",
