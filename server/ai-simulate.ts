@@ -15,8 +15,9 @@ import { fileURLToPath } from 'url';
 import { createGame, endTurn, startTurn, confirmMulligan } from './game.js';
 import { playCard, useHeroPower } from './actions.js';
 import { attack } from './combat.js';
-import { getCardDef } from './cards.js';
+import { getCardDef, getCardsByClassAndNeutral } from './cards.js';
 import { STARTER_DECKS } from '../shared/starterDecks.js';
+import { DECK_SIZE, MAX_COPIES_PER_CARD, MAX_COPIES_LEGENDARY } from '../shared/deckRules.js';
 import { secretTriggerCount, resetSecretTriggerCount } from './secrets.js';
 import {
   reloadAIWeights, getAIMulliganReplacements, cardPlayPriority,
@@ -50,6 +51,61 @@ const hero2Forced = hero2Idx >= 0 ? (args[hero2Idx + 1] as HeroClass) : null;
 const useTeacher = teacherMode || teacherVsTeacher;
 const teacherPercentIdx = args.indexOf('--teacher-percent');
 const teacherPercent = teacherPercentIdx >= 0 ? parseInt(args[teacherPercentIdx + 1] || '100') : (useTeacher ? 100 : 0);
+
+// ─── Random Deck Builder ───
+// Builds a legal 30-card deck for a hero class from the full card pool.
+// Rules: class + neutral cards only, max 2 copies (1 for legendary), 30 cards total.
+// Uses a mana curve bias to build reasonable decks.
+const MANA_CURVE_WEIGHTS = [0.05, 0.15, 0.2, 0.2, 0.15, 0.1, 0.08, 0.04, 0.02, 0.005, 0.005];
+
+function buildRandomDeck(heroClass: HeroClass): { heroClass: HeroClass; cards: string[] } {
+  const pool = getCardsByClassAndNeutral(heroClass).filter(c =>
+    c.cardCode !== 'COIN' && !c.cardCode.includes('_TOKEN_') && c.type !== 'LOCATION'
+  );
+
+  const cards: string[] = [];
+  const counts = new Map<string, number>();
+
+  // Weighted random selection biased toward good mana curve
+  const weightedPool = pool.map(c => {
+    const w = MANA_CURVE_WEIGHTS[Math.min(c.manaCost, 10)] ?? 0.005;
+    // Prefer class cards slightly over neutral
+    const classBonus = c.heroClass === heroClass ? 1.5 : 1.0;
+    return { card: c, weight: w * classBonus };
+  });
+  const totalWeight = weightedPool.reduce((s, e) => s + e.weight, 0);
+
+  let attempts = 0;
+  while (cards.length < DECK_SIZE && attempts < 1000) {
+    attempts++;
+    // Weighted random pick
+    let r = Math.random() * totalWeight;
+    let picked = weightedPool[0].card;
+    for (const entry of weightedPool) {
+      r -= entry.weight;
+      if (r <= 0) { picked = entry.card; break; }
+    }
+
+    const code = picked.cardCode;
+    const current = counts.get(code) ?? 0;
+    const max = picked.rarity === 'LEGENDARY' ? MAX_COPIES_LEGENDARY : MAX_COPIES_PER_CARD;
+    if (current >= max) continue;
+
+    cards.push(code);
+    counts.set(code, current + 1);
+  }
+
+  return { heroClass, cards };
+}
+
+// 50% chance to use random deck, 50% starter deck
+function pickDeck(heroClass: HeroClass): { heroClass: HeroClass; cards: string[] } {
+  if (Math.random() < 0.5) {
+    return buildRandomDeck(heroClass);
+  }
+  const starter = STARTER_DECKS.find(d => d.heroClass === heroClass);
+  return starter ?? buildRandomDeck(heroClass);
+}
 
 // Decision recording — async writes with large buffer for performance
 const shouldRecord = recordMode || teacherMode || teacherVsTeacher || teacherPercent > 0;
@@ -201,11 +257,13 @@ for (let g = 0; g < gameCount && Date.now() < endTime; g++) {
         hero1Forced ?? HERO_CLASSES[Math.floor(Math.random() * HERO_CLASSES.length)],
         hero2Forced ?? HERO_CLASSES[Math.floor(Math.random() * HERO_CLASSES.length)],
       ];
-      deck1 = STARTER_DECKS.find(d => d.heroClass === h1) ?? STARTER_DECKS[Math.floor(Math.random() * STARTER_DECKS.length)];
-      deck2 = STARTER_DECKS.find(d => d.heroClass === h2) ?? STARTER_DECKS[Math.floor(Math.random() * STARTER_DECKS.length)];
+      deck1 = pickDeck(h1);
+      deck2 = pickDeck(h2);
     } else {
-      deck1 = STARTER_DECKS[Math.floor(Math.random() * STARTER_DECKS.length)];
-      deck2 = STARTER_DECKS[Math.floor(Math.random() * STARTER_DECKS.length)];
+      const h1 = HERO_CLASSES[Math.floor(Math.random() * HERO_CLASSES.length)];
+      const h2 = HERO_CLASSES[Math.floor(Math.random() * HERO_CLASSES.length)];
+      deck1 = pickDeck(h1);
+      deck2 = pickDeck(h2);
     }
 
     // --teacher-percent: decide if this game uses teacher AI
@@ -691,8 +749,10 @@ if (learnMode && learnCycles > 1) {
 
     for (let g = 0; g < cycleGames && Date.now() < cycleEnd; g++) {
       try {
-        const deck1 = STARTER_DECKS[Math.floor(Math.random() * STARTER_DECKS.length)];
-        const deck2 = STARTER_DECKS[Math.floor(Math.random() * STARTER_DECKS.length)];
+        const h1 = HERO_CLASSES[Math.floor(Math.random() * HERO_CLASSES.length)];
+        const h2 = HERO_CLASSES[Math.floor(Math.random() * HERO_CLASSES.length)];
+        const deck1 = pickDeck(h1);
+        const deck2 = pickDeck(h2);
 
         const game = createGame(
           [
