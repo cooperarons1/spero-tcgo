@@ -787,21 +787,36 @@ function HeroPortrait({
     <div className="flex items-center gap-2 md:gap-3">
       {/* Secrets (shown as ? badges — own secrets show name on hover, opponent's enlarge on hover) */}
       {secretCount != null && secretCount > 0 && (
-        <div className="flex gap-0.5">
+        <div className="flex gap-1.5">
           {Array.from({ length: secretCount }).map((_, i) => {
             const secretCardCode = isMyHero && mySecretCodes ? mySecretCodes[i] : undefined;
             const secretDef = secretCardCode ? getCard(secretCardCode) : undefined;
             return (
               <div key={i} className="relative group">
-                <div className={`w-7 h-7 rounded-full bg-gradient-to-b from-amber-400 to-amber-600 border-2 border-amber-300 flex items-center justify-center text-white font-bold text-xs shadow-md transition-transform
-                  ${!isMyHero ? 'group-hover:scale-150 cursor-default' : ''}
-                `}>
-                  ?
-                </div>
-                {/* Own secret tooltip — show name on hover */}
-                {isMyHero && secretDef && (
-                  <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 hidden group-hover:block bg-stone-900 text-amber-200 text-[10px] px-2 py-1 rounded whitespace-nowrap z-50 border border-amber-600/50 shadow-lg pointer-events-none">
-                    {secretDef.name}
+                {isMyHero && secretDef ? (
+                  /* Own secret — show card-like display */
+                  <div className="w-12 h-14 md:w-14 md:h-16 rounded-lg border-2 border-amber-400 bg-stone-900 overflow-hidden shadow-lg shadow-amber-500/20 relative cursor-default">
+                    <CardArt cardCode={secretCardCode!} className="w-full h-full opacity-70" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                    <div className="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-amber-500 border border-amber-300 flex items-center justify-center">
+                      <span className="text-[8px] font-bold text-white">?</span>
+                    </div>
+                    <div className="absolute bottom-0.5 left-0 right-0 text-center">
+                      <span className="text-[7px] font-bold text-amber-200 drop-shadow-md">{secretDef.name}</span>
+                    </div>
+                    {/* Full card on hover */}
+                    <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:block z-50 pointer-events-none">
+                      <div className="bg-stone-900/95 border border-amber-600/50 rounded-lg p-2 shadow-2xl min-w-[150px]">
+                        <div className="text-amber-200 font-bold text-xs">{secretDef.name}</div>
+                        <div className="text-[9px] text-amber-400/60 mt-0.5">{secretDef.manaCost} Mana Secret</div>
+                        <div className="text-[9px] text-gray-300 mt-1">{secretDef.text}</div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  /* Opponent secret — mystery "?" */
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-b from-amber-400 to-amber-600 border-2 border-amber-300 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-amber-500/30 animate-pulse">
+                    ?
                   </div>
                 )}
               </div>
