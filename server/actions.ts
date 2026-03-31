@@ -1,7 +1,8 @@
 import type { GameState, PlayerState, BoardMinion, BoardLocation, Weapon, EffectDef } from '../shared/types.js';
 import { MAX_BOARD_SIZE, MAX_HAND_SIZE, HERO_POWER_COST, MAX_SECRETS } from '../shared/types.js';
 import { checkSecrets } from './secrets.js';
-import { getCardDef } from './cards.js';
+import { getCardDef, getAllCardDefs } from './cards.js';
+import { makeInstance } from './deck.js';
 import { addLog } from './log.js';
 import { createBoardMinion, checkDeaths } from './combat.js';
 import {
@@ -430,19 +431,22 @@ export function useHeroPower(
       break;
     }
     case 'LUCAS': {
-      // Coyote's Veil: +1 atk + 1 armor (upgraded: +2 atk + 2 armor)
+      // Coyote's Trick: Add a random 1-cost card to your hand (combo enabler)
       player.mana -= HERO_POWER_COST;
       player.heroPowerUsed = true;
       game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
       game.playerStats[pIdx as 0 | 1].heroPowerUses++;
-      if (upgraded) {
-        player.heroAttackThisTurn += 2;
-        player.armor = (player.armor ?? 0) + 2;
-        addLog(game, pIdx as 0 | 1, `${player.playerName} uses Shadow Veil`, 'PLAY');
+      // Find all 1-cost cards from Lucas class + neutral
+      const oneCostCards = getAllCardDefs().filter(c =>
+        c.manaCost <= 1 && (c.heroClass === 'LUCAS' || c.heroClass === 'NEUTRAL')
+        && c.cardCode !== 'COIN' && !c.cardCode.includes('TOKEN')
+      );
+      if (oneCostCards.length > 0 && player.hand.length < MAX_HAND_SIZE) {
+        const pick = oneCostCards[Math.floor(Math.random() * oneCostCards.length)];
+        player.hand.push(makeInstance(pick.cardCode));
+        addLog(game, pIdx as 0 | 1, `${player.playerName} uses Coyote's Trick — adds ${pick.name} to hand`, 'PLAY');
       } else {
-        player.heroAttackThisTurn += 1;
-        player.armor = (player.armor ?? 0) + 1;
-        addLog(game, pIdx as 0 | 1, `${player.playerName} uses Coyote's Veil`, 'PLAY');
+        addLog(game, pIdx as 0 | 1, `${player.playerName} uses Coyote's Trick`, 'PLAY');
       }
       break;
     }

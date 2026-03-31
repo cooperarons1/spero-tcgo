@@ -160,7 +160,7 @@ const HERO_POWER_DESC: Record<HeroClass, string> = {
   DES: 'Orra Siphon: Deal 1 damage to the enemy hero',
   ASTRID: 'Mighty Guard: Give a friendly minion Divine Shield',
   AVA: 'Deploy Drone: Summon a 1/1 Gadget Drone',
-  LUCAS: "Coyote's Veil: +1 Attack this turn and gain 1 Armor",
+  LUCAS: "Coyote's Trick: Add a random 1-cost card to your hand",
   IZZY: 'Chart Course: Gain 2 Armor. Draw 1 if you have 5+ Armor',
   NEUTRAL: 'Hero Power',
 };

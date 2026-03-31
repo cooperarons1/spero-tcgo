@@ -5772,5 +5772,133 @@
       "type": "DRAW_CARDS",
       "value": 2
     }
+  },
+  {
+    "cardCode": "AND034",
+    "name": "Rune Scholar",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "ANDERS",
+    "rarity": "COMMON",
+    "attack": 1,
+    "health": 3,
+    "text": "Your spells deal 1 extra damage.",
+    "flavor": "Knowledge is the coldest weapon.",
+    "keywords": [],
+    "minionType": "HUMAN"
+  },
+  {
+    "cardCode": "AND035",
+    "name": "Frost Bolt",
+    "manaCost": 2,
+    "type": "SPELL",
+    "heroClass": "ANDERS",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 3 damage to a character and Freeze it.",
+    "flavor": "Cold. Precise. Final.",
+    "keywords": [
+      "FREEZE"
+    ],
+    "spellEffect": {
+      "type": "DEAL_DAMAGE",
+      "target": "TARGET_ANY",
+      "value": 3,
+      "alsoFreeze": true
+    }
+  },
+  {
+    "cardCode": "AND036",
+    "name": "Glacial Pyroblast",
+    "manaCost": 8,
+    "type": "SPELL",
+    "heroClass": "ANDERS",
+    "rarity": "EPIC",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 8 damage to any target.",
+    "flavor": "Fire and ice are just different temperatures of pain.",
+    "keywords": [],
+    "spellEffect": {
+      "type": "DEAL_DAMAGE",
+      "target": "TARGET_ANY",
+      "value": 8
+    }
+  },
+  {
+    "cardCode": "AND037",
+    "name": "Arcane Intellect",
+    "manaCost": 3,
+    "type": "SPELL",
+    "heroClass": "ANDERS",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Draw 2 cards.",
+    "flavor": "The mind sees what the eyes cannot.",
+    "keywords": [],
+    "spellEffect": {
+      "type": "DRAW_CARDS",
+      "value": 2
+    }
+  },
+  {
+    "cardCode": "AND038",
+    "name": "Aster Arcanist",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "ANDERS",
+    "rarity": "RARE",
+    "attack": 3,
+    "health": 5,
+    "text": "Battlecry: Deal 1 damage to all enemies for each spell you cast this turn.",
+    "flavor": "Every incantation fuels the next.",
+    "keywords": [
+      "BATTLECRY"
+    ],
+    "minionType": "AMETI",
+    "battlecryEffect": {
+      "type": "DEAL_DAMAGE_ALL_ENEMIES",
+      "target": "ALL_ENEMIES",
+      "value": 1,
+      "perSpellThisTurn": true
+    }
+  },
+  {
+    "cardCode": "AND039",
+    "name": "Shatter",
+    "manaCost": 1,
+    "type": "SPELL",
+    "heroClass": "ANDERS",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Destroy a Frozen minion.",
+    "flavor": "Ice is just a temporary prison. This makes it permanent.",
+    "keywords": [],
+    "spellEffect": {
+      "type": "DESTROY_FROZEN_MINION",
+      "target": "TARGET_ENEMY_MINION"
+    }
+  },
+  {
+    "cardCode": "AND040",
+    "name": "Anders, Frost Prodigy",
+    "manaCost": 7,
+    "type": "MINION",
+    "heroClass": "ANDERS",
+    "rarity": "LEGENDARY",
+    "attack": 5,
+    "health": 7,
+    "text": "Battlecry: Freeze all enemies. Deal 2 damage to all Frozen enemies.",
+    "flavor": "The peak trembles when he channels.",
+    "keywords": [
+      "BATTLECRY"
+    ],
+    "minionType": "HUMAN",
+    "battlecryEffect": {
+      "type": "FREEZE_ALL_ENEMIES"
+    }
   }
 ]
