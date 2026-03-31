@@ -102,6 +102,7 @@ export function getClientState(game: GameState, playerId: string): ClientGameSta
     log: game.log,
     pendingInteraction: game.pendingInteraction ?? null,
     turnDeadline,
+    cardsPlayedThisTurn: game.cardsPlayedThisTurn ?? 0,
     playerStats: game.playerStats,
     spectatorCount: game.spectators?.length ?? 0,
   };
@@ -173,6 +174,7 @@ export function getSpectatorState(game: GameState): ClientGameState {
     log: game.log,
     pendingInteraction: null,
     turnDeadline,
+    cardsPlayedThisTurn: game.cardsPlayedThisTurn ?? 0,
     playerStats: game.playerStats,
     spectatorCount: game.spectators?.length ?? 0,
     isSpectator: true,

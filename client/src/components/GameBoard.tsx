@@ -165,18 +165,7 @@ const HERO_POWER_DESC: Record<HeroClass, string> = {
   NEUTRAL: 'Hero Power',
 };
 
-const HERO_POWER_DESC_UPGRADED: Record<HeroClass, string> = {
-  JIMMY: 'Orra Barrage: Deal 2 damage + 1 to adjacent minions',
-  TALA: "Nature's Embrace: Give a friendly minion +1/+2",
-  DEREK: 'Master Tinker: Draw a card (1 mana refunded)',
-  ANDERS: 'Avalanche Strike: Deal 2 damage + Freeze target and 1 adjacent',
-  DES: 'Dark Siphon: Deal 1 damage + random enemy gets -1 Attack',
-  ASTRID: 'Radiant Guard: Divine Shield + 0/+2',
-  AVA: 'Deploy Guardian: Summon a 1/1 Drone with Taunt',
-  LUCAS: "Shadow Veil: +2 Attack this turn and gain 2 Armor",
-  IZZY: 'Master Navigator: Gain 3 Armor and draw 1',
-  NEUTRAL: 'Hero Power',
-};
+// Hero power upgrades removed — base powers only
 
 // Upgrade conditions shown to players
 const HERO_UPGRADE_CONDITIONS: Record<HeroClass, { description: string; target: number }> = {
@@ -906,30 +895,14 @@ function HeroPortrait({
           <span className="pointer-events-none absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white shadow">
             {HERO_POWER_COST}
           </span>
-          {/* Upgraded star badge */}
-          {heroPowerUpgraded && (
-            <span className="pointer-events-none absolute -top-1.5 -left-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br from-amber-300 to-amber-500 text-[10px] font-bold text-amber-900 shadow-lg">
-              {'★'}
-            </span>
-          )}
+          {/* No upgrade badges */}
         </button>
         {/* Styled tooltip on hover */}
         <div className={`absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover/hp:block text-[10px] px-2.5 py-1 rounded-lg whitespace-normal text-center z-50 shadow-lg pointer-events-none max-w-[180px]
           ${heroPowerUpgraded
             ? 'bg-gradient-to-b from-amber-900 to-stone-900 text-amber-100 border border-amber-400/60 shadow-[0_0_8px_rgba(245,158,11,0.3)]'
             : 'bg-stone-900 text-amber-200 border border-amber-600/40'}`}>
-          {heroPowerUpgraded && <span className="text-amber-300 font-bold">{'★ UPGRADED ★'}<br/></span>}
-          {heroPowerUpgraded
-            ? HERO_POWER_DESC_UPGRADED[heroClass]
-            : (<>
-                {HERO_POWER_DESC[heroClass]}
-                {HERO_UPGRADE_CONDITIONS[heroClass].target > 0 && (
-                  <span className="block text-[10px] text-amber-400/60 mt-0.5">
-                    Upgrade: {HERO_UPGRADE_CONDITIONS[heroClass].description} ({upgradeProgress ?? 0}/{HERO_UPGRADE_CONDITIONS[heroClass].target})
-                  </span>
-                )}
-              </>)
-          }
+          {HERO_POWER_DESC[heroClass]}
         </div>
       </div>
     </div>
@@ -943,6 +916,7 @@ function HandCard({
   isSelected,
   isDragging,
   isNew,
+  comboActive,
   onClick,
   onPointerDown,
 }: {
@@ -951,12 +925,14 @@ function HandCard({
   isSelected: boolean;
   isDragging?: boolean;
   isNew?: boolean;
+  comboActive?: boolean;
   onClick: () => void;
   onPointerDown?: (e: React.PointerEvent) => void;
 }) {
   const def = getCard(card.cardCode);
   if (!def) return null;
 
+  const isComboCard = comboActive && def.keywords.includes('COMBO') && canPlay;
   const classColor = CLASS_COLORS[def.heroClass] ?? '#d4a520';
   const rarityColor = RARITY_COLORS[def.rarity];
   const isLocation = def.type === 'LOCATION';
@@ -966,6 +942,9 @@ function HandCard({
       onClick={onClick}
       onPointerDown={onPointerDown}
       className={`group relative flex h-44 w-[7.5rem] flex-shrink-0 flex-col items-center rounded-xl border-2 p-1 transition-all overflow-hidden card-frame touch-none
+        ${isComboCard
+          ? 'ring-2 ring-yellow-400/80 shadow-[0_0_16px_4px_rgba(234,179,8,0.5)] border-yellow-400'
+          : ''}
         ${isSelected
           ? 'border-green-400 -translate-y-6 scale-110 z-20 shadow-[0_0_20px_4px_rgba(34,197,94,0.5)]'
           : canPlay
@@ -2543,6 +2522,7 @@ export default function GameBoard({
                   isSelected={selectedHandCard === card.instanceId}
                   isDragging={isDrag}
                   isNew={newCardIds.has(card.instanceId)}
+                  comboActive={((gs as any).cardsPlayedThisTurn ?? 0) > 0}
                   onClick={() => handleHandCardClick(card)}
                   onPointerDown={(e) => handleCardPointerDown(e, card)}
                 />

@@ -356,6 +356,7 @@ export interface ClientGameState {
   log: LogEntry[];
   pendingInteraction: PendingInteraction | null;
   turnDeadline: number | null;
+  cardsPlayedThisTurn: number;
   playerStats: [PlayerStats, PlayerStats];
   spectatorCount: number;
   isSpectator?: boolean;

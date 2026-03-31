@@ -186,8 +186,9 @@ export function attack(
   checkHeroDeath(game);
 
   // Check hero power upgrade for both players
-  checkHeroPowerUpgrade(game, 0);
-  checkHeroPowerUpgrade(game, 1);
+  // Hero power upgrades removed
+  // checkHeroPowerUpgrade(game, 0);
+  // checkHeroPowerUpgrade(game, 1);
 
   game.lastAction = `${attackerName} attacks!`;
 

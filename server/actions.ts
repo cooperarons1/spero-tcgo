@@ -239,8 +239,9 @@ export function playCard(
   checkHeroDeath(game);
 
   // Check hero power upgrade for both players
-  checkHeroPowerUpgrade(game, 0);
-  checkHeroPowerUpgrade(game, 1);
+  // Hero power upgrades removed
+  // checkHeroPowerUpgrade(game, 0);
+  // checkHeroPowerUpgrade(game, 1);
 
   return { success: true };
 }
@@ -264,8 +265,8 @@ export function useHeroPower(
 
   const oppIdx = (pIdx === 0 ? 1 : 0) as 0 | 1;
 
-  const upgraded = player.heroPowerUpgraded;
-
+  // Hero powers are base only (no upgrades)
+  const upgraded = false;
   switch (player.heroClass) {
     case 'JIMMY': {
       // Orra Arrow: Deal 2 damage to any target (upgraded: 2 dmg + 1 dmg to adjacent)
@@ -304,7 +305,7 @@ export function useHeroPower(
           }
         }
       }
-      addLog(game, pIdx as 0 | 1, `${player.playerName} uses ${upgraded ? 'Orra Barrage' : 'Orra Arrow'}`, 'PLAY');
+      addLog(game, pIdx as 0 | 1, `${player.playerName} uses ${'Orra Arrow'}`, 'PLAY');
       break;
     }
     case 'TALA': {
@@ -369,7 +370,7 @@ export function useHeroPower(
           }
         }
       }
-      addLog(game, pIdx as 0 | 1, `${player.playerName} uses ${upgraded ? 'Avalanche Strike' : 'Hockbandy Strike'}`, 'PLAY');
+      addLog(game, pIdx as 0 | 1, `${player.playerName} uses ${'Hockbandy Strike'}`, 'PLAY');
       break;
     }
     case 'DES': {
@@ -387,7 +388,7 @@ export function useHeroPower(
         randomEnemy.enchantments.push({ source: 'des-upgraded-hp', attackMod: -1, healthMod: 0 });
       }
       checkHeroDeath(game);
-      addLog(game, pIdx as 0 | 1, `${player.playerName} uses ${upgraded ? 'Dark Siphon' : 'Orra Siphon'}`, 'PLAY');
+      addLog(game, pIdx as 0 | 1, `${player.playerName} uses ${'Orra Siphon'}`, 'PLAY');
       break;
     }
     case 'ASTRID': {
@@ -456,7 +457,7 @@ export function useHeroPower(
       if (upgraded || player.armor >= 5) {
         drawCard(game, pIdx as 0 | 1, true);
       }
-      addLog(game, pIdx as 0 | 1, `${player.playerName} uses ${upgraded ? 'Master Navigator' : 'Chart Course'}`, 'PLAY');
+      addLog(game, pIdx as 0 | 1, `${player.playerName} uses ${'Chart Course'}`, 'PLAY');
       break;
     }
     default:
@@ -468,8 +469,9 @@ export function useHeroPower(
   checkHeroDeath(game);
 
   // Check hero power upgrade for both players
-  checkHeroPowerUpgrade(game, 0);
-  checkHeroPowerUpgrade(game, 1);
+  // Hero power upgrades removed
+  // checkHeroPowerUpgrade(game, 0);
+  // checkHeroPowerUpgrade(game, 1);
 
   return { success: true };
 }
