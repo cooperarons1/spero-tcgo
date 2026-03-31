@@ -5671,5 +5671,106 @@
       "type": "DEAL_DAMAGE_ALL_CHARACTERS",
       "value": 2
     }
+  },
+  {
+    "cardCode": "NEU109",
+    "name": "Volcanic Eruption",
+    "manaCost": 7,
+    "type": "SPELL",
+    "heroClass": "NEUTRAL",
+    "rarity": "EPIC",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 3 damage to all minions.",
+    "flavor": "The planet fights back.",
+    "keywords": [],
+    "spellEffect": {
+      "type": "DEAL_DAMAGE_ALL_MINIONS",
+      "value": 3
+    }
+  },
+  {
+    "cardCode": "NEU110",
+    "name": "Orra Bolt",
+    "manaCost": 3,
+    "type": "SPELL",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 3 damage to any target.",
+    "flavor": "Pure energy, no questions asked.",
+    "keywords": [],
+    "spellEffect": {
+      "type": "DEAL_DAMAGE",
+      "target": "TARGET_ANY",
+      "value": 3
+    }
+  },
+  {
+    "cardCode": "NEU111",
+    "name": "Quick Zap",
+    "manaCost": 1,
+    "type": "SPELL",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 2 damage to a minion.",
+    "flavor": "Fast, cheap, effective.",
+    "keywords": [],
+    "spellEffect": {
+      "type": "DEAL_DAMAGE",
+      "target": "TARGET_MINION",
+      "value": 2
+    }
+  },
+  {
+    "cardCode": "LUC045",
+    "name": "Swift Strike",
+    "manaCost": 2,
+    "type": "SPELL",
+    "heroClass": "LUCAS",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 2 damage. Combo: Deal 4 instead.",
+    "flavor": "The second strike always lands harder.",
+    "keywords": [
+      "COMBO"
+    ],
+    "spellEffect": {
+      "type": "DEAL_DAMAGE",
+      "target": "TARGET_ANY",
+      "value": 2
+    },
+    "comboEffect": {
+      "type": "DEAL_DAMAGE",
+      "target": "TARGET_ANY",
+      "value": 4
+    }
+  },
+  {
+    "cardCode": "LUC046",
+    "name": "Pickpocket",
+    "manaCost": 1,
+    "type": "SPELL",
+    "heroClass": "LUCAS",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Draw a card. Combo: Draw 2 instead.",
+    "flavor": "Light fingers, heavy rewards.",
+    "keywords": [
+      "COMBO"
+    ],
+    "spellEffect": {
+      "type": "DRAW_CARDS",
+      "value": 1
+    },
+    "comboEffect": {
+      "type": "DRAW_CARDS",
+      "value": 2
+    }
   }
 ]
