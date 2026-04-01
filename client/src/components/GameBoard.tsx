@@ -2139,7 +2139,7 @@ export default function GameBoard({
         {/* Opponent hero row */}
         <div className="flex items-center justify-center w-full gap-2 md:gap-4 relative">
           {/* Opponent name + mode badge — left side */}
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 hidden md:flex flex-col gap-0.5">
+          <div className="absolute left-16 top-1/2 -translate-y-1/2 hidden md:flex flex-col gap-0.5">
             <span className="text-sm text-gray-200 font-bold drop-shadow-md">{gs.opponent.playerName}</span>
             {(gs as any).gameMode === 'ranked' && (
               <span className="text-[9px] text-purple-300 font-bold">RANKED</span>
@@ -2417,7 +2417,7 @@ export default function GameBoard({
         {/* My hero row */}
         <div className="flex items-center justify-center w-full gap-2 md:gap-4 relative">
           {/* My name + mode badge — left side */}
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 hidden md:flex flex-col gap-0.5">
+          <div className="absolute left-16 top-1/2 -translate-y-1/2 hidden md:flex flex-col gap-0.5">
             <span className="text-sm text-amber-100 font-bold drop-shadow-md">{gs.myPlayerName}</span>
             {(gs as any).gameMode === 'ranked' && (
               <span className="text-[9px] text-purple-300 font-bold">RANKED</span>
