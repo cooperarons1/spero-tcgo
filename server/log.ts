@@ -4,7 +4,8 @@ export function addLog(
   game: GameState,
   playerIndex: 0 | 1 | null,
   message: string,
-  category: LogCategory
+  category: LogCategory,
+  cardCode?: string
 ): void {
   game.log.push({
     id: game.log.length,
@@ -12,6 +13,7 @@ export function addLog(
     playerIndex,
     message,
     category,
+    cardCode,
   });
 }
 

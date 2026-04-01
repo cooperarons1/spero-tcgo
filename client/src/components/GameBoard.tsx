@@ -2012,24 +2012,32 @@ export default function GameBoard({
       {InteractionOverlay}
       {ClientTargetingOverlay}
 
-      {/* ═══ Left sidebar: Action History ═══ */}
-      <div className="hidden md:flex absolute left-0 top-0 bottom-0 w-48 z-10 flex-col bg-stone-950/60 border-r border-stone-700/30 overflow-hidden">
-        <div className="px-2 py-1.5 border-b border-stone-700/30 bg-stone-900/50">
-          <span className="text-[10px] text-amber-200/60 font-bold uppercase tracking-wider">Action Log</span>
-        </div>
+      {/* ═══ Left sidebar: Action History (card art thumbnails) ═══ */}
+      <div className="hidden md:flex absolute left-0 top-0 bottom-0 w-12 z-10 flex-col bg-stone-950/40 overflow-hidden">
         <div className="flex-1 overflow-y-auto flex flex-col-reverse">
-          <div className="px-2 py-1 space-y-0.5">
-            {gs.log.slice(-30).map(entry => {
+          <div className="py-1 space-y-1 px-1">
+            {gs.log.slice(-20).filter(e => e.category === 'PLAY' || e.category === 'COMBAT').map(entry => {
               const isMe = entry.playerIndex === gs.myPlayerIndex;
-              const iconColor = entry.category === 'COMBAT' ? 'bg-red-500'
-                : entry.category === 'EFFECT' ? 'bg-purple-500'
-                : entry.category === 'PLAY' ? 'bg-blue-500'
-                : entry.category === 'TURN' ? 'bg-amber-500'
-                : 'bg-stone-500';
+              const cardCode = (entry as any).cardCode;
               return (
-                <div key={entry.id} className={`flex items-start gap-1.5 py-0.5 ${isMe ? 'text-amber-200/70' : 'text-gray-400/70'}`}>
-                  <div className={`w-1.5 h-1.5 rounded-full mt-1 shrink-0 ${iconColor}`} />
-                  <span className="text-[9px] leading-tight">{entry.message}</span>
+                <div key={entry.id} className="relative group">
+                  <div className={`w-10 h-10 rounded overflow-hidden border-2 ${
+                    isMe ? 'border-amber-600/60' : 'border-gray-500/60'
+                  }`}>
+                    {cardCode ? (
+                      <CardArt cardCode={cardCode} className="w-full h-full" />
+                    ) : (
+                      <div className={`w-full h-full flex items-center justify-center text-[8px] font-bold ${
+                        entry.category === 'COMBAT' ? 'bg-red-900/60 text-red-300' : 'bg-stone-800 text-stone-400'
+                      }`}>
+                        {entry.category === 'COMBAT' ? '⚔' : '•'}
+                      </div>
+                    )}
+                  </div>
+                  {/* Hover tooltip */}
+                  <div className="absolute left-full ml-1 top-0 hidden group-hover:block bg-stone-900/95 border border-stone-600 rounded px-2 py-1 z-50 whitespace-nowrap shadow-lg pointer-events-none">
+                    <span className="text-[9px] text-gray-300">{entry.message}</span>
+                  </div>
                 </div>
               );
             })}

@@ -73,7 +73,7 @@ export function playCard(
     const pos = position ?? player.board.length;
     player.board.splice(Math.min(pos, player.board.length), 0, minion);
 
-    addLog(game, pIdx as 0 | 1, `${player.playerName} plays ${def.name}`, 'PLAY');
+    addLog(game, pIdx as 0 | 1, `${player.playerName} plays ${def.name}`, 'PLAY', def.cardCode);
     game.playerStats[pIdx as 0 | 1].minionsPlayed++;
 
     // Bond: check if partner is already on board

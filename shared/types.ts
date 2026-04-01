@@ -247,6 +247,7 @@ export interface LogEntry {
   playerIndex: 0 | 1 | null;
   message: string;
   category: LogCategory;
+  cardCode?: string; // for showing card art in history
 }
 
 // ─── Player Stats ───
