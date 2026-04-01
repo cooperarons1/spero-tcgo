@@ -886,7 +886,7 @@ function HeroPortrait({
                 : 'border-amber-600 bg-amber-800/40 opacity-50 cursor-not-allowed')
               : (canUseHeroPower
                 ? 'border-amber-500 bg-amber-900/40 hover:bg-amber-800/60 hover:scale-110 cursor-pointer'
-                : 'border-stone-600 bg-stone-800 opacity-40 cursor-not-allowed')}
+                : 'border-stone-500 bg-stone-700/60 opacity-60 cursor-not-allowed')}
             ${heroPowerFlash ? 'animate-hero-power-flash' : ''}
           `}
         >
