@@ -52,47 +52,11 @@ export function playCard(
     const bcEffects = def.battlecryEffects ?? (def.battlecryEffect ? [def.battlecryEffect] : []);
     const bcNeedsTarget = def.keywords.includes('BATTLECRY') && bcEffects.length > 0 && effectsNeedTarget(bcEffects);
 
-    if (bcNeedsTarget && !targetId) {
-      const targetType = getEffectsTargetType(bcEffects);
-      const targets = getValidTargets(game, pIdx as 0 | 1, targetType);
-      if (targets.length === 0) {
-        return { success: false, error: 'No valid targets for this battlecry' };
-      }
-
-      // 2-step battlecry: place minion on board first, THEN ask for target
-      player.mana -= def.manaCost;
-      game.playerStats[pIdx as 0 | 1].manaSpent += def.manaCost;
-      player.hand.splice(cardIdx, 1);
-
-      const minion = createBoardMinion(cardInst.cardCode);
-      const pos = position ?? player.board.length;
-      player.board.splice(Math.min(pos, player.board.length), 0, minion);
-
-      addLog(game, pIdx as 0 | 1, `${player.playerName} plays ${def.name}`, 'PLAY', def.cardCode);
-      game.playerStats[pIdx as 0 | 1].minionsPlayed++;
-
-      // Store pending battlecry so it can be resolved or cancelled
-      game.pendingBattlecry = {
-        playerIndex: pIdx as 0 | 1,
-        minionInstanceId: minion.instanceId,
-        cardCode: cardInst.cardCode,
-        cardInstanceId: cardInst.instanceId ?? cardInstanceId,
-        manaCost: def.manaCost,
-        position: Math.min(pos, player.board.length - 1),
-        validTargets: targets,
-      };
-
-      return { success: false, needsTarget: true, validTargets: targets, placed: true };
-    }
-
-    // Deduct mana
+    // Deduct mana, remove from hand, place minion (shared for all minion paths)
     player.mana -= def.manaCost;
     game.playerStats[pIdx as 0 | 1].manaSpent += def.manaCost;
-
-    // Remove from hand
     player.hand.splice(cardIdx, 1);
 
-    // Create minion and place on board
     const minion = createBoardMinion(cardInst.cardCode);
     const pos = position ?? player.board.length;
     player.board.splice(Math.min(pos, player.board.length), 0, minion);
@@ -100,19 +64,43 @@ export function playCard(
     addLog(game, pIdx as 0 | 1, `${player.playerName} plays ${def.name}`, 'PLAY', def.cardCode);
     game.playerStats[pIdx as 0 | 1].minionsPlayed++;
 
+    // 2-step battlecry: minion is on board, now ask for target
+    if (bcNeedsTarget && !targetId) {
+      const targetType = getEffectsTargetType(bcEffects);
+      const targets = getValidTargets(game, pIdx as 0 | 1, targetType);
+      if (targets.length > 0) {
+        // Store pending battlecry so it can be resolved or cancelled
+        game.pendingBattlecry = {
+          playerIndex: pIdx as 0 | 1,
+          minionInstanceId: minion.instanceId,
+          cardCode: cardInst.cardCode,
+          cardInstanceId: cardInst.instanceId ?? cardInstanceId,
+          manaCost: def.manaCost,
+          position: Math.min(pos, player.board.length - 1),
+          validTargets: targets,
+        };
+        return { success: false, needsTarget: true, validTargets: targets, placed: true };
+      }
+      // No valid targets — battlecry fizzles, minion stays on board
+    }
+
     // Bond: check if partner is already on board
     if (def.keywords.includes('BOND') && def.bondPartnerCode && def.bondEffect) {
       const partner = player.board.find(m => m.cardCode === def.bondPartnerCode && m.instanceId !== minion.instanceId);
       if (partner) {
         addLog(game, pIdx as 0 | 1, `Bond activates! ${def.name} and ${getCardDef(def.bondPartnerCode).name}!`, 'EFFECT', def.cardCode);
-        // Buff both the played minion and the partner
         executeEffect(game, pIdx as 0 | 1, { ...def.bondEffect, target: 'SELF' }, minion.instanceId);
         executeEffect(game, pIdx as 0 | 1, { ...def.bondEffect, target: 'SELF' }, partner.instanceId);
       }
     }
 
     // Trigger Battlecry (plural effects take priority)
-    if (def.keywords.includes('BATTLECRY') && bcEffects.length > 0) {
+    if (def.keywords.includes('BATTLECRY') && bcEffects.length > 0 && !bcNeedsTarget) {
+      // Non-targeted battlecries (like "deal damage to all enemies")
+      addLog(game, pIdx as 0 | 1, `${def.name}'s Battlecry!`, 'EFFECT', def.cardCode);
+      executeEffects(game, pIdx as 0 | 1, bcEffects, targetId);
+    } else if (def.keywords.includes('BATTLECRY') && bcEffects.length > 0 && targetId) {
+      // Targeted battlecry with target provided upfront
       addLog(game, pIdx as 0 | 1, `${def.name}'s Battlecry!`, 'EFFECT', def.cardCode);
       executeEffects(game, pIdx as 0 | 1, bcEffects, targetId);
     }
