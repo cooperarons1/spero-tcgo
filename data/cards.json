@@ -1688,19 +1688,18 @@
   {
     "cardCode": "DES022",
     "name": "Death's Descent",
-    "manaCost": 8,
+    "manaCost": 6,
     "type": "SPELL",
     "heroClass": "DES",
     "rarity": "EPIC",
     "attack": 0,
     "health": 0,
-    "text": "Destroy all minions with 2 or less Attack.",
+    "text": "Deal 4 damage to ALL minions.",
     "flavor": "Everything that rises must eventually descend.",
     "keywords": [],
     "spellEffect": {
-      "type": "DEAL_DAMAGE_ALL_ENEMIES",
-      "target": "ALL_MINIONS",
-      "value": 99
+      "type": "DEAL_DAMAGE_ALL_MINIONS",
+      "value": 4
     }
   },
   {
@@ -2001,7 +2000,7 @@
     "type": "WEAPON",
     "heroClass": "LUCAS",
     "rarity": "COMMON",
-    "attack": 1,
+    "attack": 2,
     "health": 3,
     "text": "",
     "flavor": "Light as air. Quiet as shadow.",
@@ -2853,7 +2852,7 @@
     "type": "MINION",
     "heroClass": "ASTRID",
     "rarity": "LEGENDARY",
-    "attack": 4,
+    "attack": 3,
     "health": 7,
     "text": "Taunt. Battlecry: Give adjacent minions Divine Shield.",
     "flavor": "When Arinna speaks, even the mountain listens.",
@@ -3193,8 +3192,8 @@
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "LEGENDARY",
-    "attack": 4,
-    "health": 4,
+    "attack": 5,
+    "health": 5,
     "text": "Stealth. Combo: Gain +3/+3 and Windfury.",
     "flavor": "You'll never see him coming. Or going.",
     "keywords": [
@@ -4794,7 +4793,7 @@
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "COMMON",
-    "attack": 2,
+    "attack": 3,
     "health": 2,
     "text": "Stealth.",
     "flavor": "A dragon that learned stealth. The world is not ready.",
