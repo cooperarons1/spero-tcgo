@@ -2014,6 +2014,31 @@ export default function GameBoard({
       {InteractionOverlay}
       {ClientTargetingOverlay}
 
+      {/* ═══ Left sidebar: Action History ═══ */}
+      <div className="hidden md:flex absolute left-0 top-0 bottom-0 w-48 z-10 flex-col bg-stone-950/60 border-r border-stone-700/30 overflow-hidden">
+        <div className="px-2 py-1.5 border-b border-stone-700/30 bg-stone-900/50">
+          <span className="text-[10px] text-amber-200/60 font-bold uppercase tracking-wider">Action Log</span>
+        </div>
+        <div className="flex-1 overflow-y-auto flex flex-col-reverse">
+          <div className="px-2 py-1 space-y-0.5">
+            {gs.log.slice(-30).map(entry => {
+              const isMe = entry.playerIndex === gs.myPlayerIndex;
+              const iconColor = entry.category === 'COMBAT' ? 'bg-red-500'
+                : entry.category === 'EFFECT' ? 'bg-purple-500'
+                : entry.category === 'PLAY' ? 'bg-blue-500'
+                : entry.category === 'TURN' ? 'bg-amber-500'
+                : 'bg-stone-500';
+              return (
+                <div key={entry.id} className={`flex items-start gap-1.5 py-0.5 ${isMe ? 'text-amber-200/70' : 'text-gray-400/70'}`}>
+                  <div className={`w-1.5 h-1.5 rounded-full mt-1 shrink-0 ${iconColor}`} />
+                  <span className="text-[9px] leading-tight">{entry.message}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
       {/* ═══ Animation overlays ═══ */}
       <FloatingNumbers numbers={diff.floatingNumbers} />
       <DeathAnimation deadMinions={diff.deadMinions} />
