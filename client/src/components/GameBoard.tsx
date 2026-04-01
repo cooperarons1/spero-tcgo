@@ -815,23 +815,21 @@ function HeroPortrait({
       )}
       {/* Weapon (left side) — Hearthstone-style circular with art */}
       {weapon && (
-        <div className={`relative h-16 w-16 md:h-24 md:w-24 rounded-full overflow-hidden border-[3px] bg-stone-900
-          ${canHeroAttack ? 'border-green-400 shadow-[0_0_16px_4px_rgba(34,197,94,0.6)]' : 'border-stone-500'}
-          ${weaponEquipFlash ? 'animate-weapon-equip' : ''}`}
-          style={{ boxShadow: canHeroAttack ? undefined : 'inset 0 2px 8px rgba(0,0,0,0.6)' }}
-        >
-          {/* Weapon card art */}
-          <CardArt cardCode={weapon.cardCode} className="absolute inset-0 w-full h-full object-cover" />
-          {/* Dark overlay for readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/15" />
-          {/* Inner ring decoration */}
-          <div className="absolute inset-0 rounded-full" style={{ boxShadow: 'inset 0 0 0 2px rgba(100,90,70,0.5)' }} />
-          {/* Attack badge (bottom-left) */}
-          <div className="absolute bottom-0 left-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 border-2 border-amber-300 flex items-center justify-center shadow-lg z-10">
+        <div className="relative">
+          <div className={`h-16 w-16 md:h-24 md:w-24 rounded-full overflow-hidden border-[3px] bg-stone-900
+            ${canHeroAttack ? 'border-green-400 shadow-[0_0_16px_4px_rgba(34,197,94,0.6)]' : 'border-stone-500'}
+            ${weaponEquipFlash ? 'animate-weapon-equip' : ''}`}
+            style={{ boxShadow: canHeroAttack ? undefined : 'inset 0 2px 8px rgba(0,0,0,0.6)' }}
+          >
+            <CardArt cardCode={weapon.cardCode} className="absolute inset-0 w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/15" />
+          </div>
+          {/* Attack badge — outside overflow, bottom-left */}
+          <div className="absolute -bottom-1 -left-1 w-7 h-7 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 border-2 border-amber-300 flex items-center justify-center shadow-lg z-20">
             <span className="text-white font-extrabold text-xs md:text-sm drop-shadow-md">{weapon.currentAttack}</span>
           </div>
-          {/* Durability badge (bottom-right) */}
-          <div className="absolute bottom-0 right-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-stone-400 to-stone-600 border-2 border-stone-300 flex items-center justify-center shadow-lg z-10">
+          {/* Durability badge — outside overflow, bottom-right */}
+          <div className="absolute -bottom-1 -right-1 w-7 h-7 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-stone-400 to-stone-600 border-2 border-stone-300 flex items-center justify-center shadow-lg z-20">
             <span className="text-white font-extrabold text-xs md:text-sm drop-shadow-md">{weapon.durability}</span>
           </div>
         </div>
