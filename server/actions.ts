@@ -15,6 +15,7 @@ import {
   checkHeroDeath,
   drawCard,
   applyDamageToHero,
+  findMinion,
 } from './effects.js';
 import { minionHasKeyword } from './keywords.js';
 import { checkHeroPowerUpgrade } from './upgrade.js';
