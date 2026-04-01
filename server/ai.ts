@@ -1202,10 +1202,12 @@ function usePostAttackHeroPower(
       break;
 
     case 'TALA': {
-      // Nature's Touch: +1/+1 to a friendly minion — prefer highest-attack minion
-      if (me.board.length > 0) {
-        const best = [...me.board].sort((a, b) => threatScore(b) - threatScore(a));
-        hpTarget = best[0].instanceId;
+      // Healing Touch: Restore 2 Health to any character — prefer own damaged minions, then hero
+      const damaged = me.board.filter(m => m.currentHealth < m.maxHealth);
+      if (damaged.length > 0) {
+        hpTarget = damaged.sort((a, b) => threatScore(b) - threatScore(a))[0].instanceId;
+      } else if (me.health < me.maxHealth - 4) {
+        hpTarget = `hero-${myIdx}`;
       } else {
         shouldUse = false;
       }
@@ -1240,11 +1242,9 @@ function usePostAttackHeroPower(
     }
 
     case 'ASTRID': {
-      // Mighty Guard: give Divine Shield to biggest friendly minion without it
-      const candidates = me.board.filter(m => !m.hasDivineShield && !minionHasKeyword(m, 'DIVINE_SHIELD'));
-      if (candidates.length > 0) {
-        // Prefer minion with highest attack (most value to protect)
-        hpTarget = candidates.sort((a, b) => threatScore(b) - threatScore(a))[0].instanceId;
+      // Shield Wall: give +2 Health to biggest friendly minion
+      if (me.board.length > 0) {
+        hpTarget = me.board.slice().sort((a, b) => threatScore(b) - threatScore(a))[0].instanceId;
       } else {
         shouldUse = false;
       }

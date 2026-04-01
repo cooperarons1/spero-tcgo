@@ -154,11 +154,11 @@ const HERO_POWER_TARGETING: Partial<Record<HeroClass, string>> = {
 // ─── Hero Power Descriptions ───
 const HERO_POWER_DESC: Record<HeroClass, string> = {
   JIMMY: 'Orra Arrow: Deal 2 damage to any target',
-  TALA: "Nature's Touch: Give a friendly minion +1/+1",
+  TALA: 'Healing Touch: Restore 2 Health to any character',
   DEREK: 'Tinker: Draw a card',
   ANDERS: 'Hockbandy Strike: Deal 2 damage to a minion and Freeze it',
   DES: 'Orra Siphon: Deal 1 damage to the enemy hero',
-  ASTRID: 'Mighty Guard: Give a friendly minion Divine Shield',
+  ASTRID: "Nature's Touch: Give a friendly minion +1/+1",
   AVA: 'Deploy Drone: Summon a 1/1 Gadget Drone',
   LUCAS: "Coyote's Trick: Add a random 1-cost card to your hand",
   IZZY: 'Chart Course: Gain 2 Armor. Draw 1 if you have 5+ Armor',

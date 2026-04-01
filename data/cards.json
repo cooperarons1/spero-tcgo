@@ -290,21 +290,22 @@
   {
     "cardCode": "DES_S01",
     "name": "Shadow Ambush",
-    "manaCost": 2,
+    "manaCost": 3,
     "type": "SPELL",
     "heroClass": "DES",
     "rarity": "RARE",
     "attack": 0,
     "health": 0,
-    "text": "Secret: When your opponent plays a minion, destroy a random enemy minion.",
+    "text": "Secret: When your opponent plays a minion, deal 4 damage to a random enemy minion.",
     "flavor": "The shadows have teeth.",
     "keywords": [
       "SECRET"
     ],
     "secretTrigger": "WHEN_MINION_PLAYED",
     "secretEffect": {
-      "type": "DESTROY_MINION",
-      "target": "NONE"
+      "type": "DEAL_DAMAGE_RANDOM_ENEMY",
+      "target": "RANDOM_ENEMY",
+      "value": 4
     }
   },
   {
@@ -461,7 +462,7 @@
     "attack": 3,
     "health": 2,
     "text": "Stealth. Bond: If you control Rosie, draw 2 cards.",
-    "flavor": "The leopard moves like a reef shadow \u2014 silent, patient, lethal.",
+    "flavor": "The leopard moves like a reef shadow — silent, patient, lethal.",
     "keywords": [
       "STEALTH",
       "BOND"
@@ -484,7 +485,7 @@
     "attack": 1,
     "health": 3,
     "text": "Bond: If you control Sengo, draw 2 cards.",
-    "flavor": "She nudges lost things back to shore \u2014 including hope.",
+    "flavor": "She nudges lost things back to shore — including hope.",
     "keywords": [
       "BOND"
     ],
@@ -506,7 +507,7 @@
     "attack": 2,
     "health": 3,
     "text": "Bond: If you control Tala's Ice Orb, both get +1/+2 and gain Taunt.",
-    "flavor": "She always finds Tala first \u2014 small paws, big heart.",
+    "flavor": "She always finds Tala first — small paws, big heart.",
     "keywords": [
       "BOND"
     ],
@@ -662,7 +663,7 @@
     "attack": 2,
     "health": 3,
     "text": "Bond: If you control Fiona, both get +1/+1.",
-    "flavor": "Ava's masterwork \u2014 half scanner, half best friend.",
+    "flavor": "Ava's masterwork — half scanner, half best friend.",
     "keywords": [
       "BOND"
     ],
@@ -685,7 +686,7 @@
     "attack": 3,
     "health": 1,
     "text": "Stealth. Bond: If you control Owl Sketch, both get +2/+2.",
-    "flavor": "Jax trusts no one \u2014 except the boy who draws owls.",
+    "flavor": "Jax trusts no one — except the boy who draws owls.",
     "keywords": [
       "STEALTH",
       "BOND"
@@ -743,7 +744,7 @@
       "target": "SELF",
       "attackBuff": 1,
       "healthBuff": 2,
-      "grantKeyword": "DIVINE_SHIELD"
+      "grantKeyword": "TAUNT"
     }
   },
   {
@@ -802,7 +803,7 @@
     "attack": 2,
     "health": 4,
     "text": "Bond: If you control Bling, both get +1/+2.",
-    "flavor": "Points toward balance \u2014 and buried treasure.",
+    "flavor": "Points toward balance — and buried treasure.",
     "keywords": [
       "BOND"
     ],
@@ -822,18 +823,19 @@
     "type": "MINION",
     "heroClass": "ASTRID",
     "rarity": "LEGENDARY",
-    "attack": 4,
-    "health": 5,
-    "text": "Battlecry: Give all friendly minions Divine Shield.",
+    "attack": 3,
+    "health": 4,
+    "text": "Battlecry: Give all friendly minions +1/+2.",
     "flavor": "When she raises her fist, shields appear. It's not magic. It's will.",
     "keywords": [
       "BATTLECRY"
     ],
     "minionType": "AMETI",
     "battlecryEffect": {
-      "type": "GRANT_KEYWORD",
+      "type": "BUFF_ALL_FRIENDLY",
       "target": "ALL_FRIENDLY_MINIONS",
-      "grantKeyword": "DIVINE_SHIELD"
+      "attackBuff": 1,
+      "healthBuff": 2
     }
   },
   {
@@ -1052,17 +1054,24 @@
     "rarity": "RARE",
     "attack": 3,
     "health": 5,
-    "text": "Battlecry: Restore 3 Health to your hero.",
+    "text": "Battlecry: Restore 3 Health to your hero. Draw a card.",
     "flavor": "She speaks to the trees, and the trees listen.",
     "keywords": [
       "BATTLECRY"
     ],
     "minionType": "AMETI",
-    "battlecryEffect": {
-      "type": "RESTORE_HEALTH",
-      "target": "TARGET_HERO",
-      "value": 3
-    }
+    "battlecryEffects": [
+      {
+        "type": "RESTORE_HEALTH",
+        "target": "TARGET_HERO",
+        "value": 3
+      },
+      {
+        "type": "DRAW_CARDS",
+        "target": "NONE",
+        "value": 1
+      }
+    ]
   },
   {
     "cardCode": "DRK018",
@@ -1100,7 +1109,7 @@
     "comboEffect": {
       "type": "BUFF_MINION",
       "target": "SELF",
-      "attackBuff": 1,
+      "attackBuff": 2,
       "healthBuff": 1
     }
   },
@@ -1424,19 +1433,20 @@
     "rarity": "COMMON",
     "attack": 0,
     "health": 0,
-    "text": "Give a friendly minion Divine Shield.",
+    "text": "Give a friendly minion +1/+2.",
     "flavor": "What's in the chest? Hope. Also a really nice shield.",
     "keywords": [],
     "spellEffect": {
-      "type": "GRANT_KEYWORD",
+      "type": "BUFF_MINION",
       "target": "TARGET_FRIENDLY_MINION",
-      "grantKeyword": "DIVINE_SHIELD"
+      "attackBuff": 1,
+      "healthBuff": 2
     }
   },
   {
     "cardCode": "AND019",
     "name": "Chest of Replenishing Ice",
-    "manaCost": 3,
+    "manaCost": 2,
     "type": "SPELL",
     "heroClass": "ANDERS",
     "rarity": "COMMON",
@@ -1516,12 +1526,12 @@
   {
     "cardCode": "LUC023",
     "name": "Cicero",
-    "manaCost": 4,
+    "manaCost": 3,
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "COMMON",
     "attack": 3,
-    "health": 4,
+    "health": 3,
     "text": "Stealth. Combo: Draw a card.",
     "flavor": "The crowd loves him. His targets don't.",
     "keywords": [
@@ -1724,13 +1734,20 @@
     "rarity": "COMMON",
     "attack": 0,
     "health": 0,
-    "text": "Destroy a random enemy minion.",
+    "text": "Destroy a random enemy minion. Deal 3 damage to your hero.",
     "flavor": "Poof. Gone. What were we talking about?",
     "keywords": [],
-    "spellEffect": {
-      "type": "DESTROY_MINION",
-      "target": "RANDOM_ENEMY"
-    }
+    "spellEffects": [
+      {
+        "type": "DESTROY_MINION",
+        "target": "RANDOM_ENEMY"
+      },
+      {
+        "type": "DEAL_DAMAGE",
+        "target": "SELF",
+        "value": 3
+      }
+    ]
   },
   {
     "cardCode": "JIM024",
@@ -1832,7 +1849,7 @@
     "type": "MINION",
     "heroClass": "TALA",
     "rarity": "RARE",
-    "attack": 2,
+    "attack": 3,
     "health": 4,
     "text": "Battlecry: Restore 3 Health to all friendly minions.",
     "flavor": "She sings to the wounded until the pain forgets them.",
@@ -1872,7 +1889,7 @@
     "attack": 0,
     "health": 0,
     "text": "Deal 5 damage to all characters.",
-    "flavor": "When the forest burns, new life begins \u2014 eventually.",
+    "flavor": "When the forest burns, new life begins — eventually.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE_ALL_ENEMIES",
@@ -2306,7 +2323,7 @@
   {
     "cardCode": "AND024",
     "name": "Hailstorm",
-    "manaCost": 4,
+    "manaCost": 3,
     "type": "SPELL",
     "heroClass": "ANDERS",
     "rarity": "EPIC",
@@ -2619,7 +2636,7 @@
     "type": "MINION",
     "heroClass": "TALA",
     "rarity": "COMMON",
-    "attack": 1,
+    "attack": 2,
     "health": 3,
     "text": "Battlecry: Restore 3 Health to a friendly character.",
     "flavor": "Fights with the ferocity of someone protecting her home.",
@@ -2745,7 +2762,7 @@
     "comboEffect": {
       "type": "DEAL_DAMAGE",
       "target": "TARGET_ENEMY_HERO",
-      "value": 2
+      "value": 3
     },
     "minionType": "HUMAN"
   },
@@ -2842,7 +2859,7 @@
     "comboEffect": {
       "type": "DEAL_DAMAGE",
       "target": "TARGET_ANY",
-      "value": 3
+      "value": 4
     }
   },
   {
@@ -2853,19 +2870,27 @@
     "heroClass": "ASTRID",
     "rarity": "LEGENDARY",
     "attack": 3,
-    "health": 7,
-    "text": "Taunt. Battlecry: Give adjacent minions Divine Shield.",
+    "health": 6,
+    "text": "Taunt. Battlecry: Give all friendly minions +1/+3 and Taunt.",
     "flavor": "When Arinna speaks, even the mountain listens.",
     "keywords": [
       "TAUNT",
       "BATTLECRY"
     ],
     "minionType": "AMETI",
-    "battlecryEffect": {
-      "type": "GRANT_KEYWORD",
-      "target": "ALL_FRIENDLY_MINIONS",
-      "grantKeyword": "DIVINE_SHIELD"
-    }
+    "battlecryEffects": [
+      {
+        "type": "BUFF_ALL_FRIENDLY",
+        "target": "ALL_FRIENDLY_MINIONS",
+        "attackBuff": 1,
+        "healthBuff": 3
+      },
+      {
+        "type": "GRANT_KEYWORD",
+        "target": "ALL_FRIENDLY_MINIONS",
+        "grantKeyword": "TAUNT"
+      }
+    ]
   },
   {
     "cardCode": "DES027",
@@ -2876,7 +2901,7 @@
     "rarity": "RARE",
     "attack": 3,
     "health": 4,
-    "text": "Deathrattle: Deal 3 damage to the enemy hero.",
+    "text": "Deathrattle: Deal 2 damage to the enemy hero.",
     "flavor": "The dead tell tales. He makes sure they do.",
     "keywords": [
       "DEATHRATTLE"
@@ -2885,7 +2910,7 @@
     "deathrattleEffect": {
       "type": "DEAL_DAMAGE",
       "target": "TARGET_ENEMY_HERO",
-      "value": 3
+      "value": 2
     }
   },
   {
@@ -2969,7 +2994,7 @@
     "type": "MINION",
     "heroClass": "TALA",
     "rarity": "COMMON",
-    "attack": 2,
+    "attack": 3,
     "health": 4,
     "text": "Battlecry: Restore 2 Health to all friendly characters.",
     "flavor": "Silent. Patient. Absolutely lethal.",
@@ -2990,7 +3015,7 @@
     "type": "MINION",
     "heroClass": "TALA",
     "rarity": "LEGENDARY",
-    "attack": 4,
+    "attack": 5,
     "health": 6,
     "text": "Battlecry: Restore 5 Health to all friendly characters. Give them +1/+1.",
     "flavor": "Where he walks, dead things grow green again.",
@@ -3215,7 +3240,7 @@
     "type": "MINION",
     "heroClass": "TALA",
     "rarity": "EPIC",
-    "attack": 2,
+    "attack": 3,
     "health": 6,
     "text": "Taunt. Battlecry: Restore 2 Health to adjacent minions.",
     "flavor": "She weaves wind and butterflies into shields.",
@@ -3504,7 +3529,7 @@
     "type": "MINION",
     "heroClass": "ANDERS",
     "rarity": "LEGENDARY",
-    "attack": 4,
+    "attack": 5,
     "health": 5,
     "text": "Battlecry: Freeze all enemy minions.",
     "flavor": "He is the storm that Aster Peak fears most.",
@@ -3756,14 +3781,15 @@
     "rarity": "COMMON",
     "attack": 0,
     "health": 0,
-    "text": "Give a friendly minion Divine Shield and Taunt.",
+    "text": "Give a friendly minion +2/+2 and Taunt.",
     "flavor": "Not on my watch. Not on anyone's watch.",
     "keywords": [],
     "spellEffects": [
       {
-        "type": "GRANT_KEYWORD",
+        "type": "BUFF_MINION",
         "target": "TARGET_FRIENDLY_MINION",
-        "grantKeyword": "DIVINE_SHIELD"
+        "attackBuff": 2,
+        "healthBuff": 2
       },
       {
         "type": "GRANT_KEYWORD",
@@ -3957,7 +3983,7 @@
   {
     "cardCode": "TAL032",
     "name": "Relentless Stampede",
-    "manaCost": 5,
+    "manaCost": 4,
     "type": "SPELL",
     "heroClass": "TALA",
     "rarity": "EPIC",
@@ -4582,7 +4608,7 @@
       "type": "BUFF_MINION",
       "target": "SELF",
       "attackBuff": 2,
-      "healthBuff": 1
+      "healthBuff": 2
     }
   },
   {
@@ -4609,7 +4635,7 @@
   {
     "cardCode": "DES033",
     "name": "The Anarchist",
-    "manaCost": 5,
+    "manaCost": 6,
     "type": "MINION",
     "heroClass": "DES",
     "rarity": "LEGENDARY",
@@ -4849,15 +4875,22 @@
     "rarity": "EPIC",
     "attack": 0,
     "health": 0,
-    "text": "Give a friendly minion +3/+3 and Divine Shield.",
+    "text": "Give a friendly minion +2/+3 and Taunt.",
     "flavor": "Victory is its own reward. This buff is a close second.",
     "keywords": [],
-    "spellEffect": {
-      "type": "BUFF_MINION",
-      "target": "TARGET_FRIENDLY_MINION",
-      "attackBuff": 3,
-      "healthBuff": 3
-    }
+    "spellEffects": [
+      {
+        "type": "BUFF_MINION",
+        "target": "TARGET_FRIENDLY_MINION",
+        "attackBuff": 2,
+        "healthBuff": 3
+      },
+      {
+        "type": "GRANT_KEYWORD",
+        "target": "TARGET_FRIENDLY_MINION",
+        "grantKeyword": "TAUNT"
+      }
+    ]
   },
   {
     "cardCode": "NEU096",
@@ -5078,7 +5111,7 @@
   {
     "cardCode": "DES038",
     "name": "Vyren",
-    "manaCost": 6,
+    "manaCost": 7,
     "type": "MINION",
     "heroClass": "DES",
     "rarity": "COMMON",
@@ -5454,18 +5487,19 @@
     "heroClass": "ASTRID",
     "rarity": "EPIC",
     "attack": 4,
-    "health": 8,
-    "text": "Taunt. Divine Shield. Battlecry: Give a friendly minion Divine Shield.",
+    "health": 7,
+    "text": "Taunt. Battlecry: Give all friendly minions +0/+2.",
     "flavor": "She holds the line so others can advance.",
     "keywords": [
       "TAUNT",
-      "DIVINE_SHIELD",
       "BATTLECRY"
     ],
     "minionType": "HUMAN",
     "battlecryEffect": {
-      "type": "GIVE_DIVINE_SHIELD",
-      "target": "FRIENDLY_MINION"
+      "type": "BUFF_ALL_FRIENDLY",
+      "target": "ALL_FRIENDLY_MINIONS",
+      "attackBuff": 0,
+      "healthBuff": 2
     }
   },
   {
@@ -5477,16 +5511,16 @@
     "rarity": "RARE",
     "attack": 0,
     "health": 0,
-    "text": "Give all friendly minions +2/+2 and Divine Shield.",
+    "text": "Give all friendly minions +3/+3.",
     "flavor": "Mighty protects those who protect others.",
     "keywords": [
       "DIVINE_SHIELD"
     ],
     "spellEffect": {
       "type": "BUFF_ALL_FRIENDLY_MINIONS",
-      "attackBuff": 2,
-      "healthBuff": 2,
-      "grantDivineShield": true
+      "target": "ALL_FRIENDLY_MINIONS",
+      "attackBuff": 3,
+      "healthBuff": 3
     }
   },
   {
@@ -5727,13 +5761,13 @@
   {
     "cardCode": "LUC045",
     "name": "Swift Strike",
-    "manaCost": 2,
+    "manaCost": 1,
     "type": "SPELL",
     "heroClass": "LUCAS",
     "rarity": "COMMON",
     "attack": 0,
     "health": 0,
-    "text": "Deal 2 damage. Combo: Deal 4 instead.",
+    "text": "Deal 2 damage. Combo: Deal 3 instead.",
     "flavor": "The second strike always lands harder.",
     "keywords": [
       "COMBO"
@@ -5746,7 +5780,7 @@
     "comboEffect": {
       "type": "DEAL_DAMAGE",
       "target": "TARGET_ANY",
-      "value": 4
+      "value": 3
     }
   },
   {
@@ -5779,7 +5813,7 @@
     "type": "MINION",
     "heroClass": "ANDERS",
     "rarity": "COMMON",
-    "attack": 1,
+    "attack": 2,
     "health": 3,
     "text": "Your spells deal 1 extra damage.",
     "flavor": "Knowledge is the coldest weapon.",
@@ -5810,7 +5844,7 @@
   {
     "cardCode": "AND036",
     "name": "Glacial Pyroblast",
-    "manaCost": 8,
+    "manaCost": 7,
     "type": "SPELL",
     "heroClass": "ANDERS",
     "rarity": "EPIC",
@@ -5828,7 +5862,7 @@
   {
     "cardCode": "AND037",
     "name": "Arcane Intellect",
-    "manaCost": 3,
+    "manaCost": 2,
     "type": "SPELL",
     "heroClass": "ANDERS",
     "rarity": "COMMON",
@@ -5849,7 +5883,7 @@
     "type": "MINION",
     "heroClass": "ANDERS",
     "rarity": "RARE",
-    "attack": 3,
+    "attack": 4,
     "health": 5,
     "text": "Battlecry: Deal 1 damage to all enemies for each spell you cast this turn.",
     "flavor": "Every incantation fuels the next.",

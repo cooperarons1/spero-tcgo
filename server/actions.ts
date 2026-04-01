@@ -322,22 +322,34 @@ export function useHeroPower(
       break;
     }
     case 'TALA': {
-      // Nature's Touch: +1/+1 (upgraded: +1/+2)
-      const buff = upgraded ? 1 : 1;
-      const friendlyMinionsTala = game.players[pIdx].board;
+      // Healing Touch: Restore 2 Health to any character
       if (!targetId) {
-        if (friendlyMinionsTala.length === 0) return { success: false, error: 'No friendly minions to target' };
-        return { success: false, needsTarget: true, validTargets: friendlyMinionsTala.map(m => m.instanceId) };
+        const targets = [
+          ...game.players[0].board.filter(m => !m.hasStealthUntilAttack).map(m => m.instanceId),
+          ...game.players[1].board.filter(m => !m.hasStealthUntilAttack).map(m => m.instanceId),
+          `hero-${pIdx}`, `hero-${oppIdx}`,
+        ];
+        return { success: false, needsTarget: true, validTargets: targets };
       }
-      const isMyMinionTala = game.players[pIdx].board.some(m => m.instanceId === targetId);
-      if (!isMyMinionTala) return { success: false, error: 'Must target a friendly minion' };
       player.mana -= HERO_POWER_COST;
       player.heroPowerUsed = true;
       game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
       game.playerStats[pIdx as 0 | 1].heroPowerUses++;
-      const healthBuff = upgraded ? 2 : 1;
-      executeEffect(game, pIdx as 0 | 1, { type: 'BUFF_MINION', target: 'TARGET_FRIENDLY_MINION', attackBuff: buff, healthBuff }, targetId);
-      addLog(game, pIdx as 0 | 1, `${player.playerName} uses ${upgraded ? "Nature's Embrace" : "Nature's Touch"}`, 'PLAY');
+      if (targetId.startsWith('hero-')) {
+        const heroIdx = parseInt(targetId.split('-')[1]) as 0 | 1;
+        const hero = game.players[heroIdx];
+        const healed = Math.min(2, hero.maxHealth - hero.health);
+        hero.health = Math.min(hero.health + 2, hero.maxHealth);
+        game.playerStats[pIdx as 0 | 1].healingDone += healed;
+      } else {
+        const minion = findMinion(game, targetId);
+        if (minion) {
+          const healed = Math.min(2, minion.maxHealth - minion.currentHealth);
+          minion.currentHealth = Math.min(minion.currentHealth + 2, minion.maxHealth);
+          game.playerStats[pIdx as 0 | 1].healingDone += healed;
+        }
+      }
+      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Healing Touch`, 'PLAY');
       break;
     }
     case 'DEREK': {
@@ -405,23 +417,31 @@ export function useHeroPower(
       break;
     }
     case 'ASTRID': {
-      // Mighty Guard: Divine Shield (upgraded: + 0/+2)
-      const friendlyMinions = game.players[pIdx].board.filter(m => !m.hasDivineShield);
+      // Nature's Touch: Give any character +1/+1 (heroes get +1 Attack this turn + restore 1 Health)
       if (!targetId) {
-        if (friendlyMinions.length === 0) return { success: false, error: 'No valid friendly minions' };
-        return { success: false, needsTarget: true, validTargets: friendlyMinions.map(m => m.instanceId) };
+        const targets = [
+          ...game.players[0].board.filter(m => !m.hasStealthUntilAttack).map(m => m.instanceId),
+          ...game.players[1].board.filter(m => !m.hasStealthUntilAttack).map(m => m.instanceId),
+          `hero-${pIdx}`, `hero-${oppIdx}`,
+        ];
+        return { success: false, needsTarget: true, validTargets: targets };
       }
-      const isMyMinion = game.players[pIdx].board.some(m => m.instanceId === targetId);
-      if (!isMyMinion) return { success: false, error: 'Must target a friendly minion' };
       player.mana -= HERO_POWER_COST;
       player.heroPowerUsed = true;
       game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
       game.playerStats[pIdx as 0 | 1].heroPowerUses++;
-      executeEffect(game, pIdx as 0 | 1, { type: 'GRANT_KEYWORD', target: 'TARGET_FRIENDLY_MINION', grantKeyword: 'DIVINE_SHIELD' }, targetId);
-      if (upgraded) {
-        executeEffect(game, pIdx as 0 | 1, { type: 'BUFF_MINION', target: 'TARGET_FRIENDLY_MINION', attackBuff: 0, healthBuff: 2 }, targetId);
+      if (targetId.startsWith('hero-')) {
+        // Heroes: +1 attack this turn + restore 1 health
+        const heroIdx = parseInt(targetId.split('-')[1]) as 0 | 1;
+        const hero = game.players[heroIdx];
+        hero.heroAttackThisTurn = (hero.heroAttackThisTurn ?? 0) + 1;
+        const healed = Math.min(1, hero.maxHealth - hero.health);
+        hero.health = Math.min(hero.health + 1, hero.maxHealth);
+        game.playerStats[pIdx as 0 | 1].healingDone += healed;
+      } else {
+        executeEffect(game, pIdx as 0 | 1, { type: 'BUFF_MINION', target: 'TARGET_ANY', attackBuff: 1, healthBuff: 1 }, targetId);
       }
-      addLog(game, pIdx as 0 | 1, `${player.playerName} uses ${upgraded ? 'Radiant Guard' : 'Mighty Guard'}`, 'PLAY');
+      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Nature's Touch`, 'PLAY');
       break;
     }
     case 'AVA': {
