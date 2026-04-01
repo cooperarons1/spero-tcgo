@@ -1031,13 +1031,13 @@ function OpponentHand({ count, cardBackId }: { count: number; cardBackId?: strin
     <div className="flex items-center justify-center gap-0.5 md:gap-1">
       {Array.from({ length: count }).map((_, i) => (
         cb?.type === 'image' ? (
-          <div key={i} className="h-14 w-10 md:h-24 md:w-16 rounded-lg border-2 border-amber-700 overflow-hidden relative shadow-md">
+          <div key={i} className="h-14 w-10 md:h-24 md:w-16 rounded-lg border-2 border-amber-700 overflow-hidden relative shadow-md transition-transform duration-200 hover:scale-110 hover:-translate-y-2">
             <img src={cb.value} alt="" className="absolute inset-0 w-full h-full object-cover" />
           </div>
         ) : (
           <div
             key={i}
-            className={`h-14 w-10 md:h-24 md:w-16 rounded-lg border-2 ${cb?.borderColor ?? 'border-amber-700'} shadow-md`}
+            className={`h-14 w-10 md:h-24 md:w-16 rounded-lg border-2 ${cb?.borderColor ?? 'border-amber-700'} shadow-md transition-transform duration-200 hover:scale-110 hover:-translate-y-2`}
             style={{ background: cb?.value ?? 'linear-gradient(to bottom, #92400e, #1c0f00)' }}
           >
             <div className="absolute inset-0 flex items-center justify-center">
@@ -2139,10 +2139,10 @@ export default function GameBoard({
         {/* Opponent hero row */}
         <div className="flex items-center justify-center w-full gap-2 md:gap-4 relative">
           {/* Opponent name + mode badge — left side */}
-          <div className="absolute left-16 top-1/2 -translate-y-1/2 hidden md:flex flex-col gap-0.5">
-            <span className="text-sm text-gray-200 font-bold drop-shadow-md">{gs.opponent.playerName}</span>
+          <div className="absolute left-16 top-1/2 -translate-y-1/2 hidden md:flex flex-col items-start gap-0.5">
+            <span className="text-sm text-gray-200 font-bold drop-shadow-md bg-black/40 rounded px-2 py-0.5">{gs.opponent.playerName}</span>
             {(gs as any).gameMode === 'ranked' && (
-              <span className="text-[9px] text-purple-300 font-bold">RANKED</span>
+              <span className="text-[9px] text-purple-300 font-bold bg-black/30 rounded px-1.5 py-0.5">RANKED</span>
             )}
           </div>
           <HeroPortrait
@@ -2417,10 +2417,10 @@ export default function GameBoard({
         {/* My hero row */}
         <div className="flex items-center justify-center w-full gap-2 md:gap-4 relative">
           {/* My name + mode badge — left side */}
-          <div className="absolute left-16 top-1/2 -translate-y-1/2 hidden md:flex flex-col gap-0.5">
-            <span className="text-sm text-amber-100 font-bold drop-shadow-md">{gs.myPlayerName}</span>
+          <div className="absolute left-16 top-1/2 -translate-y-1/2 hidden md:flex flex-col items-start gap-0.5">
+            <span className="text-sm text-amber-100 font-bold drop-shadow-md bg-black/40 rounded px-2 py-0.5">{gs.myPlayerName}</span>
             {(gs as any).gameMode === 'ranked' && (
-              <span className="text-[9px] text-purple-300 font-bold">RANKED</span>
+              <span className="text-[9px] text-purple-300 font-bold bg-black/30 rounded px-1.5 py-0.5">RANKED</span>
             )}
           </div>
           <HeroPortrait
@@ -2521,7 +2521,7 @@ export default function GameBoard({
 
         {/* My hand — fanned arc layout, expands on hover */}
         <div
-          className="flex items-end justify-center pb-1 group/hand transition-transform duration-300 hover:scale-110 hover:-translate-y-4"
+          className="flex items-end justify-center pb-0 group/hand transition-transform duration-300 hover:scale-110 hover:-translate-y-4 overflow-visible"
           style={{
             gap: gs.myHand.length > 6 ? (isMobile ? '-1rem' : '-0.5rem') : (isMobile ? '-0.25rem' : '0.25rem'),
             transform: isMobile ? `scale(${cardScale})` : undefined,

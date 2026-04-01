@@ -30,6 +30,7 @@ export function playCard(
 ): { success: boolean; error?: string; needsTarget?: boolean; validTargets?: string[]; placed?: boolean } {
   if (game.phase !== 'PLAYING') return { success: false, error: 'Game not in playing phase' };
   if (game.winner) return { success: false, error: 'Game is over' };
+  if (game.pendingBattlecry) return { success: false, error: 'Resolve pending battlecry first' };
 
   const pIdx = game.players.findIndex(p => p.playerId === playerId);
   if (pIdx === -1) return { success: false, error: 'Player not in game' };

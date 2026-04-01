@@ -738,7 +738,11 @@ io.on('connection', (socket) => {
     const room = getRoomByPlayer(uid);
     if (!room?.game) return;
 
-    // If there's a pending battlecry and this has a targetId, resolve it
+    // If there's a pending battlecry, only allow target resolution or reject
+    if (room.game.pendingBattlecry && !data.targetId) {
+      socket.emit('error', 'Resolve the pending battlecry first');
+      return;
+    }
     if (room.game.pendingBattlecry && data.targetId) {
       const result = resolveBattlecry(room.game, uid, data.targetId);
       if (!result.success) {

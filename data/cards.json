@@ -283,7 +283,7 @@
     "secretEffect": {
       "type": "BUFF_ALL_FRIENDLY",
       "target": "NONE",
-      "attackBuff": 2,
+      "attackBuff": 1,
       "healthBuff": 1
     }
   },
@@ -962,7 +962,7 @@
     "heroClass": "ASTRID",
     "rarity": "COMMON",
     "attack": 2,
-    "health": 5,
+    "health": 4,
     "text": "Taunt.",
     "flavor": "She stands where others won't. That's the whole job.",
     "keywords": [
@@ -1985,13 +1985,13 @@
     "rarity": "RARE",
     "attack": 0,
     "health": 0,
-    "text": "Deal 3 damage to the enemy hero.",
+    "text": "Deal 4 damage to the enemy hero.",
     "flavor": "He dances on rooftops and laughs at gravity.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE",
       "target": "TARGET_ENEMY_HERO",
-      "value": 3
+      "value": 4
     }
   },
   {
@@ -2569,7 +2569,7 @@
     "type": "MINION",
     "heroClass": "ASTRID",
     "rarity": "EPIC",
-    "attack": 3,
+    "attack": 2,
     "health": 5,
     "text": "Taunt. Divine Shield.",
     "flavor": "Taunt and divine shield. The enemy's two least favorite words.",
@@ -2604,16 +2604,23 @@
     "rarity": "COMMON",
     "attack": 3,
     "health": 4,
-    "text": "Combo: Return an enemy minion to their hand.",
+    "text": "Combo: Return an enemy minion to hand. Draw a card.",
     "flavor": "Quiet as a shadow. Twice as dark.",
     "keywords": [
       "COMBO"
     ],
-    "comboEffect": {
-      "type": "RETURN_TO_HAND",
-      "target": "TARGET_ENEMY_MINION"
-    },
-    "minionType": "HUMAN"
+    "minionType": "HUMAN",
+    "comboEffects": [
+      {
+        "type": "RETURN_TO_HAND",
+        "target": "TARGET_ENEMY_MINION"
+      },
+      {
+        "type": "DRAW_CARDS",
+        "target": "NONE",
+        "value": 1
+      }
+    ]
   },
   {
     "cardCode": "NEU072",
@@ -3660,7 +3667,7 @@
     "comboEffect": {
       "type": "DEAL_DAMAGE",
       "target": "TARGET_ENEMY_HERO",
-      "value": 1
+      "value": 2
     },
     "minionType": "BEAST"
   },
@@ -3853,7 +3860,7 @@
   {
     "cardCode": "AST033",
     "name": "Raphael",
-    "manaCost": 5,
+    "manaCost": 6,
     "type": "MINION",
     "heroClass": "ASTRID",
     "rarity": "EPIC",
@@ -4277,11 +4284,11 @@
   {
     "cardCode": "LUC038",
     "name": "Sho",
-    "manaCost": 3,
+    "manaCost": 2,
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "RARE",
-    "attack": 4,
+    "attack": 3,
     "health": 3,
     "text": "Combo: Draw a card.",
     "flavor": "Sho shoots. Sho scores. Sho disappears.",
@@ -4857,7 +4864,7 @@
     "heroClass": "ASTRID",
     "rarity": "EPIC",
     "attack": 3,
-    "health": 6,
+    "health": 5,
     "text": "Taunt. Divine Shield.",
     "flavor": "Three aspects. One champion. Zero chance of getting through.",
     "keywords": [
