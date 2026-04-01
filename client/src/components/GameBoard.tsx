@@ -409,19 +409,20 @@ function MulliganScreen({
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center" style={{ background: 'radial-gradient(ellipse at center, #2a1a08 0%, #0a0604 100%)' }}>
-      <h2 className="mb-1 text-2xl md:text-4xl font-extrabold text-amber-400 drop-shadow-lg tracking-wide">MULLIGAN</h2>
-      <p className="mb-4 md:mb-8 text-amber-200/60 text-xs md:text-sm">Tap cards you want to replace</p>
-      <div className="flex gap-2 md:gap-5 px-2">
+      <h2 className="mb-0.5 text-2xl md:text-4xl font-extrabold text-amber-100 drop-shadow-lg tracking-wide">Starting Hand</h2>
+      <p className="mb-4 md:mb-8 text-amber-300/60 text-xs md:text-sm italic">Keep or Replace Cards</p>
+      <div className="flex gap-3 md:gap-5 px-2">
         {hand.map((c, i) => {
           const def = getCard(c.cardCode);
+          const isReplacing = replacing[i];
           return (
             <button
               key={c.instanceId}
               onClick={() => toggle(i)}
-              className={`relative flex h-40 w-28 md:h-56 md:w-40 flex-col items-center rounded-xl border-2 overflow-hidden transition-all duration-200
-                ${replacing[i]
-                  ? 'border-red-500 opacity-40 grayscale scale-95'
-                  : 'border-amber-500/70 hover:border-amber-300 hover:scale-105 hover:shadow-[0_0_20px_rgba(245,158,11,0.4)]'}
+              className={`relative flex h-48 w-32 md:h-64 md:w-44 flex-col items-center rounded-xl border-3 overflow-hidden transition-all duration-300
+                ${isReplacing
+                  ? 'border-gray-500/60 scale-95'
+                  : 'border-green-400 shadow-[0_0_15px_rgba(74,222,128,0.5)] hover:shadow-[0_0_25px_rgba(74,222,128,0.7)] hover:scale-105'}
               `}
               style={{ background: 'linear-gradient(to bottom, #3d2a14, #2a1a08)' }}
             >
@@ -430,15 +431,15 @@ function MulliganScreen({
                 {def?.manaCost ?? '?'}
               </div>
               {/* Card art — large */}
-              <div className="w-full h-20 md:h-28 mt-1 overflow-hidden">
+              <div className="w-full h-24 md:h-32 mt-1 overflow-hidden">
                 {c.cardCode && <CardArt cardCode={c.cardCode} className="w-full h-full" />}
               </div>
               {/* Name */}
-              <span className="text-[11px] font-bold text-amber-100 text-center leading-tight truncate w-full px-2 mt-1">
+              <span className="text-[11px] md:text-xs font-bold text-amber-100 text-center leading-tight truncate w-full px-2 mt-1">
                 {def?.name ?? 'Unknown'}
               </span>
               {/* Text */}
-              <span className="text-[8px] text-amber-200/50 text-center leading-tight line-clamp-2 px-2 flex-1">{def?.text}</span>
+              <span className="text-[8px] md:text-[9px] text-amber-200/50 text-center leading-tight line-clamp-2 px-2 flex-1">{def?.text}</span>
               {/* Stats */}
               {def?.type === 'MINION' && (
                 <div className="flex w-full justify-between px-2 pb-1">
@@ -450,11 +451,13 @@ function MulliganScreen({
                   </span>
                 </div>
               )}
-              {/* Replace overlay */}
-              {replacing[i] && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 z-10">
-                  <span className="text-5xl text-red-400 font-black">{'\u2715'}</span>
-                  <span className="text-xs text-red-300 mt-1">REPLACING</span>
+              {/* Replace overlay — big red X, full color card stays visible */}
+              {isReplacing && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
+                  <span className="text-7xl md:text-8xl text-red-500 font-black drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" style={{ lineHeight: 1 }}>{'\u2715'}</span>
+                  <div className="absolute bottom-0 left-0 right-0 bg-black/70 py-1">
+                    <span className="text-xs md:text-sm font-extrabold text-red-400 tracking-wider">REPLACED</span>
+                  </div>
                 </div>
               )}
             </button>
@@ -464,13 +467,13 @@ function MulliganScreen({
       <button
         disabled={confirmed}
         onClick={() => onConfirm(replacing)}
-        className={`mt-8 rounded-xl px-10 py-3 text-lg font-extrabold tracking-wide transition-all
+        className={`mt-8 rounded-full px-12 py-3 text-lg font-extrabold tracking-wide transition-all
           ${confirmed
             ? 'bg-stone-700 text-stone-500 cursor-not-allowed'
-            : 'bg-gradient-to-b from-amber-400 to-amber-600 text-black hover:from-amber-300 hover:to-amber-500 hover:scale-105 shadow-[0_0_20px_rgba(245,158,11,0.3)] cursor-pointer'}
+            : 'bg-gradient-to-b from-blue-400 to-blue-600 text-white hover:from-blue-300 hover:to-blue-500 hover:scale-105 shadow-[0_0_25px_rgba(59,130,246,0.5)] cursor-pointer'}
         `}
       >
-        {confirmed ? 'Waiting for opponent...' : 'CONFIRM'}
+        {confirmed ? 'Waiting for opponent...' : 'Confirm'}
       </button>
     </div>
   );
