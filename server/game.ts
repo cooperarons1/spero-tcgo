@@ -267,6 +267,9 @@ export function endTurn(
   // Reset combo counter
   game.cardsPlayedThisTurn = 0;
 
+  // Cancel any pending battlecry (shouldn't happen, but defensive)
+  game.pendingBattlecry = null;
+
   // Switch to other player
   game.currentPlayerIndex = game.currentPlayerIndex === 0 ? 1 : 0;
   game.turnNumber++;

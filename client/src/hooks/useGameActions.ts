@@ -36,6 +36,11 @@ export function useGameActions() {
     socket.emit('concede');
   };
 
+  // Cancel battlecry (return minion to hand)
+  const cancelBattlecry = () => {
+    socket.emit('cancel-battlecry');
+  };
+
   // Emotes
   const emitEmote = (emoteId: string) => {
     socket.emit('emit-emote', { emoteId });
@@ -65,6 +70,7 @@ export function useGameActions() {
     attackTarget,
     heroPower,
     activateLocation,
+    cancelBattlecry,
     endTurn,
     concede,
     emitEmote,

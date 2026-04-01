@@ -235,6 +235,15 @@ export interface GameState {
   pendingInteraction: PendingInteraction | null;
   cardsPlayedThisTurn: number; // for COMBO mechanic
   spectators?: string[];       // spectator user IDs
+  pendingBattlecry?: {
+    playerIndex: 0 | 1;
+    minionInstanceId: string;
+    cardCode: string;
+    cardInstanceId: string;
+    manaCost: number;
+    position: number;
+    validTargets: string[];
+  } | null;
 }
 
 // ─── Game Log ───

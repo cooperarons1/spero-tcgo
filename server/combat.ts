@@ -122,20 +122,20 @@ export function attack(
     if (isTargetHero) {
       applyDamageToHero(opp, totalHeroAtk);
       game.playerStats[myIdx as 0 | 1].damageDealtToHeroes += totalHeroAtk;
-      addLog(game, myIdx as 0 | 1, `${me.playerName} attacks ${opp.playerName} for ${totalHeroAtk}`, 'COMBAT');
+      addLog(game, myIdx as 0 | 1, `${me.playerName} attacks ${opp.playerName} for ${totalHeroAtk}`, 'COMBAT', me.weapon?.cardCode);
     } else {
       const targetDef = getCardDef(targetMinion!.cardCode);
       applyDamageToMinion(targetMinion!, totalHeroAtk);
       applyDamageToHero(me, targetMinion!.currentAttack);
       game.playerStats[myIdx as 0 | 1].damageDealtToMinions += totalHeroAtk;
-      addLog(game, myIdx as 0 | 1, `${me.playerName} attacks ${targetDef.name} for ${totalHeroAtk}`, 'COMBAT');
+      addLog(game, myIdx as 0 | 1, `${me.playerName} attacks ${targetDef.name} for ${totalHeroAtk}`, 'COMBAT', me.weapon?.cardCode);
     }
 
     // Consume weapon durability
     if (me.weapon) {
       me.weapon.durability--;
       if (me.weapon.durability <= 0) {
-        addLog(game, myIdx as 0 | 1, `${me.playerName}'s weapon breaks!`, 'COMBAT');
+        addLog(game, myIdx as 0 | 1, `${me.playerName}'s weapon breaks!`, 'COMBAT', me.weapon!.cardCode);
         me.weapon = null;
       }
     }
@@ -152,7 +152,7 @@ export function attack(
     if (isTargetHero) {
       applyDamageToHero(opp, attackerMinion!.currentAttack);
       game.playerStats[myIdx as 0 | 1].damageDealtToHeroes += attackerMinion!.currentAttack;
-      addLog(game, myIdx as 0 | 1, `${attackerName} attacks ${opp.playerName} for ${attackerMinion!.currentAttack}`, 'COMBAT');
+      addLog(game, myIdx as 0 | 1, `${attackerName} attacks ${opp.playerName} for ${attackerMinion!.currentAttack}`, 'COMBAT', attackerMinion!.cardCode);
     } else {
       // Minion vs Minion — both take damage
       const atkDmg = attackerMinion!.currentAttack;
@@ -165,7 +165,7 @@ export function attack(
       game.playerStats[oppIdx].damageDealtToMinions += defDmg;
 
       const targetName = getCardDef(targetMinion!.cardCode).name;
-      addLog(game, myIdx as 0 | 1, `${attackerName} attacks ${targetName}`, 'COMBAT');
+      addLog(game, myIdx as 0 | 1, `${attackerName} attacks ${targetName}`, 'COMBAT', attackerMinion!.cardCode);
 
       // Collar: if attacker has Collar keyword and target survived, apply Collar debuff
       if (!attackerMinion!.isSilenced && targetMinion!.currentHealth > 0) {
@@ -173,7 +173,7 @@ export function attack(
         if (atkDef.keywords.includes('COLLAR') && !targetMinion!.isCollared) {
           targetMinion!.isCollared = true;
           targetMinion!.collarOwnerIndex = myIdx as 0 | 1;
-          addLog(game, myIdx as 0 | 1, `${targetName} has been Collared!`, 'EFFECT');
+          addLog(game, myIdx as 0 | 1, `${targetName} has been Collared!`, 'EFFECT', attackerMinion!.cardCode);
         }
       }
     }
@@ -223,13 +223,13 @@ export function checkDeaths(game: GameState): void {
         const def = getCardDef(minion.cardCode);
         const ownerIdx = pi as 0 | 1;
 
-        addLog(game, ownerIdx, `${def.name} dies`, 'COMBAT');
+        addLog(game, ownerIdx, `${def.name} dies`, 'COMBAT', minion.cardCode);
         game.playerStats[ownerIdx === 0 ? 1 : 0].minionsKilled++;
 
         player.graveyard.push({ instanceId: minion.instanceId, cardCode: minion.cardCode });
 
         if (!minion.isSilenced && def.keywords.includes('DEATHRATTLE') && def.deathrattleEffect) {
-          addLog(game, ownerIdx, `${def.name}'s Deathrattle triggers!`, 'EFFECT');
+          addLog(game, ownerIdx, `${def.name}'s Deathrattle triggers!`, 'EFFECT', minion.cardCode);
           // Special: Collar Drone — collar a random enemy minion
           if (def.cardCode === 'DES_COLLAR_02') {
             const enemyIdx = (ownerIdx === 0 ? 1 : 0) as 0 | 1;
@@ -239,7 +239,7 @@ export function checkDeaths(game: GameState): void {
               target.isCollared = true;
               target.collarOwnerIndex = ownerIdx;
               const targetDef = getCardDef(target.cardCode);
-              addLog(game, ownerIdx, `${targetDef.name} has been Collared!`, 'EFFECT');
+              addLog(game, ownerIdx, `${targetDef.name} has been Collared!`, 'EFFECT', minion.cardCode);
             }
           } else {
             executeEffect(game, ownerIdx, def.deathrattleEffect);

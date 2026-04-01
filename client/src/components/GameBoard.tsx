@@ -1449,10 +1449,14 @@ export default function GameBoard({
 
   // ─── Cancel targeting ───
   const cancelTargeting = useCallback(() => {
+    // If cancelling a battlecry interaction, tell server to return minion to hand
+    if (pendingTarget?.context === 'battlecry' && pendingTarget.interactionId.startsWith('needs-target-')) {
+      actions.cancelBattlecry();
+    }
     setTargeting({ type: 'none' });
     setSelectedHandCard(null);
     setAttackerPos(null);
-  }, []);
+  }, [pendingTarget, actions]);
 
   // Right click / Escape to cancel
   useEffect(() => {
@@ -2013,21 +2017,22 @@ export default function GameBoard({
       {ClientTargetingOverlay}
 
       {/* ═══ Left sidebar: Action History (card art thumbnails) ═══ */}
-      <div className="hidden md:flex absolute left-0 top-0 bottom-0 w-12 z-10 flex-col bg-stone-950/40 overflow-hidden">
+      <div className="hidden md:flex absolute left-0 top-0 bottom-0 w-14 z-10 flex-col bg-stone-950/50 overflow-hidden">
         <div className="flex-1 overflow-y-auto flex flex-col-reverse">
           <div className="py-1 space-y-1 px-1">
-            {gs.log.slice(-20).filter(e => e.category === 'PLAY' || e.category === 'COMBAT').map(entry => {
+            {gs.log.slice(-25).filter(e => e.category === 'PLAY' || e.category === 'COMBAT' || e.category === 'EFFECT').map(entry => {
               const isMe = entry.playerIndex === gs.myPlayerIndex;
               const cardCode = (entry as any).cardCode;
+              const glowColor = entry.category === 'COMBAT' ? 'shadow-red-500/40' : entry.category === 'EFFECT' ? 'shadow-purple-500/40' : isMe ? 'shadow-amber-500/40' : 'shadow-gray-400/30';
               return (
                 <div key={entry.id} className="relative group">
-                  <div className={`w-10 h-10 rounded overflow-hidden border-2 ${
-                    isMe ? 'border-amber-600/60' : 'border-gray-500/60'
+                  <div className={`w-12 h-12 rounded overflow-hidden border-2 shadow-md ${glowColor} ${
+                    isMe ? 'border-amber-500/70' : 'border-gray-500/50'
                   }`}>
                     {cardCode ? (
                       <CardArt cardCode={cardCode} className="w-full h-full" />
                     ) : (
-                      <div className={`w-full h-full flex items-center justify-center text-[8px] font-bold ${
+                      <div className={`w-full h-full flex items-center justify-center text-xs font-bold ${
                         entry.category === 'COMBAT' ? 'bg-red-900/60 text-red-300' : 'bg-stone-800 text-stone-400'
                       }`}>
                         {entry.category === 'COMBAT' ? '⚔' : '•'}
@@ -2036,7 +2041,7 @@ export default function GameBoard({
                   </div>
                   {/* Hover tooltip */}
                   <div className="absolute left-full ml-1 top-0 hidden group-hover:block bg-stone-900/95 border border-stone-600 rounded px-2 py-1 z-50 whitespace-nowrap shadow-lg pointer-events-none">
-                    <span className="text-[9px] text-gray-300">{entry.message}</span>
+                    <span className="text-[10px] text-gray-300">{entry.message}</span>
                   </div>
                 </div>
               );
@@ -2124,7 +2129,7 @@ export default function GameBoard({
       {/* ═══════════════════════════════════════════ */}
       {/* OPPONENT AREA (top half) */}
       {/* ═══════════════════════════════════════════ */}
-      <div className="flex flex-1 min-h-0 flex-col items-center px-2 md:px-4 pt-1 md:pt-2 pb-0">
+      <div className="flex flex-1 min-h-0 flex-col items-center px-2 md:px-4 pt-0.5 md:pt-1 pb-0">
         {/* Opponent hand */}
         <OpponentHand count={gs.opponent.handCount} cardBackId={(gs as any).opponentCardBack} />
 
@@ -2168,7 +2173,7 @@ export default function GameBoard({
 
         {/* Opponent locations */}
         {gs.opponent?.locations && gs.opponent.locations.length > 0 && (
-          <div className="flex items-center justify-center gap-3 mb-1">
+          <div className="flex items-center justify-center gap-3 mb-0.5">
             {gs.opponent.locations.map((loc) => (
               <div
                 key={loc.instanceId}
@@ -2188,7 +2193,7 @@ export default function GameBoard({
         )}
 
         {/* Opponent board */}
-        <div className="flex min-h-[7rem] mb-4 items-center justify-center board-field">
+        <div className="flex min-h-[5.5rem] mb-1 items-center justify-center board-field">
           <div
             className="flex items-center justify-center max-w-[64rem]"
             style={{ gap: opBoardGap }}
@@ -2318,11 +2323,11 @@ export default function GameBoard({
       {/* MY AREA (entire bottom half is drop zone) */}
       {/* ═══════════════════════════════════════════ */}
       <div
-        className={`flex flex-1 min-h-0 flex-col items-center px-2 md:px-4 pt-0 pb-2 transition-all ${dropZoneActive ? 'bg-green-500/10 ring-2 ring-inset ring-green-400/30' : ''}`}
+        className={`flex flex-1 min-h-0 flex-col items-center px-2 md:px-4 pt-0 pb-1 transition-all ${dropZoneActive ? 'bg-green-500/10 ring-2 ring-inset ring-green-400/30' : ''}`}
       >
         {/* My locations */}
         {gs.myLocations && gs.myLocations.length > 0 && (
-          <div className="flex items-center justify-center gap-3 mt-2">
+          <div className="flex items-center justify-center gap-3 mt-0.5">
             {gs.myLocations.map((loc) => {
               const locDef = getCard(loc.cardCode);
               const canActivate = isMyTurn && isPlaying && !isGameOver && loc.cooldownRemaining === 0 && !loc.activatedThisTurn;
@@ -2347,7 +2352,7 @@ export default function GameBoard({
 
         {/* My board (minion positions) */}
         <div
-          className="flex min-h-[7rem] mt-4 items-center justify-center rounded-lg board-field border-2 border-transparent"
+          className="flex min-h-[5.5rem] mt-1 items-center justify-center rounded-lg board-field border-2 border-transparent"
         >
           <div
             className="flex items-center justify-center max-w-[64rem]"

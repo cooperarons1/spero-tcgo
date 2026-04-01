@@ -3,7 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import type { GameState, BoardMinion, PlayerState, CardDef, HeroClass, CardInstance } from '../shared/types.js';
 import { getCardDef } from './cards.js';
-import { playCard, useHeroPower, activateLocation } from './actions.js';
+import { playCard, useHeroPower, activateLocation, resolveBattlecry, cancelBattlecry } from './actions.js';
 import { attack } from './combat.js';
 import { endTurn } from './game.js';
 import { minionHasKeyword, hasActiveTaunt, getTauntMinions } from './keywords.js';
@@ -527,8 +527,15 @@ function playOneCard(
     if (result.success) { broadcast(); return true; }
     if (result.needsTarget && result.validTargets && result.validTargets.length > 0) {
       const retryTarget = pickTargetFromList(game, myIdx, def, result.validTargets);
-      const retry = playCard(game, aiPlayerId, card.instanceId, undefined, retryTarget);
-      if (retry.success) { broadcast(); return true; }
+      if (result.placed) {
+        // Minion already on board — resolve battlecry directly
+        const resolve = resolveBattlecry(game, aiPlayerId, retryTarget);
+        if (resolve.success) { broadcast(); return true; }
+        cancelBattlecry(game, aiPlayerId);
+      } else {
+        const retry = playCard(game, aiPlayerId, card.instanceId, undefined, retryTarget);
+        if (retry.success) { broadcast(); return true; }
+      }
     }
   }
   return false;
@@ -808,11 +815,21 @@ function playCardsPhase(
         break; // Re-evaluate after each play
       } else if (result.needsTarget && result.validTargets && result.validTargets.length > 0) {
         const retryTarget = pickTargetFromList(game, myIdx, def, result.validTargets);
-        const retry = playCard(game, aiPlayerId, card.instanceId, undefined, retryTarget);
-        if (retry.success) {
-          played = true;
-          broadcast();
-          break;
+        if (result.placed) {
+          const resolve = resolveBattlecry(game, aiPlayerId, retryTarget);
+          if (resolve.success) {
+            played = true;
+            broadcast();
+            break;
+          }
+          cancelBattlecry(game, aiPlayerId);
+        } else {
+          const retry = playCard(game, aiPlayerId, card.instanceId, undefined, retryTarget);
+          if (retry.success) {
+            played = true;
+            broadcast();
+            break;
+          }
         }
       }
     }

@@ -13,7 +13,7 @@ import type { UserSeasonData } from '../shared/seasons.js';
 import { adminAuth, adminDb } from './firebaseAdmin.js';
 import { createRoom, joinRoom, getRoom, getRoomByPlayer, removePlayer, clearRoomTimer, cleanupStaleRooms, markDisconnected, tryReconnect, isDisconnected } from './room.js';
 import { createGame, confirmMulligan, endTurn } from './game.js';
-import { playCard, useHeroPower, activateLocation } from './actions.js';
+import { playCard, useHeroPower, activateLocation, resolveBattlecry, cancelBattlecry } from './actions.js';
 import { attack } from './combat.js';
 import { getClientState } from './clientState.js';
 import { addLog } from './log.js';
@@ -738,10 +738,23 @@ io.on('connection', (socket) => {
     const room = getRoomByPlayer(uid);
     if (!room?.game) return;
 
+    // If there's a pending battlecry and this has a targetId, resolve it
+    if (room.game.pendingBattlecry && data.targetId) {
+      const result = resolveBattlecry(room.game, uid, data.targetId);
+      if (!result.success) {
+        socket.emit('error', result.error);
+        return;
+      }
+      broadcastGameState(room.code);
+      return;
+    }
+
     const result = playCard(room.game, uid, data.cardInstanceId, data.position, data.targetId);
     if (!result.success) {
       if (result.needsTarget) {
-        socket.emit('needs-target', { cardInstanceId: data.cardInstanceId, validTargets: result.validTargets });
+        // Broadcast state first so all clients see the minion on board
+        if (result.placed) broadcastGameState(room.code);
+        socket.emit('needs-target', { cardInstanceId: data.cardInstanceId, validTargets: result.validTargets, placed: true });
       } else {
         socket.emit('error', result.error);
       }
@@ -749,6 +762,18 @@ io.on('connection', (socket) => {
     }
     broadcastGameState(room.code);
   }));
+
+  // ── Cancel Battlecry ──
+  socket.on('cancel-battlecry', () => {
+    const room = getRoomByPlayer(uid);
+    if (!room?.game) return;
+    const result = cancelBattlecry(room.game, uid);
+    if (!result.success) {
+      socket.emit('error', result.error);
+      return;
+    }
+    broadcastGameState(room.code);
+  });
 
   // ── Attack ──
 

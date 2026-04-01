@@ -26,7 +26,7 @@ export function playCard(
   cardInstanceId: string,
   position?: number,
   targetId?: string | null
-): { success: boolean; error?: string; needsTarget?: boolean; validTargets?: string[] } {
+): { success: boolean; error?: string; needsTarget?: boolean; validTargets?: string[]; placed?: boolean } {
   if (game.phase !== 'PLAYING') return { success: false, error: 'Game not in playing phase' };
   if (game.winner) return { success: false, error: 'Game is over' };
 
@@ -50,15 +50,39 @@ export function playCard(
 
     // Check if battlecry needs a target (plural effects take priority)
     const bcEffects = def.battlecryEffects ?? (def.battlecryEffect ? [def.battlecryEffect] : []);
-    if (def.keywords.includes('BATTLECRY') && bcEffects.length > 0 && effectsNeedTarget(bcEffects)) {
+    const bcNeedsTarget = def.keywords.includes('BATTLECRY') && bcEffects.length > 0 && effectsNeedTarget(bcEffects);
+
+    if (bcNeedsTarget && !targetId) {
       const targetType = getEffectsTargetType(bcEffects);
       const targets = getValidTargets(game, pIdx as 0 | 1, targetType);
       if (targets.length === 0) {
         return { success: false, error: 'No valid targets for this battlecry' };
       }
-      if (!targetId) {
-        return { success: false, needsTarget: true, validTargets: targets };
-      }
+
+      // 2-step battlecry: place minion on board first, THEN ask for target
+      player.mana -= def.manaCost;
+      game.playerStats[pIdx as 0 | 1].manaSpent += def.manaCost;
+      player.hand.splice(cardIdx, 1);
+
+      const minion = createBoardMinion(cardInst.cardCode);
+      const pos = position ?? player.board.length;
+      player.board.splice(Math.min(pos, player.board.length), 0, minion);
+
+      addLog(game, pIdx as 0 | 1, `${player.playerName} plays ${def.name}`, 'PLAY', def.cardCode);
+      game.playerStats[pIdx as 0 | 1].minionsPlayed++;
+
+      // Store pending battlecry so it can be resolved or cancelled
+      game.pendingBattlecry = {
+        playerIndex: pIdx as 0 | 1,
+        minionInstanceId: minion.instanceId,
+        cardCode: cardInst.cardCode,
+        cardInstanceId: cardInst.instanceId ?? cardInstanceId,
+        manaCost: def.manaCost,
+        position: Math.min(pos, player.board.length - 1),
+        validTargets: targets,
+      };
+
+      return { success: false, needsTarget: true, validTargets: targets, placed: true };
     }
 
     // Deduct mana
@@ -80,7 +104,7 @@ export function playCard(
     if (def.keywords.includes('BOND') && def.bondPartnerCode && def.bondEffect) {
       const partner = player.board.find(m => m.cardCode === def.bondPartnerCode && m.instanceId !== minion.instanceId);
       if (partner) {
-        addLog(game, pIdx as 0 | 1, `Bond activates! ${def.name} and ${getCardDef(def.bondPartnerCode).name}!`, 'EFFECT');
+        addLog(game, pIdx as 0 | 1, `Bond activates! ${def.name} and ${getCardDef(def.bondPartnerCode).name}!`, 'EFFECT', def.cardCode);
         // Buff both the played minion and the partner
         executeEffect(game, pIdx as 0 | 1, { ...def.bondEffect, target: 'SELF' }, minion.instanceId);
         executeEffect(game, pIdx as 0 | 1, { ...def.bondEffect, target: 'SELF' }, partner.instanceId);
@@ -89,7 +113,7 @@ export function playCard(
 
     // Trigger Battlecry (plural effects take priority)
     if (def.keywords.includes('BATTLECRY') && bcEffects.length > 0) {
-      addLog(game, pIdx as 0 | 1, `${def.name}'s Battlecry!`, 'EFFECT');
+      addLog(game, pIdx as 0 | 1, `${def.name}'s Battlecry!`, 'EFFECT', def.cardCode);
       executeEffects(game, pIdx as 0 | 1, bcEffects, targetId);
     }
 
@@ -103,7 +127,7 @@ export function playCard(
         }
       }
       if (opp.board.length > 0) {
-        addLog(game, pIdx as 0 | 1, `All enemy minions are Collared!`, 'EFFECT');
+        addLog(game, pIdx as 0 | 1, `All enemy minions are Collared!`, 'EFFECT', def.cardCode);
       }
     }
 
@@ -130,7 +154,7 @@ export function playCard(
         cardCode: cardInst.cardCode,
         ownerPlayerIndex: pIdx as 0 | 1,
       });
-      addLog(game, pIdx as 0 | 1, `${player.playerName} plays a secret`, 'PLAY');
+      addLog(game, pIdx as 0 | 1, `${player.playerName} plays a secret`, 'PLAY', cardInst.cardCode);
       game.playerStats[pIdx as 0 | 1].spellsCast++;
       game.lastAction = `${player.playerName} plays a secret.`;
       return { success: true };
@@ -156,7 +180,7 @@ export function playCard(
     // Remove from hand
     player.hand.splice(cardIdx, 1);
 
-    addLog(game, pIdx as 0 | 1, `${player.playerName} casts ${def.name}`, 'PLAY');
+    addLog(game, pIdx as 0 | 1, `${player.playerName} casts ${def.name}`, 'PLAY', def.cardCode);
     game.playerStats[pIdx as 0 | 1].spellsCast++;
 
     // Check opponent's WHEN_SPELL_CAST secrets (after mana spent, before effects)
@@ -183,7 +207,7 @@ export function playCard(
 
     // Destroy existing weapon
     if (player.weapon) {
-      addLog(game, pIdx as 0 | 1, `${player.playerName}'s old weapon is destroyed`, 'PLAY');
+      addLog(game, pIdx as 0 | 1, `${player.playerName}'s old weapon is destroyed`, 'PLAY', player.weapon!.cardCode);
     }
 
     // Equip new weapon
@@ -193,7 +217,7 @@ export function playCard(
       durability: def.health,
     };
 
-    addLog(game, pIdx as 0 | 1, `${player.playerName} equips ${def.name}`, 'PLAY');
+    addLog(game, pIdx as 0 | 1, `${player.playerName} equips ${def.name}`, 'PLAY', def.cardCode);
     game.playerStats[pIdx as 0 | 1].weaponsEquipped++;
 
   } else if (def.type === 'LOCATION') {
@@ -220,7 +244,7 @@ export function playCard(
     };
 
     player.locations.push(location);
-    addLog(game, pIdx as 0 | 1, `${player.playerName} places ${def.name}`, 'PLAY');
+    addLog(game, pIdx as 0 | 1, `${player.playerName} places ${def.name}`, 'PLAY', def.cardCode);
     game.playerStats[pIdx as 0 | 1].locationsPlayed++;
   }
 
@@ -230,7 +254,7 @@ export function playCard(
   if (game.cardsPlayedThisTurn > 0 && def.keywords.includes('COMBO')) {
     const comboEffects = def.comboEffects ?? (def.comboEffect ? [def.comboEffect] : []);
     if (comboEffects.length > 0) {
-      addLog(game, pIdx as 0 | 1, `Combo! ${def.name}'s bonus effect triggers!`, 'EFFECT');
+      addLog(game, pIdx as 0 | 1, `Combo! ${def.name}'s bonus effect triggers!`, 'EFFECT', def.cardCode);
       executeEffects(game, pIdx as 0 | 1, comboEffects, targetId);
     }
   }
@@ -517,7 +541,7 @@ export function activateLocation(
   }
 
   // Execute effects
-  addLog(game, pIdx as 0 | 1, `${player.playerName} activates ${def.name}`, 'PLAY');
+  addLog(game, pIdx as 0 | 1, `${player.playerName} activates ${def.name}`, 'PLAY', def.cardCode);
   executeEffects(game, pIdx as 0 | 1, locEffects, targetId);
 
   // Consume durability
@@ -528,12 +552,119 @@ export function activateLocation(
   if (location.durability <= 0) {
     player.locations = player.locations.filter(l => l.instanceId !== locationInstanceId);
     player.graveyard.push({ instanceId: location.instanceId, cardCode: location.cardCode });
-    addLog(game, pIdx as 0 | 1, `${def.name} is destroyed`, 'EFFECT');
+    addLog(game, pIdx as 0 | 1, `${def.name} is destroyed`, 'EFFECT', def.cardCode);
   }
 
   game.lastAction = `${player.playerName} activates ${def.name}.`;
   checkDeaths(game);
   checkHeroDeath(game);
+
+  return { success: true };
+}
+
+/** Resolve a pending battlecry with a chosen target */
+export function resolveBattlecry(
+  game: GameState,
+  playerId: string,
+  targetId: string
+): { success: boolean; error?: string } {
+  if (!game.pendingBattlecry) return { success: false, error: 'No pending battlecry' };
+
+  const pb = game.pendingBattlecry;
+  const pIdx = game.players.findIndex(p => p.playerId === playerId);
+  if (pIdx !== pb.playerIndex) return { success: false, error: 'Not your battlecry' };
+
+  if (!pb.validTargets.includes(targetId)) {
+    return { success: false, error: 'Invalid target for battlecry' };
+  }
+
+  const def = getCardDef(pb.cardCode);
+  const bcEffects = def.battlecryEffects ?? (def.battlecryEffect ? [def.battlecryEffect] : []);
+
+  // Clear pending before executing (effects might trigger deaths etc.)
+  game.pendingBattlecry = null;
+
+  // Bond: check if partner is already on board
+  const player = game.players[pIdx] as PlayerState;
+  if (def.keywords.includes('BOND') && def.bondPartnerCode && def.bondEffect) {
+    const partner = player.board.find(m => m.cardCode === def.bondPartnerCode && m.instanceId !== pb.minionInstanceId);
+    if (partner) {
+      addLog(game, pIdx as 0 | 1, `Bond activates! ${def.name} and ${getCardDef(def.bondPartnerCode).name}!`, 'EFFECT', def.cardCode);
+      executeEffect(game, pIdx as 0 | 1, { ...def.bondEffect, target: 'SELF' }, pb.minionInstanceId);
+      executeEffect(game, pIdx as 0 | 1, { ...def.bondEffect, target: 'SELF' }, partner.instanceId);
+    }
+  }
+
+  // Execute battlecry effects
+  addLog(game, pIdx as 0 | 1, `${def.name}'s Battlecry!`, 'EFFECT', def.cardCode);
+  executeEffects(game, pIdx as 0 | 1, bcEffects, targetId);
+
+  // Special: Des Aster Puppetmaster
+  if (def.cardCode === 'DES_COLLAR_03') {
+    const opp = game.players[(pIdx === 0 ? 1 : 0) as 0 | 1];
+    for (const m of opp.board) {
+      if (!m.isCollared) {
+        m.isCollared = true;
+        m.collarOwnerIndex = pIdx as 0 | 1;
+      }
+    }
+    if (opp.board.length > 0) {
+      addLog(game, pIdx as 0 | 1, `All enemy minions are Collared!`, 'EFFECT', def.cardCode);
+    }
+  }
+
+  // Check opponent's WHEN_MINION_PLAYED secrets
+  checkSecrets(game, 'WHEN_MINION_PLAYED', {
+    actingPlayerIndex: pIdx as 0 | 1,
+    minionInstanceId: pb.minionInstanceId,
+  });
+
+  // COMBO
+  if (game.cardsPlayedThisTurn > 0 && def.keywords.includes('COMBO')) {
+    const comboEffects = def.comboEffects ?? (def.comboEffect ? [def.comboEffect] : []);
+    if (comboEffects.length > 0) {
+      addLog(game, pIdx as 0 | 1, `Combo! ${def.name}'s bonus effect triggers!`, 'EFFECT', def.cardCode);
+      executeEffects(game, pIdx as 0 | 1, comboEffects, targetId);
+    }
+  }
+  game.cardsPlayedThisTurn++;
+
+  game.lastAction = `${player.playerName} plays ${def.name}.`;
+  checkDeaths(game);
+  checkHeroDeath(game);
+
+  return { success: true };
+}
+
+/** Cancel a pending battlecry — return minion to hand, refund mana */
+export function cancelBattlecry(
+  game: GameState,
+  playerId: string
+): { success: boolean; error?: string } {
+  if (!game.pendingBattlecry) return { success: false, error: 'No pending battlecry' };
+
+  const pb = game.pendingBattlecry;
+  const pIdx = game.players.findIndex(p => p.playerId === playerId);
+  if (pIdx !== pb.playerIndex) return { success: false, error: 'Not your battlecry' };
+
+  const player = game.players[pIdx] as PlayerState;
+
+  // Remove minion from board
+  player.board = player.board.filter(m => m.instanceId !== pb.minionInstanceId);
+
+  // Refund mana
+  player.mana = Math.min(player.mana + pb.manaCost, player.maxMana);
+  game.playerStats[pIdx as 0 | 1].manaSpent -= pb.manaCost;
+  game.playerStats[pIdx as 0 | 1].minionsPlayed--;
+
+  // Return card to hand
+  player.hand.push(makeInstance(pb.cardCode));
+
+  // Remove the play log entry
+  const lastPlayLog = game.log.findIndex(l => l.category === 'PLAY' && l.cardCode === pb.cardCode);
+  if (lastPlayLog >= 0) game.log.splice(lastPlayLog, 1);
+
+  game.pendingBattlecry = null;
 
   return { success: true };
 }
