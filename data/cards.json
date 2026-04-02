@@ -1239,15 +1239,25 @@
     "rarity": "COMMON",
     "attack": 0,
     "health": 0,
-    "text": "Freeze a character. Draw a card.",
+    "text": "Deal 1 damage to a character and Freeze it. Draw a card.",
     "flavor": "Refreshing. Restorative. Remarkably cold.",
     "keywords": [],
-    "spellEffect": {
-      "type": "RESTORE_HEALTH",
-      "target": "TARGET_ANY",
-      "value": 3,
-      "alsoDraw": 1
-    }
+    "spellEffects": [
+      {
+        "type": "DEAL_DAMAGE",
+        "target": "TARGET_ANY",
+        "value": 1
+      },
+      {
+        "type": "FREEZE_TARGET",
+        "target": "TARGET_ANY"
+      },
+      {
+        "type": "DRAW_CARDS",
+        "target": "NONE",
+        "value": 1
+      }
+    ]
   },
   {
     "cardCode": "TAL017",
@@ -1325,7 +1335,7 @@
   {
     "cardCode": "AST025",
     "name": "Call to Arms",
-    "manaCost": 5,
+    "manaCost": 6,
     "type": "SPELL",
     "heroClass": "ASTRID",
     "rarity": "EPIC",
@@ -2252,7 +2262,7 @@
   {
     "cardCode": "AND022",
     "name": "Glacius",
-    "manaCost": 6,
+    "manaCost": 5,
     "type": "MINION",
     "heroClass": "ANDERS",
     "rarity": "LEGENDARY",
@@ -4073,7 +4083,7 @@
     "type": "MINION",
     "heroClass": "ASTRID",
     "rarity": "COMMON",
-    "attack": 3,
+    "attack": 2,
     "health": 5,
     "text": "Taunt.",
     "flavor": "Roderick doesn't move. That's the whole strategy.",
@@ -4478,7 +4488,7 @@
   {
     "cardCode": "AST036",
     "name": "Strategic Plans",
-    "manaCost": 2,
+    "manaCost": 3,
     "type": "SPELL",
     "heroClass": "ASTRID",
     "rarity": "COMMON",
@@ -5064,7 +5074,7 @@
     "type": "MINION",
     "heroClass": "ANDERS",
     "rarity": "EPIC",
-    "attack": 3,
+    "attack": 4,
     "health": 5,
     "text": "Battlecry: Freeze two random enemy minions.",
     "flavor": "A whirlpool of ice and fury.",
@@ -5213,7 +5223,7 @@
     "type": "MINION",
     "heroClass": "ANDERS",
     "rarity": "COMMON",
-    "attack": 2,
+    "attack": 3,
     "health": 3,
     "text": "Freeze any character damaged by this minion.",
     "flavor": "Young, fierce, and colder than she looks.",
@@ -5908,7 +5918,7 @@
   {
     "cardCode": "AND039",
     "name": "Shatter",
-    "manaCost": 1,
+    "manaCost": 0,
     "type": "SPELL",
     "heroClass": "ANDERS",
     "rarity": "RARE",

@@ -385,7 +385,10 @@ export function Friends({ uid, onBack, incomingChallenge, onChallengeHandled }: 
                   <div className="flex items-center gap-2">
                     <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-spero-green' : 'bg-gray-600'}`} />
                     <span className="text-white font-medium text-sm">{friend.displayName}</span>
-                    {isOnline && <span className="text-[10px] text-spero-green">online</span>}
+                    {isOnline && inGameFriends.has(friend.uid)
+                      ? <span className="text-[10px] text-purple-400 font-bold">In Game</span>
+                      : isOnline && <span className="text-[10px] text-spero-green">online</span>
+                    }
                   </div>
                   <div className="flex gap-1.5">
                     <button

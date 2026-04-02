@@ -2060,14 +2060,17 @@ export default function GameBoard({
 
       {/* Spectator banner */}
       {isSpectator && (
-        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-50 bg-purple-600/90 text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-lg">
-          Spectating
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-50 bg-purple-600/90 text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />
+          Spectating {gs.myPlayerName} vs {gs.opponent.playerName}
+          {gs.spectatorCount > 1 && <span className="text-purple-200 text-xs ml-1">+{gs.spectatorCount - 1} watching</span>}
         </div>
       )}
 
-      {/* Spectator count */}
+      {/* Spectator count (for players) */}
       {gs.spectatorCount > 0 && !isSpectator && (
-        <div className="absolute top-2 right-28 z-40 bg-slate-800/80 text-purple-300 px-2 py-1 rounded text-xs font-medium">
+        <div className="absolute top-2 right-28 z-40 bg-slate-800/80 text-purple-300 px-2.5 py-1 rounded-full text-xs font-medium flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
           {gs.spectatorCount} watching
         </div>
       )}
