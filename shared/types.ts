@@ -105,7 +105,8 @@ export type EffectType =
   | 'BOUNCE_ENEMY_MINIONS_CONDITIONAL'
   | 'GAIN_ARMOR_AND_DRAW'
   | 'HEAL_ALL_FRIENDLY_FULL'
-  | 'DEAL_DAMAGE_ALL_CHARACTERS';
+  | 'DEAL_DAMAGE_ALL_CHARACTERS'
+  | 'SPELL_DISCOUNT';
 
 export type EffectTarget =
   | 'NONE'
@@ -214,6 +215,7 @@ export interface PlayerState {
   // Hero power upgrade system
   heroPowerUpgraded: boolean;
   upgradeProgress: number; // tracks progress toward upgrade condition
+  spellDiscount: number;   // next spell costs this much less (consumed on use)
 }
 
 // ─── Game State ───

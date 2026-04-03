@@ -31,6 +31,7 @@ function makePlayerState(id: string, name: string, heroClass: HeroClass): Player
     secrets: [],
     heroPowerUpgraded: false,
     upgradeProgress: 0,
+    spellDiscount: 0,
   };
 }
 

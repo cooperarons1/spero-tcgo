@@ -223,6 +223,7 @@ function clonePlayer(p: PlayerState): PlayerState {
     graveyard: p.graveyard.map(c => ({ ...c })),
     secrets: p.secrets.map(s => ({ ...s })),
     heroPowerUpgraded: p.heroPowerUpgraded, upgradeProgress: p.upgradeProgress,
+    spellDiscount: p.spellDiscount ?? 0,
   };
 }
 

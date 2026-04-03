@@ -5950,5 +5950,173 @@
     "battlecryEffect": {
       "type": "FREEZE_ALL_ENEMIES"
     }
+  },
+  {
+    "cardCode": "LUC047",
+    "name": "Smoke Bomb",
+    "manaCost": 3,
+    "type": "SPELL",
+    "heroClass": "LUCAS",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 1 damage to all enemy minions. Combo: Deal 2 instead.",
+    "flavor": "Now you see them, now you don't.",
+    "keywords": [
+      "COMBO"
+    ],
+    "spellEffect": {
+      "type": "DEAL_DAMAGE_ALL_ENEMIES",
+      "target": "ALL_ENEMY_MINIONS",
+      "value": 1
+    },
+    "comboEffect": {
+      "type": "DEAL_DAMAGE_ALL_ENEMIES",
+      "target": "ALL_ENEMY_MINIONS",
+      "value": 2
+    }
+  },
+  {
+    "cardCode": "LUC048",
+    "name": "Fan of Blades",
+    "manaCost": 4,
+    "type": "SPELL",
+    "heroClass": "LUCAS",
+    "rarity": "EPIC",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 2 damage to all enemy minions. Draw a card.",
+    "flavor": "Each blade finds its mark.",
+    "keywords": [],
+    "spellEffects": [
+      {
+        "type": "DEAL_DAMAGE_ALL_ENEMIES",
+        "target": "ALL_ENEMY_MINIONS",
+        "value": 2
+      },
+      {
+        "type": "DRAW_CARDS",
+        "target": "NONE",
+        "value": 1
+      }
+    ]
+  },
+  {
+    "cardCode": "IZZ041",
+    "name": "Tidal Barrage",
+    "manaCost": 4,
+    "type": "SPELL",
+    "heroClass": "IZZY",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 2 damage to all enemy minions. Gain 2 Armor.",
+    "flavor": "Brace for impact!",
+    "keywords": [],
+    "spellEffects": [
+      {
+        "type": "DEAL_DAMAGE_ALL_ENEMIES",
+        "target": "ALL_ENEMY_MINIONS",
+        "value": 2
+      },
+      {
+        "type": "GAIN_ARMOR",
+        "target": "NONE",
+        "value": 2
+      }
+    ]
+  },
+  {
+    "cardCode": "IZZ042",
+    "name": "Cannon Volley",
+    "manaCost": 6,
+    "type": "SPELL",
+    "heroClass": "IZZY",
+    "rarity": "EPIC",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 3 damage to all enemy minions. Gain 3 Armor.",
+    "flavor": "All guns, fire at will!",
+    "keywords": [],
+    "spellEffects": [
+      {
+        "type": "DEAL_DAMAGE_ALL_ENEMIES",
+        "target": "ALL_ENEMY_MINIONS",
+        "value": 3
+      },
+      {
+        "type": "GAIN_ARMOR",
+        "target": "NONE",
+        "value": 3
+      }
+    ]
+  },
+  {
+    "cardCode": "TAL038",
+    "name": "Thorned Roots",
+    "manaCost": 4,
+    "type": "SPELL",
+    "heroClass": "TALA",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 2 damage to all enemy minions. Restore 2 Health to your hero.",
+    "flavor": "Nature fights back.",
+    "keywords": [],
+    "spellEffects": [
+      {
+        "type": "DEAL_DAMAGE_ALL_ENEMIES",
+        "target": "ALL_ENEMY_MINIONS",
+        "value": 2
+      },
+      {
+        "type": "RESTORE_HEALTH",
+        "target": "TARGET_HERO",
+        "value": 2
+      }
+    ]
+  },
+  {
+    "cardCode": "TAL039",
+    "name": "Verdant Storm",
+    "manaCost": 7,
+    "type": "SPELL",
+    "heroClass": "TALA",
+    "rarity": "EPIC",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 3 damage to all enemies. Restore 3 Health to all friendly characters.",
+    "flavor": "The forest remembers.",
+    "keywords": [],
+    "spellEffects": [
+      {
+        "type": "DEAL_DAMAGE_ALL_ENEMIES",
+        "target": "ALL_ENEMY_MINIONS",
+        "value": 3
+      },
+      {
+        "type": "RESTORE_HEALTH",
+        "target": "ALL_FRIENDLY_MINIONS",
+        "value": 3
+      }
+    ]
+  },
+  {
+    "cardCode": "LUC049",
+    "name": "Quick Hands",
+    "manaCost": 0,
+    "type": "SPELL",
+    "heroClass": "LUCAS",
+    "rarity": "EPIC",
+    "attack": 0,
+    "health": 0,
+    "text": "Your next spell costs (2) less.",
+    "flavor": "Faster than the eye can follow.",
+    "keywords": [],
+    "spellEffect": {
+      "type": "SPELL_DISCOUNT",
+      "target": "NONE",
+      "value": 2
+    }
   }
 ]

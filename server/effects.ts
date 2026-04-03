@@ -313,6 +313,11 @@ export function executeEffect(
       addLog(game, casterIndex, `Gains ${value} temporary mana`, 'EFFECT');
       break;
     }
+    case 'SPELL_DISCOUNT': {
+      me.spellDiscount = (me.spellDiscount ?? 0) + value;
+      addLog(game, casterIndex, `Next spell costs ${value} less`, 'EFFECT');
+      break;
+    }
     case 'GRANT_KEYWORD': {
       if (!effect.grantKeyword) break;
       // AoE grant keyword (e.g. AST020 gives all friendly minions Divine Shield)

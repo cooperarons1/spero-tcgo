@@ -43,8 +43,11 @@ export function playCard(
   const cardInst = player.hand[cardIdx];
   const def = getCardDef(cardInst.cardCode);
 
-  // Check mana
-  if (def.manaCost > player.mana) return { success: false, error: 'Not enough mana' };
+  // Check mana (apply spell discount for spells)
+  const effectiveCost = def.type === 'SPELL' && player.spellDiscount > 0
+    ? Math.max(0, def.manaCost - player.spellDiscount)
+    : def.manaCost;
+  if (effectiveCost > player.mana) return { success: false, error: 'Not enough mana' };
 
   // Type-specific logic
   if (def.type === 'MINION') {
@@ -136,8 +139,9 @@ export function playCard(
       if (player.secrets.length >= MAX_SECRETS) {
         return { success: false, error: 'Maximum 5 secrets' };
       }
-      player.mana -= def.manaCost;
-      game.playerStats[pIdx as 0 | 1].manaSpent += def.manaCost;
+      player.mana -= effectiveCost;
+      game.playerStats[pIdx as 0 | 1].manaSpent += effectiveCost;
+      if (player.spellDiscount > 0) player.spellDiscount = 0;
       player.hand.splice(cardIdx, 1);
       player.secrets.push({
         instanceId: `secret-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
@@ -163,9 +167,10 @@ export function playCard(
       }
     }
 
-    // Deduct mana
-    player.mana -= def.manaCost;
-    game.playerStats[pIdx as 0 | 1].manaSpent += def.manaCost;
+    // Deduct mana (with spell discount)
+    player.mana -= effectiveCost;
+    game.playerStats[pIdx as 0 | 1].manaSpent += effectiveCost;
+    if (player.spellDiscount > 0) player.spellDiscount = 0;
 
     // Remove from hand
     player.hand.splice(cardIdx, 1);
