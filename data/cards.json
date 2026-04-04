@@ -24,7 +24,7 @@
     "type": "MINION",
     "heroClass": "AVA",
     "rarity": "COMMON",
-    "attack": 1,
+    "attack": 0,
     "health": 1,
     "text": "",
     "flavor": "Tiny rotors, tinier brain.",
@@ -684,7 +684,7 @@
     "heroClass": "LUCAS",
     "rarity": "RARE",
     "attack": 3,
-    "health": 1,
+    "health": 2,
     "text": "Stealth. Bond: If you control Owl Sketch, both get +2/+2.",
     "flavor": "Jax trusts no one — except the boy who draws owls.",
     "keywords": [
@@ -708,7 +708,7 @@
     "heroClass": "LUCAS",
     "rarity": "RARE",
     "attack": 4,
-    "health": 2,
+    "health": 3,
     "text": "Bond: If you control Jax, both get +2/+2.",
     "flavor": "Lucas's drawings have a way of coming to life.",
     "keywords": [
@@ -1184,7 +1184,7 @@
     "type": "SPELL",
     "heroClass": "IZZY",
     "rarity": "COMMON",
-    "attack": 0,
+    "attack": 5,
     "health": 0,
     "text": "Give all friendly minions +1/+1.",
     "flavor": "More sparkle. More power. More parade.",
@@ -1319,7 +1319,7 @@
     "type": "MINION",
     "heroClass": "ANDERS",
     "rarity": "RARE",
-    "attack": 2,
+    "attack": 3,
     "health": 4,
     "text": "Battlecry: Freeze a random enemy minion.",
     "flavor": "He freezes first and asks questions never.",
@@ -1385,7 +1385,7 @@
     "type": "MINION",
     "heroClass": "IZZY",
     "rarity": "COMMON",
-    "attack": 2,
+    "attack": 4,
     "health": 3,
     "text": "Battlecry: Gain 1 Armor.",
     "flavor": "She swings first and navigates later.",
@@ -2011,7 +2011,7 @@
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "COMMON",
-    "attack": 3,
+    "attack": 4,
     "health": 3,
     "text": "Stealth.",
     "flavor": "She rides the wind on wings of gold.",
@@ -2149,7 +2149,7 @@
     "type": "MINION",
     "heroClass": "TALA",
     "rarity": "EPIC",
-    "attack": 3,
+    "attack": 4,
     "health": 6,
     "text": "Battlecry: Restore 4 Health to your hero.",
     "flavor": "The forests of Aster bow when she passes.",
@@ -2293,7 +2293,7 @@
     "heroClass": "ANDERS",
     "rarity": "EPIC",
     "attack": 4,
-    "health": 4,
+    "health": 5,
     "text": "Battlecry: Freeze a random enemy.",
     "flavor": "She glows with an inner frost that never melts.",
     "keywords": [
@@ -2779,7 +2779,7 @@
     "comboEffect": {
       "type": "DEAL_DAMAGE",
       "target": "TARGET_ENEMY_HERO",
-      "value": 3
+      "value": 4
     },
     "minionType": "HUMAN"
   },
@@ -2866,18 +2866,25 @@
     "rarity": "LEGENDARY",
     "attack": 5,
     "health": 4,
-    "text": "Stealth. Combo: Deal 3 damage to any target and draw a card.",
+    "text": "Stealth. Combo: Deal 5 damage to any target and draw a card.",
     "flavor": "His cousin's blade. His father's shadow. His own path.",
     "keywords": [
       "STEALTH",
       "COMBO"
     ],
     "minionType": "AMETI",
-    "comboEffect": {
-      "type": "DEAL_DAMAGE",
-      "target": "TARGET_ANY",
-      "value": 4
-    }
+    "comboEffects": [
+      {
+        "type": "DEAL_DAMAGE",
+        "target": "TARGET_ANY",
+        "value": 5
+      },
+      {
+        "type": "DRAW_CARDS",
+        "target": "NONE",
+        "value": 1
+      }
+    ]
   },
   {
     "cardCode": "AST031",
@@ -3478,7 +3485,7 @@
   {
     "cardCode": "AVA029",
     "name": "Nullification Field",
-    "manaCost": 5,
+    "manaCost": 6,
     "type": "SPELL",
     "heroClass": "AVA",
     "rarity": "EPIC",
@@ -3719,7 +3726,7 @@
     "type": "MINION",
     "heroClass": "TALA",
     "rarity": "COMMON",
-    "attack": 1,
+    "attack": 2,
     "health": 2,
     "text": "",
     "flavor": "Small, round, and utterly fearless.",
@@ -4672,7 +4679,7 @@
   {
     "cardCode": "TAL034",
     "name": "The Grand Sequoia",
-    "manaCost": 8,
+    "manaCost": 7,
     "type": "MINION",
     "heroClass": "TALA",
     "rarity": "LEGENDARY",
@@ -5478,7 +5485,7 @@
   {
     "cardCode": "AND033",
     "name": "Blizzard of Aster Peak",
-    "manaCost": 6,
+    "manaCost": 5,
     "type": "SPELL",
     "heroClass": "ANDERS",
     "rarity": "RARE",
@@ -5564,7 +5571,7 @@
   {
     "cardCode": "AVA039",
     "name": "Luna Override",
-    "manaCost": 8,
+    "manaCost": 9,
     "type": "SPELL",
     "heroClass": "AVA",
     "rarity": "RARE",
