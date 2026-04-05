@@ -843,6 +843,19 @@ function playCardsPhase(
 export function cardPlayPriority(def: CardDef, me: PlayerState, opp: PlayerState): number {
   let score = def.manaCost; // base: prefer expensive cards
 
+  // COMBO awareness: if we have combo cards in hand, cheap non-combo cards
+  // should play FIRST as enablers (reverse the expensive-first default)
+  const hasComboInHand = me.hand.some(c => {
+    const d = getCardDef(c.cardCode);
+    return d.keywords.includes('COMBO') && d.manaCost <= me.mana;
+  });
+  if (hasComboInHand && !def.keywords.includes('COMBO') && def.manaCost <= 2) {
+    score += 20; // Cheap enablers get huge priority boost when combo cards are waiting
+  }
+  if (def.keywords.includes('COMBO') && me.hand.length > 1) {
+    score -= 5; // Combo cards wait for enablers to go first
+  }
+
   const oppProfile = getOpponentProfile(opp.heroClass);
 
   // Removal spells get high priority when opponent has threats
@@ -860,6 +873,8 @@ export function cardPlayPriority(def: CardDef, me: PlayerState, opp: PlayerState
     if (eff.type === 'DRAW_CARDS') score += matchupPriorityAdjust(me.heroClass, opp.heroClass, 'DRAW_CARDS');
     if (eff.type === 'RESTORE_HEALTH') score += matchupPriorityAdjust(me.heroClass, opp.heroClass, 'RESTORE_HEALTH');
     if (eff.type === 'GAIN_ARMOR') score += matchupPriorityAdjust(me.heroClass, opp.heroClass, 'GAIN_ARMOR');
+    if (eff.type === 'SPELL_DISCOUNT') score += 25; // Always play prep first
+    if (eff.type === 'GAIN_TEMPORARY_MANA') score += 15;
   }
 
   // Taunt minions: base bonus when low HP, extra bonus vs aggro from weights
