@@ -26,10 +26,40 @@ import {
 import { executeTeacherTurn, getTeacherMulliganDecision } from './ai-teacher.js';
 import type { TeacherDecision } from './ai-teacher.js';
 import type { GameState, BoardMinion, PlayerState, HeroClass } from '../shared/types.js';
+import { extractFeatures, FEATURE_DIM } from './ai-neural.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const WEIGHTS_PATH = path.join(__dirname, '..', 'data', 'ai-weights.json');
 const DECISIONS_PATH = path.join(__dirname, '..', 'data', 'teacher-decisions.jsonl');
+
+// Phase 3.3: when SIM_HISTORY_FILE is set, dump per-turn feature snapshots
+// for the neural board evaluator (scripts/train_neural_eval.py). Off by
+// default so existing simulation runs are unchanged.
+const SIM_HISTORY_FILE = process.env.SIM_HISTORY_FILE
+  ? path.resolve(process.env.SIM_HISTORY_FILE)
+  : null;
+if (SIM_HISTORY_FILE) {
+  console.log(`[sim] Dumping per-turn snapshots to ${SIM_HISTORY_FILE} (FEATURE_DIM=${FEATURE_DIM})`);
+}
+
+interface SimSnapshot {
+  turn: number;
+  active_player_id: string;
+  features: number[];
+}
+interface SimRecord {
+  winner_id: string | null;
+  snapshots: SimSnapshot[];
+}
+
+function appendSimRecord(record: SimRecord): void {
+  if (!SIM_HISTORY_FILE) return;
+  try {
+    fs.appendFileSync(SIM_HISTORY_FILE, JSON.stringify(record) + '\n', 'utf-8');
+  } catch (e) {
+    console.warn(`[sim] Failed to append snapshot: ${e}`);
+  }
+}
 
 const args = process.argv.slice(2);
 const hoursIdx = args.indexOf('--hours');
@@ -309,6 +339,13 @@ for (let g = 0; g < gameCount && Date.now() < endTime; g++) {
     // Track cards played per player this game
     const cardsPlayed: [Set<string>, Set<string>] = [new Set(), new Set()];
 
+    // Phase 3.3: per-turn feature snapshots for neural board eval training.
+    // Only collected when SIM_HISTORY_FILE is set to avoid the overhead in
+    // normal simulation runs.
+    const simRecord: SimRecord | null = SIM_HISTORY_FILE
+      ? { winner_id: null, snapshots: [] }
+      : null;
+
     let turnCount = 0;
     while (!game.winner && turnCount < MAX_TURNS) {
       turnCount++;
@@ -317,6 +354,22 @@ for (let g = 0; g < gameCount && Date.now() < endTime; g++) {
       const myIdx = pIdx as 0 | 1;
       const oppIdx = (pIdx === 0 ? 1 : 0) as 0 | 1;
       const opp = game.players[oppIdx];
+
+      // Snapshot the state at the start of this player's turn — labeled
+      // later with the eventual winner so the neural eval learns to predict
+      // win-probability from this position.
+      if (simRecord) {
+        try {
+          simRecord.snapshots.push({
+            turn: turnCount,
+            active_player_id: me.playerId,
+            features: extractFeatures(game, me.playerId),
+          });
+        } catch {
+          // extractFeatures is defensive but if PlayerState shape ever
+          // diverges we don't want to crash a 1000-game run over a snapshot.
+        }
+      }
 
       // Determine if this player uses teacher AI
       const isTeacherPlayer = teacherVsTeacher || ((isTeacherGame || useTeacher) && myIdx === 0);
@@ -412,6 +465,12 @@ for (let g = 0; g < gameCount && Date.now() < endTime; g++) {
 
       if (game.winner) break;
       endTurn(game, me.playerId);
+    }
+
+    // Phase 3.3: persist the per-turn snapshots labeled with the actual winner
+    if (simRecord) {
+      simRecord.winner_id = game.winner ?? null;
+      appendSimRecord(simRecord);
     }
 
     if (game.winner) {
