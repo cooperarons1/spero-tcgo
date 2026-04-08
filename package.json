@@ -10,9 +10,12 @@
     "deploy:server": "gcloud run deploy spero-tcgo-server --source . --project tcn-kiosk --region us-west1 --allow-unauthenticated --session-affinity --port 8080",
     "deploy:client": "npm run build:client && firebase deploy --only hosting",
     "deploy": "npm run deploy:server && npm run deploy:client",
-    "simulate": "npx tsx server/ai-simulate.ts"
+    "simulate": "npx tsx server/ai-simulate.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "concurrently": "^9.1.2",
+    "vitest": "^4.1.3"
   }
 }
