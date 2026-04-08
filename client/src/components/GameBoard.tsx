@@ -1574,9 +1574,16 @@ export default function GameBoard({
   }, [targeting, pendingTarget, opBoard, myBoard, gs.myPlayerIndex, gs.myHeroClass, draggingCardType, draggingCardId, draggingTargetType, draggingHeroPower]);
 
   // ─── Cancel targeting ───
-  const cancelTargeting = useCallback(() => {
-    // If cancelling a battlecry interaction, tell server to return minion to hand
-    if (pendingTarget?.context === 'battlecry' && pendingTarget.interactionId.startsWith('needs-target-')) {
+  // cancelTargeting clears the local targeting machinery. The
+  // `serverCancel` flag controls whether it ALSO sends a server-side
+  // cancelBattlecry. Default true for user-initiated cancels (Escape,
+  // right-click, click on empty space). MUST be false when targeting
+  // is being cleared after a successful resolve, otherwise the cleanup
+  // immediately undoes the play the player just made — the
+  // "two-step battlecry: have to play the card after" bug.
+  const cancelTargeting = useCallback((opts?: { serverCancel?: boolean }) => {
+    const serverCancel = opts?.serverCancel ?? true;
+    if (serverCancel && pendingTarget?.context === 'battlecry' && pendingTarget.interactionId.startsWith('needs-target-')) {
       actions.cancelBattlecry();
     }
     setTargeting({ type: 'none' });
@@ -1746,7 +1753,11 @@ export default function GameBoard({
             });
           });
         }
-        cancelTargeting();
+        // serverCancel:false because we just resolved the battlecry
+        // successfully — the local cleanup must NOT also send a
+        // cancelBattlecry to the server (which would return the
+        // minion to hand and undo the play).
+        cancelTargeting({ serverCancel: false });
         return;
       }
 
@@ -2167,7 +2178,7 @@ export default function GameBoard({
       <p className="text-lg font-bold text-amber-300">Choose a target</p>
       <p className="text-sm text-amber-200/70">Click a valid target (glowing green)</p>
       <button
-        onClick={cancelTargeting}
+        onClick={() => cancelTargeting()}
         className="mt-2 rounded bg-stone-600 px-4 py-1 text-sm text-white hover:bg-stone-500"
       >
         Cancel
