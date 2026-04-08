@@ -2079,10 +2079,30 @@ export default function GameBoard({
     return undefined;
   }, [entranceIds, damageIds, lungeId, defenderLungeId]);
 
-  // ─── Dynamic board gap (overlap when full, no shrinking) ───
-  const getBoardGap = (count: number) => count <= 4 ? '0.75rem' : count <= 6 ? '0.25rem' : '-0.5rem';
+  // ─── Dynamic board gap + per-board scale ───
+  // Old version returned a NEGATIVE gap (-0.5rem) when the board hit 7
+  // minions, which made them overlap and look "crammed" — the user's
+  // word. New version: always positive gap, and a per-board scale
+  // factor that gently shrinks each minion when the board is full so
+  // the row stays inside the available width without overlap.
+  //
+  // With max-w 72rem and a 9rem-wide minion, 7 minions take 63rem of
+  // width on their own, leaving 9rem / 6 gaps = 1.5rem per gap. With
+  // a scale of 0.92 the minions take 58rem leaving 14rem / 6 gaps =
+  // ~2.3rem each. Plenty of breathing room and nothing overlaps.
+  const getBoardGap = (count: number) =>
+    count <= 4 ? '0.85rem' :
+    count <= 5 ? '0.6rem' :
+    count <= 6 ? '0.4rem' :
+                 '0.3rem';
+  const getBoardScaleFactor = (count: number) =>
+    count <= 5 ? 1.0 :
+    count <= 6 ? 0.96 :
+                 0.92;
   const myBoardGap = getBoardGap(myBoard.length);
   const opBoardGap = getBoardGap(opBoard.length);
+  const myBoardScale = getBoardScaleFactor(myBoard.length);
+  const opBoardScale = getBoardScaleFactor(opBoard.length);
 
   // ─── Spell effect callback (must be before any early return) ───
   const clearSpell = useCallback(() => setActiveSpell(null), []);
@@ -2405,7 +2425,7 @@ export default function GameBoard({
         {/* Opponent board */}
         <div className="flex min-h-[5.5rem] mb-1 items-center justify-center board-field">
           <div
-            className="flex items-center justify-center max-w-[64rem]"
+            className="flex items-center justify-center max-w-[72rem] w-full px-2"
             style={{ gap: opBoardGap }}
           >
             {opBoard.map((m, idx) => {
@@ -2418,7 +2438,7 @@ export default function GameBoard({
               <div
                 key={m.instanceId}
                 data-entity-id={m.instanceId}
-                style={{ flex: '0 1 9rem', transform: `scale(${cardScale}) rotate(${arcAngle}deg) translateY(${arcY}px)`, transformOrigin: 'center center', zIndex: zIdx }}
+                style={{ flex: '0 1 9rem', transform: `scale(${cardScale * opBoardScale}) rotate(${arcAngle}deg) translateY(${arcY}px)`, transformOrigin: 'center center', zIndex: zIdx }}
                 onMouseEnter={(e) => setHoveredCard({ cardCode: m.cardCode, x: e.clientX, y: e.clientY })}
                 onMouseLeave={() => setHoveredCard(null)}
               >
@@ -2570,7 +2590,7 @@ export default function GameBoard({
           className="flex min-h-[5.5rem] mt-1 items-center justify-center rounded-lg board-field border-2 border-transparent"
         >
           <div
-            className="flex items-center justify-center max-w-[64rem]"
+            className="flex items-center justify-center max-w-[72rem] w-full px-2"
             style={{ gap: myBoardGap }}
           >
             {(() => {
@@ -2594,7 +2614,7 @@ export default function GameBoard({
                       key={m.instanceId}
                       data-minion-index={i}
                       data-entity-id={m.instanceId}
-                      style={{ flex: '0 1 9rem', transform: `scale(${cardScale}) rotate(${arcAngle}deg) translateY(${arcY}px)`, transformOrigin: 'bottom center', transition: 'all 0.2s ease' }}
+                      style={{ flex: '0 1 9rem', transform: `scale(${cardScale * myBoardScale}) rotate(${arcAngle}deg) translateY(${arcY}px)`, transformOrigin: 'bottom center', transition: 'all 0.2s ease' }}
                       onMouseEnter={(e) => setHoveredCard({ cardCode: m.cardCode, x: e.clientX, y: e.clientY })}
                       onMouseLeave={() => setHoveredCard(null)}
                     >
