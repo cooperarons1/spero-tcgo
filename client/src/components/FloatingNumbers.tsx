@@ -45,20 +45,39 @@ export function FloatingNumbers({ numbers }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 pointer-events-none">
-      {active.map(n => (
-        <span
-          key={n.id}
-          className="absolute animate-float-damage font-extrabold text-2xl drop-shadow-lg"
-          style={{
-            left: n.x,
-            top: n.y - 10,
-            transform: 'translateX(-50%)',
-            color: n.type === 'damage' ? '#ef4444' : '#22c55e',
-          }}
-        >
-          {n.type === 'damage' ? n.amount : `+${n.amount}`}
-        </span>
-      ))}
+      {active.map(n => {
+        // Big-hit emphasis: damage of 5+ (or heal of 5+) gets a larger
+        // font + a glowing text-shadow + a yellow-orange critical color
+        // for damage (vs the standard red). Makes lethal-range hits
+        // visually pop instead of getting lost in the float-up stream.
+        const magnitude = Math.abs(n.amount);
+        const isBigHit = magnitude >= 5;
+        const isDamage = n.type === 'damage';
+        const colorClass = isDamage
+          ? (isBigHit ? '#fb923c' : '#ef4444')
+          : (isBigHit ? '#34d399' : '#22c55e');
+        const sizeClass = isBigHit ? 'text-4xl' : 'text-2xl';
+        const shadow = isBigHit
+          ? (isDamage
+              ? '0 0 12px rgba(251,146,60,0.9), 0 2px 4px rgba(0,0,0,0.9)'
+              : '0 0 12px rgba(52,211,153,0.9), 0 2px 4px rgba(0,0,0,0.9)')
+          : '0 2px 4px rgba(0,0,0,0.8)';
+        return (
+          <span
+            key={n.id}
+            className={`absolute animate-float-damage font-extrabold ${sizeClass}`}
+            style={{
+              left: n.x,
+              top: n.y - 10,
+              transform: 'translateX(-50%)',
+              color: colorClass,
+              textShadow: shadow,
+            }}
+          >
+            {isDamage ? n.amount : `+${n.amount}`}
+          </span>
+        );
+      })}
     </div>
   );
 }

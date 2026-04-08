@@ -190,31 +190,47 @@ export function GameOver({ winnerName, isMe, onPlayAgain, gameState, onLeaveGame
   return (
     <div className={`fixed inset-0 bg-black/70 flex items-center justify-center z-50 ${!isMe ? 'animate-vignette-red' : ''}`}>
       {isMe && <ConfettiCanvas />}
-      <div className={`bg-slate-800 rounded-2xl p-8 shadow-2xl max-w-sm w-full mx-4 text-center animate-bounce-in border border-slate-700 ${isMe ? 'ring-2 ring-spero-yellow/40' : ''} max-h-[90vh] overflow-y-auto`}>
-        <h2 className={`text-3xl font-bold text-white mb-2 ${isMe ? 'animate-victory-title' : ''}`}>
+      <div className={`bg-slate-800 rounded-2xl p-8 shadow-2xl max-w-sm w-full mx-4 text-center animate-bounce-in border border-slate-700 ${isMe ? 'ring-2 ring-spero-yellow/40' : 'ring-2 ring-red-700/40'} max-h-[90vh] overflow-y-auto`}>
+        <h2 className={`text-3xl font-bold mb-2 ${isMe ? 'text-white animate-victory-title' : 'text-red-300 animate-defeat-title'}`}>
           {isMe ? 'Victory!' : `${winnerName} Wins!`}
         </h2>
-        <p className="text-gray-400 mb-2">
+        <p className="text-gray-400 mb-2 animate-fade-in" style={{ animationDelay: '300ms', animationFillMode: 'both' }}>
           {winMessage}
         </p>
 
         {/* Rewards Panel */}
         {rewards && <RewardsPanel rewards={rewards} isMe={isMe} />}
 
-        {/* Game Stats */}
-        {gameState.playerStats && (
-          <div className="mt-3 bg-slate-700/30 rounded-xl p-3">
-            <h4 className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">Game Stats</h4>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-              <div className="flex justify-between"><span className="text-gray-400">Damage to Hero</span><span className="text-white font-bold">{gameState.playerStats[gameState.myPlayerIndex].damageDealtToHeroes}</span></div>
-              <div className="flex justify-between"><span className="text-gray-400">Minions Killed</span><span className="text-white font-bold">{gameState.playerStats[gameState.myPlayerIndex].minionsKilled}</span></div>
-              <div className="flex justify-between"><span className="text-gray-400">Minions Played</span><span className="text-white font-bold">{gameState.playerStats[gameState.myPlayerIndex].minionsPlayed}</span></div>
-              <div className="flex justify-between"><span className="text-gray-400">Spells Cast</span><span className="text-white font-bold">{gameState.playerStats[gameState.myPlayerIndex].spellsCast}</span></div>
-              <div className="flex justify-between"><span className="text-gray-400">Cards Drawn</span><span className="text-white font-bold">{gameState.playerStats[gameState.myPlayerIndex].cardsDrawn}</span></div>
-              <div className="flex justify-between"><span className="text-gray-400">Healing Done</span><span className="text-white font-bold">{gameState.playerStats[gameState.myPlayerIndex].healingDone}</span></div>
+        {/* Game Stats — each row staggers in 60ms after the previous so
+            the grid reveals like a tally sheet being filled in. */}
+        {gameState.playerStats && (() => {
+          const stats = gameState.playerStats[gameState.myPlayerIndex];
+          const rows = [
+            { label: 'Damage to Hero', value: stats.damageDealtToHeroes },
+            { label: 'Minions Killed', value: stats.minionsKilled },
+            { label: 'Minions Played', value: stats.minionsPlayed },
+            { label: 'Spells Cast', value: stats.spellsCast },
+            { label: 'Cards Drawn', value: stats.cardsDrawn },
+            { label: 'Healing Done', value: stats.healingDone },
+          ];
+          return (
+            <div className="mt-3 bg-slate-700/30 rounded-xl p-3 animate-fade-in" style={{ animationDelay: '450ms', animationFillMode: 'both' }}>
+              <h4 className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">Game Stats</h4>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+                {rows.map((row, i) => (
+                  <div
+                    key={row.label}
+                    className="flex justify-between animate-fade-in"
+                    style={{ animationDelay: `${550 + i * 60}ms`, animationFillMode: 'both' }}
+                  >
+                    <span className="text-gray-400">{row.label}</span>
+                    <span className="text-white font-bold">{row.value}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         <div className="space-y-2 mt-4">
           {onLeaveGame && (
