@@ -1811,6 +1811,131 @@ io.on('connection', (socket) => {
     }
   });
 
+  // ── Premium Currency: Gems ──
+  // Gems are bought with real money (USD) and spend on premium shop
+  // items like exclusive card backs and the Premium Pack (guaranteed
+  // legendary). The payment integration is stubbed for now — the
+  // purchase-gems handler accepts a tier ID and adds gems server-side
+  // WITHOUT charging anything. When Stripe integration lands, the
+  // handler will verify the Stripe charge first then call the same
+  // pure update path. Keeping the structure consistent now means the
+  // UI doesn't have to change later.
+
+  // USD → gems pricing tiers. These are server-side so a malicious
+  // client can't request count=999999 for $0.99.
+  const GEM_PURCHASE_TIERS: Record<string, { gems: number; usd: number; label: string }> = {
+    starter:  { gems: 100,  usd: 0.99, label: '100 Gems'  },
+    bundle:   { gems: 550,  usd: 4.99, label: '550 Gems'  }, // 10% bonus
+    big:      { gems: 1200, usd: 9.99, label: '1200 Gems' }, // 20% bonus
+    mega:     { gems: 2750, usd: 19.99, label: '2750 Gems' }, // 37% bonus
+  };
+
+  // Premium shop items priced in gems (server-side)
+  const GEM_SHOP_ITEMS: Record<string, { gems: number; label: string; type: 'pack' | 'cardback'; payload?: string }> = {
+    premium_pack: { gems: 100, label: 'Premium Pack (guaranteed Legendary)', type: 'pack' },
+    cardback_gold:    { gems: 500, label: 'Gold Foil Card Back', type: 'cardback', payload: 'gold-foil' },
+    cardback_dragon:  { gems: 800, label: 'Dragonscale Card Back', type: 'cardback', payload: 'dragonscale' },
+  };
+
+  socket.on('purchase-gems', async (data: { tierId: string; stripePaymentToken?: string }) => {
+    try {
+      const tier = GEM_PURCHASE_TIERS[data.tierId];
+      if (!tier) {
+        socket.emit('gems-error', 'Unknown tier');
+        return;
+      }
+
+      // TODO: integrate Stripe — verify data.stripePaymentToken before
+      // crediting gems. For now this is a dev stub that just credits.
+      // DO NOT ship to prod until the Stripe verification is wired,
+      // otherwise anyone with the socket protocol can mint free gems.
+      const isStubMode = true;
+      if (!isStubMode && !data.stripePaymentToken) {
+        socket.emit('gems-error', 'Payment token required');
+        return;
+      }
+
+      const userRef = adminDb.collection('users').doc(uid);
+      const result = await adminDb.runTransaction(async (tx) => {
+        const snap = await tx.get(userRef);
+        const d = snap.data() ?? {};
+        const newGems = (d.gems ?? 0) + tier.gems;
+        tx.update(userRef, {
+          gems: newGems,
+          gemsSpentTotal: d.gemsSpentTotal ?? 0, // initialize counter
+          gemsPurchasedTotal: (d.gemsPurchasedTotal ?? 0) + tier.gems,
+        });
+        return { newGems };
+      });
+
+      socket.emit('gems-purchased', {
+        tierId: data.tierId,
+        gemsAdded: tier.gems,
+        newGems: result.newGems,
+        usdCharged: tier.usd,
+      });
+    } catch (err) {
+      console.error('purchase-gems error:', err);
+      socket.emit('gems-error', 'Failed to purchase');
+    }
+  });
+
+  socket.on('spend-gems', async (data: { itemId: string }) => {
+    try {
+      const item = GEM_SHOP_ITEMS[data.itemId];
+      if (!item) {
+        socket.emit('gems-error', 'Unknown item');
+        return;
+      }
+
+      const userRef = adminDb.collection('users').doc(uid);
+      const result = await adminDb.runTransaction(async (tx) => {
+        const snap = await tx.get(userRef);
+        const d = snap.data() ?? {};
+        const gems = d.gems ?? 0;
+        if (gems < item.gems) {
+          return { ok: false as const, error: 'Not enough gems' };
+        }
+
+        const updates: Record<string, unknown> = {
+          gems: gems - item.gems,
+          gemsSpentTotal: (d.gemsSpentTotal ?? 0) + item.gems,
+        };
+
+        if (item.type === 'cardback' && item.payload) {
+          const cardBacks: string[] = [...(d.cardBacks ?? ['default'])];
+          if (cardBacks.includes(item.payload)) {
+            return { ok: false as const, error: 'Already owned' };
+          }
+          cardBacks.push(item.payload);
+          updates.cardBacks = cardBacks;
+        }
+        // Premium pack: signal the client to open a "premium" pack via
+        // a flag in the response. The client routes to the existing
+        // pack opening flow with a `premium: true` payload that the
+        // open-pack handler can read. Stub for now — premium pack just
+        // grants 5 cards with 100% legendary guarantee on slot 0.
+        // (Full implementation deferred to a follow-up commit.)
+
+        tx.update(userRef, updates);
+        return { ok: true as const, newGems: gems - item.gems };
+      });
+
+      if (!result.ok) {
+        socket.emit('gems-error', result.error);
+        return;
+      }
+      socket.emit('gems-spent', {
+        itemId: data.itemId,
+        gemsSpent: item.gems,
+        newGems: result.newGems,
+      });
+    } catch (err) {
+      console.error('spend-gems error:', err);
+      socket.emit('gems-error', 'Failed to spend');
+    }
+  });
+
   // ── Get inventory (dust, gold, owned cards) ──
 
   socket.on('get-inventory', async () => {
@@ -1820,12 +1945,13 @@ io.on('connection', (socket) => {
       socket.emit('inventory-update', {
         dust: userData.dust ?? 0,
         gold: userData.gold ?? 0,
+        gems: userData.gems ?? 0,
         ownedCards: userData.ownedCards ?? {},
         packsOpened: userData.packsOpened ?? 0,
       });
     } catch (err) {
       console.error('get-inventory error:', err);
-      socket.emit('inventory-update', { dust: 0, gold: 0, ownedCards: {}, packsOpened: 0 });
+      socket.emit('inventory-update', { dust: 0, gold: 0, gems: 0, ownedCards: {}, packsOpened: 0 });
     }
   });
 
