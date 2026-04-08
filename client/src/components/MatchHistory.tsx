@@ -6,16 +6,22 @@ interface MatchHistoryProps {
   onBack: () => void;
 }
 
-function MatchRow({ match }: { match: MatchRecord }) {
+function MatchRow({ match, index }: { match: MatchRecord; index: number }) {
   const [expanded, setExpanded] = useState(false);
   const date = new Date(match.date);
   const dateStr = `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
 
+  // Stagger the row entrances by index so the list cascades in instead
+  // of all rows snapping into place. Cap delay at 12 rows so a long
+  // history doesn't have a noticeable lag at the bottom.
+  const delay = `${Math.min(index, 12) * 35}ms`;
+
   return (
     <div
-      className={`border rounded-xl p-3 cursor-pointer transition-all ${
+      className={`border rounded-xl p-3 cursor-pointer transition-all hover:scale-[1.02] hover:brightness-110 animate-slide-up ${
         match.isWin ? 'border-spero-green/40 bg-spero-green/5' : 'border-spero-red/40 bg-spero-red/5'
       }`}
+      style={{ animationDelay: delay, animationFillMode: 'both' }}
       onClick={() => setExpanded(!expanded)}
     >
       <div className="flex justify-between items-center">
@@ -54,7 +60,7 @@ export function MatchHistory({ uid, onBack }: MatchHistoryProps) {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <div className="bg-slate-800 rounded-2xl p-6 shadow-xl max-w-lg w-full border border-slate-700">
+      <div className="bg-slate-800 rounded-2xl p-6 shadow-xl max-w-lg w-full border border-slate-700 animate-slide-up">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-white">Match History</h2>
           <button onClick={onBack} className="text-gray-400 hover:text-white text-sm underline cursor-pointer">Back</button>
@@ -70,7 +76,7 @@ export function MatchHistory({ uid, onBack }: MatchHistoryProps) {
               <span>{history.filter(m => m.isWin).length}W - {history.filter(m => !m.isWin).length}L</span>
             </div>
             <div className="space-y-2 max-h-[60vh] overflow-y-auto">
-              {history.map(m => <MatchRow key={m.id} match={m} />)}
+              {history.map((m, i) => <MatchRow key={m.id} match={m} index={i} />)}
             </div>
           </>
         )}

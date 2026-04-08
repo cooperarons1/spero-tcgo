@@ -84,13 +84,17 @@ export function BattlePass({ onBack }: BattlePassProps) {
         </div>
       </div>
 
-      {/* Progress bar */}
+      {/* Progress bar — animates from 0 to progress on mount via the
+          transition-all + a useEffect-set width is overkill for a header
+          bar; instead use a CSS transition-width with a 700ms duration so
+          the fill always grows in from 0 (the starting render is empty
+          because the bp data arrives asynchronously). */}
       <div className="px-6 py-3 bg-stone-900/30 border-b border-stone-700/30">
         <div className="flex items-center gap-3">
           <span className="text-amber-300 font-bold text-sm w-8">{currentTier}</span>
           <div className="flex-1 bg-stone-800 rounded-full h-3 overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-amber-500 to-amber-400 rounded-full transition-all"
+              className="h-full bg-gradient-to-r from-amber-500 to-amber-400 rounded-full transition-[width] duration-700 ease-out"
               style={{ width: `${progress * 100}%` }}
             />
           </div>
@@ -107,18 +111,26 @@ export function BattlePass({ onBack }: BattlePassProps) {
         </div>
       )}
 
-      {/* Tier list — horizontal scroll */}
+      {/* Tier list — horizontal scroll, tiers stagger in left→right */}
       <div className="flex-1 overflow-x-auto overflow-y-hidden p-4">
         <div className="flex gap-2 min-w-max h-full">
-          {BATTLE_PASS_TIERS.map(tier => {
+          {BATTLE_PASS_TIERS.map((tier, i) => {
             const reached = currentTier >= tier.tier;
             const freeClaimed = (bp.claimedFree ?? []).includes(tier.tier);
             const premiumClaimed = (bp.claimedPremium ?? []).includes(tier.tier);
             const canClaimFree = reached && !freeClaimed;
             const canClaimPremium = reached && !premiumClaimed && bp.isPremium;
+            // Stagger entrance so the row cascades in left-to-right.
+            // 25ms per tile is barely-perceptible per-tile but reads as
+            // a satisfying wave across the full row.
+            const tileDelay = `${Math.min(i, 30) * 25}ms`;
 
             return (
-              <div key={tier.tier} className={`flex flex-col w-24 shrink-0 rounded-xl border ${reached ? 'border-amber-600/40 bg-stone-800/60' : 'border-stone-700/30 bg-stone-900/40 opacity-50'}`}>
+              <div
+                key={tier.tier}
+                className={`flex flex-col w-24 shrink-0 rounded-xl border animate-slide-up ${reached ? 'border-amber-600/40 bg-stone-800/60' : 'border-stone-700/30 bg-stone-900/40 opacity-50'}`}
+                style={{ animationDelay: tileDelay, animationFillMode: 'both' }}
+              >
                 {/* Tier number */}
                 <div className={`text-center py-1.5 rounded-t-xl text-xs font-bold ${reached ? 'bg-amber-700/30 text-amber-300' : 'bg-stone-800 text-gray-600'}`}>
                   {tier.tier}

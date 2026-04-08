@@ -49,9 +49,10 @@ export function Shop({ onBack, onOpenPacks }: ShopProps) {
         </div>
       </div>
 
-      {/* Shop content */}
+      {/* Shop content — animate-slide-up gives the whole panel a single
+          coherent entrance instead of all sections snapping in. */}
       <div className="flex-1 overflow-y-auto p-6">
-        <div className="max-w-3xl mx-auto space-y-8">
+        <div className="max-w-3xl mx-auto space-y-8 animate-slide-up">
 
           {/* Featured: Miro Pack */}
           <div>
