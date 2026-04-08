@@ -346,6 +346,44 @@ body {
 }
 .animate-crystal-drain { animation: crystal-drain 0.4s ease-out; }
 
+/* ═══ Mana crystal refill (turn start, extra mana gain) ═══ */
+/* Pairs with crystal-drain — fires on each crystal that JUST became
+   available, with a small per-crystal delay so the refill cascades
+   left-to-right like a wave instead of all popping at once. */
+@keyframes crystal-fill {
+  0% { transform: scale(0.4); opacity: 0.3; filter: brightness(0.6); box-shadow: none; }
+  60% { transform: scale(1.35); opacity: 1; filter: brightness(2); box-shadow: 0 0 18px 4px rgba(96,165,250,0.9); }
+  100% { transform: scale(1); opacity: 1; filter: brightness(1); box-shadow: 0 0 6px 1px rgba(59,130,246,0.5); }
+}
+.animate-crystal-fill { animation: crystal-fill 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+/* ═══ Combo ring pop-in (when combo becomes active on a hand card) ═══ */
+@keyframes combo-ring-pop {
+  0% { box-shadow: 0 0 0 0 rgba(234,179,8,0); transform: scale(1); }
+  40% { box-shadow: 0 0 24px 8px rgba(234,179,8,0.8); transform: scale(1.04); }
+  100% { box-shadow: 0 0 16px 4px rgba(234,179,8,0.5); transform: scale(1); }
+}
+.animate-combo-ring-pop { animation: combo-ring-pop 0.35s ease-out; }
+
+/* ═══ Hero power ready (infinite gentle pulse when usable) ═══ */
+/* Telegraphs "you have an action available" without being noisy.
+   Slower + lower amplitude than ready-pulse so it doesn't fight
+   for attention with attack-ready minions. */
+@keyframes hero-power-ready {
+  0%, 100% { box-shadow: 0 0 6px 1px rgba(245,158,11,0.35); }
+  50% { box-shadow: 0 0 14px 4px rgba(245,158,11,0.65); }
+}
+.animate-hero-power-ready { animation: hero-power-ready 2s ease-in-out infinite; }
+
+/* ═══ Attack arrow marching ants ═══ */
+/* The AttackArrow SVG line uses strokeDasharray="10 5"; animating
+   stroke-dashoffset gives the classic "marching ants" flow that
+   makes target-selection feel alive. */
+@keyframes arrow-march {
+  to { stroke-dashoffset: -30; }
+}
+.animate-arrow-march { animation: arrow-march 0.6s linear infinite; }
+
 /* ═══ Frost shimmer (infinite for frozen minions) ═══ */
 @keyframes frost-shimmer {
   0% { background-position: 0% 50%; opacity: 0.35; }
@@ -439,5 +477,22 @@ body {
   .minion-oval-taunt {
     outline-width: 2px;
     outline-offset: 1px;
+  }
+}
+
+/* ═══ Accessibility: respect prefers-reduced-motion ═══ */
+/* Strips all animations and transitions for users who have requested
+   reduced motion in their OS settings. Keeps the game playable —
+   instant state changes are still visible, just without the kinetic
+   layer. The most aggressive infinite animations (frost-shimmer,
+   ready-pulse, attacker-pulse, divine-sparkle, hero-power-ready,
+   end-turn-glow, arrow-march) would otherwise dominate a screen
+   for someone with vestibular sensitivity. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

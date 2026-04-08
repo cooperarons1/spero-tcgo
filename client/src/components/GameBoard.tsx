@@ -887,7 +887,7 @@ function HeroPortrait({
               : (canUseHeroPower
                 ? 'border-amber-500 bg-amber-900/40 hover:bg-amber-800/60 hover:scale-110 cursor-pointer'
                 : 'border-stone-500 bg-stone-700/60 opacity-60 cursor-not-allowed')}
-            ${heroPowerFlash ? 'animate-hero-power-flash' : ''}
+            ${heroPowerFlash ? 'animate-hero-power-flash' : (canUseHeroPower ? 'animate-hero-power-ready' : '')}
           `}
         >
           <span className={`pointer-events-none ${canUseHeroPower ? (heroPowerUpgraded ? 'text-amber-200' : 'text-amber-300') : 'text-stone-500'}`}>
@@ -931,9 +931,27 @@ function HandCard({
   onPointerDown?: (e: React.PointerEvent) => void;
 }) {
   const def = getCard(card.cardCode);
-  if (!def) return null;
+  const isComboCard = !!def && comboActive && def.keywords.includes('COMBO') && canPlay;
 
-  const isComboCard = comboActive && def.keywords.includes('COMBO') && canPlay;
+  // One-shot pop-in for the combo ring: fires only on the leading edge
+  // of isComboCard (i.e. the moment combo becomes active for this card,
+  // not every re-render). The 'combo-ring-pop' class self-clears after
+  // the keyframe finishes via setTimeout to allow re-trigger next combo.
+  const wasCombo = useRef(false);
+  const [comboPopping, setComboPopping] = useState(false);
+  useEffect(() => {
+    if (isComboCard && !wasCombo.current) {
+      setComboPopping(true);
+      const t = setTimeout(() => setComboPopping(false), 360);
+      wasCombo.current = true;
+      return () => clearTimeout(t);
+    }
+    if (!isComboCard && wasCombo.current) {
+      wasCombo.current = false;
+    }
+  }, [isComboCard]);
+
+  if (!def) return null;
   const classColor = CLASS_COLORS[def.heroClass] ?? '#d4a520';
   const rarityColor = RARITY_COLORS[def.rarity];
   const isLocation = def.type === 'LOCATION';
@@ -942,10 +960,14 @@ function HandCard({
     <button
       onClick={onClick}
       onPointerDown={onPointerDown}
-      className={`group relative flex h-44 w-[7.5rem] flex-shrink-0 flex-col items-center rounded-xl border-2 p-1 transition-all overflow-hidden card-frame touch-none
+      // duration-300 ease-out makes the select lift / hover lift smooth
+      // instead of snapping. Tailwind's default transition-all is 150ms
+      // ease which is too fast to read for a +6 translate + 1.1 scale.
+      className={`group relative flex h-44 w-[7.5rem] flex-shrink-0 flex-col items-center rounded-xl border-2 p-1 transition-all duration-300 ease-out overflow-hidden card-frame touch-none
         ${isComboCard
           ? 'ring-2 ring-yellow-400/80 shadow-[0_0_16px_4px_rgba(234,179,8,0.5)] border-yellow-400'
           : ''}
+        ${comboPopping ? 'animate-combo-ring-pop' : ''}
         ${isSelected
           ? 'border-green-400 -translate-y-6 scale-110 z-20 shadow-[0_0_20px_4px_rgba(34,197,94,0.5)]'
           : canPlay
@@ -1053,7 +1075,12 @@ function OpponentHand({ count, cardBackId }: { count: number; cardBackId?: strin
 // ─── Orra Crystals ───
 function ManaCrystals({ current, max }: { current: number; max: number }) {
   const prevMana = useRef(current);
+  const prevMax = useRef(max);
   const [drainingIndices, setDrainingIndices] = useState<Set<number>>(new Set());
+  // Indices that just became filled (turn refresh OR a new max-mana crystal
+  // arrived). Cleared after the cascade finishes so the same slot can
+  // animate again next turn.
+  const [fillingIndices, setFillingIndices] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     if (current < prevMana.current) {
@@ -1063,24 +1090,49 @@ function ManaCrystals({ current, max }: { current: number; max: number }) {
       setDrainingIndices(draining);
       const timer = setTimeout(() => setDrainingIndices(new Set()), 400);
       prevMana.current = current;
+      prevMax.current = max;
+      return () => clearTimeout(timer);
+    }
+    if (current > prevMana.current || max > prevMax.current) {
+      // Crystals at indices [prevMana, current) just refreshed.
+      // The cascade duration matches the longest per-crystal delay
+      // we apply in the render below (max ~10 crystals * 60ms + 550ms anim).
+      const filling = new Set<number>();
+      for (let i = prevMana.current; i < current; i++) filling.add(i);
+      // If max grew, also flag the brand-new slots so they pop in.
+      for (let i = prevMax.current; i < max; i++) filling.add(i);
+      setFillingIndices(filling);
+      const timer = setTimeout(() => setFillingIndices(new Set()), 1200);
+      prevMana.current = current;
+      prevMax.current = max;
       return () => clearTimeout(timer);
     }
     prevMana.current = current;
-  }, [current]);
+    prevMax.current = max;
+  }, [current, max]);
 
   return (
     <div className="flex items-center gap-0.5 md:gap-1">
-      {Array.from({ length: max }).map((_, i) => (
-        <div
-          key={i}
-          className={`h-3 w-3 md:h-4 md:w-4 rounded-full border transition-colors
-            ${drainingIndices.has(i) ? 'animate-crystal-drain border-blue-400 bg-blue-500' :
-              i < current
-              ? 'border-blue-400 bg-blue-500 shadow-[0_0_6px_1px_rgba(59,130,246,0.5)]'
-              : 'border-stone-600 bg-stone-800'}
-          `}
-        />
-      ))}
+      {Array.from({ length: max }).map((_, i) => {
+        const isFilling = fillingIndices.has(i);
+        // Stagger the cascade so crystals refill left-to-right like a
+        // wave instead of all popping simultaneously. 60ms per crystal
+        // is just enough to read the order without slowing the game.
+        const fillDelay = isFilling ? `${i * 60}ms` : undefined;
+        return (
+          <div
+            key={i}
+            className={`h-3 w-3 md:h-4 md:w-4 rounded-full border transition-colors
+              ${drainingIndices.has(i) ? 'animate-crystal-drain border-blue-400 bg-blue-500' :
+                isFilling ? 'animate-crystal-fill border-blue-400 bg-blue-500' :
+                i < current
+                ? 'border-blue-400 bg-blue-500 shadow-[0_0_6px_1px_rgba(59,130,246,0.5)]'
+                : 'border-stone-600 bg-stone-800'}
+            `}
+            style={fillDelay ? { animationDelay: fillDelay } : undefined}
+          />
+        );
+      })}
       <span className="ml-1 md:ml-2 text-xs md:text-sm font-bold text-blue-400">
         {current}/{max}
       </span>
@@ -1153,6 +1205,7 @@ function AttackArrow({ from, to }: { from: { x: number; y: number }; to: { x: nu
         strokeDasharray="10 5"
         markerEnd="url(#arrowhead)"
         filter="url(#arrow-shadow)"
+        className="animate-arrow-march"
       />
     </svg>
   );
