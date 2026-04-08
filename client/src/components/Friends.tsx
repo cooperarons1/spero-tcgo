@@ -349,7 +349,7 @@ export function Friends({ uid, onBack, incomingChallenge, onChallengeHandled }: 
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <div className="bg-slate-800 rounded-2xl p-6 shadow-xl max-w-md w-full border border-slate-700">
+      <div className="bg-slate-800 rounded-2xl p-6 shadow-xl max-w-md w-full border border-slate-700 animate-slide-up">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold text-white">Friends</h1>
           <button onClick={onBack} className="text-gray-400 hover:text-white cursor-pointer text-sm underline">Back</button>

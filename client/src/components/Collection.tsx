@@ -372,8 +372,10 @@ export function Collection({ uid, onBack }: CollectionProps) {
       </div>
 
       <div className="flex-1 flex min-h-0">
-        {/* My Decks sidebar — RIGHT side */}
-        <div className="w-56 md:w-[240px] flex flex-col border-l border-amber-800/20 bg-stone-900/50 shrink-0 order-2">
+        {/* My Decks sidebar — RIGHT side. Slides in slightly after the
+            main card grid so the two sides of the screen feel
+            choreographed instead of dual-snap-arriving. */}
+        <div className="w-56 md:w-[240px] flex flex-col border-l border-amber-800/20 bg-stone-900/50 shrink-0 order-2 animate-slide-up" style={{ animationDelay: '150ms', animationFillMode: 'both' }}>
           <div className="p-3 border-b border-amber-800/30 bg-stone-900/50">
             <h2 className="text-sm uppercase tracking-wider text-amber-200/80 font-bold text-center">My Decks</h2>
             <p className="text-[9px] text-gray-500 text-center mt-0.5">{decks.length}/27</p>
@@ -457,7 +459,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
         </div>
 
         {/* Card Collection — main area */}
-        <div className="flex-1 flex flex-col min-w-0 order-1">
+        <div className="flex-1 flex flex-col min-w-0 order-1 animate-slide-up">
           {/* ── Filter bar — compact Hearthstone-style ── */}
           <div className="border-b border-amber-800/30 bg-stone-900/40 shrink-0">
             {/* Row 1: Class tabs */}
