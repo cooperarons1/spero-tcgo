@@ -194,17 +194,23 @@ def evaluate(model: BoardEvaluator, X: torch.Tensor, y: torch.Tensor, batch: int
 
 
 def binomial_p_value(wins: int, n: int) -> float:
-    """One-sided binomial: P(X >= wins) under p=0.5. Used to test 'is the
-    delta significant?' when comparing two models on the same test set."""
+    """One-sided binomial: P(X >= wins) under p=0.5.
+
+    Was an O(n^2) Python loop computing log-binomial coefficients
+    one by one — fine for n<10K, hung forever at n=1M (and we always
+    eval at n=1M). Replaced with the normal approximation to the
+    binomial: under H0 (p=0.5), X ~ Normal(n/2, sqrt(n/4)). For n>1000
+    the approximation is essentially exact (relative error < 1e-4),
+    and we don't need scipy.
+    """
     if n == 0:
         return 1.0
-    log_total = -math.inf
-    for k in range(wins, n + 1):
-        log_choose = sum(math.log(n - k + i) - math.log(i) for i in range(1, k + 1))
-        log_prob = log_choose + n * math.log(0.5)
-        m = max(log_total, log_prob)
-        log_total = m + math.log(math.exp(log_total - m) + math.exp(log_prob - m))
-    return math.exp(log_total)
+    mean = n * 0.5
+    std = math.sqrt(n * 0.25)
+    # Continuity correction: use wins - 0.5 so the discrete and
+    # continuous tail areas line up at the boundary.
+    z = (wins - 0.5 - mean) / std
+    return 0.5 * math.erfc(z / math.sqrt(2))
 
 
 def main() -> int:
