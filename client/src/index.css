@@ -173,6 +173,75 @@ body {
 }
 .animate-turn-banner { animation: turn-banner 1.5s ease-out forwards; }
 
+/* Turn banner — light sweep behind the text */
+/* A bright diagonal bar travels left→right across the banner during
+   the visible portion of the animation. The skew makes it feel like
+   a stage spotlight or a sword-strike highlight. Used as a child
+   absolutely-positioned element behind the banner text. */
+@keyframes turn-banner-sweep {
+  0% { opacity: 0; transform: translateX(-150%) skewX(-20deg); }
+  20% { opacity: 1; }
+  60% { opacity: 0.9; }
+  100% { opacity: 0; transform: translateX(150%) skewX(-20deg); }
+}
+.animate-turn-banner-sweep { animation: turn-banner-sweep 1.4s ease-in-out forwards; }
+
+/* Turn banner — text scale-pop on entrance */
+/* Pairs with turn-banner: the text grows from 0.8 → 1.05 → 1.0 with
+   a slight overshoot via cubic-bezier. Cuts through the static feel
+   the old fading-pill version had. */
+@keyframes turn-banner-text {
+  0% { opacity: 0; transform: scale(0.8); letter-spacing: 0.5em; }
+  30% { opacity: 1; transform: scale(1.08); letter-spacing: 0.1em; }
+  60% { transform: scale(1); letter-spacing: 0.05em; }
+  100% { opacity: 1; transform: scale(1); letter-spacing: 0.05em; }
+}
+.animate-turn-banner-text { animation: turn-banner-text 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+/* ═══ Game intro ═══ */
+/* The pre-game "you vs opponent" splash. Previously the JSX referenced
+   a non-existent .animate-fade-in class — i.e. nothing animated. These
+   four keyframes give the intro a real "match cinematic" beat:
+     - my name slides in from the left
+     - opponent name slides in from the right
+     - VS scales from 0 with overshoot + briefly flares brightness
+     - subtext fades in last with a small delay  */
+@keyframes intro-name-left {
+  0% { opacity: 0; transform: translateX(-80px); filter: blur(4px); }
+  60% { opacity: 1; transform: translateX(8px); filter: blur(0); }
+  100% { opacity: 1; transform: translateX(0); filter: blur(0); }
+}
+.animate-intro-name-left { animation: intro-name-left 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@keyframes intro-name-right {
+  0% { opacity: 0; transform: translateX(80px); filter: blur(4px); }
+  60% { opacity: 1; transform: translateX(-8px); filter: blur(0); }
+  100% { opacity: 1; transform: translateX(0); filter: blur(0); }
+}
+.animate-intro-name-right { animation: intro-name-right 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@keyframes intro-vs {
+  0% { opacity: 0; transform: scale(0); filter: brightness(2); }
+  40% { opacity: 1; transform: scale(1.3); filter: brightness(2); text-shadow: 0 0 24px rgba(245,158,11,0.9); }
+  60% { transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); filter: brightness(1); text-shadow: 0 0 8px rgba(245,158,11,0.4); }
+}
+.animate-intro-vs { animation: intro-vs 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both; }
+
+@keyframes intro-subtext {
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.animate-intro-subtext { animation: intro-subtext 0.4s ease-out 0.7s both; }
+
+/* Generic fade-in (was referenced by GameIntro but never defined). Kept
+   as a real utility for any future component that wants a cheap fade. */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
+
 /* Victory title */
 @keyframes victory-title {
   0% { transform: scale(0.5); opacity: 0; }
