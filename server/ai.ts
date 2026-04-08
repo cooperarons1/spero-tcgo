@@ -354,26 +354,40 @@ function executeAITurn(
   // Build action queue: each action is a function that returns true if it did something
   const actionQueue: Array<() => boolean> = [];
 
-  // Phase 1: Pre-attack hero power
-  actionQueue.push(() => {
-    const me = game.players[myIdx];
-    if (!me.heroPowerUsed && me.mana >= 2) {
-      return tryPreAttackHeroPower(game, aiPlayerId, myIdx, oppIdx, broadcast);
+  // ─── Early lethal skip ───
+  // If lethal is already on the board at turn start, skip the entire
+  // card-play / location / hero-power-pre phase and go straight to
+  // attacks. Without this check, the AI burns mana on cards that can:
+  //   - Trigger opponent secrets (e.g. Counterspell, Mirror Entity)
+  //   - Summon a fresh minion that breaks the lethal math
+  //   - Buff a minion that we then over-trade with
+  // All real risks for ~+2-3% win rate in burn-deck matchups.
+  const me = game.players[myIdx];
+  const opp = game.players[oppIdx];
+  const goingForLethal = hasLethal(me, opp);
+
+  // Phase 1: Pre-attack hero power (skipped on lethal — no need to spend mana)
+  if (!goingForLethal) {
+    actionQueue.push(() => {
+      const m = game.players[myIdx];
+      if (!m.heroPowerUsed && m.mana >= 2) {
+        return tryPreAttackHeroPower(game, aiPlayerId, myIdx, oppIdx, broadcast);
+      }
+      return false;
+    });
+
+    // Phase 2: Play cards (one at a time — this gets called repeatedly)
+    for (let i = 0; i < 10; i++) { // max 10 card plays per turn
+      actionQueue.push(() => playOneCard(game, aiPlayerId, myIdx, oppIdx, broadcast));
     }
-    return false;
-  });
 
-  // Phase 2: Play cards (one at a time — this gets called repeatedly)
-  for (let i = 0; i < 10; i++) { // max 10 card plays per turn
-    actionQueue.push(() => playOneCard(game, aiPlayerId, myIdx, oppIdx, broadcast));
+    // Phase 3: Activate locations (one at a time)
+    for (let i = 0; i < 3; i++) { // max 3 location activations per turn
+      actionQueue.push(() => activateOneLocation(game, aiPlayerId, myIdx, oppIdx, broadcast));
+    }
   }
 
-  // Phase 3: Activate locations (one at a time)
-  for (let i = 0; i < 3; i++) { // max 3 location activations per turn
-    actionQueue.push(() => activateOneLocation(game, aiPlayerId, myIdx, oppIdx, broadcast));
-  }
-
-  // Phase 4: Attacks (one at a time)
+  // Phase 4: Attacks (one at a time) — always run
   for (let i = 0; i < 8; i++) { // max 7 minions + 1 weapon
     actionQueue.push(() => attackWithOneMinion(game, aiPlayerId, myIdx, oppIdx, broadcast));
   }

@@ -63,8 +63,16 @@ export function playCard(
     player.hand.splice(cardIdx, 1);
 
     const minion = createBoardMinion(cardInst.cardCode);
-    const pos = position ?? player.board.length;
-    player.board.splice(Math.min(pos, player.board.length), 0, minion);
+    // Clamp the requested insert position to [0, board.length]. The
+    // earlier `Math.min(pos, board.length)` allowed pos=-1 to slip
+    // through — JavaScript Array.splice treats negative indices as
+    // counting from the END, so splice(-1, 0, item) inserts BEFORE the
+    // last minion instead of at index 0. The validation layer in
+    // server/validation.ts also rejects negative positions but
+    // belt-and-braces here is cheap and protects the engine from any
+    // future caller that bypasses the schema.
+    const pos = Math.max(0, Math.min(position ?? player.board.length, player.board.length));
+    player.board.splice(pos, 0, minion);
 
     addLog(game, pIdx as 0 | 1, `${player.playerName} plays ${def.name}`, 'PLAY', def.cardCode);
     game.playerStats[pIdx as 0 | 1].minionsPlayed++;

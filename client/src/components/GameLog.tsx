@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { LogEntry, LogCategory } from '../../../shared/types';
+import { Card } from './Card';
 
 const categoryColors: Record<LogCategory, string> = {
   PLAY: 'border-spero-green',
@@ -40,11 +41,12 @@ export function GameLog({ log, myPlayerIndex }: GameLogProps) {
         {log.map((entry) => {
           const isMe = entry.playerIndex === myPlayerIndex;
           const isOpponent = entry.playerIndex !== null && !isMe;
+          const hasCard = !!entry.cardCode;
 
           return (
             <div
               key={entry.id}
-              className={`flex items-start gap-1.5 text-[11px] py-0.5 border-l-2 pl-1.5 ${categoryColors[entry.category]}`}
+              className={`group/log relative flex items-start gap-1.5 text-[11px] py-0.5 border-l-2 pl-1.5 ${categoryColors[entry.category]} ${hasCard ? 'cursor-help hover:bg-stone-800/40' : ''}`}
             >
               <span className="text-gray-600 shrink-0 w-4 text-right">{entry.turnNumber}</span>
               <span className="text-gray-500 shrink-0 w-6 text-[9px] font-mono">
@@ -57,6 +59,15 @@ export function GameLog({ log, myPlayerIndex }: GameLogProps) {
               >
                 {entry.message}
               </span>
+              {/* Floating card preview on hover. Positioned absolutely
+                  to the right of the log entry and clipped above any
+                  game-board content via z-50. The cardCode field on
+                  LogEntry was always there but never rendered before. */}
+              {hasCard && (
+                <div className="pointer-events-none absolute left-full ml-2 top-1/2 -translate-y-1/2 z-50 hidden group-hover/log:block animate-fade-in">
+                  <Card cardCode={entry.cardCode!} className="!w-[160px] !h-[224px] shadow-2xl ring-2 ring-amber-400/60" />
+                </div>
+              )}
             </div>
           );
         })}

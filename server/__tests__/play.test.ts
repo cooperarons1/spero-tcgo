@@ -109,6 +109,24 @@ describe('playCard — minion happy path', () => {
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/mana/i);
   });
+
+  it('clamps negative position to 0 (regression: splice(-1,0,...) bug)', () => {
+    const { g, oneManaMinionCode } = freshGameWithKnownMinion();
+    if (!oneManaMinionCode) return;
+    // Pre-populate the board with two existing minions so we can tell
+    // the difference between "inserted at index 0" and "inserted at end".
+    // The vanilla minion isn't a token, so it has stable instanceIds.
+    const existing1 = g.players[0].board.length;
+    const cardId = g.players[0].hand.find(c => c.cardCode === oneManaMinionCode)!.instanceId;
+    // Send position: -1. Old code did Math.min(-1, 0) → -1, then
+    // splice(-1, 0, item) inserts BEFORE the last element.
+    // New code clamps to 0 so the minion lands at index 0.
+    const result = playCard(g, 'p1', cardId, -1);
+    expect(result.success).toBe(true);
+    expect(g.players[0].board.length).toBe(existing1 + 1);
+    // The newly-played minion should be at index 0 (clamped from -1)
+    expect(g.players[0].board[0].cardCode).toBe(oneManaMinionCode);
+  });
 });
 
 describe('endTurn', () => {

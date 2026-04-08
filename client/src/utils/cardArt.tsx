@@ -4393,7 +4393,21 @@ function FallbackArt() {
   );
 }
 
-export function CardArt({ cardCode, className }: { cardCode: string; className?: string }) {
+export function CardArt({
+  cardCode,
+  className,
+  square,
+}: {
+  cardCode: string;
+  className?: string;
+  // When true, the SVG fallback uses preserveAspectRatio="xMidYMid slice"
+  // so the (100x80) viewBox content is centered and CROPPED into a square
+  // instead of being stretched to fit. This prevents the squished-weapon
+  // bug when CardArt is rendered into a round/square container like the
+  // hero weapon slot. The PNG path uses objectFit: 'cover' which already
+  // does the right thing — square only affects the SVG branch.
+  square?: boolean;
+}) {
   const [pngFailed, setPngFailed] = useState(false);
   const hasPng = CARD_ART_PNGS.has(cardCode) && !pngFailed;
 
@@ -4414,6 +4428,7 @@ export function CardArt({ cardCode, className }: { cardCode: string; className?:
   return (
     <svg
       viewBox="0 0 100 80"
+      preserveAspectRatio={square ? 'xMidYMid slice' : 'xMidYMid meet'}
       className={className}
       xmlns="http://www.w3.org/2000/svg"
       style={{ width: '100%', height: '100%' }}

@@ -832,7 +832,7 @@ function HeroPortrait({
             ${weaponEquipFlash ? 'animate-weapon-equip' : ''}`}
             style={{ boxShadow: canHeroAttack ? undefined : 'inset 0 2px 8px rgba(0,0,0,0.6)' }}
           >
-            <CardArt cardCode={weapon.cardCode} className="absolute inset-0 w-full h-full object-cover" />
+            <CardArt cardCode={weapon.cardCode} className="absolute inset-0 w-full h-full object-cover" square />
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/15" />
           </div>
           {/* Attack badge — outside overflow, bottom-left */}
