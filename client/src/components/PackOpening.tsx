@@ -118,9 +118,10 @@ export function PackOpening({ onBack, gold }: PackOpeningProps) {
         {!cards ? (
           // Pack selection screen
           <div className="text-center">
-            {/* Pack visual */}
+            {/* Pack visual — tears back-and-forth when opening (felt
+                more "ripping" than the generic Tailwind animate-pulse) */}
             <div
-              className={`w-48 h-64 mx-auto mb-6 rounded-xl border-4 border-amber-600 bg-gradient-to-b from-amber-800 via-amber-900 to-stone-900 shadow-2xl shadow-amber-600/30 flex flex-col items-center justify-center cursor-pointer hover:scale-105 transition-transform ${opening ? 'animate-pulse' : ''}`}
+              className={`w-48 h-64 mx-auto mb-6 rounded-xl border-4 border-amber-600 bg-gradient-to-b from-amber-800 via-amber-900 to-stone-900 shadow-2xl shadow-amber-600/30 flex flex-col items-center justify-center cursor-pointer hover:scale-105 transition-transform ${opening ? 'animate-pack-tear' : ''}`}
               onClick={!opening ? handleOpenPack : undefined}
             >
               <div className="text-4xl mb-2">✨</div>
@@ -154,8 +155,19 @@ export function PackOpening({ onBack, gold }: PackOpeningProps) {
                   onClick={() => !revealed[i] && revealCard(i)}
                 >
                   {revealed[i] ? (
-                    // Revealed card
-                    <div className={`transform transition-all duration-500 animate-[flipIn_0.5s_ease-out]`}>
+                    // Revealed card — flips in via the new card-flip-in
+                    // keyframe (was a dead animate-[flipIn_...] reference
+                    // before today). Legendary reveals get a golden burst
+                    // flare layered behind the card.
+                    <div className="relative animate-card-flip-in">
+                      {card.rarity === 'LEGENDARY' && (
+                        <div
+                          className="pointer-events-none absolute top-1/2 left-1/2 w-[200px] h-[200px] rounded-full animate-legendary-burst"
+                          style={{
+                            background: 'radial-gradient(circle, rgba(253,224,71,0.85) 0%, rgba(253,224,71,0.4) 30%, rgba(253,224,71,0) 70%)',
+                          }}
+                        />
+                      )}
                       <Card cardCode={card.cardCode} className={`!w-[140px] !h-[200px] shadow-xl ${RARITY_GLOW[card.rarity]}`} />
                       {card.isNew && (
                         <div className="absolute -top-2 -right-2 bg-green-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-md z-10">
