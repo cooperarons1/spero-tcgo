@@ -409,22 +409,26 @@ function MulliganScreen({
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center" style={{ background: 'radial-gradient(ellipse at center, #2a1a08 0%, #0a0604 100%)' }}>
-      <h2 className="mb-0.5 text-2xl md:text-4xl font-extrabold text-amber-100 drop-shadow-lg tracking-wide">Starting Hand</h2>
-      <p className="mb-4 md:mb-8 text-amber-300/60 text-xs md:text-sm italic">Keep or Replace Cards</p>
+      <h2 className="mb-0.5 text-2xl md:text-4xl font-extrabold text-amber-100 drop-shadow-lg tracking-wide animate-bounce-in">Starting Hand</h2>
+      <p className="mb-4 md:mb-8 text-amber-300/60 text-xs md:text-sm italic animate-fade-in" style={{ animationDelay: '180ms', animationFillMode: 'both' }}>Keep or Replace Cards</p>
       <div className="flex gap-3 md:gap-5 px-2">
         {hand.map((c, i) => {
           const def = getCard(c.cardCode);
           const isReplacing = replacing[i];
+          // Cards deal in left-to-right with a small per-card delay so
+          // the mulligan reveal feels like a dealer flicking cards out
+          // instead of all four landing simultaneously.
+          const dealDelay = `${i * 90}ms`;
           return (
             <button
               key={c.instanceId}
               onClick={() => toggle(i)}
-              className={`relative flex h-48 w-32 md:h-64 md:w-44 flex-col items-center rounded-xl border-3 overflow-hidden transition-all duration-300
+              className={`relative flex h-48 w-32 md:h-64 md:w-44 flex-col items-center rounded-xl border-3 overflow-hidden transition-all duration-300 animate-card-deal
                 ${isReplacing
                   ? 'border-gray-500/60 scale-95'
                   : 'border-green-400 shadow-[0_0_15px_rgba(74,222,128,0.5)] hover:shadow-[0_0_25px_rgba(74,222,128,0.7)] hover:scale-105'}
               `}
-              style={{ background: 'linear-gradient(to bottom, #3d2a14, #2a1a08)' }}
+              style={{ background: 'linear-gradient(to bottom, #3d2a14, #2a1a08)', animationDelay: dealDelay, animationFillMode: 'both' }}
             >
               {/* Mana gem */}
               <div className="absolute -left-1 -top-1 z-20 flex h-7 w-7 md:h-9 md:w-9 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-700 border-2 border-blue-300 text-xs md:text-sm font-extrabold text-white shadow-lg">
@@ -467,11 +471,12 @@ function MulliganScreen({
       <button
         disabled={confirmed}
         onClick={() => onConfirm(replacing)}
-        className={`mt-8 rounded-full px-12 py-3 text-lg font-extrabold tracking-wide transition-all
+        className={`mt-8 rounded-full px-12 py-3 text-lg font-extrabold tracking-wide transition-all animate-slide-up
           ${confirmed
             ? 'bg-stone-700 text-stone-500 cursor-not-allowed'
             : 'bg-gradient-to-b from-blue-400 to-blue-600 text-white hover:from-blue-300 hover:to-blue-500 hover:scale-105 shadow-[0_0_25px_rgba(59,130,246,0.5)] cursor-pointer'}
         `}
+        style={{ animationDelay: '500ms', animationFillMode: 'both' }}
       >
         {confirmed ? 'Waiting for opponent...' : 'Confirm'}
       </button>
@@ -842,6 +847,10 @@ function HeroPortrait({
       )}
 
       {/* Hero circle with character portrait */}
+      {/* When health drops to 5 or below, the portrait wears
+          animate-health-critical (a 1s infinite red glow). The hit-flash
+          and shake still take precedence the moment damage actually
+          lands. Existing CSS keyframe was unused before today. */}
       <div className="relative">
         <button
           onClick={onHeroClick}
@@ -851,7 +860,7 @@ function HeroPortrait({
             ${isValidTarget ? 'shadow-[0_0_16px_4px_rgba(34,197,94,0.6)] cursor-crosshair' : ''}
             ${canHeroAttack ? 'shadow-[0_0_20px_6px_rgba(34,197,94,0.7)] ring-[3px] ring-green-400/80 cursor-pointer' : ''}
             ${!isValidTarget && !canHeroAttack && !isMyHero ? 'cursor-default' : ''}
-            ${heroDamage ? 'animate-hero-damage animate-damage-shake' : ''}
+            ${heroDamage ? 'animate-hero-damage animate-damage-shake' : (health <= 5 && health > 0 ? 'animate-health-critical' : '')}
           `}
         >
           {/* Character portrait */}
@@ -2110,7 +2119,7 @@ export default function GameBoard({
 
   // ─── Interaction overlay (pending target) ───
   const InteractionOverlay = pendingTarget ? (
-    <div className="fixed left-1/2 top-4 z-40 -translate-x-1/2 rounded-lg bg-amber-900/90 px-6 py-3 text-center shadow-lg">
+    <div className="fixed left-1/2 top-4 z-40 -translate-x-1/2 rounded-lg bg-amber-900/90 px-6 py-3 text-center shadow-lg animate-slide-down">
       <p className="text-lg font-bold text-amber-300">{pendingTarget.prompt}</p>
       <p className="text-sm text-amber-200/70">Click a valid target (glowing green)</p>
       {pendingTarget.allowSkip && (
@@ -2134,7 +2143,7 @@ export default function GameBoard({
 
   // ─── Client-side targeting overlay (play-card / hero-power) ───
   const ClientTargetingOverlay = (targeting.type === 'play-card' || targeting.type === 'hero-power' || targeting.type === 'activate-location') ? (
-    <div className="fixed left-1/2 top-4 z-40 -translate-x-1/2 rounded-lg bg-amber-900/90 px-6 py-3 text-center shadow-lg">
+    <div className="fixed left-1/2 top-4 z-40 -translate-x-1/2 rounded-lg bg-amber-900/90 px-6 py-3 text-center shadow-lg animate-slide-down">
       <p className="text-lg font-bold text-amber-300">Choose a target</p>
       <p className="text-sm text-amber-200/70">Click a valid target (glowing green)</p>
       <button
