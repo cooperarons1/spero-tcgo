@@ -1501,57 +1501,81 @@ io.on('connection', (socket) => {
       const totalCost = PACK_BUNDLE_COSTS[count];
 
       const userRef = adminDb.collection('users').doc(uid);
-      const userDoc = await userRef.get();
-      const userData = userDoc.data() ?? {};
-      const gold = userData.gold ?? 0;
 
-      if (gold < totalCost) {
-        socket.emit('pack-error', 'Not enough gold');
+      // ── Atomic transaction ──
+      // Wraps the entire read→compute→write cycle so concurrent
+      // open-pack calls (double-click, two tabs, retry) can never
+      // share a stale gold/dust snapshot. Firestore retries the txn
+      // automatically on contention. Fixes the gold-deduction race
+      // where two simultaneous calls would both read gold=200, both
+      // compute newGold=100, and both write 100 — player gets 2 packs
+      // for the price of 1.
+      const result = await adminDb.runTransaction(async (tx) => {
+        const snap = await tx.get(userRef);
+        const data = snap.data() ?? {};
+        const gold = data.gold ?? 0;
+
+        if (gold < totalCost) {
+          return { ok: false as const, error: 'Not enough gold' };
+        }
+
+        const ownedCards: Record<string, number> = { ...(data.ownedCards ?? {}) };
+        let packsSinceLegendary = data.packsSinceLegendary ?? 0;
+        let packsSinceEpic = data.packsSinceEpic ?? 0;
+        let dustGained = 0;
+        const allCards: { cardCode: string; rarity: string; isNew: boolean }[] = [];
+
+        // Open `count` packs sequentially. Each pack updates the pity
+        // counters and ownedCards in place so the next pack in the
+        // bundle sees the correct state — e.g. opening 10 packs at
+        // once with a legendary on pack 3 resets the pity counter
+        // for packs 4-10.
+        for (let i = 0; i < count; i++) {
+          const r = openPack(ownedCards, packsSinceLegendary, packsSinceEpic);
+          for (const card of r.cards) {
+            const current = ownedCards[card.cardCode] ?? 0;
+            const max = card.rarity === 'LEGENDARY' ? 1 : 2;
+            if (current < max) {
+              ownedCards[card.cardCode] = current + 1;
+            } else {
+              // Extra card — auto-disenchant to dust
+              dustGained += DUST_VALUES[card.rarity] ?? 5;
+            }
+            allCards.push(card);
+          }
+          packsSinceLegendary = r.packsSinceLegendary;
+          packsSinceEpic = r.packsSinceEpic;
+        }
+
+        const newGold = gold - totalCost;
+        const newDust = (data.dust ?? 0) + dustGained;
+
+        // tx.update writes ONLY the fields that changed — no
+        // ...userData spread, which avoided the secondary footgun
+        // where the spread would clobber other fields written by a
+        // concurrent handler.
+        tx.update(userRef, {
+          gold: newGold,
+          dust: newDust,
+          ownedCards,
+          packsOpened: (data.packsOpened ?? 0) + count,
+          packsSinceLegendary,
+          packsSinceEpic,
+        });
+
+        return { ok: true as const, allCards, dustGained, newGold, newDust };
+      });
+
+      if (!result.ok) {
+        socket.emit('pack-error', result.error);
         return;
       }
 
-      const ownedCards: Record<string, number> = userData.ownedCards ?? {};
-      let packsSinceLegendary = userData.packsSinceLegendary ?? 0;
-      let packsSinceEpic = userData.packsSinceEpic ?? 0;
-      let dustGained = 0;
-      const allCards: { cardCode: string; rarity: string; isNew: boolean }[] = [];
-
-      // Open `count` packs sequentially. Each pack updates the pity
-      // counters and ownedCards in place so the next pack in the bundle
-      // sees the correct state — e.g. opening 10 packs at once with a
-      // legendary on pack 3 resets the pity counter for packs 4-10.
-      for (let i = 0; i < count; i++) {
-        const result = openPack(ownedCards, packsSinceLegendary, packsSinceEpic);
-        for (const card of result.cards) {
-          const current = ownedCards[card.cardCode] ?? 0;
-          const max = card.rarity === 'LEGENDARY' ? 1 : 2;
-          if (current < max) {
-            ownedCards[card.cardCode] = current + 1;
-          } else {
-            // Extra card — auto-disenchant to dust
-            dustGained += DUST_VALUES[card.rarity] ?? 5;
-          }
-          allCards.push(card);
-        }
-        packsSinceLegendary = result.packsSinceLegendary;
-        packsSinceEpic = result.packsSinceEpic;
-      }
-
-      await userRef.set({
-        ...userData,
-        gold: gold - totalCost,
-        dust: (userData.dust ?? 0) + dustGained,
-        ownedCards,
-        packsOpened: (userData.packsOpened ?? 0) + count,
-        packsSinceLegendary,
-        packsSinceEpic,
-      }, { merge: true });
-
       socket.emit('pack-opened', {
-        cards: allCards,
-        dustGained,
-        newGold: gold - totalCost,
-        newDust: (userData.dust ?? 0) + dustGained,
+        cards: result.allCards,
+        dustGained: result.dustGained,
+        newGold: result.newGold,
+        newDust: result.newDust,
       });
     } catch (err) {
       console.error('open-pack error:', err);
@@ -1564,57 +1588,65 @@ io.on('connection', (socket) => {
   socket.on('claim-daily-login', async () => {
     try {
       const userRef = adminDb.collection('users').doc(uid);
-      const userDoc = await userRef.get();
-      const userData = userDoc.data() ?? {};
 
-      const lastLogin = userData.lastDailyLogin ?? 0;
-      const now = Date.now();
-      const today = new Date(now);
-      const lastDate = new Date(lastLogin);
-      const isSameDay = today.getUTCDate() === lastDate.getUTCDate() &&
-        today.getUTCMonth() === lastDate.getUTCMonth() &&
-        today.getUTCFullYear() === lastDate.getUTCFullYear();
+      // Atomic txn — without this, double-clicking "Claim daily" or
+      // re-running on a flaky network could grant the daily bonus
+      // twice. The same-day check inside the txn guarantees only one
+      // grant lands per UTC day.
+      const result = await adminDb.runTransaction(async (tx) => {
+        const snap = await tx.get(userRef);
+        const data = snap.data() ?? {};
+        const lastLogin = data.lastDailyLogin ?? 0;
+        const now = Date.now();
+        const today = new Date(now);
+        const lastDate = new Date(lastLogin);
+        const isSameDay = today.getUTCDate() === lastDate.getUTCDate() &&
+          today.getUTCMonth() === lastDate.getUTCMonth() &&
+          today.getUTCFullYear() === lastDate.getUTCFullYear();
 
-      if (isSameDay && lastLogin > 0) {
-        socket.emit('daily-login-result', { alreadyClaimed: true, streak: userData.loginStreak ?? 1 });
+        if (isSameDay && lastLogin > 0) {
+          return { ok: false as const, alreadyClaimed: true, streak: data.loginStreak ?? 1 };
+        }
+
+        // Check if consecutive day
+        const yesterday = new Date(now - 86400000);
+        const isConsecutive = lastLogin > 0 &&
+          yesterday.getUTCDate() === lastDate.getUTCDate() &&
+          yesterday.getUTCMonth() === lastDate.getUTCMonth() &&
+          yesterday.getUTCFullYear() === lastDate.getUTCFullYear();
+
+        const streak = isConsecutive ? (data.loginStreak ?? 0) + 1 : 1;
+        const day = ((streak - 1) % 7) + 1;
+        const rewards: Record<number, { gold: number; label: string }> = {
+          1: { gold: 10, label: '10 Gold' },
+          2: { gold: 15, label: '15 Gold' },
+          3: { gold: 20, label: '20 Gold' },
+          4: { gold: 25, label: '25 Gold' },
+          5: { gold: 30, label: '30 Gold' },
+          6: { gold: 40, label: '40 Gold' },
+          7: { gold: 100, label: '100 Gold (Weekly Bonus!)' },
+        };
+        const reward = rewards[day] ?? rewards[1];
+
+        tx.update(userRef, {
+          gold: (data.gold ?? 0) + reward.gold,
+          lastDailyLogin: now,
+          loginStreak: streak,
+        });
+
+        return { ok: true as const, streak, day, reward };
+      });
+
+      if (!result.ok) {
+        socket.emit('daily-login-result', { alreadyClaimed: true, streak: result.streak });
         return;
       }
-
-      // Check if consecutive day
-      const yesterday = new Date(now - 86400000);
-      const isConsecutive = lastLogin > 0 &&
-        yesterday.getUTCDate() === lastDate.getUTCDate() &&
-        yesterday.getUTCMonth() === lastDate.getUTCMonth() &&
-        yesterday.getUTCFullYear() === lastDate.getUTCFullYear();
-
-      const streak = isConsecutive ? (userData.loginStreak ?? 0) + 1 : 1;
-
-      // Rewards scale with streak (capped at 7-day cycle)
-      const day = ((streak - 1) % 7) + 1;
-      const rewards: Record<number, { gold: number; label: string }> = {
-        1: { gold: 10, label: '10 Gold' },
-        2: { gold: 15, label: '15 Gold' },
-        3: { gold: 20, label: '20 Gold' },
-        4: { gold: 25, label: '25 Gold' },
-        5: { gold: 30, label: '30 Gold' },
-        6: { gold: 40, label: '40 Gold' },
-        7: { gold: 100, label: '100 Gold (Weekly Bonus!)' },
-      };
-      const reward = rewards[day] ?? rewards[1];
-
-      await userRef.set({
-        ...userData,
-        gold: (userData.gold ?? 0) + reward.gold,
-        lastDailyLogin: now,
-        loginStreak: streak,
-      }, { merge: true });
-
       socket.emit('daily-login-result', {
         alreadyClaimed: false,
-        streak,
-        day,
-        reward: reward.label,
-        goldGained: reward.gold,
+        streak: result.streak,
+        day: result.day,
+        reward: result.reward.label,
+        goldGained: result.reward.gold,
       });
     } catch (err) {
       console.error('daily-login error:', err);
@@ -1640,58 +1672,59 @@ io.on('connection', (socket) => {
     try {
       const { BATTLE_PASS_TIERS, CURRENT_SEASON, getTierFromXP } = await import('../shared/battlePass.js');
       const userRef = adminDb.collection('users').doc(uid);
-      const userDoc = await userRef.get();
-      const userData = userDoc.data() ?? {};
-      const bp = userData.battlePass ?? { seasonId: CURRENT_SEASON, xp: 0, isPremium: false, claimedFree: [], claimedPremium: [] };
-      bp.tier = getTierFromXP(bp.xp);
 
-      if (data.tier > bp.tier) {
-        socket.emit('battlepass-error', 'Haven\'t reached this tier yet');
+      // Atomic txn — without this, double-clicking a tier reward
+      // could grant gold/dust twice. The "already claimed" check
+      // inside the txn is the gate.
+      const result = await adminDb.runTransaction(async (tx) => {
+        const snap = await tx.get(userRef);
+        const data2 = snap.data() ?? {};
+        const bp = data2.battlePass ?? { seasonId: CURRENT_SEASON, xp: 0, isPremium: false, claimedFree: [], claimedPremium: [] };
+        bp.tier = getTierFromXP(bp.xp);
+
+        if (data.tier > bp.tier) return { ok: false as const, error: "Haven't reached this tier yet" };
+
+        const claimed = data.track === 'free' ? (bp.claimedFree ?? []) : (bp.claimedPremium ?? []);
+        if (claimed.includes(data.tier)) return { ok: false as const, error: 'Already claimed' };
+        if (data.track === 'premium' && !bp.isPremium) {
+          return { ok: false as const, error: 'Premium pass required' };
+        }
+
+        const tierDef = BATTLE_PASS_TIERS.find(t => t.tier === data.tier);
+        if (!tierDef) return { ok: false as const, error: 'Tier not found' };
+        const reward = data.track === 'free' ? tierDef.freeReward : tierDef.premiumReward;
+        claimed.push(data.tier);
+
+        let goldGain = 0, dustGain = 0;
+        if (reward.type === 'GOLD') goldGain = reward.amount ?? 0;
+        if (reward.type === 'DUST') dustGain = reward.amount ?? 0;
+        if (reward.type === 'PACK') goldGain = (reward.amount ?? 1) * 100;
+
+        if (data.track === 'free') bp.claimedFree = claimed;
+        else bp.claimedPremium = claimed;
+
+        tx.update(userRef, {
+          gold: (data2.gold ?? 0) + goldGain,
+          dust: (data2.dust ?? 0) + dustGain,
+          battlePass: bp,
+        });
+
+        return { ok: true as const, reward, goldGain, dustGain, bp };
+      });
+
+      if (!result.ok) {
+        socket.emit('battlepass-error', result.error);
         return;
       }
-
-      const claimed = data.track === 'free' ? (bp.claimedFree ?? []) : (bp.claimedPremium ?? []);
-      if (claimed.includes(data.tier)) {
-        socket.emit('battlepass-error', 'Already claimed');
-        return;
-      }
-      if (data.track === 'premium' && !bp.isPremium) {
-        socket.emit('battlepass-error', 'Premium pass required');
-        return;
-      }
-
-      const tierDef = BATTLE_PASS_TIERS.find(t => t.tier === data.tier);
-      if (!tierDef) return;
-
-      const reward = data.track === 'free' ? tierDef.freeReward : tierDef.premiumReward;
-      claimed.push(data.tier);
-
-      // Apply reward
-      let goldGain = 0, dustGain = 0;
-      if (reward.type === 'GOLD') goldGain = reward.amount ?? 0;
-      if (reward.type === 'DUST') dustGain = reward.amount ?? 0;
-      // PACK rewards would grant packs (simplified: give 100 gold equivalent)
-      if (reward.type === 'PACK') goldGain = (reward.amount ?? 1) * 100;
-
-      if (data.track === 'free') bp.claimedFree = claimed;
-      else bp.claimedPremium = claimed;
-
-      await userRef.set({
-        ...userData,
-        gold: (userData.gold ?? 0) + goldGain,
-        dust: (userData.dust ?? 0) + dustGain,
-        battlePass: bp,
-      }, { merge: true });
-
       socket.emit('battlepass-reward-claimed', {
         tier: data.tier,
         track: data.track,
-        reward: reward.label,
-        goldGain,
-        dustGain,
+        reward: result.reward.label,
+        goldGain: result.goldGain,
+        dustGain: result.dustGain,
       });
-      bp.tier = getTierFromXP(bp.xp);
-      socket.emit('battlepass-update', bp);
+      result.bp.tier = (await import('../shared/battlePass.js')).getTierFromXP(result.bp.xp);
+      socket.emit('battlepass-update', result.bp);
     } catch (err) {
       console.error('claim-battlepass error:', err);
     }
@@ -1705,30 +1738,36 @@ io.on('connection', (socket) => {
       const { getCardDef } = await import('./cards.js');
       const def = getCardDef(data.cardCode);
       const cost = CRAFT_COSTS[def.rarity] ?? 40;
+      const max = def.rarity === 'LEGENDARY' ? 1 : 2;
 
       const userRef = adminDb.collection('users').doc(uid);
-      const userDoc = await userRef.get();
-      const userData = userDoc.data() ?? {};
-      const dust = userData.dust ?? 0;
 
-      if (dust < cost) {
-        socket.emit('craft-error', 'Not enough dust');
+      // Atomic txn — same race fix as open-pack. Without this, two
+      // simultaneous craft clicks could both read dust=200, both
+      // write 100, and the player crafts 2 cards for the price of 1.
+      const result = await adminDb.runTransaction(async (tx) => {
+        const snap = await tx.get(userRef);
+        const d = snap.data() ?? {};
+        const dust = d.dust ?? 0;
+
+        if (dust < cost) return { ok: false as const, error: 'Not enough dust' };
+
+        const ownedCards: Record<string, number> = { ...(d.ownedCards ?? {}) };
+        const current = ownedCards[data.cardCode] ?? 0;
+        if (current >= max) return { ok: false as const, error: 'Already own max copies' };
+
+        ownedCards[data.cardCode] = current + 1;
+        const newDust = dust - cost;
+
+        tx.update(userRef, { dust: newDust, ownedCards });
+        return { ok: true as const, newDust, newCount: current + 1 };
+      });
+
+      if (!result.ok) {
+        socket.emit('craft-error', result.error);
         return;
       }
-
-      const ownedCards: Record<string, number> = userData.ownedCards ?? {};
-      const current = ownedCards[data.cardCode] ?? 0;
-      const max = def.rarity === 'LEGENDARY' ? 1 : 2;
-      if (current >= max) {
-        socket.emit('craft-error', 'Already own max copies');
-        return;
-      }
-
-      ownedCards[data.cardCode] = current + 1;
-      const newDust = dust - cost;
-
-      await userRef.set({ ...userData, dust: newDust, ownedCards }, { merge: true });
-      socket.emit('craft-success', { cardCode: data.cardCode, newDust, newCount: current + 1 });
+      socket.emit('craft-success', { cardCode: data.cardCode, newDust: result.newDust, newCount: result.newCount });
     } catch (err) {
       console.error('craft-card error:', err);
       socket.emit('craft-error', 'Failed to craft');
@@ -1743,21 +1782,29 @@ io.on('connection', (socket) => {
       const dustValue = DUST_VALUES[def.rarity] ?? 5;
 
       const userRef = adminDb.collection('users').doc(uid);
-      const userDoc = await userRef.get();
-      const userData = userDoc.data() ?? {};
 
-      const ownedCards: Record<string, number> = userData.ownedCards ?? {};
-      const current = ownedCards[data.cardCode] ?? 0;
-      if (current <= 0) {
-        socket.emit('disenchant-error', 'You don\'t own this card');
+      // Atomic txn — without this, double-clicking disenchant could
+      // grant dust twice for the same card (the second read sees the
+      // first write's deduction not yet persisted).
+      const result = await adminDb.runTransaction(async (tx) => {
+        const snap = await tx.get(userRef);
+        const d = snap.data() ?? {};
+        const ownedCards: Record<string, number> = { ...(d.ownedCards ?? {}) };
+        const current = ownedCards[data.cardCode] ?? 0;
+        if (current <= 0) return { ok: false as const, error: "You don't own this card" };
+
+        ownedCards[data.cardCode] = current - 1;
+        const newDust = (d.dust ?? 0) + dustValue;
+
+        tx.update(userRef, { dust: newDust, ownedCards });
+        return { ok: true as const, newDust, newCount: current - 1 };
+      });
+
+      if (!result.ok) {
+        socket.emit('disenchant-error', result.error);
         return;
       }
-
-      ownedCards[data.cardCode] = current - 1;
-      const newDust = (userData.dust ?? 0) + dustValue;
-
-      await userRef.set({ ...userData, dust: newDust, ownedCards }, { merge: true });
-      socket.emit('disenchant-success', { cardCode: data.cardCode, newDust, dustGained: dustValue, newCount: current - 1 });
+      socket.emit('disenchant-success', { cardCode: data.cardCode, newDust: result.newDust, dustGained: dustValue, newCount: result.newCount });
     } catch (err) {
       console.error('disenchant-card error:', err);
       socket.emit('disenchant-error', 'Failed to disenchant');
