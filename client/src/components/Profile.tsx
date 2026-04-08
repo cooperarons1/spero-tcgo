@@ -135,15 +135,15 @@ export function Profile({ uid, displayName, onBack }: ProfileProps) {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <div className="bg-slate-800 rounded-2xl p-6 shadow-xl max-w-lg w-full border border-slate-700 animate-slide-up">
+      <div className="bg-slate-800 rounded-2xl p-7 shadow-xl max-w-xl w-full border border-slate-700 animate-slide-up">
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-5">
           <h2 className="text-xl font-bold text-white">Profile</h2>
           <button onClick={onBack} className="text-gray-400 hover:text-white text-sm underline cursor-pointer">Back</button>
         </div>
 
         {/* Player Identity */}
-        <div className="text-center mb-4">
+        <div className="text-center mb-5">
           <h3 className="text-2xl font-bold text-white mb-1 animate-bounce-in">{displayName}</h3>
           <div className="flex items-center justify-center gap-2">
             <span className={`text-lg font-bold ${RANK_COLORS[tier]}`}>{tier}</span>

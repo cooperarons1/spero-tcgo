@@ -207,16 +207,16 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
         )}
 
         {mode === 'menu' && (
-          <div className="w-full max-w-sm space-y-4 animate-slide-up" style={{ animationDelay: '250ms', animationFillMode: 'both' }}>
+          <div className="w-full max-w-md space-y-5 animate-slide-up" style={{ animationDelay: '250ms', animationFillMode: 'both' }}>
             {/* Play buttons */}
-            <div className="bg-stone-800/70 border border-amber-800/30 rounded-2xl p-5 shadow-2xl shadow-black/40 space-y-3">
+            <div className="bg-stone-800/70 border border-amber-800/30 rounded-2xl p-6 shadow-2xl shadow-black/40 space-y-4">
               <button
                 onClick={onPlayAI}
                 className="w-full bg-gradient-to-r from-amber-600 via-amber-600 to-amber-700 text-white font-bold py-4 px-6 rounded-xl text-lg hover:brightness-110 active:scale-[0.97] transition-all shadow-lg cursor-pointer border border-amber-500/40"
               >
                 Play vs AI
               </button>
-              <div className="flex gap-2">
+              <div className="flex gap-3">
                 <button
                   onClick={onPlayCasual}
                   className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold py-4 px-4 rounded-xl text-base hover:brightness-110 active:scale-[0.97] transition-all shadow-lg cursor-pointer border border-blue-500/40"
@@ -230,16 +230,16 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
                   Ranked
                 </button>
               </div>
-              <div className="flex gap-2 pt-1">
+              <div className="flex gap-3 pt-1">
                 <button
                   onClick={handleCreate}
-                  className="flex-1 bg-stone-700/80 text-gray-300 font-semibold py-2.5 px-4 rounded-xl text-sm hover:bg-stone-600 active:scale-95 transition-all cursor-pointer border border-stone-600/40"
+                  className="flex-1 bg-stone-700/80 text-gray-300 font-semibold py-3 px-4 rounded-xl text-sm hover:bg-stone-600 active:scale-95 transition-all cursor-pointer border border-stone-600/40"
                 >
                   Create Room
                 </button>
                 <button
                   onClick={() => setMode('join')}
-                  className="flex-1 bg-stone-700/80 text-gray-300 font-semibold py-2.5 px-4 rounded-xl text-sm hover:bg-stone-600 active:scale-95 transition-all cursor-pointer border border-stone-600/40"
+                  className="flex-1 bg-stone-700/80 text-gray-300 font-semibold py-3 px-4 rounded-xl text-sm hover:bg-stone-600 active:scale-95 transition-all cursor-pointer border border-stone-600/40"
                 >
                   Join Room
                 </button>
@@ -252,24 +252,24 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
               </button>
             </div>
 
-            {/* Daily Quests */}
+            {/* Daily Quests — bumped padding + text size for readability */}
             {quests && quests.quests.length > 0 && (
-              <div className="bg-stone-800/50 border border-stone-700/30 rounded-xl p-3.5">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-bold text-[11px] text-amber-200/70 uppercase tracking-wider">Daily Quests</h3>
+              <div className="bg-stone-800/50 border border-stone-700/30 rounded-xl p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-bold text-xs text-amber-200/70 uppercase tracking-wider">Daily Quests</h3>
                   <div className="flex items-center gap-2">
-                    <span className="text-yellow-400 text-[11px] font-bold">{quests.gold}g</span>
-                    <span className="text-gray-600 text-[10px]">Lvl {quests.level}</span>
+                    <span className="text-yellow-400 text-xs font-bold">{quests.gold}g</span>
+                    <span className="text-gray-600 text-[11px]">Lvl {quests.level}</span>
                   </div>
                 </div>
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                   {quests.quests.map((q: any) => (
-                    <div key={q.id} className={`bg-stone-900/50 rounded-lg p-2 ${q.completed ? 'opacity-30' : ''}`}>
-                      <div className="flex items-center justify-between text-[11px]">
+                    <div key={q.id} className={`bg-stone-900/50 rounded-lg p-2.5 ${q.completed ? 'opacity-30' : ''}`}>
+                      <div className="flex items-center justify-between text-xs">
                         <span className="text-gray-300">{q.description}</span>
                         <span className="text-yellow-400/80 font-bold ml-2 shrink-0">{q.reward}g</span>
                       </div>
-                      <div className="mt-1 bg-stone-950 rounded-full h-1 overflow-hidden">
+                      <div className="mt-1.5 bg-stone-950 rounded-full h-1 overflow-hidden">
                         <div
                           className="h-full bg-amber-500/80 rounded-full transition-all"
                           style={{ width: `${Math.min(100, (q.progress / q.target) * 100)}%` }}
