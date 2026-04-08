@@ -214,7 +214,12 @@ function loadWeightsFile(filePath: string): LoadedWeights | null {
   };
 }
 
-const WEIGHTS_PATH = path.join(__dirname, '..', 'data', 'neural-eval-weights.json');
+// Default weights path. Override at startup with NEURAL_WEIGHTS_PATH for the
+// tournament harness, A/B testing, or any other "swap weights without
+// editing files" scenario.
+const WEIGHTS_PATH = process.env.NEURAL_WEIGHTS_PATH
+  ? path.resolve(process.env.NEURAL_WEIGHTS_PATH)
+  : path.join(__dirname, '..', 'data', 'neural-eval-weights.json');
 weights = loadWeightsFile(WEIGHTS_PATH);
 if (weights) {
   console.log(

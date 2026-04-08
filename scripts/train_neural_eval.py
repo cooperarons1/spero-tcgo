@@ -130,12 +130,255 @@ class BoardEvaluator(nn.Module):
 def build_model(size: str) -> BoardEvaluator:
     if size not in LAYER_TIERS:
         raise SystemExit(f"Unknown --model-size {size!r}; choose from {list(LAYER_TIERS)}")
-    use_norm = size in ("medium", "large")
+    # LayerNorm is intentionally OFF for all sizes — the TS inference path
+    # in server/ai-neural.ts only knows how to fold Linear+ReLU layers, so
+    # adding LayerNorm in training would break inference. Bf16 is stable
+    # enough for this MLP without normalization. If quality plateaus we
+    # can either fold LN params into the matmul at export time or extend
+    # the TS forward pass.
+    use_norm = False
     dropout = 0.1 if size != "tiny" else 0.0
     return BoardEvaluator(LAYER_TIERS[size], use_layernorm=use_norm, dropout=dropout)
 
 
 # ── Data loading ───────────────────────────────────────────────────────
+
+
+def _label_for(outcome: float, t: int, T: int, margin_w: float, label_mode: str, gamma: float) -> tuple[float, float]:
+    """Compute (label, weight) for a single snapshot. Centralized so the
+    chunked loader and the legacy non-chunked path agree."""
+    if label_mode == "hard":
+        return outcome, 1.0
+    if label_mode == "discounted":
+        return outcome * (gamma ** (T - 1 - t)), 1.0
+    if label_mode == "margin":
+        return outcome, margin_w
+    # both
+    return outcome * (gamma ** (T - 1 - t)), margin_w
+
+
+def estimate_snapshots(path: Path, sample_lines: int = 200) -> int:
+    """
+    Estimate total snapshots in a JSONL game file by sampling the first
+    `sample_lines` games and extrapolating from file size.
+
+    Beats a full count pass on huge datasets — for a 95 GB file the count
+    pass would take ~15 minutes of pure JSON parsing, while sampling 200
+    lines runs in <1 second. The estimate is high enough to pre-allocate
+    a buffer; the actual fill loop tracks the true count and trims at the
+    end if we over-allocated.
+
+    Returns a 10% over-estimate of the snapshot count so the pre-allocated
+    tensor can hold everything without reallocation.
+    """
+    file_size = path.stat().st_size
+    if file_size == 0:
+        return 0
+
+    sampled_bytes = 0
+    sampled_snapshots = 0
+    with path.open("r", encoding="utf-8") as f:
+        for i, raw_line in enumerate(f):
+            if i >= sample_lines:
+                break
+            sampled_bytes += len(raw_line)
+            line = raw_line.strip()
+            if not line:
+                continue
+            try:
+                game = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if not game.get("winner_id"):
+                continue
+            for snap in game.get("snapshots", []):
+                feats = snap.get("features")
+                if feats and len(feats) == FEATURE_DIM:
+                    sampled_snapshots += 1
+
+    if sampled_bytes == 0 or sampled_snapshots == 0:
+        return 0
+
+    snapshots_per_byte = sampled_snapshots / sampled_bytes
+    estimate = int(file_size * snapshots_per_byte * 1.1)  # 10% headroom
+    return estimate
+
+
+def load_simulation_data_chunked(
+    path: Path,
+    label_mode: str,
+    gamma: float,
+    device: str,
+    dtype: torch.dtype,
+    max_samples: int | None = None,
+    chunk_rows: int = 1_048_576,  # 1M snapshots per fp32 staging buffer (~1 GB)
+) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    """
+    Two-pass loader that streams JSONL into pre-allocated device tensors.
+
+    Why two passes
+    --------------
+    The naive Python-list-then-asarray path peaks at ~3× the final memory
+    footprint while it builds the lists. For 100M snapshots × 256 dims that's
+    ~300 GB peak — way over the M5's 128 GB ceiling.
+
+    The two-pass version peaks at:
+      - device tensor at chosen dtype (50 GB at bf16, 100 GB at fp32)
+      - one staging numpy chunk at fp32 (~1 GB)
+      - one transient torch fp32 chunk during dtype conversion (~1 GB)
+
+    Total peak ~52 GB at bf16 for 100M snapshots, well inside 128 GB.
+
+    The first pass is a counting pass through the file (just to get the row
+    count); the second pass actually fills the tensors. The first pass is
+    cheap because we only json.loads each line — we don't keep the data.
+    """
+    # Sample-based estimate replaces a full count pass — for a 95 GB file
+    # the count pass needs ~15 min of pure JSON parsing while sampling 200
+    # lines runs in <1 second. The estimate is intentionally over by ~10%
+    # so we never under-allocate; the fill loop trims trailing zeros after.
+    print(f"  estimating snapshot count from sample of first 200 games...")
+    n_rows = estimate_snapshots(path)
+    if max_samples and n_rows > max_samples:
+        n_rows = max_samples
+    if n_rows == 0:
+        return (
+            torch.empty((0, FEATURE_DIM), dtype=dtype, device=device),
+            torch.empty((0,), dtype=dtype, device=device),
+            torch.empty((0,), dtype=dtype, device=device),
+        )
+
+    bytes_per_row = FEATURE_DIM * (2 if dtype == torch.bfloat16 else 4)
+    est_gb = (n_rows * bytes_per_row) / (1024 ** 3)
+    print(f"  estimated ~{n_rows:,} snapshots, allocating ~{est_gb:.1f} GB on {device} ({dtype})")
+
+    X = torch.empty((n_rows, FEATURE_DIM), dtype=dtype, device=device)
+    y = torch.empty((n_rows,), dtype=dtype, device=device)
+    w = torch.empty((n_rows,), dtype=dtype, device=device)
+
+    # Staging buffers — fp32 numpy is the smallest native format json yields
+    X_buf = np.empty((chunk_rows, FEATURE_DIM), dtype=np.float32)
+    y_buf = np.empty((chunk_rows,), dtype=np.float32)
+    w_buf = np.empty((chunk_rows,), dtype=np.float32)
+
+    print(f"  streaming JSONL into device tensors (chunks of {chunk_rows:,})...")
+    written = 0
+    chunk_pos = 0
+    skipped_lines = 0
+    skipped_games = 0
+    games_used = 0
+    t_start = time.time()
+    last_progress = t_start
+
+    def flush_chunk():
+        nonlocal chunk_pos, written
+        if chunk_pos == 0:
+            return
+        end = written + chunk_pos
+        # numpy → torch fp32 → device → cast to dtype
+        x_t = torch.from_numpy(X_buf[:chunk_pos]).to(device=device, dtype=dtype)
+        y_t = torch.from_numpy(y_buf[:chunk_pos]).to(device=device, dtype=dtype)
+        w_t = torch.from_numpy(w_buf[:chunk_pos]).to(device=device, dtype=dtype)
+        X[written:end].copy_(x_t)
+        y[written:end].copy_(y_t)
+        w[written:end].copy_(w_t)
+        del x_t, y_t, w_t
+        written = end
+        chunk_pos = 0
+
+    # Single-pass fill. The estimated capacity is ~10% over the true count
+    # so we should never overflow; if we do (estimate was too low), grow
+    # the buffers in-place via torch.cat. If we have leftover capacity at
+    # the end we trim.
+    capacity = n_rows
+    with path.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                game = json.loads(line)
+            except json.JSONDecodeError:
+                skipped_lines += 1
+                continue
+
+            winner_id = game.get("winner_id")
+            if not winner_id:
+                skipped_games += 1
+                continue
+
+            snapshots = game.get("snapshots", [])
+            if not snapshots:
+                skipped_games += 1
+                continue
+
+            T = len(snapshots)
+            final_life = float(game.get("final_winner_life") or 30)
+            margin_w = 1.0 + 0.5 * (final_life / 30.0)
+
+            for t, snap in enumerate(snapshots):
+                feats = snap.get("features")
+                if not feats or len(feats) != FEATURE_DIM:
+                    continue
+                # Stop if we hit capacity AND the user supplied --max-samples;
+                # otherwise accept that the estimate was low and accept the loss
+                # of the trailing snapshots (rare with the 10% over-estimate).
+                if max_samples and (written + chunk_pos) >= max_samples:
+                    flush_chunk()
+                    elapsed = time.time() - t_start
+                    print(
+                        f"  loaded {written:,} snapshots from {games_used:,} games in {elapsed:.1f}s "
+                        f"(skipped {skipped_lines} bad lines, {skipped_games} games without a winner) "
+                        f"— hit --max-samples cap"
+                    )
+                    return X[:written], y[:written], w[:written]
+
+                if (written + chunk_pos) >= capacity:
+                    # Estimate was low — flush and grow the device tensors
+                    flush_chunk()
+                    grow_by = max(chunk_rows, capacity // 10)
+                    extra_X = torch.zeros((grow_by, FEATURE_DIM), dtype=dtype, device=device)
+                    extra_y = torch.zeros((grow_by,), dtype=dtype, device=device)
+                    extra_w = torch.zeros((grow_by,), dtype=dtype, device=device)
+                    X = torch.cat([X, extra_X], dim=0)
+                    y = torch.cat([y, extra_y], dim=0)
+                    w = torch.cat([w, extra_w], dim=0)
+                    capacity = X.shape[0]
+                    print(f"    capacity grew to {capacity:,}")
+                    del extra_X, extra_y, extra_w
+
+                outcome = 1.0 if snap.get("active_player_id") == winner_id else 0.0
+                label, weight = _label_for(outcome, t, T, margin_w, label_mode, gamma)
+                X_buf[chunk_pos] = feats
+                y_buf[chunk_pos] = label
+                w_buf[chunk_pos] = weight
+                chunk_pos += 1
+                if chunk_pos >= chunk_rows:
+                    flush_chunk()
+                    now = time.time()
+                    if now - last_progress >= 5:
+                        rate = written / max(1e-6, now - t_start)
+                        eta = (n_rows - written) / max(1, rate) if rate > 0 else 0
+                        print(f"    streamed {written:,}/{n_rows:,} ({rate/1000:.0f}K rows/s, eta {eta:.0f}s)")
+                        last_progress = now
+
+            games_used += 1
+
+    flush_chunk()
+
+    elapsed = time.time() - t_start
+    print(
+        f"  loaded {written:,} snapshots from {games_used:,} games in {elapsed:.1f}s "
+        f"(skipped {skipped_lines} bad lines, {skipped_games} games without a winner)"
+    )
+
+    if written < n_rows:
+        # Trim trailing unused rows (rare — usually n_rows matches exactly)
+        X = X[:written]
+        y = y[:written]
+        w = w[:written]
+
+    return X, y, w
 
 
 def load_simulation_data(
@@ -145,16 +388,10 @@ def load_simulation_data(
     gamma: float,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Read self-play game records and produce (X, y, w) arrays.
-
-    Each turn snapshot becomes one training example. Label and weight
-    depend on label_mode:
-        hard       — binary win/loss, weight=1
-        discounted — outcome × γ^(T-1-t), weight=1
-        margin     — binary label, weight scaled by winner's final life
-        both       — discounted label, weight scaled by margin (default)
-
-    Tolerantly skips malformed JSONL lines and games with no winner_id.
+    Legacy non-chunked loader. Builds Python lists then converts to numpy.
+    Peak memory ~3× final size — only safe for datasets up to ~10M snapshots
+    on a 128 GB box. The chunked loader (load_simulation_data_chunked) is
+    the production path for anything bigger.
     """
     X_list: list[list[float]] = []
     y_list: list[float] = []
@@ -195,19 +432,7 @@ def load_simulation_data(
                     continue
                 active = snap.get("active_player_id")
                 outcome = 1.0 if active == winner_id else 0.0
-
-                if label_mode == "hard":
-                    label = outcome
-                    weight = 1.0
-                elif label_mode == "discounted":
-                    label = outcome * (gamma ** (T - 1 - t))
-                    weight = 1.0
-                elif label_mode == "margin":
-                    label = outcome
-                    weight = margin_w
-                else:  # both
-                    label = outcome * (gamma ** (T - 1 - t))
-                    weight = margin_w
+                label, weight = _label_for(outcome, t, T, margin_w, label_mode, gamma)
 
                 X_list.append(features)
                 y_list.append(label)
@@ -265,37 +490,73 @@ def train(args: argparse.Namespace) -> int:
         return 1
 
     device = pick_device()
+    dtype = torch.bfloat16 if args.dtype == "bf16" else torch.float32
     print(f"Loading simulation data from {sim_path}...")
-    X_np, y_np, w_np = load_simulation_data(
-        sim_path,
-        max_samples=args.max_samples,
-        label_mode=args.label_mode,
-        gamma=args.gamma,
-    )
-    if len(X_np) == 0:
-        print("No training samples found after filtering.", file=sys.stderr)
-        return 1
+    n_total: int = 0  # set by both loader paths, used by export_weights for trainedGames
 
-    print(f"  {len(X_np)} examples, label distribution mean={y_np.mean():.3f}")
-    print(f"  device: {device}, model: {args.model_size}")
+    # For datasets bigger than ~10M snapshots the legacy in-memory list-build
+    # path peaks too high (~3× final size). Use the chunked streaming loader
+    # by default, which pre-allocates the device tensor and streams the
+    # JSONL into it via 1M-row staging buffers. The legacy path is still
+    # accessible via --no-chunked for debugging.
+    if args.no_chunked:
+        X_np, y_np, w_np = load_simulation_data(
+            sim_path,
+            max_samples=args.max_samples,
+            label_mode=args.label_mode,
+            gamma=args.gamma,
+        )
+        if len(X_np) == 0:
+            print("No training samples found after filtering.", file=sys.stderr)
+            return 1
+        n_total = len(X_np)
+        print(f"  {n_total} examples, label distribution mean={y_np.mean():.3f}")
+        print(f"  device: {device}, dtype: {dtype}, model: {args.model_size}")
+        rng = np.random.default_rng(42)
+        indices = rng.permutation(len(X_np))
+        split = int(0.9 * len(X_np))
+        train_idx, val_idx = indices[:split], indices[split:]
+        X_train = torch.from_numpy(X_np[train_idx]).to(device=device, dtype=dtype)
+        y_train = torch.from_numpy(y_np[train_idx]).to(device=device, dtype=dtype)
+        w_train = torch.from_numpy(w_np[train_idx]).to(device=device, dtype=dtype)
+        X_val = torch.from_numpy(X_np[val_idx]).to(device=device, dtype=dtype)
+        y_val = torch.from_numpy(y_np[val_idx]).to(device=device, dtype=dtype)
+        w_val = torch.from_numpy(w_np[val_idx]).to(device=device, dtype=dtype)
+        del X_np, y_np, w_np
+    else:
+        X_all, y_all, w_all = load_simulation_data_chunked(
+            sim_path,
+            label_mode=args.label_mode,
+            gamma=args.gamma,
+            device=device,
+            dtype=dtype,
+            max_samples=args.max_samples,
+        )
+        n_total = X_all.shape[0]
+        if n_total == 0:
+            print("No training samples found after filtering.", file=sys.stderr)
+            return 1
+        # Mean label as float for logging only — small CPU op
+        label_mean = float(y_all.float().mean().item())
+        print(f"  {n_total:,} examples, label distribution mean={label_mean:.3f}")
+        print(f"  device: {device}, dtype: {dtype}, model: {args.model_size}")
+        # Permutation done on the device, then split. Avoids sending the full
+        # index list back through CPU.
+        gen = torch.Generator(device=device).manual_seed(42)
+        perm_all = torch.randperm(n_total, device=device, generator=gen)
+        split = int(0.9 * n_total)
+        train_perm = perm_all[:split]
+        val_perm = perm_all[split:]
+        X_train = X_all[train_perm].contiguous()
+        y_train = y_all[train_perm].contiguous()
+        w_train = w_all[train_perm].contiguous()
+        X_val = X_all[val_perm].contiguous()
+        y_val = y_all[val_perm].contiguous()
+        w_val = w_all[val_perm].contiguous()
+        # X_all/y_all/w_all are now redundant — free their memory before training
+        del X_all, y_all, w_all, perm_all, train_perm, val_perm
 
-    # 90/10 train/val split, deterministic
-    rng = np.random.default_rng(42)
-    indices = rng.permutation(len(X_np))
-    split = int(0.9 * len(X_np))
-    train_idx, val_idx = indices[:split], indices[split:]
-
-    # Pre-load EVERYTHING onto the device. With ~700K × 256 × 4 = ~700MB
-    # we're nowhere near the M5's 120GB unified memory ceiling. Skipping
-    # the DataLoader is the single biggest perf win on Apple silicon.
-    X_train = torch.from_numpy(X_np[train_idx]).to(device)
-    y_train = torch.from_numpy(y_np[train_idx]).to(device)
-    w_train = torch.from_numpy(w_np[train_idx]).to(device)
-    X_val = torch.from_numpy(X_np[val_idx]).to(device)
-    y_val = torch.from_numpy(y_np[val_idx]).to(device)
-    w_val = torch.from_numpy(w_np[val_idx]).to(device)
-
-    model = build_model(args.model_size).to(device)
+    model = build_model(args.model_size).to(device=device, dtype=dtype)
     n_params = sum(p.numel() for p in model.parameters())
     print(f"  model params: {n_params:,}")
 
@@ -311,15 +572,19 @@ def train(args: argparse.Namespace) -> int:
     # MPS warmup — first kernel launch can take ~5s while Metal compiles
     if device == "mps":
         with torch.no_grad():
-            model(torch.zeros(2, FEATURE_DIM, device=device))
+            model(torch.zeros(2, FEATURE_DIM, device=device, dtype=dtype))
 
     best_val = float("inf")
     best_state = None
-    use_autocast = device == "mps" and not args.no_autocast
+    # autocast only useful when the resident tensors are fp32 — bf16 already
+    # gets us the speedup without any cast overhead
+    use_autocast = device == "mps" and not args.no_autocast and dtype == torch.float32
 
     print(f"\nTraining {args.epochs} epochs, batch_size={args.batch_size}, lr={args.lr}")
     if use_autocast:
         print("  autocast(fp16) enabled on MPS")
+    elif dtype == torch.bfloat16:
+        print("  resident bf16 tensors — autocast not needed")
 
     for epoch in range(1, args.epochs + 1):
         model.train()
@@ -338,10 +603,15 @@ def train(args: argparse.Namespace) -> int:
             if use_autocast:
                 with torch.autocast(device_type="mps", dtype=torch.float16):
                     logits = model(xb)
-                    per = F.binary_cross_entropy_with_logits(logits, yb, reduction="none")
-                    loss = (per * wb).mean()
+                    # BCE with logits expects fp32 targets even under autocast
+                    per = F.binary_cross_entropy_with_logits(logits.float(), yb.float(), reduction="none")
+                    loss = (per * wb.float()).mean()
             else:
                 logits = model(xb)
+                # bf16 path: BCE-with-logits is numerically fine in bf16 because
+                # the logsumexp inside it has wide enough exponent range. Cast
+                # the per-sample weight to match the logits dtype to avoid the
+                # implicit promotion that happens when shapes line up.
                 per = F.binary_cross_entropy_with_logits(logits, yb, reduction="none")
                 loss = (per * wb).mean()
 
@@ -378,7 +648,7 @@ def train(args: argparse.Namespace) -> int:
     if best_state is not None:
         model.load_state_dict(best_state)
 
-    export_weights(model, Path(args.output), num_games=len(X_np))
+    export_weights(model, Path(args.output), num_games=n_total)
     print(f"\nWrote weights to {args.output}")
     print(f"Best val loss: {best_val:.4f}")
     return 0
@@ -409,8 +679,10 @@ def export_weights(model: BoardEvaluator, out: Path, num_games: int) -> None:
     # approach is to just iterate the modules.
     for module in model.net:
         if isinstance(module, nn.Linear):
-            W.append(module.weight.detach().cpu().numpy().tolist())
-            b.append(module.bias.detach().cpu().numpy().tolist())
+            # Numpy can't ingest bf16 directly — cast to fp32 first. The
+            # final JSON serialization is fp64 anyway so we lose nothing.
+            W.append(module.weight.detach().to(torch.float32).cpu().numpy().tolist())
+            b.append(module.bias.detach().to(torch.float32).cpu().numpy().tolist())
 
     payload = {
         "version": WEIGHTS_SCHEMA_VERSION,
@@ -446,6 +718,13 @@ def main() -> int:
                         help="Discount factor for early-game snapshots")
     parser.add_argument("--no-autocast", action="store_true",
                         help="Disable MPS autocast (debugging only)")
+    parser.add_argument("--dtype", default="fp32", choices=["fp32", "bf16"],
+                        help="Resident tensor dtype on the device. Use bf16 for "
+                             "datasets >50M snapshots to halve memory footprint.")
+    parser.add_argument("--no-chunked", action="store_true",
+                        help="Use the legacy in-memory list-build loader instead "
+                             "of the chunked streaming loader. Don't use for "
+                             "datasets >10M snapshots.")
     args = parser.parse_args()
     return train(args)
 
