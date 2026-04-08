@@ -51,7 +51,10 @@ export const FEATURE_DIM = 256;
  * version OR a different featureDim. */
 export const WEIGHTS_SCHEMA_VERSION = 2;
 
-const HERO_CLASSES: HeroClass[] = ['JIMMY', 'TALA', 'DARK', 'ANDERS', 'DES', 'ASTRID', 'AVA', 'LUCAS', 'IZZY'];
+// Must match shared/questDefs.ts HERO_CLASSES exactly. The earlier order
+// here was wrong ('DARK' instead of 'DEREK', JIMMY-first ordering) and
+// caused the perspective hero one-hot to silently miss for ~11% of games.
+const HERO_CLASSES: HeroClass[] = ['DEREK', 'TALA', 'JIMMY', 'ANDERS', 'DES', 'ASTRID', 'AVA', 'LUCAS', 'IZZY'];
 
 const NEURAL_BLEND = parseFloat(process.env.AI_NEURAL_BLEND ?? '0');
 

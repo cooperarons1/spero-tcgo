@@ -64,12 +64,13 @@ weights file whose featureDim or version mismatches.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import sys
 import time
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 try:
     import numpy as np
@@ -157,6 +158,41 @@ def _label_for(outcome: float, t: int, T: int, margin_w: float, label_mode: str,
     return outcome * (gamma ** (T - 1 - t)), margin_w
 
 
+def feature_hash_fp32(arr: np.ndarray) -> str:
+    """Stable join key between this trainer and scripts/llama_label_positions.py.
+
+    MUST stay in sync with that script's `feature_hash`. Both sides cast
+    the JSON-parsed feature list to fp32 numpy and sha1 the bytes — bit
+    exact because JSON numbers round-trip as Python fp64 and the fp64→fp32
+    cast is deterministic.
+    """
+    return hashlib.sha1(arr.tobytes()).hexdigest()[:16]
+
+
+def load_llama_labels(path: Path) -> dict[str, float]:
+    """
+    Read scripts/llama_label_positions.py output JSONL into a
+    {feature_hash: llama_score} dict. Confidence is currently ignored —
+    we trust the score uniformly. Could later weight per-position by
+    confidence if Run D underperforms.
+    """
+    labels: dict[str, float] = {}
+    with path.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            fh = row.get("feature_hash")
+            score = row.get("llama_score")
+            if fh and isinstance(score, (int, float)):
+                labels[fh] = float(score)
+    return labels
+
+
 def estimate_snapshots(path: Path, sample_lines: int = 200) -> int:
     """
     Estimate total snapshots in a JSONL game file by sampling the first
@@ -212,7 +248,8 @@ def load_simulation_data_chunked(
     dtype: torch.dtype,
     max_samples: int | None = None,
     chunk_rows: int = 1_048_576,  # 1M snapshots per fp32 staging buffer (~1 GB)
-) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    llama_labels: Optional[dict[str, float]] = None,
+) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, Optional[torch.Tensor], Optional[torch.Tensor]]:
     """
     Two-pass loader that streams JSONL into pre-allocated device tensors.
 
@@ -242,24 +279,31 @@ def load_simulation_data_chunked(
     if max_samples and n_rows > max_samples:
         n_rows = max_samples
     if n_rows == 0:
-        return (
-            torch.empty((0, FEATURE_DIM), dtype=dtype, device=device),
-            torch.empty((0,), dtype=dtype, device=device),
-            torch.empty((0,), dtype=dtype, device=device),
-        )
+        empty_x = torch.empty((0, FEATURE_DIM), dtype=dtype, device=device)
+        empty_v = torch.empty((0,), dtype=dtype, device=device)
+        return (empty_x, empty_v, empty_v, None, None)
 
     bytes_per_row = FEATURE_DIM * (2 if dtype == torch.bfloat16 else 4)
     est_gb = (n_rows * bytes_per_row) / (1024 ** 3)
     print(f"  estimated ~{n_rows:,} snapshots, allocating ~{est_gb:.1f} GB on {device} ({dtype})")
 
+    use_llama = llama_labels is not None and len(llama_labels) > 0
+    if use_llama:
+        print(f"  llama labels: {len(llama_labels):,} entries — will hash every snapshot for join")
+
     X = torch.empty((n_rows, FEATURE_DIM), dtype=dtype, device=device)
     y = torch.empty((n_rows,), dtype=dtype, device=device)
     w = torch.empty((n_rows,), dtype=dtype, device=device)
+    ll = torch.zeros((n_rows,), dtype=dtype, device=device) if use_llama else None
+    lm = torch.zeros((n_rows,), dtype=dtype, device=device) if use_llama else None
 
     # Staging buffers — fp32 numpy is the smallest native format json yields
     X_buf = np.empty((chunk_rows, FEATURE_DIM), dtype=np.float32)
     y_buf = np.empty((chunk_rows,), dtype=np.float32)
     w_buf = np.empty((chunk_rows,), dtype=np.float32)
+    ll_buf = np.zeros((chunk_rows,), dtype=np.float32) if use_llama else None
+    lm_buf = np.zeros((chunk_rows,), dtype=np.float32) if use_llama else None
+    n_llama_matched = 0
 
     print(f"  streaming JSONL into device tensors (chunks of {chunk_rows:,})...")
     written = 0
@@ -283,6 +327,15 @@ def load_simulation_data_chunked(
         y[written:end].copy_(y_t)
         w[written:end].copy_(w_t)
         del x_t, y_t, w_t
+        if use_llama:
+            ll_t = torch.from_numpy(ll_buf[:chunk_pos]).to(device=device, dtype=dtype)
+            lm_t = torch.from_numpy(lm_buf[:chunk_pos]).to(device=device, dtype=dtype)
+            ll[written:end].copy_(ll_t)
+            lm[written:end].copy_(lm_t)
+            del ll_t, lm_t
+            # Reset masks for next batch (ll_buf is overwritten only for matches)
+            ll_buf[:chunk_pos] = 0.0
+            lm_buf[:chunk_pos] = 0.0
         written = end
         chunk_pos = 0
 
@@ -331,7 +384,9 @@ def load_simulation_data_chunked(
                         f"(skipped {skipped_lines} bad lines, {skipped_games} games without a winner) "
                         f"— hit --max-samples cap"
                     )
-                    return X[:written], y[:written], w[:written]
+                    if use_llama:
+                        return X[:written], y[:written], w[:written], ll[:written], lm[:written]
+                    return X[:written], y[:written], w[:written], None, None
 
                 if (written + chunk_pos) >= capacity:
                     # Estimate was low — flush and grow the device tensors
@@ -343,15 +398,31 @@ def load_simulation_data_chunked(
                     X = torch.cat([X, extra_X], dim=0)
                     y = torch.cat([y, extra_y], dim=0)
                     w = torch.cat([w, extra_w], dim=0)
+                    if use_llama:
+                        extra_ll = torch.zeros((grow_by,), dtype=dtype, device=device)
+                        extra_lm = torch.zeros((grow_by,), dtype=dtype, device=device)
+                        ll = torch.cat([ll, extra_ll], dim=0)
+                        lm = torch.cat([lm, extra_lm], dim=0)
+                        del extra_ll, extra_lm
                     capacity = X.shape[0]
                     print(f"    capacity grew to {capacity:,}")
                     del extra_X, extra_y, extra_w
 
                 outcome = 1.0 if snap.get("active_player_id") == winner_id else 0.0
                 label, weight = _label_for(outcome, t, T, margin_w, label_mode, gamma)
+                # Write features into the staging row first so we can hash
+                # the same fp32 bytes the labeler hashed (cheaper than
+                # building a temporary numpy array per snapshot).
                 X_buf[chunk_pos] = feats
                 y_buf[chunk_pos] = label
                 w_buf[chunk_pos] = weight
+                if use_llama:
+                    fh = hashlib.sha1(X_buf[chunk_pos].tobytes()).hexdigest()[:16]
+                    score = llama_labels.get(fh)
+                    if score is not None:
+                        ll_buf[chunk_pos] = score
+                        lm_buf[chunk_pos] = 1.0
+                        n_llama_matched += 1
                 chunk_pos += 1
                 if chunk_pos >= chunk_rows:
                     flush_chunk()
@@ -371,14 +442,23 @@ def load_simulation_data_chunked(
         f"  loaded {written:,} snapshots from {games_used:,} games in {elapsed:.1f}s "
         f"(skipped {skipped_lines} bad lines, {skipped_games} games without a winner)"
     )
+    if use_llama:
+        coverage_pct = 100.0 * n_llama_matched / max(1, written)
+        print(
+            f"  llama join: matched {n_llama_matched:,} of {len(llama_labels):,} labels "
+            f"to training rows ({coverage_pct:.2f}% of dataset)"
+        )
 
     if written < n_rows:
         # Trim trailing unused rows (rare — usually n_rows matches exactly)
         X = X[:written]
         y = y[:written]
         w = w[:written]
+        if use_llama:
+            ll = ll[:written]
+            lm = lm[:written]
 
-    return X, y, w
+    return X, y, w, ll, lm
 
 
 def load_simulation_data(
@@ -491,6 +571,23 @@ def train(args: argparse.Namespace) -> int:
 
     device = pick_device()
     dtype = torch.bfloat16 if args.dtype == "bf16" else torch.float32
+
+    llama_labels: Optional[dict[str, float]] = None
+    if args.llama_labels:
+        ll_path = Path(args.llama_labels)
+        if not ll_path.exists():
+            print(f"--llama-labels file not found: {ll_path}", file=sys.stderr)
+            return 1
+        print(f"Loading llama labels from {ll_path}...")
+        llama_labels = load_llama_labels(ll_path)
+        print(f"  loaded {len(llama_labels):,} llama-scored positions")
+        if args.no_chunked:
+            print(
+                "--llama-labels requires the chunked loader (drop --no-chunked).",
+                file=sys.stderr,
+            )
+            return 1
+
     print(f"Loading simulation data from {sim_path}...")
     n_total: int = 0  # set by both loader paths, used by export_weights for trainedGames
 
@@ -499,6 +596,11 @@ def train(args: argparse.Namespace) -> int:
     # by default, which pre-allocates the device tensor and streams the
     # JSONL into it via 1M-row staging buffers. The legacy path is still
     # accessible via --no-chunked for debugging.
+    ll_train: Optional[torch.Tensor] = None
+    lm_train: Optional[torch.Tensor] = None
+    ll_val: Optional[torch.Tensor] = None
+    lm_val: Optional[torch.Tensor] = None
+
     if args.no_chunked:
         X_np, y_np, w_np = load_simulation_data(
             sim_path,
@@ -524,13 +626,14 @@ def train(args: argparse.Namespace) -> int:
         w_val = torch.from_numpy(w_np[val_idx]).to(device=device, dtype=dtype)
         del X_np, y_np, w_np
     else:
-        X_all, y_all, w_all = load_simulation_data_chunked(
+        X_all, y_all, w_all, ll_all, lm_all = load_simulation_data_chunked(
             sim_path,
             label_mode=args.label_mode,
             gamma=args.gamma,
             device=device,
             dtype=dtype,
             max_samples=args.max_samples,
+            llama_labels=llama_labels,
         )
         n_total = X_all.shape[0]
         if n_total == 0:
@@ -553,8 +656,13 @@ def train(args: argparse.Namespace) -> int:
         X_val = X_all[val_perm].contiguous()
         y_val = y_all[val_perm].contiguous()
         w_val = w_all[val_perm].contiguous()
+        if ll_all is not None and lm_all is not None:
+            ll_train = ll_all[train_perm].contiguous()
+            lm_train = lm_all[train_perm].contiguous()
+            ll_val = ll_all[val_perm].contiguous()
+            lm_val = lm_all[val_perm].contiguous()
         # X_all/y_all/w_all are now redundant — free their memory before training
-        del X_all, y_all, w_all, perm_all, train_perm, val_perm
+        del X_all, y_all, w_all, ll_all, lm_all, perm_all, train_perm, val_perm
 
     model = build_model(args.model_size).to(device=device, dtype=dtype)
     n_params = sum(p.numel() for p in model.parameters())
@@ -599,13 +707,26 @@ def train(args: argparse.Namespace) -> int:
             xb = X_train[idx]
             yb = y_train[idx]
             wb = w_train[idx]
+            llb = ll_train[idx] if ll_train is not None else None
+            lmb = lm_train[idx] if lm_train is not None else None
 
             if use_autocast:
                 with torch.autocast(device_type="mps", dtype=torch.float16):
                     logits = model(xb)
                     # BCE with logits expects fp32 targets even under autocast
                     per = F.binary_cross_entropy_with_logits(logits.float(), yb.float(), reduction="none")
-                    loss = (per * wb.float()).mean()
+                    bce_loss = (per * wb.float()).mean()
+                    if llb is not None:
+                        # MSE on probabilities (sigmoid). Mask out positions
+                        # without a llama label so they don't contribute zeros
+                        # that would bias the loss toward 0.5.
+                        probs = torch.sigmoid(logits.float())
+                        sq = (probs - llb.float()) ** 2
+                        denom = lmb.float().sum().clamp(min=1.0)
+                        llama_mse = (sq * lmb.float()).sum() / denom
+                        loss = (1.0 - args.llama_weight) * bce_loss + args.llama_weight * llama_mse
+                    else:
+                        loss = bce_loss
             else:
                 logits = model(xb)
                 # bf16 path: BCE-with-logits is numerically fine in bf16 because
@@ -613,7 +734,15 @@ def train(args: argparse.Namespace) -> int:
                 # the per-sample weight to match the logits dtype to avoid the
                 # implicit promotion that happens when shapes line up.
                 per = F.binary_cross_entropy_with_logits(logits, yb, reduction="none")
-                loss = (per * wb).mean()
+                bce_loss = (per * wb).mean()
+                if llb is not None:
+                    probs = torch.sigmoid(logits)
+                    sq = (probs - llb) ** 2
+                    denom = lmb.sum().clamp(min=1.0)
+                    llama_mse = (sq * lmb).sum() / denom
+                    loss = (1.0 - args.llama_weight) * bce_loss + args.llama_weight * llama_mse
+                else:
+                    loss = bce_loss
 
             optim.zero_grad()
             loss.backward()
@@ -725,6 +854,14 @@ def main() -> int:
                         help="Use the legacy in-memory list-build loader instead "
                              "of the chunked streaming loader. Don't use for "
                              "datasets >10M snapshots.")
+    parser.add_argument("--llama-labels", default=None,
+                        help="Path to scripts/llama_label_positions.py output JSONL. "
+                             "When set, the loader hashes every snapshot and joins "
+                             "matching positions to a llama-distillation MSE loss.")
+    parser.add_argument("--llama-weight", type=float, default=0.3,
+                        help="Mix factor for the llama MSE term: "
+                             "loss = (1-w)*BCE + w*MSE(sigmoid(pred), llama_score). "
+                             "Default 0.3 — llama is teacher, not ground truth.")
     args = parser.parse_args()
     return train(args)
 
