@@ -14,6 +14,11 @@ interface DailyDeal {
   discountCost: number;
 }
 
+// Bundle pricing — must match server/index.ts PACK_BUNDLE_COSTS table.
+// Single source-of-truth lives on the server; this is just for the UI
+// disabled states / labels.
+const BUNDLE_COSTS: Record<number, number> = { 1: 100, 5: 450, 10: 800 };
+
 export function Shop({ onBack, onOpenPacks }: ShopProps) {
   const [gold, setGold] = useState(0);
   const [dust, setDust] = useState(0);
@@ -28,12 +33,15 @@ export function Shop({ onBack, onOpenPacks }: ShopProps) {
     return () => { socket.off('inventory-update', onInventory); };
   }, []);
 
-  const handleBuyPack = () => {
-    if (gold < 100) return;
-    socket.emit('open-pack');
-    // The pack opening screen handles the result
+  // Generic bundle handler — server validates the count and total cost
+  // against PACK_BUNDLE_COSTS, so the client can't send count=1000.
+  const handleBuyBundle = (count: number) => {
+    const cost = BUNDLE_COSTS[count];
+    if (cost == null || gold < cost) return;
+    socket.emit('open-pack', { count });
     onOpenPacks();
   };
+  const handleBuyPack = () => handleBuyBundle(1);
 
   return (
     <div className="flex flex-col h-screen bg-gradient-to-b from-stone-950 via-stone-900 to-stone-950">
@@ -78,7 +86,7 @@ export function Shop({ onBack, onOpenPacks }: ShopProps) {
 
               {/* 5 Pack Bundle */}
               <button
-                onClick={() => { /* TODO: buy 5 packs */ }}
+                onClick={() => handleBuyBundle(5)}
                 disabled={gold < 450}
                 className="bg-stone-800/80 border-2 border-amber-600/40 rounded-2xl p-6 text-center hover:border-amber-500 hover:bg-stone-800 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed group relative"
               >
@@ -99,7 +107,7 @@ export function Shop({ onBack, onOpenPacks }: ShopProps) {
 
               {/* 10 Pack Bundle */}
               <button
-                onClick={() => { /* TODO: buy 10 packs */ }}
+                onClick={() => handleBuyBundle(10)}
                 disabled={gold < 800}
                 className="bg-stone-800/80 border-2 border-purple-600/40 rounded-2xl p-6 text-center hover:border-purple-500 hover:bg-stone-800 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed group relative"
               >

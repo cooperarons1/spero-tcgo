@@ -1480,52 +1480,77 @@ io.on('connection', (socket) => {
 
   // ── Pack Opening ──
 
-  socket.on('open-pack', async () => {
+  // Bundle pricing for multi-pack purchases. The single-pack handler
+  // below normalizes payload?.count to one of these tiers and applies
+  // the corresponding total cost. Keeping the table server-side prevents
+  // a malicious client from sending count=10, cost=100.
+  const PACK_BUNDLE_COSTS: Record<number, number> = {
+    1: 100,
+    5: 450,   // 10% off
+    10: 800,  // 20% off
+  };
+
+  socket.on('open-pack', async (payload?: { count?: number }) => {
     try {
-      const { openPack, PACK_COST, DUST_VALUES } = await import('./packs.js');
+      const { openPack, DUST_VALUES } = await import('./packs.js');
+      // Validate the requested count against the bundle table — anything
+      // not in the table falls back to a single pack so we never accept
+      // a hand-crafted "count: 1000" from a client.
+      const requestedCount = payload?.count ?? 1;
+      const count = (requestedCount in PACK_BUNDLE_COSTS) ? requestedCount : 1;
+      const totalCost = PACK_BUNDLE_COSTS[count];
+
       const userRef = adminDb.collection('users').doc(uid);
       const userDoc = await userRef.get();
       const userData = userDoc.data() ?? {};
       const gold = userData.gold ?? 0;
 
-      if (gold < PACK_COST) {
+      if (gold < totalCost) {
         socket.emit('pack-error', 'Not enough gold');
         return;
       }
 
       const ownedCards: Record<string, number> = userData.ownedCards ?? {};
-      const packsSinceLegendary = userData.packsSinceLegendary ?? 0;
-      const packsSinceEpic = userData.packsSinceEpic ?? 0;
-
-      const result = openPack(ownedCards, packsSinceLegendary, packsSinceEpic);
-
-      // Update owned cards and calculate dust from extras
+      let packsSinceLegendary = userData.packsSinceLegendary ?? 0;
+      let packsSinceEpic = userData.packsSinceEpic ?? 0;
       let dustGained = 0;
-      for (const card of result.cards) {
-        const current = ownedCards[card.cardCode] ?? 0;
-        const max = card.rarity === 'LEGENDARY' ? 1 : 2;
-        if (current < max) {
-          ownedCards[card.cardCode] = current + 1;
-        } else {
-          // Extra card — auto-disenchant to dust
-          dustGained += DUST_VALUES[card.rarity] ?? 5;
+      const allCards: { cardCode: string; rarity: string; isNew: boolean }[] = [];
+
+      // Open `count` packs sequentially. Each pack updates the pity
+      // counters and ownedCards in place so the next pack in the bundle
+      // sees the correct state — e.g. opening 10 packs at once with a
+      // legendary on pack 3 resets the pity counter for packs 4-10.
+      for (let i = 0; i < count; i++) {
+        const result = openPack(ownedCards, packsSinceLegendary, packsSinceEpic);
+        for (const card of result.cards) {
+          const current = ownedCards[card.cardCode] ?? 0;
+          const max = card.rarity === 'LEGENDARY' ? 1 : 2;
+          if (current < max) {
+            ownedCards[card.cardCode] = current + 1;
+          } else {
+            // Extra card — auto-disenchant to dust
+            dustGained += DUST_VALUES[card.rarity] ?? 5;
+          }
+          allCards.push(card);
         }
+        packsSinceLegendary = result.packsSinceLegendary;
+        packsSinceEpic = result.packsSinceEpic;
       }
 
       await userRef.set({
         ...userData,
-        gold: gold - PACK_COST,
+        gold: gold - totalCost,
         dust: (userData.dust ?? 0) + dustGained,
         ownedCards,
-        packsOpened: (userData.packsOpened ?? 0) + 1,
-        packsSinceLegendary: result.packsSinceLegendary,
-        packsSinceEpic: result.packsSinceEpic,
+        packsOpened: (userData.packsOpened ?? 0) + count,
+        packsSinceLegendary,
+        packsSinceEpic,
       }, { merge: true });
 
       socket.emit('pack-opened', {
-        cards: result.cards,
+        cards: allCards,
         dustGained,
-        newGold: gold - PACK_COST,
+        newGold: gold - totalCost,
         newDust: (userData.dust ?? 0) + dustGained,
       });
     } catch (err) {
