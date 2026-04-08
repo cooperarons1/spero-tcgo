@@ -1273,6 +1273,16 @@ export default function GameBoard({
     dy: number;
     key: number;
   } | null>(null);
+  // Card showcase: when the opponent plays a card, briefly show it
+  // enlarged at center-screen so the player can read what just
+  // happened. Driven by detecting new PLAY log entries from the
+  // opponent (see useEffect below). Auto-clears after the
+  // card-showcase keyframe finishes (~1.6s).
+  const [opponentCardShowcase, setOpponentCardShowcase] = useState<{
+    cardCode: string;
+    key: number;
+  } | null>(null);
+  const prevLogIdRef = useRef<number>(-1);
   const prevOpHeroPowerUsed = useRef(gs.opponent.heroPowerUsed);
   const [weaponEquipFlash, setWeaponEquipFlash] = useState(false);
   const prevWeaponRef = useRef(gs.myWeapon);
@@ -1314,6 +1324,43 @@ export default function GameBoard({
       setTurnBannerKey(k => k + 1);
     }
   }, [gs.turnNumber]);
+
+  // ─── Opponent card showcase (detect new PLAY log entries) ───
+  // The server emits one PLAY log entry per card the opponent plays,
+  // tagged with cardCode and the opponent's playerIndex. We watch
+  // gs.log for new entries since the last render and queue a center-
+  // screen showcase for the most recent one. Spectators see both
+  // sides' plays; the opponent-vs-self check is skipped in that case
+  // since both players are "opponents" from the spectator's view.
+  useEffect(() => {
+    if (!gs.log || gs.log.length === 0) return;
+    // Initialize on first render so we don't replay the entire game
+    // log as a flurry of showcases.
+    if (prevLogIdRef.current === -1) {
+      prevLogIdRef.current = gs.log[gs.log.length - 1].id;
+      return;
+    }
+    let mostRecentPlay: { cardCode: string; id: number } | null = null;
+    for (const entry of gs.log) {
+      if (entry.id <= prevLogIdRef.current) continue;
+      const isOpponentPlay =
+        entry.category === 'PLAY' &&
+        entry.cardCode &&
+        entry.playerIndex !== null &&
+        entry.playerIndex !== gs.myPlayerIndex;
+      if (isOpponentPlay) {
+        mostRecentPlay = { cardCode: entry.cardCode!, id: entry.id };
+      }
+    }
+    prevLogIdRef.current = gs.log[gs.log.length - 1].id;
+    if (mostRecentPlay) {
+      setOpponentCardShowcase({ cardCode: mostRecentPlay.cardCode, key: Date.now() });
+      // 1700ms = card-showcase keyframe duration (1.6s) + a 100ms tail
+      // to avoid clipping the trailing fade.
+      const t = setTimeout(() => setOpponentCardShowcase(null), 1700);
+      return () => clearTimeout(t);
+    }
+  }, [gs.log, gs.myPlayerIndex]);
 
   // ─── Turn timer warning (last 20 seconds) ───
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
@@ -2148,6 +2195,44 @@ export default function GameBoard({
       <FloatingNumbers numbers={diff.floatingNumbers} />
       <DeathAnimation deadMinions={diff.deadMinions} />
       <SpellCastEffect spell={activeSpell} onComplete={clearSpell} />
+
+      {/* Opponent card showcase — center-screen card spotlight when
+          opponent plays a card. Reads gs.log for new PLAY entries and
+          renders the card def with art + name + cost so the player
+          knows exactly what just happened. */}
+      {opponentCardShowcase && (() => {
+        const def = getCard(opponentCardShowcase.cardCode);
+        if (!def) return null;
+        return (
+          <div
+            key={opponentCardShowcase.key}
+            className="pointer-events-none fixed top-1/2 left-1/2 z-[60] animate-card-showcase"
+          >
+            <div className="w-56 h-72 rounded-2xl border-4 border-amber-300 shadow-[0_0_60px_16px_rgba(245,158,11,0.7)] bg-gradient-to-b from-stone-800 via-stone-900 to-black overflow-hidden flex flex-col">
+              <div className="absolute top-2 left-2 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-700 border-2 border-blue-200 text-lg font-extrabold text-white shadow-lg">
+                {def.manaCost}
+              </div>
+              <div className="w-full h-44 mt-3 mx-auto rounded overflow-hidden bg-stone-700">
+                <CardArt cardCode={opponentCardShowcase.cardCode} className="w-full h-full" />
+              </div>
+              <div className="px-3 pt-2 text-center">
+                <div className="text-amber-200 font-extrabold text-base leading-tight drop-shadow">{def.name}</div>
+                <div className="text-amber-100/70 text-[11px] leading-tight mt-1 line-clamp-3">{def.text}</div>
+              </div>
+              {def.type === 'MINION' && (
+                <div className="flex justify-between px-4 pb-2 mt-auto">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-yellow-700 border-2 border-yellow-300 text-sm font-extrabold text-white shadow">
+                    {def.attack}
+                  </span>
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-red-800 border-2 border-red-300 text-sm font-extrabold text-white shadow">
+                    {def.health}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Drop slide ghost — bridges hand→board on minion plays */}
       {dropSlideGhost && (
