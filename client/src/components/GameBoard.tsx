@@ -817,8 +817,11 @@ function HeroPortrait({
         </div>
       )}
       {/* Weapon (left side) — Hearthstone-style circular with art */}
+      {/* key={weapon.cardCode} forces a remount when the equipped weapon
+          changes, so the slide-in animation re-fires. Without the key,
+          replacing one weapon with another would just snap the art. */}
       {weapon && (
-        <div className="relative">
+        <div className={`relative ${weaponEquipFlash ? 'animate-weapon-slide-in' : ''}`} key={weapon.cardCode}>
           <div className={`h-16 w-16 md:h-24 md:w-24 rounded-full overflow-hidden border-[3px] bg-stone-900
             ${canHeroAttack ? 'border-green-400 shadow-[0_0_16px_4px_rgba(34,197,94,0.6)]' : 'border-stone-500'}
             ${weaponEquipFlash ? 'animate-weapon-equip' : ''}`}
@@ -2331,12 +2334,17 @@ export default function GameBoard({
           <DeckPile count={gs.opponentDeckCount} graveyardCount={gs.opponent.graveyardCount} />
         </div>
         {/* End Turn — Hearthstone-style wide pill */}
+        {/* When the timer drops to <=5s on my turn, swap to a red urgent
+            pulse so the player has unmissable peripheral feedback that
+            they're about to time out. */}
         <button
           onClick={handleEndTurn}
           disabled={!isMyTurn || !isPlaying}
           className={`w-28 h-14 rounded-xl font-bold text-sm text-center transition-all border-2
             ${isMyTurn && isPlaying
-              ? 'bg-gradient-to-b from-amber-400 to-yellow-600 text-stone-900 border-amber-300 shadow-[0_0_24px_rgba(234,179,8,0.5)] hover:from-amber-300 hover:to-yellow-500 active:scale-95 cursor-pointer'
+              ? (timeLeft !== null && timeLeft <= 5
+                ? 'bg-gradient-to-b from-red-500 to-red-700 text-white border-red-300 hover:from-red-400 hover:to-red-600 active:scale-95 cursor-pointer animate-end-turn-urgent'
+                : 'bg-gradient-to-b from-amber-400 to-yellow-600 text-stone-900 border-amber-300 shadow-[0_0_24px_rgba(234,179,8,0.5)] hover:from-amber-300 hover:to-yellow-500 active:scale-95 cursor-pointer')
               : 'bg-stone-700/80 text-stone-500 border-stone-600 cursor-not-allowed'}
           `}
         >
@@ -2346,7 +2354,7 @@ export default function GameBoard({
           <div className="w-20 h-1.5 rounded-full bg-stone-700 overflow-hidden">
             <div
               className={`h-full rounded-full transition-all duration-200 ${
-                timeLeft <= 5 ? 'bg-red-500 animate-pulse' : timeLeft <= 10 ? 'bg-orange-500' : 'bg-yellow-500'
+                timeLeft <= 5 ? 'bg-red-500 animate-timer-urgent' : timeLeft <= 10 ? 'bg-orange-500' : 'bg-yellow-500'
               }`}
               style={{ width: `${(timeLeft / 20) * 100}%` }}
             />
@@ -2382,7 +2390,7 @@ export default function GameBoard({
       {/* MY AREA (entire bottom half is drop zone) */}
       {/* ═══════════════════════════════════════════ */}
       <div
-        className={`flex flex-1 min-h-0 flex-col items-center px-2 md:px-4 pt-0 pb-1 transition-all ${dropZoneActive ? 'bg-green-500/10 ring-2 ring-inset ring-green-400/30' : ''}`}
+        className={`flex flex-1 min-h-0 flex-col items-center px-2 md:px-4 pt-0 pb-1 transition-all ${dropZoneActive ? 'animate-drop-zone-pulse ring-2 ring-inset ring-green-400/40' : ''}`}
       >
         {/* My locations */}
         {gs.myLocations && gs.myLocations.length > 0 && (
