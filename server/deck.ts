@@ -14,6 +14,31 @@ export function resetInstanceCounter(): void {
   nextInstanceId = 1;
 }
 
+/**
+ * Monotonic ID factory shared by combat.ts (board minions), actions.ts
+ * (secrets, locations) and any other code path that previously used
+ * `Date.now()-${Math.random().toString(36).slice(2,6)}` style IDs.
+ *
+ * The old approach had only ~1.6M states of randomness in the suffix.
+ * Under heavy parallel simulation that birthday-collides on the order of
+ * tens of thousands of games and silently corrupts findMinion() lookups
+ * (the wrong minion takes damage). This counter is process-local and
+ * monotonic — collisions are impossible within a process. Across forked
+ * worker processes IDs may collide, but each worker has its own GameState
+ * universe so cross-worker collisions don't matter.
+ *
+ * Reset by createGame() (via resetInstanceCounter + resetTransientCounters)
+ * so unit tests and back-to-back simulations stay deterministic.
+ */
+let nextTransientId = 1;
+export function nextTransientInstanceId(prefix: string): string {
+  return `${prefix}-${nextTransientId++}`;
+}
+
+export function resetTransientCounters(): void {
+  nextTransientId = 1;
+}
+
 /** Create two starter decks (Jimmy vs Tala by default) */
 export function createTwoDecks(): [CardInstance[], CardInstance[]] {
   const jimmyDeck = STARTER_DECKS.find(d => d.id === 'starter-jimmy')!;

@@ -32,11 +32,28 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const WEIGHTS_PATH = path.join(__dirname, '..', 'data', 'ai-weights.json');
 const DECISIONS_PATH = path.join(__dirname, '..', 'data', 'teacher-decisions.jsonl');
 
-// Phase 3.3: when SIM_HISTORY_FILE is set, dump per-turn feature snapshots
-// for the neural board evaluator (scripts/train_neural_eval.py). Off by
-// default so existing simulation runs are unchanged.
-const SIM_HISTORY_FILE = process.env.SIM_HISTORY_FILE
+// Phase 3.3 + Phase 4 — when SIM_HISTORY_FILE is set, dump per-turn feature
+// snapshots for the neural board evaluator (scripts/train_neural_eval.py).
+// Off by default so existing simulation runs are unchanged.
+//
+// C3: each worker writes to its own shard. The shard suffix comes from
+// SIM_SHARD_ID (set by scripts/parallel-simulate.ts) when running under the
+// parallel coordinator, or falls back to process.pid for ad-hoc single-worker
+// runs. Using an explicit ID instead of pid is required because `npx tsx`
+// forks twice — the coordinator can't know the inner pid up front, so it
+// passes a deterministic worker ID via env instead.
+//
+// `fs.appendFileSync` is only POSIX-atomic up to PIPE_BUF (4096B) and our
+// records can hit 15-30KB, so multi-writer to the same file is unsafe.
+// scripts/parallel-simulate.ts concatenates the per-shard files after the run.
+const _rawHistoryPath = process.env.SIM_HISTORY_FILE
   ? path.resolve(process.env.SIM_HISTORY_FILE)
+  : null;
+const _shardSuffix = process.env.SIM_SHARD_ID ?? String(process.pid);
+const SIM_HISTORY_FILE = _rawHistoryPath
+  ? (process.env.SIM_HISTORY_SHARD === '1'
+      ? `${_rawHistoryPath}.${_shardSuffix}.jsonl`
+      : _rawHistoryPath)
   : null;
 if (SIM_HISTORY_FILE) {
   console.log(`[sim] Dumping per-turn snapshots to ${SIM_HISTORY_FILE} (FEATURE_DIM=${FEATURE_DIM})`);
@@ -49,11 +66,18 @@ interface SimSnapshot {
 }
 interface SimRecord {
   winner_id: string | null;
+  // Phase 4 — needed for margin-of-victory weighting in train_neural_eval.py.
+  // The final life of the winner; useful as a "decisiveness" signal.
+  final_winner_life?: number;
   snapshots: SimSnapshot[];
 }
 
 function appendSimRecord(record: SimRecord): void {
   if (!SIM_HISTORY_FILE) return;
+  // C4: skip games with no winner (MAX_TURNS draws). They produce
+  // null-labeled rows that the trainer would have to filter out anyway,
+  // and the snapshots are positionally meaningless without a known outcome.
+  if (record.winner_id == null) return;
   try {
     fs.appendFileSync(SIM_HISTORY_FILE, JSON.stringify(record) + '\n', 'utf-8');
   } catch (e) {
@@ -64,8 +88,19 @@ function appendSimRecord(record: SimRecord): void {
 const args = process.argv.slice(2);
 const hoursIdx = args.indexOf('--hours');
 const hours = hoursIdx >= 0 ? parseFloat(args[hoursIdx + 1] || '0') : 0;
-const gameCount = hours > 0 ? Infinity : parseInt(args[args.indexOf('--games') + 1] || '10');
+// SIM_GAMES env var (set by parallel-simulate.ts coordinator) takes precedence
+// over --games CLI arg so each forked worker can be told how many games to run
+// without re-templating the argv list.
+const _envGames = process.env.SIM_GAMES ? parseInt(process.env.SIM_GAMES, 10) : NaN;
+const gameCount = hours > 0
+  ? Infinity
+  : (Number.isFinite(_envGames) ? _envGames : parseInt(args[args.indexOf('--games') + 1] || '10'));
 const endTime = hours > 0 ? Date.now() + hours * 3600_000 : Infinity;
+// SIM_SEED env var (also set by the coordinator) is added to the worker's
+// hash so two workers with the same wall-clock start time still diverge.
+// Currently informational — Math.random() isn't seedable in plain Node — but
+// we surface it in logs so the user can correlate shards to runs.
+const SIM_SEED = process.env.SIM_SEED ?? '';
 const verbose = args.includes('--verbose');
 const learnMode = args.includes('--learn');
 const learnCycles = parseInt(args[args.indexOf('--cycles') + 1] || '3');
@@ -85,8 +120,17 @@ const teacherPercent = teacherPercentIdx >= 0 ? parseInt(args[teacherPercentIdx 
 // ─── Random Deck Builder ───
 // Builds a legal 30-card deck for a hero class from the full card pool.
 // Rules: class + neutral cards only, max 2 copies (1 for legendary), 30 cards total.
-// Uses a mana curve bias to build reasonable decks.
-const MANA_CURVE_WEIGHTS = [0.05, 0.15, 0.2, 0.2, 0.15, 0.1, 0.08, 0.04, 0.02, 0.005, 0.005];
+//
+// D3: instead of one fixed mana curve we sample one of three archetypes per
+// random deck (aggro / midrange / control). Without this, every random deck
+// is forced toward the same midrange shape and the trained neural eval never
+// sees fast or slow game distributions.
+const CURVE_MIDRANGE = [0.05, 0.15, 0.20, 0.20, 0.15, 0.10, 0.08, 0.04, 0.02, 0.005, 0.005];
+const CURVE_AGGRO    = [0.10, 0.30, 0.25, 0.18, 0.10, 0.04, 0.02, 0.005, 0.0025, 0.0025, 0.0];
+const CURVE_CONTROL  = [0.02, 0.06, 0.10, 0.14, 0.16, 0.16, 0.14, 0.10, 0.06, 0.03, 0.03];
+const CURVE_PROFILES = [CURVE_AGGRO, CURVE_MIDRANGE, CURVE_CONTROL] as const;
+// Kept for back-compat with any external imports (none currently exist).
+const MANA_CURVE_WEIGHTS = CURVE_MIDRANGE;
 
 function buildRandomDeck(heroClass: HeroClass): { heroClass: HeroClass; cards: string[] } {
   const pool = getCardsByClassAndNeutral(heroClass).filter(c =>
@@ -96,9 +140,12 @@ function buildRandomDeck(heroClass: HeroClass): { heroClass: HeroClass; cards: s
   const cards: string[] = [];
   const counts = new Map<string, number>();
 
-  // Weighted random selection biased toward good mana curve
+  // D3: pick a curve archetype uniformly per deck
+  const curve = CURVE_PROFILES[Math.floor(Math.random() * CURVE_PROFILES.length)];
+
+  // Weighted random selection biased toward the chosen mana curve
   const weightedPool = pool.map(c => {
-    const w = MANA_CURVE_WEIGHTS[Math.min(c.manaCost, 10)] ?? 0.005;
+    const w = curve[Math.min(c.manaCost, 10)] ?? 0.005;
     // Prefer class cards slightly over neutral
     const classBonus = c.heroClass === heroClass ? 1.5 : 1.0;
     return { card: c, weight: w * classBonus };
@@ -128,9 +175,12 @@ function buildRandomDeck(heroClass: HeroClass): { heroClass: HeroClass; cards: s
   return { heroClass, cards };
 }
 
-// 50% chance to use random deck, 50% starter deck
+// D2: drop starter-deck rate from 50% → 15% so the bulk of training data
+// comes from varied random decks. With 9 starter decks the old 50% rate
+// produced ~5-10K identical-deck games per 100K runs — very narrow data.
+const STARTER_DECK_RATE = 0.15;
 function pickDeck(heroClass: HeroClass): { heroClass: HeroClass; cards: string[] } {
-  if (Math.random() < 0.5) {
+  if (Math.random() >= STARTER_DECK_RATE) {
     return buildRandomDeck(heroClass);
   }
   const starter = STARTER_DECKS.find(d => d.heroClass === heroClass);
@@ -265,6 +315,10 @@ function getOrCreateCardTracker(cardCode: string): CardTracker {
 let wins = [0, 0];
 let totalTurns = 0;
 let errors = 0;
+// N3: track how many games hit the MAX_TURNS safety cap with no winner.
+// These are silently dropped from the snapshot file (C4) and from training
+// data; surfacing the count tells us how much data we're throwing away.
+let timeoutDraws = 0;
 const MAX_TURNS = 80;
 
 let lastProgressTime = Date.now();
@@ -300,6 +354,16 @@ for (let g = 0; g < gameCount && Date.now() < endTime; g++) {
     const isTeacherGame = teacherPercent >= 100 ? useTeacher :
       teacherPercent > 0 ? (Math.random() * 100) < teacherPercent : false;
 
+    // D1: random 50/50 swap of which physical slot the teacher inhabits.
+    // Without this, deck1 → ai-1 → slot 0 always, AND `isTeacherPlayer = ...
+    // && myIdx === 0` puts the teacher exclusively in slot 0. The neural eval
+    // would learn `active_player_id == 'ai-1'` correlates with stronger play
+    // — a hidden positional bias that has nothing to do with game state.
+    const teacherInSlot1 = isTeacherGame && Math.random() < 0.5;
+    if (teacherInSlot1) {
+      [deck1, deck2] = [deck2, deck1];
+    }
+
     const game = createGame(
       [
         { id: 'ai-1', name: 'Bot Alpha', heroClass: deck1.heroClass },
@@ -307,6 +371,10 @@ for (let g = 0; g < gameCount && Date.now() < endTime; g++) {
       ],
       { deckLists: [deck1.cards, deck2.cards] }
     );
+    // The teacher always plays "ai-1" historically; with the swap above,
+    // the teacher is whichever slot ended up holding the original deck1.
+    // teacherSlotIdx is the index of the player slot the teacher controls.
+    const teacherSlotIdx: 0 | 1 = teacherInSlot1 ? 1 : 0;
 
     // Smart mulligan using AI logic (teacher for player 1 if in teacher mode)
     let mull1: boolean[];
@@ -371,8 +439,10 @@ for (let g = 0; g < gameCount && Date.now() < endTime; g++) {
         }
       }
 
-      // Determine if this player uses teacher AI
-      const isTeacherPlayer = teacherVsTeacher || ((isTeacherGame || useTeacher) && myIdx === 0);
+      // Determine if this player uses teacher AI.
+      // D1 — uses teacherSlotIdx (randomized per game) instead of hardcoded 0,
+      // so the teacher inhabits both physical slots equally over a long run.
+      const isTeacherPlayer = teacherVsTeacher || ((isTeacherGame || useTeacher) && myIdx === teacherSlotIdx);
 
       if (isTeacherPlayer) {
         // Teacher AI: lookahead + permutation search (handles cards, attacks, hero power)
@@ -467,9 +537,16 @@ for (let g = 0; g < gameCount && Date.now() < endTime; g++) {
       endTurn(game, me.playerId);
     }
 
-    // Phase 3.3: persist the per-turn snapshots labeled with the actual winner
+    // Phase 3.3 + Phase 4: persist per-turn snapshots labeled with the
+    // actual winner AND with the winner's final life (margin-of-victory
+    // signal for the trainer). C4 fix in appendSimRecord drops null-winner
+    // games entirely.
     if (simRecord) {
       simRecord.winner_id = game.winner ?? null;
+      if (game.winner) {
+        const widx = game.players.findIndex(p => p.playerId === game.winner);
+        if (widx >= 0) simRecord.final_winner_life = game.players[widx].health;
+      }
       appendSimRecord(simRecord);
     }
 
@@ -523,6 +600,10 @@ for (let g = 0; g < gameCount && Date.now() < endTime; g++) {
         console.log(`Game ${g + 1}: ${game.players[winnerIdx].playerName} (${winnerClass}) beats ${loserClass} on turn ${game.turnNumber} via ${game.winReason}`);
       }
     } else {
+      // N3: surface MAX_TURNS draw count in printResults so we can see how
+      // much data the C4 winner-null filter is dropping. Useful regression
+      // signal — if this spikes after an engine change, something's wrong.
+      timeoutDraws++;
       if (verbose) console.log(`Game ${g + 1}: Draw (max turns reached)`);
     }
   } catch (err) {
@@ -610,6 +691,7 @@ function printResults() {
   console.log(`Bot Alpha wins: ${wins[0]}/${totalPlayed} (${((wins[0] / totalPlayed) * 100).toFixed(1)}%)`);
   console.log(`Bot Beta wins:  ${wins[1]}/${totalPlayed} (${((wins[1] / totalPlayed) * 100).toFixed(1)}%)`);
   console.log(`Draws/Errors:   ${totalPlayed - decided}`);
+  console.log(`Timeout draws:  ${timeoutDraws} (MAX_TURNS reached, dropped from training set)`);
   console.log(`Avg turns:      ${decided > 0 ? (totalTurns / decided).toFixed(1) : 'N/A'}`);
   console.log(`Errors:         ${errors}`);
 

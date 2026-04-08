@@ -1,11 +1,32 @@
 import type { Keyword, BoardMinion } from '../shared/types.js';
 import { getCardDef } from './cards.js';
 
+/**
+ * P2: cache the resolved card definition on the minion the first time it's
+ * looked up. The hot AI loop calls minionHasKeyword thousands of times per
+ * turn (taunt checks, divine shield checks, sort comparators) and each call
+ * was doing a fresh Map lookup + def access. The closure here keeps things
+ * type-safe without polluting BoardMinion's public type.
+ */
+function getCardDefCached(minion: BoardMinion): ReturnType<typeof getCardDef> {
+  // Stash on a hidden property; non-enumerable so JSON.stringify ignores it.
+  const m = minion as BoardMinion & { __def?: ReturnType<typeof getCardDef> };
+  if (m.__def) return m.__def;
+  const def = getCardDef(minion.cardCode);
+  Object.defineProperty(m, '__def', {
+    value: def,
+    enumerable: false,
+    writable: true,
+    configurable: true,
+  });
+  return def;
+}
+
 /** Check if a minion currently has a keyword (accounting for silence) */
 export function minionHasKeyword(minion: BoardMinion, keyword: Keyword): boolean {
   if (minion.isSilenced) return false;
 
-  const def = getCardDef(minion.cardCode);
+  const def = getCardDefCached(minion);
   if (def.keywords.includes(keyword)) return true;
 
   // Check enchantments for added keywords

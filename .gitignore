@@ -6,3 +6,16 @@ dist/
 .env
 .env.*
 .env.local
+
+# Phase 4 — generated training data and per-shard JSONLs (huge, regenerated
+# from scripts/parallel-simulate.ts on demand). The compact, ship-target
+# weights JSON IS committed; the multi-hundred-MB raw snapshots are not.
+data/sim-history*.jsonl
+data/sim-history*.jsonl.*
+data/teacher-decisions.jsonl
+data/llama-labels.jsonl
+data/llama-queue.jsonl
+
+# Python venv created by the trainer
+.venv/
+

@@ -1,6 +1,6 @@
 import type { GameState, PlayerState, HeroClass, CardInstance } from '../shared/types.js';
 import { STARTING_HEALTH, MAX_MANA, TURN_TIMEOUT_MS } from '../shared/types.js';
-import { createDeckFromList, createTwoDecks, resetInstanceCounter, makeInstance, shuffle } from './deck.js';
+import { createDeckFromList, createTwoDecks, resetInstanceCounter, resetTransientCounters, makeInstance, shuffle } from './deck.js';
 import { addLog, emptyStats } from './log.js';
 import { drawCard, checkHeroDeath, executeEffect, applyDamageToHero } from './effects.js';
 import { minionHasKeyword } from './keywords.js';
@@ -46,6 +46,7 @@ export function createGame(
   if (playerEntries.length !== 2) throw new Error('Exactly 2 players required');
 
   resetInstanceCounter();
+  resetTransientCounters();
 
   let decks: [CardInstance[], CardInstance[]];
   if (options?.deckLists?.[0] && options?.deckLists?.[1]) {
@@ -222,6 +223,11 @@ export function startTurn(game: GameState): void {
         executeEffect(game, pIdx, mDef.orraChargeEffect);
         minion.currentOrraCharge = 0;
         checkDeaths(game);
+        // C6: Orra Charge can damage either hero. checkDeaths only handles
+        // minions; without checkHeroDeath the game can keep ticking with a
+        // dead hero for one extra turn, mislabeling the active player on
+        // any snapshots taken in that window.
+        checkHeroDeath(game);
       }
     }
   }

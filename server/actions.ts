@@ -2,7 +2,7 @@ import type { GameState, PlayerState, BoardMinion, BoardLocation, Weapon, Effect
 import { MAX_BOARD_SIZE, MAX_HAND_SIZE, HERO_POWER_COST, MAX_SECRETS } from '../shared/types.js';
 import { checkSecrets } from './secrets.js';
 import { getCardDef, getAllCardDefs } from './cards.js';
-import { makeInstance } from './deck.js';
+import { makeInstance, nextTransientInstanceId } from './deck.js';
 import { addLog } from './log.js';
 import { createBoardMinion, checkDeaths } from './combat.js';
 import {
@@ -144,7 +144,7 @@ export function playCard(
       if (player.spellDiscount > 0) player.spellDiscount = 0;
       player.hand.splice(cardIdx, 1);
       player.secrets.push({
-        instanceId: `secret-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        instanceId: nextTransientInstanceId('secret'),
         cardCode: cardInst.cardCode,
         ownerPlayerIndex: pIdx as 0 | 1,
       });
@@ -230,7 +230,7 @@ export function playCard(
 
     // Create BoardLocation
     const location: BoardLocation = {
-      instanceId: `loc-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      instanceId: nextTransientInstanceId('loc'),
       cardCode: cardInst.cardCode,
       durability: def.health,
       maxDurability: def.health,

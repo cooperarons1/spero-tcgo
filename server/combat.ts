@@ -1,7 +1,7 @@
 import type { GameState, BoardMinion, PlayerState, Keyword } from '../shared/types.js';
 import { MAX_BOARD_SIZE } from '../shared/types.js';
 import { getCardDef } from './cards.js';
-import { makeInstance } from './deck.js';
+import { makeInstance, nextTransientInstanceId } from './deck.js';
 import { addLog } from './log.js';
 import { minionHasKeyword, hasActiveTaunt, getTauntMinions } from './keywords.js';
 import { applyDamageToMinion, applyDamageToHero, checkHeroDeath, executeEffect, findMinion } from './effects.js';
@@ -13,7 +13,7 @@ import { checkHeroPowerUpgrade } from './upgrade.js';
 export function createBoardMinion(cardCode: string): BoardMinion {
   const def = getCardDef(cardCode);
   const minion: BoardMinion = {
-    instanceId: `bm-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    instanceId: nextTransientInstanceId('bm'),
     cardCode,
     currentAttack: def.attack,
     currentHealth: def.health,
