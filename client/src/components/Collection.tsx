@@ -566,7 +566,9 @@ export function Collection({ uid, onBack }: CollectionProps) {
             <div className="flex-1 flex items-start justify-center p-3 pt-4 relative">
               <div
                 key={`page-${page}`}
-                className="grid grid-cols-5 gap-2.5 w-full max-w-4xl animate-page-slide-in"
+                className={`grid grid-cols-5 gap-2.5 w-full max-w-4xl ${
+                  pageDir === 'left' ? 'animate-page-slide-in-left' : 'animate-page-slide-in-right'
+                }`}
               >
                 {paginatedCards.map(c => {
                   const count = editingCounts.get(c.cardCode) || 0;

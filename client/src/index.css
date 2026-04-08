@@ -635,14 +635,26 @@ body {
   user-select: none;
 }
 
-/* Collection page slide animation */
-@keyframes page-slide-in {
+/* Collection page slide animation — directional. The Collection
+   component tracks a `pageDir` state when the user navigates pages;
+   we use two keyframes so right-arrow paging slides the new page in
+   from the right, and left-arrow paging slides it in from the left.
+   The non-directional .animate-page-slide-in is kept as an alias for
+   the right-direction case so existing call sites stay working. */
+@keyframes page-slide-in-right {
   from { opacity: 0; transform: translateX(30px); }
   to { opacity: 1; transform: translateX(0); }
 }
-
-.animate-page-slide-in {
-  animation: page-slide-in 0.25s ease-out;
+@keyframes page-slide-in-left {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.animate-page-slide-in,
+.animate-page-slide-in-right {
+  animation: page-slide-in-right 0.25s ease-out;
+}
+.animate-page-slide-in-left {
+  animation: page-slide-in-left 0.25s ease-out;
 }
 
 /* Responsive card scaling breakpoints */
