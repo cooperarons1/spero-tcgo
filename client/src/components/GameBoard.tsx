@@ -1262,6 +1262,17 @@ export default function GameBoard({
   const [activeSpell, setActiveSpell] = useState<{ cardCode: string; targetId: string } | null>(null);
   const [heroPowerFlash, setHeroPowerFlash] = useState(false);
   const [opHeroPowerFlash, setOpHeroPowerFlash] = useState(false);
+  // Transient ghost card that flies from a drop point toward its target
+  // board slot to bridge the visual gap between "released the drag" and
+  // "minion appeared on the board". Cleared after the keyframe finishes.
+  const [dropSlideGhost, setDropSlideGhost] = useState<{
+    cardCode: string;
+    fromX: number;
+    fromY: number;
+    dx: number;
+    dy: number;
+    key: number;
+  } | null>(null);
   const prevOpHeroPowerUsed = useRef(gs.opponent.heroPowerUsed);
   const [weaponEquipFlash, setWeaponEquipFlash] = useState(false);
   const prevWeaponRef = useRef(gs.myWeapon);
@@ -1923,6 +1934,30 @@ export default function GameBoard({
       pendingPlayRef.current.add(cardInstanceId);
       const pos = dropIndex ?? myBoard.length;
       soundManager.play('CARD_PLAY');
+      // Capture the destination point: if we have a board ref, target the
+      // approximate slot center based on insertion position; otherwise fall
+      // back to the board's geometric center. The ghost is rendered fixed
+      // so all coordinates are viewport-relative.
+      const board = boardRef.current?.getBoundingClientRect();
+      let toX = e.clientX;
+      let toY = e.clientY - 80; // a little above the drop point as a safe default
+      if (board) {
+        const slotCount = Math.max(1, myBoard.length + 1);
+        const slotWidth = board.width / slotCount;
+        toX = board.left + slotWidth * (pos + 0.5);
+        toY = board.top + board.height / 2;
+      }
+      setDropSlideGhost({
+        cardCode: card.cardCode!,
+        fromX: e.clientX,
+        fromY: e.clientY,
+        dx: toX - e.clientX,
+        dy: toY - e.clientY,
+        key: Date.now(),
+      });
+      // Auto-clear after the keyframe finishes (slightly longer than the
+      // 0.4s animation to avoid clipping the trailing fade).
+      setTimeout(() => setDropSlideGhost(null), 450);
       actions.playCard(cardInstanceId, pos);
     } else {
       // Spells/weapons dropped on board play without target
@@ -2113,6 +2148,25 @@ export default function GameBoard({
       <FloatingNumbers numbers={diff.floatingNumbers} />
       <DeathAnimation deadMinions={diff.deadMinions} />
       <SpellCastEffect spell={activeSpell} onComplete={clearSpell} />
+
+      {/* Drop slide ghost — bridges hand→board on minion plays */}
+      {dropSlideGhost && (
+        <div
+          key={dropSlideGhost.key}
+          className="pointer-events-none fixed z-50 animate-drop-slide-ghost"
+          style={{
+            left: dropSlideGhost.fromX,
+            top: dropSlideGhost.fromY,
+            // CSS custom properties consumed by the drop-slide-ghost keyframe
+            ['--dx' as string]: `${dropSlideGhost.dx}px`,
+            ['--dy' as string]: `${dropSlideGhost.dy}px`,
+          }}
+        >
+          <div className="w-24 h-24 rounded-xl overflow-hidden border-2 border-amber-300 shadow-[0_0_24px_8px_rgba(245,158,11,0.5)] bg-stone-900">
+            <CardArt cardCode={dropSlideGhost.cardCode} className="w-full h-full" />
+          </div>
+        </div>
+      )}
 
       {/* Spectator banner */}
       {isSpectator && (

@@ -42,9 +42,9 @@ export function AuthScreen({ onSignIn, onSignUp }: AuthScreenProps) {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <div className="bg-slate-800 rounded-2xl p-8 shadow-xl max-w-md w-full border border-slate-700">
-        <h1 className="text-5xl font-extrabold text-white mb-1 text-center">MIRO</h1>
-        <p className="text-spero-yellow font-bold text-lg mb-6 text-center">TCG Online</p>
+      <div className="bg-slate-800 rounded-2xl p-8 shadow-xl max-w-md w-full border border-slate-700 animate-slide-up">
+        <h1 className="text-5xl font-extrabold text-white mb-1 text-center animate-bounce-in">MIRO</h1>
+        <p className="text-spero-yellow font-bold text-lg mb-6 text-center animate-fade-in" style={{ animationDelay: '200ms', animationFillMode: 'both' }}>TCG Online</p>
 
         <div className="flex mb-6">
           <button

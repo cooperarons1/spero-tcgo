@@ -182,7 +182,10 @@ export function DeckPicker({ mode, queueMode = 'casual', uid, onBack }: DeckPick
 
       <div className="flex-1 flex min-h-0">
         {/* ═══ Left: Deck Grid ═══ */}
-        <div className="flex-1 flex flex-col min-w-0">
+        {/* Slides up on mount; the right hero panel slides up with a small
+            delay so the two halves of the screen feel intentionally
+            choreographed instead of both pop-arriving at the same instant. */}
+        <div className="flex-1 flex flex-col min-w-0 animate-slide-up">
           {/* Header bar */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-amber-900/20 shrink-0">
             <button onClick={onBack} className="text-gray-400 hover:text-white text-sm cursor-pointer transition-colors">
@@ -196,7 +199,7 @@ export function DeckPicker({ mode, queueMode = 'casual', uid, onBack }: DeckPick
 
           {/* Deck grid area */}
           <div className="flex-1 flex flex-col px-6 pt-5 pb-4 min-h-0 overflow-y-auto">
-            <h2 className="text-sm text-amber-200/60 font-bold uppercase tracking-wider mb-4">Choose Your Deck</h2>
+            <h2 className="text-sm text-amber-200/60 font-bold uppercase tracking-wider mb-4 animate-fade-in" style={{ animationDelay: '120ms', animationFillMode: 'both' }}>Choose Your Deck</h2>
 
             {loading ? (
               <div className="flex-1 flex items-center justify-center">
@@ -271,7 +274,7 @@ export function DeckPicker({ mode, queueMode = 'casual', uid, onBack }: DeckPick
         </div>
 
         {/* ═══ Right: Hero Preview Panel — Hearthstone style ═══ */}
-        <div className="w-[280px] md:w-[320px] flex flex-col border-l border-amber-900/20 bg-stone-900/50 shrink-0">
+        <div className="w-[280px] md:w-[320px] flex flex-col border-l border-amber-900/20 bg-stone-900/50 shrink-0 animate-slide-up" style={{ animationDelay: '150ms', animationFillMode: 'both' }}>
           {selectedDeck ? (() => {
             const hl = heroLevels[selectedDeck.heroClass as HeroClass];
             const heroLevel = hl?.level ?? 1;

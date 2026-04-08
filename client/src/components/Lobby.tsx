@@ -131,9 +131,9 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
   if (lobby) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gradient-to-b from-stone-950 via-stone-900 to-stone-950">
-        <div className="bg-stone-800/90 rounded-2xl p-8 shadow-2xl max-w-md w-full text-center border border-amber-700/30">
+        <div className="bg-stone-800/90 rounded-2xl p-8 shadow-2xl max-w-md w-full text-center border border-amber-700/30 animate-slide-up">
           <h2 className="text-2xl font-bold text-amber-100 mb-2">Room Code</h2>
-          <div className="text-5xl font-bold tracking-[0.3em] text-amber-400 mb-6 font-mono">
+          <div className="text-5xl font-bold tracking-[0.3em] text-amber-400 mb-6 font-mono animate-bounce-in" style={{ animationDelay: '120ms', animationFillMode: 'both' }}>
             {lobby.code}
           </div>
           <p className="text-gray-400 mb-4">Share this code with your opponent!</p>
@@ -181,15 +181,15 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
     <div className="flex flex-col h-screen bg-gradient-to-b from-stone-950 via-stone-900 to-stone-950 overflow-hidden">
       {/* ── Main content ── */}
       <div className="flex-1 flex flex-col items-center justify-center px-4 pb-2 relative min-h-0">
-        {/* Title block */}
+        {/* Title block — bouncy entrance, subtitle fades in slightly behind */}
         <div className="text-center mb-6">
-          <h1 className="text-7xl font-extrabold text-amber-100 drop-shadow-[0_2px_12px_rgba(217,169,56,0.3)] tracking-wider leading-none">MIRO</h1>
-          <p className="text-amber-500/80 font-bold text-xs mt-1 tracking-[0.4em] uppercase">Trading Card Game</p>
+          <h1 className="text-7xl font-extrabold text-amber-100 drop-shadow-[0_2px_12px_rgba(217,169,56,0.3)] tracking-wider leading-none animate-bounce-in">MIRO</h1>
+          <p className="text-amber-500/80 font-bold text-xs mt-1 tracking-[0.4em] uppercase animate-fade-in" style={{ animationDelay: '150ms', animationFillMode: 'both' }}>Trading Card Game</p>
         </div>
 
         {/* Season + Rank bar */}
         {season && (
-          <div className="flex items-center gap-4 mb-5 bg-stone-800/50 border border-stone-700/50 rounded-full px-5 py-2">
+          <div className="flex items-center gap-4 mb-5 bg-stone-800/50 border border-stone-700/50 rounded-full px-5 py-2 animate-fade-in" style={{ animationDelay: '180ms', animationFillMode: 'both' }}>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
               <span className="text-xs text-amber-200/90 font-semibold">{season.name}</span>
@@ -207,7 +207,7 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
         )}
 
         {mode === 'menu' && (
-          <div className="w-full max-w-sm space-y-4">
+          <div className="w-full max-w-sm space-y-4 animate-slide-up" style={{ animationDelay: '250ms', animationFillMode: 'both' }}>
             {/* Play buttons */}
             <div className="bg-stone-800/70 border border-amber-800/30 rounded-2xl p-5 shadow-2xl shadow-black/40 space-y-3">
               <button
