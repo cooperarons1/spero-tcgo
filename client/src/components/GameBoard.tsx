@@ -1320,6 +1320,46 @@ export default function GameBoard({
   // Clear pending play guard when hand changes or pending interaction arrives
   useEffect(() => { pendingPlayRef.current.clear(); }, [gs.myHand]);
   useEffect(() => { if (gs.pendingInteraction) pendingPlayRef.current.clear(); }, [gs.pendingInteraction]);
+
+  // ─── Stuck-state recovery (refresh-to-click bug fix) ───
+  // The user reported that sometimes they have to refresh the page to
+  // make clicks work again. The cause is stale targeting state: a
+  // play-card targeting flow gets started but the underlying card
+  // disappears from gs.myHand (server-side cancel, opponent action,
+  // disconnect+reconnect), and `targeting` stays in 'play-card' mode
+  // forever, intercepting every click. Same for 'attack' targeting
+  // when the attacker is no longer on the board.
+  //
+  // These effects watch the relevant gs slice and force targeting back
+  // to 'none' if the entity it points at is gone. Cheap defensive
+  // cleanup, runs on every state update.
+  useEffect(() => {
+    if (targeting.type === 'play-card') {
+      const stillInHand = gs.myHand.some(c => c.instanceId === targeting.cardInstanceId);
+      if (!stillInHand) setTargeting({ type: 'none' });
+    }
+  }, [targeting, gs.myHand]);
+
+  useEffect(() => {
+    if (targeting.type === 'attack') {
+      const isHero = targeting.attackerInstanceId.startsWith('hero-');
+      const stillOnBoard = isHero || gs.myBoard.some(m => m.instanceId === targeting.attackerInstanceId);
+      if (!stillOnBoard) {
+        setTargeting({ type: 'none' });
+        setAttackerPos(null);
+      }
+    }
+  }, [targeting, gs.myBoard]);
+
+  // If the active turn flips to the opponent mid-targeting, clear it.
+  useEffect(() => {
+    if (gs.currentPlayerIndex !== gs.myPlayerIndex && targeting.type !== 'none') {
+      setTargeting({ type: 'none' });
+      setAttackerPos(null);
+      setSelectedHandCard(null);
+    }
+  }, [gs.currentPlayerIndex, gs.myPlayerIndex, targeting.type]);
+
   const isGameOver = gs.winner !== null;
   const myBoard = gs.myBoard;
   const opBoard = gs.opponent.board;
