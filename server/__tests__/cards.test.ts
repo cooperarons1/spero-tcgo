@@ -77,11 +77,14 @@ describe('card catalog', () => {
     }
   });
 
-  it('mana cost is a non-negative integer in [0, 12]', () => {
+  it('mana cost is a non-negative integer in [0, 10]', () => {
+    // 10 is the hard cap — no card may cost more than the maxMana
+    // a player can ever reach. If you want a higher-cost card, raise
+    // MAX_MANA in shared/types.ts FIRST and then bump this assertion.
     for (const c of all) {
       expect(Number.isInteger(c.manaCost), `${c.cardCode} non-int manaCost ${c.manaCost}`).toBe(true);
       expect(c.manaCost).toBeGreaterThanOrEqual(0);
-      expect(c.manaCost).toBeLessThanOrEqual(12);
+      expect(c.manaCost).toBeLessThanOrEqual(10);
     }
   });
 

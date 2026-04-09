@@ -5432,12 +5432,12 @@
   {
     "cardCode": "NEU107",
     "name": "The Crucible's Heart",
-    "manaCost": 11,
+    "manaCost": 10,
     "type": "MINION",
     "heroClass": "NEUTRAL",
     "rarity": "LEGENDARY",
-    "attack": 8,
-    "health": 8,
+    "attack": 6,
+    "health": 6,
     "text": "Battlecry: Destroy all enemy minions.",
     "flavor": "At the core of Miro, all things end.",
     "keywords": [
