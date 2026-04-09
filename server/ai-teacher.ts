@@ -16,6 +16,7 @@ import {
   pickSmartTarget, pickTargetFromList, pickSmartAttackTarget,
   hasLethal, pickLethalTarget, cardPlayPriority, getAIMulliganReplacements,
 } from './ai.js';
+import { gameStatePool, AI_CLONE_POOL_ENABLED } from './ai-state-pool.js';
 
 // ── Types ──
 
@@ -230,8 +231,21 @@ function clonePlayer(p: PlayerState): PlayerState {
 /**
  * Deep-clone a GameState for lookahead simulation.
  * Manually clones to avoid copying the huge log array — saves ~90% memory.
+ *
+ * When AI_CLONE_POOL=1 is set, this routes through the GameState pool
+ * (server/ai-state-pool.ts) which reuses pre-allocated shells across
+ * the lookahead loop. The pool's `acquireCloneScoped` registers the
+ * returned state with the most-recent open frame (created via
+ * `gameStatePool.pushFrame()` at the top of each evaluator function),
+ * and `popFrame()` recycles them all in bulk. Caller code stays the
+ * same — the only requirement is that callers wrap their work in a
+ * pushFrame/popFrame pair, otherwise the pool falls through to plain
+ * allocation.
  */
 function cloneGame(game: GameState): GameState {
+  if (AI_CLONE_POOL_ENABLED) {
+    return gameStatePool.acquireCloneScoped(game);
+  }
   return {
     players: [clonePlayer(game.players[0]), clonePlayer(game.players[1])],
     decks: [game.decks[0].map(c => ({ ...c })), game.decks[1].map(c => ({ ...c }))],
@@ -274,21 +288,29 @@ function evaluateCardPlay(
   // v4: adaptive depth — deeper lookahead in mid/late game
   const depth = game.players[playerIndex].maxMana >= 5 ? 4 : 3;
 
-  for (let r = 0; r < rollouts; r++) {
-    try {
-      const sim = cloneGame(game);
-      const me = sim.players[playerIndex];
+  // Clone-pool frame: any cloneGame() call inside this function gets
+  // recycled when popFrame() runs in the finally below. No-op when
+  // AI_CLONE_POOL is unset.
+  if (AI_CLONE_POOL_ENABLED) gameStatePool.pushFrame();
+  try {
+    for (let r = 0; r < rollouts; r++) {
+      try {
+        const sim = cloneGame(game);
+        const me = sim.players[playerIndex];
 
-      const result = playCard(sim, me.playerId, cardInstanceId, undefined, targetId);
-      if (!result.success) return -Infinity;
+        const result = playCard(sim, me.playerId, cardInstanceId, undefined, targetId);
+        if (!result.success) return -Infinity;
 
-      // Simulate a few turns of student-level play to get a future board state
-      const evalScore = rolloutAndEvaluate(sim, playerIndex, depth);
-      totalScore += evalScore;
-      validRollouts++;
-    } catch {
-      // Rollout failed — skip
+        // Simulate a few turns of student-level play to get a future board state
+        const evalScore = rolloutAndEvaluate(sim, playerIndex, depth);
+        totalScore += evalScore;
+        validRollouts++;
+      } catch {
+        // Rollout failed — skip
+      }
     }
+  } finally {
+    if (AI_CLONE_POOL_ENABLED) gameStatePool.popFrame();
   }
 
   return validRollouts > 0 ? totalScore / validRollouts : -Infinity;
@@ -434,37 +456,46 @@ function findBestAttackOrder(
   let bestScore = -Infinity;
   let bestOrder: Array<{ attackerId: string; targetId: string }> = [];
 
-  for (const perm of perms) {
-    try {
-      const sim = cloneGame(game);
-      const simMe = sim.players[playerIndex];
-      const simOpp = sim.players[oppIdx];
-      const attacks: Array<{ attackerId: string; targetId: string }> = [];
+  // Pool frame: each permutation allocates one clone, and there can
+  // be up to ~120 perms (5! = 120) so this is the highest-volume
+  // clone site in the AI evaluator. The frame recycles them all on
+  // function exit.
+  if (AI_CLONE_POOL_ENABLED) gameStatePool.pushFrame();
+  try {
+    for (const perm of perms) {
+      try {
+        const sim = cloneGame(game);
+        const simMe = sim.players[playerIndex];
+        const simOpp = sim.players[oppIdx];
+        const attacks: Array<{ attackerId: string; targetId: string }> = [];
 
-      for (const idx of perm) {
-        const realAttacker = attackers[idx];
-        const simAttacker = simMe.board.find(m => m.instanceId === realAttacker.instanceId);
-        if (!simAttacker || simAttacker.attacksRemaining <= 0) continue;
+        for (const idx of perm) {
+          const realAttacker = attackers[idx];
+          const simAttacker = simMe.board.find(m => m.instanceId === realAttacker.instanceId);
+          if (!simAttacker || simAttacker.attacksRemaining <= 0) continue;
 
-        const target = pickSmartAttackTarget(simAttacker, simMe, simOpp, oppIdx);
-        if (!target) continue;
+          const target = pickSmartAttackTarget(simAttacker, simMe, simOpp, oppIdx);
+          if (!target) continue;
 
-        attacks.push({ attackerId: realAttacker.instanceId, targetId: target });
-        attack(sim, simMe.playerId, simAttacker.instanceId, target);
-        if (sim.winner) break;
+          attacks.push({ attackerId: realAttacker.instanceId, targetId: target });
+          attack(sim, simMe.playerId, simAttacker.instanceId, target);
+          if (sim.winner) break;
+        }
+
+        const score = sim.winner
+          ? (sim.winner === sim.players[playerIndex].playerId ? 100 : -100)
+          : evaluateBoard(sim, playerIndex);
+
+        if (score > bestScore) {
+          bestScore = score;
+          bestOrder = attacks;
+        }
+      } catch {
+        // Skip invalid permutation
       }
-
-      const score = sim.winner
-        ? (sim.winner === sim.players[playerIndex].playerId ? 100 : -100)
-        : evaluateBoard(sim, playerIndex);
-
-      if (score > bestScore) {
-        bestScore = score;
-        bestOrder = attacks;
-      }
-    } catch {
-      // Skip invalid permutation
     }
+  } finally {
+    if (AI_CLONE_POOL_ENABLED) gameStatePool.popFrame();
   }
 
   // Fallback to student-level ordering if no permutation worked
@@ -541,36 +572,43 @@ function findBestCardPlay(
 
   let bestMove: { cardInstanceId: string; targetId: string | null; score: number } | null = null;
 
-  for (const card of candidates) {
-    const def = getCardDef(card.cardCode);
+  // Frame for the retry-target clones below. evaluateCardPlay
+  // manages its own frame for its rollouts.
+  if (AI_CLONE_POOL_ENABLED) gameStatePool.pushFrame();
+  try {
+    for (const card of candidates) {
+      const def = getCardDef(card.cardCode);
 
-    // Determine target
-    let targetId: string | null = null;
-    if (def.type === 'MINION' && def.keywords.includes('BATTLECRY') && def.battlecryEffect) {
-      targetId = pickSmartTarget(game, playerIndex, def);
-    } else if (def.type === 'SPELL' && def.spellEffect) {
-      targetId = pickSmartTarget(game, playerIndex, def);
-    }
+      // Determine target
+      let targetId: string | null = null;
+      if (def.type === 'MINION' && def.keywords.includes('BATTLECRY') && def.battlecryEffect) {
+        targetId = pickSmartTarget(game, playerIndex, def);
+      } else if (def.type === 'SPELL' && def.spellEffect) {
+        targetId = pickSmartTarget(game, playerIndex, def);
+      }
 
-    // Evaluate with lookahead
-    const score = evaluateCardPlay(game, playerIndex, card.instanceId, targetId, 2);
+      // Evaluate with lookahead
+      const score = evaluateCardPlay(game, playerIndex, card.instanceId, targetId, 2);
 
-    if (score > -Infinity && (!bestMove || score > bestMove.score)) {
-      bestMove = { cardInstanceId: card.instanceId, targetId, score };
-    }
+      if (score > -Infinity && (!bestMove || score > bestMove.score)) {
+        bestMove = { cardInstanceId: card.instanceId, targetId, score };
+      }
 
-    // If the first attempt needed a target and failed, try getting valid targets
-    if (score === -Infinity) {
-      const sim = cloneGame(game);
-      const result = playCard(sim, sim.players[playerIndex].playerId, card.instanceId, undefined, targetId);
-      if (result.needsTarget && result.validTargets?.length) {
-        const retryTarget = pickTargetFromList(game, playerIndex, def, result.validTargets);
-        const retryScore = evaluateCardPlay(game, playerIndex, card.instanceId, retryTarget, 2);
-        if (retryScore > -Infinity && (!bestMove || retryScore > bestMove.score)) {
-          bestMove = { cardInstanceId: card.instanceId, targetId: retryTarget, score: retryScore };
+      // If the first attempt needed a target and failed, try getting valid targets
+      if (score === -Infinity) {
+        const sim = cloneGame(game);
+        const result = playCard(sim, sim.players[playerIndex].playerId, card.instanceId, undefined, targetId);
+        if (result.needsTarget && result.validTargets?.length) {
+          const retryTarget = pickTargetFromList(game, playerIndex, def, result.validTargets);
+          const retryScore = evaluateCardPlay(game, playerIndex, card.instanceId, retryTarget, 2);
+          if (retryScore > -Infinity && (!bestMove || retryScore > bestMove.score)) {
+            bestMove = { cardInstanceId: card.instanceId, targetId: retryTarget, score: retryScore };
+          }
         }
       }
     }
+  } finally {
+    if (AI_CLONE_POOL_ENABLED) gameStatePool.popFrame();
   }
 
   return bestMove;
@@ -759,18 +797,23 @@ function tryTeacherPreHeroPower(game: GameState, playerIndex: 0 | 1): TeacherDec
     let bestTarget: string | null = null;
     let bestScore = -Infinity;
 
-    for (const enemy of targetable) {
-      if (enemy.hasDivineShield) continue;
-      try {
-        const sim = cloneGame(game);
-        const hpTarget = me.heroClass === 'JIMMY' ? enemy.instanceId : null;
-        useHeroPower(sim, sim.players[playerIndex].playerId, hpTarget);
-        const score = evaluateBoard(sim, playerIndex);
-        if (score > bestScore) {
-          bestScore = score;
-          bestTarget = hpTarget;
-        }
-      } catch { /* skip */ }
+    if (AI_CLONE_POOL_ENABLED) gameStatePool.pushFrame();
+    try {
+      for (const enemy of targetable) {
+        if (enemy.hasDivineShield) continue;
+        try {
+          const sim = cloneGame(game);
+          const hpTarget = me.heroClass === 'JIMMY' ? enemy.instanceId : null;
+          useHeroPower(sim, sim.players[playerIndex].playerId, hpTarget);
+          const score = evaluateBoard(sim, playerIndex);
+          if (score > bestScore) {
+            bestScore = score;
+            bestTarget = hpTarget;
+          }
+        } catch { /* skip */ }
+      }
+    } finally {
+      if (AI_CLONE_POOL_ENABLED) gameStatePool.popFrame();
     }
 
     // Also evaluate not using it pre-attack
@@ -853,34 +896,39 @@ function tryTeacherPostHeroPower(game: GameState, playerIndex: 0 | 1): TeacherDe
 
   const noUseScore = evaluateBoard(game, playerIndex);
 
-  for (const target of validTargets) {
-    try {
-      const sim = cloneGame(game);
-      useHeroPower(sim, sim.players[playerIndex].playerId, target);
-      const score = evaluateBoard(sim, playerIndex);
-      if (score > bestScore) {
-        bestScore = score;
-        bestTarget = target;
+  if (AI_CLONE_POOL_ENABLED) gameStatePool.pushFrame();
+  try {
+    for (const target of validTargets) {
+      try {
+        const sim = cloneGame(game);
+        useHeroPower(sim, sim.players[playerIndex].playerId, target);
+        const score = evaluateBoard(sim, playerIndex);
+        if (score > bestScore) {
+          bestScore = score;
+          bestTarget = target;
 
-        // Categorize the reason
-        if (target === null) {
-          bestReason = 'no_target';
-        } else if (target.startsWith('hero-')) {
-          bestReason = 'face_damage';
-        } else {
-          const targetMinion = opp.board.find(m => m.instanceId === target);
-          const friendlyMinion = me.board.find(m => m.instanceId === target);
-          if (targetMinion) {
-            if (targetMinion.currentHealth <= 2) bestReason = 'exact_kill';
-            else if (targetMinion.currentAttack >= 4) bestReason = 'highest_threat';
-            else bestReason = 'most_damaged';
-          } else if (friendlyMinion) {
-            if (friendlyMinion.currentAttack >= 4) bestReason = 'highest_attack';
-            else bestReason = 'buff_friendly';
+          // Categorize the reason
+          if (target === null) {
+            bestReason = 'no_target';
+          } else if (target.startsWith('hero-')) {
+            bestReason = 'face_damage';
+          } else {
+            const targetMinion = opp.board.find(m => m.instanceId === target);
+            const friendlyMinion = me.board.find(m => m.instanceId === target);
+            if (targetMinion) {
+              if (targetMinion.currentHealth <= 2) bestReason = 'exact_kill';
+              else if (targetMinion.currentAttack >= 4) bestReason = 'highest_threat';
+              else bestReason = 'most_damaged';
+            } else if (friendlyMinion) {
+              if (friendlyMinion.currentAttack >= 4) bestReason = 'highest_attack';
+              else bestReason = 'buff_friendly';
+            }
           }
         }
-      }
-    } catch { /* skip invalid target */ }
+      } catch { /* skip invalid target */ }
+    }
+  } finally {
+    if (AI_CLONE_POOL_ENABLED) gameStatePool.popFrame();
   }
 
   // Only use if it's better than not using
@@ -946,6 +994,11 @@ export function getTeacherMulliganDecision(
   const cardReplacedScores: number[] = new Array(n).fill(0);
   const cardReplacedCounts: number[] = new Array(n).fill(0);
 
+  // Mulligan eval is the highest-volume clone site in the engine —
+  // up to 256 masks (2^8) × 5 rollouts = 1280 clones per game start.
+  // The frame here is the most important one for perf.
+  if (AI_CLONE_POOL_ENABLED) gameStatePool.pushFrame();
+  try {
   for (let mask = 0; mask < totalCombos; mask++) {
     let comboScore = 0;
     let validRollouts = 0;
@@ -1001,6 +1054,9 @@ export function getTeacherMulliganDecision(
       bestScore = avgScore;
       bestMask = mask;
     }
+  }
+  } finally {
+    if (AI_CLONE_POOL_ENABLED) gameStatePool.popFrame();
   }
 
   // Convert bitmask to replacements array (true = replace)
