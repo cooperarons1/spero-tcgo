@@ -754,14 +754,29 @@ def train(args: argparse.Namespace) -> int:
 
         train_loss = (epoch_loss / max(1, n_seen)).item()
 
-        # Validation pass
+        # Validation pass — batched. The earlier version ran a single
+        # forward over the entire X_val tensor, which OOMed Metal at
+        # large model sizes (1024 hidden × 9M val rows = 9B elements
+        # in one kernel). Now sliced into the same args.batch_size
+        # chunks the train loop uses, so the per-kernel allocation
+        # stays bounded by hidden_dim × batch_size.
         model.eval()
         with torch.no_grad():
-            val_logits = model(X_val)
-            val_per = F.binary_cross_entropy_with_logits(val_logits, y_val, reduction="none")
-            val_loss = (val_per * w_val).mean().item()
-            val_preds = torch.sigmoid(val_logits)
-            val_acc = ((val_preds > 0.5) == (y_val > 0.5)).float().mean().item()
+            val_loss_sum = torch.zeros(1, device=device)
+            val_correct = torch.zeros(1, device=device)
+            val_total = 0
+            for vi in range(0, len(X_val), args.batch_size):
+                xv = X_val[vi : vi + args.batch_size]
+                yv = y_val[vi : vi + args.batch_size]
+                wv = w_val[vi : vi + args.batch_size]
+                vl = model(xv)
+                vp = F.binary_cross_entropy_with_logits(vl, yv, reduction="none")
+                val_loss_sum += (vp * wv).sum()
+                vpreds = torch.sigmoid(vl)
+                val_correct += ((vpreds > 0.5) == (yv > 0.5)).sum()
+                val_total += xv.size(0)
+            val_loss = (val_loss_sum / max(1, val_total)).item()
+            val_acc = (val_correct / max(1, val_total)).item()
 
         elapsed = time.time() - t0
         print(
