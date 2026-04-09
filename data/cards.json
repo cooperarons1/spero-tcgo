@@ -462,7 +462,7 @@
     "attack": 3,
     "health": 2,
     "text": "Stealth. Bond: If you control Rosie, draw 2 cards.",
-    "flavor": "The leopard moves like a reef shadow — silent, patient, lethal.",
+    "flavor": "The leopard moves like a reef shadow \u2014 silent, patient, lethal.",
     "keywords": [
       "STEALTH",
       "BOND"
@@ -485,7 +485,7 @@
     "attack": 1,
     "health": 3,
     "text": "Bond: If you control Sengo, draw 2 cards.",
-    "flavor": "She nudges lost things back to shore — including hope.",
+    "flavor": "She nudges lost things back to shore \u2014 including hope.",
     "keywords": [
       "BOND"
     ],
@@ -507,7 +507,7 @@
     "attack": 2,
     "health": 3,
     "text": "Bond: If you control Tala's Ice Orb, both get +1/+2 and gain Taunt.",
-    "flavor": "She always finds Tala first — small paws, big heart.",
+    "flavor": "She always finds Tala first \u2014 small paws, big heart.",
     "keywords": [
       "BOND"
     ],
@@ -663,7 +663,7 @@
     "attack": 2,
     "health": 3,
     "text": "Bond: If you control Fiona, both get +1/+1.",
-    "flavor": "Ava's masterwork — half scanner, half best friend.",
+    "flavor": "Ava's masterwork \u2014 half scanner, half best friend.",
     "keywords": [
       "BOND"
     ],
@@ -686,7 +686,7 @@
     "attack": 3,
     "health": 2,
     "text": "Stealth. Bond: If you control Owl Sketch, both get +2/+2.",
-    "flavor": "Jax trusts no one — except the boy who draws owls.",
+    "flavor": "Jax trusts no one \u2014 except the boy who draws owls.",
     "keywords": [
       "STEALTH",
       "BOND"
@@ -803,7 +803,7 @@
     "attack": 2,
     "health": 4,
     "text": "Bond: If you control Bling, both get +1/+2.",
-    "flavor": "Points toward balance — and buried treasure.",
+    "flavor": "Points toward balance \u2014 and buried treasure.",
     "keywords": [
       "BOND"
     ],
@@ -1899,7 +1899,7 @@
     "attack": 0,
     "health": 0,
     "text": "Deal 5 damage to all characters.",
-    "flavor": "When the forest burns, new life begins — eventually.",
+    "flavor": "When the forest burns, new life begins \u2014 eventually.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE_ALL_ENEMIES",
@@ -2501,8 +2501,8 @@
     "type": "MINION",
     "heroClass": "JIMMY",
     "rarity": "LEGENDARY",
-    "attack": 7,
-    "health": 7,
+    "attack": 6,
+    "health": 6,
     "text": "Battlecry: Deal 4 damage to all enemy minions.",
     "flavor": "Ancient, enormous, and thoroughly unimpressed by your army.",
     "keywords": [
@@ -3469,7 +3469,7 @@
     "heroClass": "JIMMY",
     "rarity": "LEGENDARY",
     "attack": 6,
-    "health": 6,
+    "health": 5,
     "text": "Battlecry: Deal 3 damage to all enemies.",
     "flavor": "Where she walks, the ground remembers.",
     "keywords": [
@@ -3727,7 +3727,7 @@
     "heroClass": "TALA",
     "rarity": "COMMON",
     "attack": 2,
-    "health": 2,
+    "health": 3,
     "text": "",
     "flavor": "Small, round, and utterly fearless.",
     "keywords": [],
@@ -3838,7 +3838,7 @@
   {
     "cardCode": "DRK033",
     "name": "Quick Fix",
-    "manaCost": 1,
+    "manaCost": 0,
     "type": "SPELL",
     "heroClass": "DEREK",
     "rarity": "COMMON",
@@ -3945,7 +3945,7 @@
   {
     "cardCode": "DRK034",
     "name": "Reassign",
-    "manaCost": 3,
+    "manaCost": 2,
     "type": "SPELL",
     "heroClass": "DEREK",
     "rarity": "COMMON",
@@ -5161,13 +5161,13 @@
     "rarity": "COMMON",
     "attack": 0,
     "health": 0,
-    "text": "Deal 1 damage to the enemy hero.",
+    "text": "Deal 2 damage to the enemy hero.",
     "flavor": "Just a little warning. Just a little.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE",
       "target": "TARGET_ENEMY_HERO",
-      "value": 1
+      "value": 2
     }
   },
   {
@@ -5415,8 +5415,8 @@
     "type": "MINION",
     "heroClass": "NEUTRAL",
     "rarity": "EPIC",
-    "attack": 10,
-    "health": 10,
+    "attack": 9,
+    "health": 9,
     "text": "Battlecry: Deal 5 damage to all enemy minions.",
     "flavor": "When the desert moves, everything dies.",
     "keywords": [
@@ -5432,7 +5432,7 @@
   {
     "cardCode": "NEU107",
     "name": "The Crucible's Heart",
-    "manaCost": 10,
+    "manaCost": 11,
     "type": "MINION",
     "heroClass": "NEUTRAL",
     "rarity": "LEGENDARY",
@@ -5671,8 +5671,8 @@
     "type": "MINION",
     "heroClass": "TALA",
     "rarity": "LEGENDARY",
-    "attack": 6,
-    "health": 8,
+    "attack": 5,
+    "health": 7,
     "text": "Taunt. Battlecry: Restore all friendly characters to full Health.",
     "flavor": "Snowball's warmth heals all wounds.",
     "keywords": [
