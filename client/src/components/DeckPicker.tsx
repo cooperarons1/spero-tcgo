@@ -53,11 +53,25 @@ export function DeckPicker({ mode, queueMode = 'casual', uid, onBack }: DeckPick
   const [loading, setLoading] = useState(true);
   const [starting, setStarting] = useState(false);
   const [matchmaking, setMatchmaking] = useState(false);
+  const [queueStartTime, setQueueStartTime] = useState<number | null>(null);
+  const [queueElapsed, setQueueElapsed] = useState(0);
   const [heroLevels, setHeroLevels] = useState<HeroLevelsMap>({});
 
   useEffect(() => {
     loadHeroLevels(uid).then(setHeroLevels);
   }, [uid]);
+
+  // Queue elapsed timer
+  useEffect(() => {
+    if (!matchmaking || !queueStartTime) {
+      setQueueElapsed(0);
+      return;
+    }
+    const interval = setInterval(() => {
+      setQueueElapsed(Math.floor((Date.now() - queueStartTime) / 1000));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [matchmaking, queueStartTime]);
 
   useEffect(() => {
     loadDecks(uid).then(d => {
@@ -125,6 +139,7 @@ export function DeckPicker({ mode, queueMode = 'casual', uid, onBack }: DeckPick
       });
     } else {
       setMatchmaking(true);
+      setQueueStartTime(Date.now());
       socket.emit('join-queue', {
         heroClass: selectedDeck.heroClass,
         deckCards: selectedDeck.cards,
@@ -148,6 +163,7 @@ export function DeckPicker({ mode, queueMode = 'casual', uid, onBack }: DeckPick
 
   const handleCancelQueue = () => {
     setMatchmaking(false);
+    setQueueStartTime(null);
     socket.emit('leave-queue');
   };
 
@@ -166,13 +182,48 @@ export function DeckPicker({ mode, queueMode = 'casual', uid, onBack }: DeckPick
       {/* Matchmaking overlay */}
       {matchmaking && (
         <div className="fixed inset-0 z-50 bg-black/70 flex flex-col items-center justify-center backdrop-blur-sm">
-          <div className="bg-stone-800 rounded-2xl p-8 border border-amber-700/30 text-center shadow-2xl">
+          <div className="bg-stone-800 rounded-2xl p-8 border border-amber-700/30 text-center shadow-2xl max-w-sm w-full mx-4">
             <div className="w-14 h-14 border-4 border-amber-400 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-amber-100 font-bold text-lg mb-2">Searching for Opponent...</p>
-            <p className="text-gray-400 text-sm mb-6">This may take a moment</p>
+            <p className="text-amber-100 font-bold text-lg mb-1">Searching for Opponent...</p>
+
+            {/* Elapsed timer */}
+            <p className="text-amber-400/80 font-mono text-sm mb-3">
+              {Math.floor(queueElapsed / 60)}:{String(queueElapsed % 60).padStart(2, '0')}
+            </p>
+
+            {/* ELO range status */}
+            <div className="mb-5 space-y-1">
+              {queueElapsed < 30 && (
+                <p className="text-gray-400 text-sm">Matching similar skill level</p>
+              )}
+              {queueElapsed >= 30 && queueElapsed < 60 && (
+                <p className="text-amber-300/80 text-sm font-medium">Expanding search range...</p>
+              )}
+              {queueElapsed >= 60 && (
+                <p className="text-amber-200 text-sm font-medium">Searching all ranks...</p>
+              )}
+
+              {/* Visual range indicator */}
+              <div className="flex items-center justify-center gap-2 mt-2">
+                <div className="flex gap-0.5">
+                  {[0, 1, 2].map(i => (
+                    <div
+                      key={i}
+                      className={`h-1.5 w-6 rounded-full transition-all duration-700 ${
+                        i === 0 ? 'bg-amber-500'
+                        : i === 1 && queueElapsed >= 30 ? 'bg-amber-500'
+                        : i === 2 && queueElapsed >= 60 ? 'bg-amber-500'
+                        : 'bg-stone-700'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+
             <button
               onClick={handleCancelQueue}
-              className="bg-stone-700 text-gray-300 font-bold py-2 px-8 rounded-xl hover:bg-stone-600 cursor-pointer transition-all"
+              className="bg-stone-700 text-gray-300 font-bold py-2.5 px-8 rounded-xl hover:bg-stone-600 cursor-pointer transition-all border border-stone-600/40"
             >
               Cancel
             </button>

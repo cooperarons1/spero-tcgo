@@ -19,57 +19,20 @@ interface DailyDeal {
 // disabled states / labels.
 const BUNDLE_COSTS: Record<number, number> = { 1: 100, 5: 450, 10: 800 };
 
-// Premium gem tiers — must match server GEM_PURCHASE_TIERS.
-const GEM_TIERS = [
-  { id: 'starter', gems: 100,  usd: 0.99 },
-  { id: 'bundle',  gems: 550,  usd: 4.99, bonus: '+10%' },
-  { id: 'big',     gems: 1200, usd: 9.99, bonus: '+20%' },
-  { id: 'mega',    gems: 2750, usd: 19.99, bonus: '+37%' },
-];
-
-// Premium gem-priced shop items — must match server GEM_SHOP_ITEMS.
-const GEM_ITEMS = [
-  { id: 'premium_pack',     gems: 100, label: 'Premium Pack',           desc: 'Guaranteed Legendary' },
-  { id: 'cardback_gold',    gems: 500, label: 'Gold Foil Card Back',    desc: 'Exclusive cosmetic' },
-  { id: 'cardback_dragon',  gems: 800, label: 'Dragonscale Card Back',  desc: 'Exclusive cosmetic' },
-];
-
 export function Shop({ onBack, onOpenPacks }: ShopProps) {
   const [gold, setGold] = useState(0);
   const [dust, setDust] = useState(0);
-  const [gems, setGems] = useState(0);
   const [purchaseMsg, setPurchaseMsg] = useState<string | null>(null);
 
   useEffect(() => {
     socket.emit('get-inventory');
-    const onInventory = (data: { gold: number; dust: number; gems?: number }) => {
+    const onInventory = (data: { gold: number; dust: number }) => {
       setGold(data.gold);
       setDust(data.dust);
-      setGems(data.gems ?? 0);
-    };
-    const onGemsPurchased = (data: { gemsAdded: number; newGems: number; usdCharged: number }) => {
-      setGems(data.newGems);
-      setPurchaseMsg(`+${data.gemsAdded} gems ($${data.usdCharged.toFixed(2)})`);
-      setTimeout(() => setPurchaseMsg(null), 2500);
-    };
-    const onGemsSpent = (data: { itemId: string; gemsSpent: number; newGems: number }) => {
-      setGems(data.newGems);
-      setPurchaseMsg(`Spent ${data.gemsSpent} gems`);
-      setTimeout(() => setPurchaseMsg(null), 2500);
-    };
-    const onGemsError = (msg: string) => {
-      setPurchaseMsg(`Error: ${msg}`);
-      setTimeout(() => setPurchaseMsg(null), 2500);
     };
     socket.on('inventory-update', onInventory);
-    socket.on('gems-purchased', onGemsPurchased);
-    socket.on('gems-spent', onGemsSpent);
-    socket.on('gems-error', onGemsError);
     return () => {
       socket.off('inventory-update', onInventory);
-      socket.off('gems-purchased', onGemsPurchased);
-      socket.off('gems-spent', onGemsSpent);
-      socket.off('gems-error', onGemsError);
     };
   }, []);
 
@@ -83,17 +46,6 @@ export function Shop({ onBack, onOpenPacks }: ShopProps) {
   };
   const handleBuyPack = () => handleBuyBundle(1);
 
-  const handleBuyGems = (tierId: string) => {
-    // STUB: no real Stripe integration yet. Server is in dev-stub mode
-    // and will credit gems immediately. The user-visible label still
-    // shows the USD price so the future flow looks the same.
-    socket.emit('purchase-gems', { tierId });
-  };
-
-  const handleSpendGems = (itemId: string) => {
-    socket.emit('spend-gems', { itemId });
-  };
-
   return (
     <div className="flex flex-col h-screen bg-gradient-to-b from-stone-950 via-stone-900 to-stone-950">
       {/* Header */}
@@ -105,13 +57,12 @@ export function Shop({ onBack, onOpenPacks }: ShopProps) {
         <div className="flex items-center gap-4">
           <span className="text-yellow-400 font-bold text-sm">{gold} Gold</span>
           <span className="text-blue-400 font-bold text-sm">{dust} Dust</span>
-          <span className="text-pink-400 font-bold text-sm flex items-center gap-1"><span>💎</span>{gems} Gems</span>
         </div>
       </div>
 
       {/* Purchase toast */}
       {purchaseMsg && (
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-pink-600/90 text-white font-bold px-5 py-2 rounded-full shadow-2xl animate-fade-in">
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-amber-600/90 text-white font-bold px-5 py-2 rounded-full shadow-2xl animate-fade-in">
           {purchaseMsg}
         </div>
       )}
@@ -120,63 +71,6 @@ export function Shop({ onBack, onOpenPacks }: ShopProps) {
           coherent entrance instead of all sections snapping in. */}
       <div className="flex-1 overflow-y-auto p-6">
         <div className="max-w-3xl mx-auto space-y-8 animate-slide-up">
-
-          {/* ═══ Premium: Spend Gems ═══ */}
-          {/* Gems-priced items go ABOVE gold packs because they're the
-              monetization driver. Each tile shows the gem cost on a
-              pink-purple gradient to keep the premium currency
-              visually distinct from the amber gold tiles below. */}
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-pink-300/80 font-bold text-sm uppercase tracking-wider flex items-center gap-2">
-                <span>💎</span> Premium Items
-              </h2>
-              <span className="text-pink-400/60 text-[10px] uppercase tracking-wider">Spend Gems</span>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {GEM_ITEMS.map(item => (
-                <button
-                  key={item.id}
-                  onClick={() => handleSpendGems(item.id)}
-                  disabled={gems < item.gems}
-                  className="bg-gradient-to-br from-purple-900/60 via-pink-900/40 to-stone-900/80 border-2 border-pink-500/40 rounded-2xl p-5 text-center hover:border-pink-400 hover:brightness-110 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed group"
-                >
-                  <div className="text-3xl mb-2 group-hover:scale-110 transition-transform inline-block">💎</div>
-                  <div className="text-white font-bold text-sm">{item.label}</div>
-                  <div className="text-pink-200/60 text-[10px] mt-1">{item.desc}</div>
-                  <div className="mt-3 bg-pink-600/80 text-white font-bold py-2 px-4 rounded-lg text-sm flex items-center justify-center gap-1">
-                    <span>💎</span> {item.gems}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* ═══ Buy Gems with USD ═══ */}
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-pink-300/80 font-bold text-sm uppercase tracking-wider">Buy Gems</h2>
-              <span className="text-pink-400/60 text-[10px] uppercase tracking-wider">Real Money</span>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {GEM_TIERS.map(tier => (
-                <button
-                  key={tier.id}
-                  onClick={() => handleBuyGems(tier.id)}
-                  className="bg-gradient-to-br from-pink-800/60 to-purple-900/80 border border-pink-500/30 rounded-xl p-4 text-center hover:border-pink-400/60 hover:brightness-110 active:scale-95 transition-all cursor-pointer relative"
-                >
-                  {tier.bonus && (
-                    <div className="absolute -top-2 -right-2 bg-amber-500 text-stone-900 text-[8px] font-extrabold px-1.5 py-0.5 rounded-full">
-                      {tier.bonus}
-                    </div>
-                  )}
-                  <div className="text-2xl mb-1">💎</div>
-                  <div className="text-white font-bold text-sm">{tier.gems}</div>
-                  <div className="text-pink-300/70 text-[10px] mt-1">${tier.usd.toFixed(2)}</div>
-                </button>
-              ))}
-            </div>
-          </div>
 
           {/* Featured: Miro Pack */}
           <div>

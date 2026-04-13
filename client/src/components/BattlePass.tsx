@@ -62,6 +62,14 @@ export function BattlePass({ onBack }: BattlePassProps) {
 
   const currentTier = getTierFromXP(bp.xp);
   const progress = getTierProgress(bp.xp);
+  const currentTierXP = bp.xp - (currentTier * 100);
+  const xpForNext = 100;
+  const atMax = currentTier >= MAX_TIER;
+
+  // Next 3 upcoming reward tiers (unclaimed, after current tier)
+  const upcomingRewards = BATTLE_PASS_TIERS
+    .filter(t => t.tier > currentTier)
+    .slice(0, 3);
 
   const handleClaim = (tier: number, track: 'free' | 'premium') => {
     socket.emit('claim-battlepass-reward', { tier, track });
@@ -84,24 +92,44 @@ export function BattlePass({ onBack }: BattlePassProps) {
         </div>
       </div>
 
-      {/* Progress bar — animates from 0 to progress on mount via the
-          transition-all + a useEffect-set width is overkill for a header
-          bar; instead use a CSS transition-width with a 700ms duration so
-          the fill always grows in from 0 (the starting render is empty
-          because the bp data arrives asynchronously). */}
+      {/* Progress bar + XP display */}
       <div className="px-6 py-3 bg-stone-900/30 border-b border-stone-700/30">
         <div className="flex items-center gap-3">
           <span className="text-amber-300 font-bold text-sm w-8">{currentTier}</span>
-          <div className="flex-1 bg-stone-800 rounded-full h-3 overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-amber-500 to-amber-400 rounded-full transition-[width] duration-700 ease-out"
-              style={{ width: `${progress * 100}%` }}
-            />
+          <div className="flex-1">
+            <div className="bg-stone-800 rounded-full h-3 overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-amber-500 to-amber-400 rounded-full transition-[width] duration-700 ease-out"
+                style={{ width: `${atMax ? 100 : progress * 100}%` }}
+              />
+            </div>
+            <div className="flex justify-center mt-1">
+              <span className="text-[11px] text-amber-200/70 font-semibold">
+                {atMax ? 'MAX LEVEL' : `${currentTierXP} / ${xpForNext} XP`}
+              </span>
+            </div>
           </div>
           <span className="text-gray-500 font-bold text-sm w-8">{Math.min(currentTier + 1, MAX_TIER)}</span>
         </div>
         {!bp.isPremium && (
-          <p className="text-[10px] text-gray-500 mt-1 text-center">Free Track — Premium rewards locked</p>
+          <p className="text-[10px] text-gray-500 mt-1 text-center">Free Track -- Premium rewards locked</p>
+        )}
+
+        {/* Upcoming rewards preview */}
+        {upcomingRewards.length > 0 && (
+          <div className="mt-3 flex items-center gap-2 justify-center">
+            <span className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold mr-1">Next:</span>
+            {upcomingRewards.map(t => (
+              <div
+                key={t.tier}
+                className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 border text-[11px] ${REWARD_COLORS[t.freeReward.type]}`}
+              >
+                <span>{REWARD_ICONS[t.freeReward.type]}</span>
+                <span className="text-gray-300 font-medium">{t.freeReward.label}</span>
+                <span className="text-gray-600 font-mono text-[9px]">T{t.tier}</span>
+              </div>
+            ))}
+          </div>
         )}
       </div>
 

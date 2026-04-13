@@ -911,7 +911,7 @@
     "rarity": "COMMON",
     "attack": 3,
     "health": 4,
-    "text": "",
+    "text": "A sturdy warrior with balanced stats.",
     "flavor": "Just passing through. Don't mind the sword.",
     "keywords": [],
     "minionType": "AMETI"
@@ -1155,7 +1155,7 @@
     "rarity": "COMMON",
     "attack": 4,
     "health": 2,
-    "text": "",
+    "text": "A heavy polearm that hits hard.",
     "flavor": "It hungers for more than just blood.",
     "keywords": []
   },
@@ -1360,7 +1360,7 @@
     "rarity": "COMMON",
     "attack": 3,
     "health": 3,
-    "text": "",
+    "text": "A reliable mech with solid construction.",
     "flavor": "She'll work for parts. Good parts.",
     "keywords": [],
     "minionType": "MECH"
@@ -1374,7 +1374,7 @@
     "rarity": "RARE",
     "attack": 1,
     "health": 3,
-    "text": "",
+    "text": "A cheap pickaxe with surprising durability.",
     "flavor": "Big, quiet, and in the way. Perfectly in the way.",
     "keywords": []
   },
@@ -1528,7 +1528,7 @@
     "rarity": "COMMON",
     "attack": 3,
     "health": 2,
-    "text": "",
+    "text": "An aggressive beast that favors offense.",
     "flavor": "Loyal, stubborn, and surprisingly good at carrying explosives.",
     "keywords": [],
     "minionType": "BEAST"
@@ -1731,7 +1731,7 @@
     "rarity": "COMMON",
     "attack": 2,
     "health": 3,
-    "text": "",
+    "text": "A durable staff built for sustained combat.",
     "flavor": "Defense is the best offense. This staff is the best defense.",
     "keywords": []
   },
@@ -2029,7 +2029,7 @@
     "rarity": "COMMON",
     "attack": 2,
     "health": 3,
-    "text": "",
+    "text": "A lightweight cloak that strikes swiftly.",
     "flavor": "Light as air. Quiet as shadow.",
     "keywords": []
   },
@@ -2042,7 +2042,7 @@
     "rarity": "COMMON",
     "attack": 2,
     "health": 3,
-    "text": "",
+    "text": "A well-rounded fighter ready for any situation.",
     "flavor": "Average height, average build, above-average survival instinct.",
     "keywords": [],
     "minionType": "AMETI"
@@ -2077,7 +2077,7 @@
     "rarity": "RARE",
     "attack": 2,
     "health": 4,
-    "text": "",
+    "text": "A long-lasting instrument of war.",
     "flavor": "When it plays, the world goes quiet.",
     "keywords": []
   },
@@ -2108,7 +2108,7 @@
     "rarity": "COMMON",
     "attack": 5,
     "health": 2,
-    "text": "",
+    "text": "A devastating blade forged in flame.",
     "flavor": "Forged in Gavalon's deepest furnace. Handle with extreme caution.",
     "keywords": []
   },
@@ -2121,7 +2121,7 @@
     "rarity": "COMMON",
     "attack": 3,
     "health": 2,
-    "text": "",
+    "text": "A versatile spear that bends but never breaks.",
     "flavor": "Charges into battle. Charges out of battle. Charges the bill.",
     "keywords": []
   },
@@ -2193,7 +2193,7 @@
     "rarity": "COMMON",
     "attack": 4,
     "health": 3,
-    "text": "",
+    "text": "A charging beast that hits like a stampede.",
     "flavor": "When an elephant charges, you move. Or you don't move ever again.",
     "keywords": [],
     "minionType": "BEAST"
@@ -2379,7 +2379,7 @@
     "rarity": "COMMON",
     "attack": 3,
     "health": 3,
-    "text": "",
+    "text": "A balanced scythe built for the long fight.",
     "flavor": "Cuts through underbrush and overconfidence alike.",
     "keywords": []
   },
@@ -2497,7 +2497,7 @@
   {
     "cardCode": "JIM030",
     "name": "Infernic",
-    "manaCost": 8,
+    "manaCost": 5,
     "type": "MINION",
     "heroClass": "JIMMY",
     "rarity": "LEGENDARY",
@@ -2641,7 +2641,7 @@
     "rarity": "COMMON",
     "attack": 4,
     "health": 4,
-    "text": "",
+    "text": "A solid body on the battlefield.",
     "flavor": "He reads the news while the world burns around him.",
     "keywords": [],
     "minionType": "HUMAN"
@@ -2758,7 +2758,7 @@
     "rarity": "COMMON",
     "attack": 1,
     "health": 4,
-    "text": "",
+    "text": "A durable badge that outlasts most fights.",
     "flavor": "Small badge. Big force.",
     "keywords": []
   },
@@ -2986,7 +2986,7 @@
     "rarity": "COMMON",
     "attack": 3,
     "health": 3,
-    "text": "",
+    "text": "Channels the storm into every strike.",
     "flavor": "Lightning and ice, perfectly balanced. Perfectly painful.",
     "keywords": []
   },
@@ -3189,7 +3189,7 @@
     "rarity": "COMMON",
     "attack": 2,
     "health": 2,
-    "text": "",
+    "text": "A scrappy adventurer with nothing to lose.",
     "flavor": "If it flies, he'll ride it. If it doesn't, he'll make it fly.",
     "keywords": [],
     "minionType": "HUMAN"
@@ -3288,7 +3288,7 @@
     "rarity": "COMMON",
     "attack": 1,
     "health": 3,
-    "text": "",
+    "text": "A precise instrument repurposed for combat.",
     "flavor": "Finds metal underground. Finds trouble everywhere else.",
     "keywords": []
   },
@@ -3354,7 +3354,7 @@
     "rarity": "COMMON",
     "attack": 3,
     "health": 3,
-    "text": "",
+    "text": "A tough beast built for the front lines.",
     "flavor": "Armored. Antlered. Angry.",
     "keywords": [],
     "minionType": "BEAST"
@@ -3420,7 +3420,7 @@
     "rarity": "COMMON",
     "attack": 2,
     "health": 3,
-    "text": "",
+    "text": "A dependable launcher with steady firepower.",
     "flavor": "Aim. Fire. Apologize later.",
     "keywords": []
   },
@@ -3469,7 +3469,7 @@
     "heroClass": "JIMMY",
     "rarity": "LEGENDARY",
     "attack": 6,
-    "health": 5,
+    "health": 4,
     "text": "Battlecry: Deal 3 damage to all enemies.",
     "flavor": "Where she walks, the ground remembers.",
     "keywords": [
@@ -3542,7 +3542,7 @@
     "rarity": "COMMON",
     "attack": 2,
     "health": 2,
-    "text": "",
+    "text": "A simple Orra-powered ranged weapon.",
     "flavor": "Simple, elegant, and surprisingly accurate.",
     "keywords": []
   },
@@ -3648,7 +3648,7 @@
     "rarity": "COMMON",
     "attack": 2,
     "health": 2,
-    "text": "",
+    "text": "A basic mech unit ready for deployment.",
     "flavor": "Simple design. Simple function. Simply effective.",
     "keywords": [],
     "minionType": "MECH"
@@ -3662,7 +3662,7 @@
     "rarity": "RARE",
     "attack": 4,
     "health": 5,
-    "text": "",
+    "text": "A formidable warrior with staying power.",
     "flavor": "A scholar of the old ways and the new swords.",
     "keywords": [],
     "minionType": "AMETI"
@@ -3697,7 +3697,7 @@
     "rarity": "RARE",
     "attack": 3,
     "health": 3,
-    "text": "",
+    "text": "Sturdy natural armor with a sharp edge.",
     "flavor": "Surprisingly effective. Delicious afterwards.",
     "keywords": []
   },
@@ -3728,7 +3728,7 @@
     "rarity": "COMMON",
     "attack": 2,
     "health": 3,
-    "text": "",
+    "text": "A hardy little beast with big heart.",
     "flavor": "Small, round, and utterly fearless.",
     "keywords": [],
     "minionType": "BEAST"
@@ -3831,7 +3831,7 @@
     "rarity": "EPIC",
     "attack": 3,
     "health": 2,
-    "text": "",
+    "text": "A precision launcher packed with firepower.",
     "flavor": "Point. Click. Problem solved.",
     "keywords": []
   },
@@ -3951,13 +3951,22 @@
     "rarity": "COMMON",
     "attack": 0,
     "health": 0,
-    "text": "Return a minion to its owner's hand.",
+    "text": "Give a friendly minion +0/+2 and Taunt.",
     "flavor": "Sometimes the simplest solution is a sharp blade.",
     "keywords": [],
-    "spellEffect": {
-      "type": "RETURN_TO_HAND",
-      "target": "TARGET_MINION"
-    }
+    "spellEffects": [
+      {
+        "type": "BUFF_MINION",
+        "target": "TARGET_FRIENDLY_MINION",
+        "attackBuff": 0,
+        "healthBuff": 2
+      },
+      {
+        "type": "GRANT_KEYWORD",
+        "target": "TARGET_FRIENDLY_MINION",
+        "grantKeyword": "TAUNT"
+      }
+    ]
   },
   {
     "cardCode": "DRK035",
@@ -4220,7 +4229,7 @@
     "rarity": "COMMON",
     "attack": 3,
     "health": 2,
-    "text": "",
+    "text": "Cobbled together from spare parts. Still deadly.",
     "flavor": "Recycled from seventeen different machines. Works like new.",
     "keywords": []
   },
@@ -4294,7 +4303,7 @@
     "rarity": "COMMON",
     "attack": 1,
     "health": 4,
-    "text": "",
+    "text": "Surprisingly resilient despite its name.",
     "flavor": "Fragile name. Unbreakable shield.",
     "keywords": []
   },
@@ -4328,7 +4337,7 @@
     "rarity": "RARE",
     "attack": 2,
     "health": 2,
-    "text": "",
+    "text": "A quick blade for early skirmishes.",
     "flavor": "Stands guard. Doesn't flinch. Not even once.",
     "keywords": []
   },
@@ -4414,7 +4423,7 @@
     "rarity": "RARE",
     "attack": 4,
     "health": 2,
-    "text": "",
+    "text": "Pierces through the toughest armor.",
     "flavor": "Goes through shields like they're made of paper.",
     "keywords": []
   },
@@ -4469,7 +4478,7 @@
     "rarity": "COMMON",
     "attack": 2,
     "health": 1,
-    "text": "",
+    "text": "A quick and fragile creature that strikes fast.",
     "flavor": "Sharp enough to cut through the morning fog.",
     "keywords": [],
     "minionType": "BEAST"
@@ -4777,7 +4786,7 @@
     "rarity": "COMMON",
     "attack": 3,
     "health": 3,
-    "text": "",
+    "text": "A dependable fighter with even stats.",
     "flavor": "One person's trash is RoRo's treasure.",
     "keywords": [],
     "minionType": "AMETI"
@@ -4809,7 +4818,7 @@
     "rarity": "COMMON",
     "attack": 4,
     "health": 4,
-    "text": "",
+    "text": "A seasoned traveler who pulls his weight.",
     "flavor": "Potions and papers. The tools of a true academic.",
     "keywords": [],
     "minionType": "HUMAN"
@@ -4925,7 +4934,7 @@
     "rarity": "COMMON",
     "attack": 3,
     "health": 2,
-    "text": "",
+    "text": "A feisty beast that trades hits eagerly.",
     "flavor": "Half ram, half nightmare. All horns.",
     "keywords": [],
     "minionType": "BEAST"
@@ -5179,7 +5188,7 @@
     "rarity": "COMMON",
     "attack": 2,
     "health": 3,
-    "text": "",
+    "text": "Bends reality with every swing.",
     "flavor": "Bends space. Breaks expectations.",
     "keywords": []
   },
@@ -5246,7 +5255,7 @@
     "rarity": "COMMON",
     "attack": 1,
     "health": 2,
-    "text": "",
+    "text": "A tiny dragon with untapped potential.",
     "flavor": "Baby dragon. Big dreams. Bigger appetite.",
     "keywords": [],
     "minionType": "DRAGON"
@@ -5367,7 +5376,7 @@
     "rarity": "RARE",
     "attack": 8,
     "health": 8,
-    "text": "",
+    "text": "A massive elemental of pure Orra energy.",
     "flavor": "Pure Orra energy given form. Simple, devastating.",
     "keywords": [],
     "minionType": "ELEMENTAL"
@@ -5417,17 +5426,24 @@
     "rarity": "EPIC",
     "attack": 9,
     "health": 9,
-    "text": "Battlecry: Deal 5 damage to all enemy minions.",
+    "text": "Battlecry: Deal 5 damage to all enemy minions. Deal 3 damage to your hero.",
     "flavor": "When the desert moves, everything dies.",
     "keywords": [
       "BATTLECRY"
     ],
     "minionType": "BEAST",
-    "battlecryEffect": {
-      "type": "DEAL_DAMAGE_ALL_ENEMIES",
-      "target": "ALL_ENEMY_MINIONS",
-      "value": 5
-    }
+    "battlecryEffects": [
+      {
+        "type": "DEAL_DAMAGE_ALL_ENEMIES",
+        "target": "ALL_ENEMY_MINIONS",
+        "value": 5
+      },
+      {
+        "type": "DEAL_DAMAGE",
+        "target": "TARGET_HERO",
+        "value": 3
+      }
+    ]
   },
   {
     "cardCode": "NEU107",
@@ -5457,7 +5473,7 @@
     "rarity": "LEGENDARY",
     "attack": 12,
     "health": 12,
-    "text": "",
+    "text": "The largest creature in Miro. An unstoppable force.",
     "flavor": "It breaches the ocean once a century. Cities tremble.",
     "keywords": [],
     "minionType": "BEAST"
@@ -5693,7 +5709,7 @@
     "rarity": "COMMON",
     "attack": 3,
     "health": 2,
-    "text": "",
+    "text": "Drains energy with every cut.",
     "flavor": "It drains a little life with every swing.",
     "keywords": []
   },

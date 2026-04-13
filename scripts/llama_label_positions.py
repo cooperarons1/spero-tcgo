@@ -1,21 +1,19 @@
 #!/usr/bin/env python3
 """
-llama_label_positions.py — query Llama 3.1 70B for soft labels on disagreement
+llama_label_positions.py — query Gemma 4 31B for soft labels on disagreement
 positions.
 
 Reads the queue JSONL produced by find_disagreements.py, sends each position
-to the local Llama 70B via Ollama, and writes a labels JSONL the trainer can
+to Gemma 4 via mlx_lm.server, and writes a labels JSONL the trainer can
 mix into the loss as a third supervision signal.
 
 Concurrency
 -----------
-asyncio.Semaphore(N) — default 4 in-flight requests. Ollama serializes most
-decode work on the M5 GPU so 4 is the sweet spot:
+asyncio.Semaphore(N) — default 4 in-flight requests. mlx_lm.server serializes
+most decode work on the M5 GPU so 4 is the sweet spot:
   - 1 in-flight: ~3-5 s/label, ~12-20 labels/min
   - 4 in-flight: ~1-2 s/label effective, ~30-60 labels/min
   - 8 in-flight: tail latency spikes, throughput barely improves
-
-5,000 labels at 4-way concurrency = ~1.5-3 hours. 10,000 labels = ~3-6 hours.
 
 Resume + checkpointing
 ----------------------
@@ -41,7 +39,7 @@ Output JSONL line shape
       "llama_score": float in [0, 1],
       "llama_confidence": float,
       "raw_response": "SCORE: 0.XX | CONF: 0.YY",
-      "model": "llama3.1:70b",
+      "model": "mlx-community/gemma-4-31b-it-4bit",
       "elapsed_ms": int
     }
 """
@@ -63,10 +61,10 @@ import numpy as np
 # Reuse the local LLM client
 sys.path.insert(0, str(Path(__file__).parent))
 from llm.local_client import (  # noqa: E402
-    LLAMA_TEACHER_MODEL,
+    TEACHER_MODEL,
     LocalLLMUnavailable,
     chat_local,
-    probe_ollama,
+    probe_server,
 )
 
 
@@ -74,15 +72,14 @@ SYSTEM_PROMPT = """You are an expert evaluator of competitive card game position
 
 You'll see a snapshot of a 2-player turn-based card game. Your job: estimate the probability that the **active player** (the one whose turn it is) wins the game with optimal play from both sides.
 
+CALIBRATION RULES:
+- Early game (turns 1-8) with both players near full life: scores should be CLOSE TO 0.50 unless one side has an overwhelming board or card advantage.
+- A 2-minion board advantage with both players near full life is worth about 0.05-0.15 points, NOT 0.30+.
+- Reserve scores above 0.75 or below 0.25 for positions where one player is clearly losing (very low life, empty hand, massive board disadvantage).
+- When uncertain, bias toward 0.50.
+
 Reply on a SINGLE LINE in this exact format:
 SCORE: 0.XX | CONF: 0.YY
-
-Where:
-- SCORE is the probability the active player wins, in [0.00, 1.00]
-- CONF is your confidence in that estimate, in [0.00, 1.00]
-- 0.50 means a 50/50 toss-up
-- 0.85 means active player has a strong advantage
-- 0.10 means active player is in serious trouble
 
 Do NOT include any explanation, reasoning, or extra text. Just the SCORE/CONF line."""
 
@@ -114,13 +111,13 @@ def parse_score(text: str) -> tuple[Optional[float], Optional[float]]:
 
 def feature_hash(features: list[float]) -> str:
     """Stable hash of a feature vector — used as a join key between the
-    Llama labels file and the trainer's snapshot stream. Sha1 of the fp32
+    labels file and the trainer's snapshot stream. Sha1 of the fp32
     byte representation, truncated to 16 hex chars (~64 bits, plenty for
     ~10K positions).
 
     Why fp32 bytes and not f"{v:.5f}" string formatting:
       - 100x faster, which matters because the trainer will hash 100M+
-        snapshots when joining llama labels back to the training stream
+        snapshots when joining labels back to the training stream
       - bit-exact across the labeler and trainer because JSON numbers
         round-trip as Python fp64, and Python→numpy fp32 cast is
         deterministic
@@ -136,7 +133,7 @@ async def label_one(
     model: str,
     seed: int,
 ) -> Optional[dict]:
-    """Send one position to Llama and return its parsed label, or None on
+    """Send one position to Gemma 4 and return its parsed label, or None on
     error. Caller is responsible for incrementing the resume counter and
     writing to the output file."""
     async with sem:
@@ -146,7 +143,7 @@ async def label_one(
                 system_prompt=SYSTEM_PROMPT,
                 user_prompt=USER_PROMPT_TEMPLATE.format(summary=item["summary"]),
                 model=model,
-                num_predict=48,
+                num_predict=1024,
                 temperature=0.0,
                 seed=seed,
             )
@@ -203,13 +200,12 @@ async def main_async(args: argparse.Namespace) -> int:
         print(f"Queue file not found: {queue_path}", file=sys.stderr)
         return 1
 
-    print(f"Probing Ollama for {args.model}...")
-    available = await probe_ollama(args.model)
+    print(f"Probing LLM server for {args.model}...")
+    available = await probe_server(args.model)
     if not available:
         print(
-            f"Ollama at OLLAMA_HOST is not reachable or {args.model!r} is not pulled.\n"
-            f"Start ollama: `brew services start ollama`\n"
-            f"Pull model:  `ollama pull {args.model}`",
+            f"LLM server at LLM_HOST is not reachable or {args.model!r} is not loaded.\n"
+            f"Start server: python -m mlx_lm.server --model {args.model} --port 8080",
             file=sys.stderr,
         )
         return 1
@@ -285,10 +281,10 @@ async def main_async(args: argparse.Namespace) -> int:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Query Llama 70B for soft labels on disagreement positions")
+    parser = argparse.ArgumentParser(description="Query Gemma 4 for soft labels on disagreement positions")
     parser.add_argument("--queue", default="data/llama-queue.jsonl")
     parser.add_argument("--output", default="data/llama-labels.jsonl")
-    parser.add_argument("--model", default=LLAMA_TEACHER_MODEL)
+    parser.add_argument("--model", default=TEACHER_MODEL)
     parser.add_argument("--concurrency", type=int, default=4)
     parser.add_argument("--max-positions", type=int, default=None)
     parser.add_argument("--seed", type=int, default=42,

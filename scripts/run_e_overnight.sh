@@ -6,10 +6,10 @@
 #         Run C2's mild val/train gap (0.59 vs 0.40) was capacity-bound.
 #         Cost: ~30 min training + ~22 min chunked load.
 #
-# Run E2: label the remaining 6499 disagreement positions with Llama 70B
+# Run E2: label the remaining 6499 disagreement positions with Gemma 4 31B
 #         (already-labeled 3500 are skipped via --resume), then retrain
 #         the LARGE model with --llama-weight 0.5 (up from D's 0.3).
-#         Cost: ~5 hours of Llama labeling + ~52 min training.
+#         Cost: ~5 hours of Gemma labeling + ~52 min training.
 #
 # Eval at the end: head-to-head vs Run C, C2, D, E, E2 on a held-out
 # 1M-position test set. Now uses the fast normal-approx binomial.
@@ -36,7 +36,7 @@ caffeinate -i -s $PY -u scripts/train_neural_eval.py \
   --dtype bf16
 echo "[$(date '+%H:%M:%S')] Run E training done"
 
-echo "[$(date '+%H:%M:%S')] === Run E2: label remaining disagreement queue ==="
+echo "[$(date '+%H:%M:%S')] === Run E2: label remaining disagreement queue (Gemma 4) ==="
 # --resume skips the 3500 positions already in data/llama-labels.jsonl,
 # so this only does the remaining ~6500.
 caffeinate -i -s $PY -u scripts/llama_label_positions.py \
@@ -44,9 +44,9 @@ caffeinate -i -s $PY -u scripts/llama_label_positions.py \
   --output data/llama-labels.jsonl \
   --concurrency 4 \
   --resume
-echo "[$(date '+%H:%M:%S')] Llama labeling done"
+echo "[$(date '+%H:%M:%S')] Gemma labeling done"
 
-echo "[$(date '+%H:%M:%S')] === Run E2: large model + full Llama distillation ==="
+echo "[$(date '+%H:%M:%S')] === Run E2: large model + full Gemma 4 distillation ==="
 caffeinate -i -s $PY -u scripts/train_neural_eval.py \
   --simulation-data data/sim-history-runC2.jsonl \
   --llama-labels data/llama-labels.jsonl \

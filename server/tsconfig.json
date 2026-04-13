@@ -12,5 +12,5 @@
       "../shared/*": ["../shared/*"]
     }
   },
-  "include": ["*.ts", "../shared/*.ts"]
+  "include": ["*.ts", "handlers/*.ts", "../shared/*.ts"]
 }
