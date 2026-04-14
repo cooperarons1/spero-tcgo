@@ -244,11 +244,14 @@ export function registerSocialHandlers(
     s2?.join(room.code);
 
     const uids = Array.from(room.players.keys());
-    const d0 = room.selectedDecks.get(uids[0])!;
-    const d1 = room.selectedDecks.get(uids[1])!;
+    const d0 = room.selectedDecks.get(uids[0]);
+    const d1 = room.selectedDecks.get(uids[1]);
+    const name0 = room.players.get(uids[0]);
+    const name1 = room.players.get(uids[1]);
+    if (!d0 || !d1 || !name0 || !name1) return;
     const entries = [
-      { id: uids[0], name: room.players.get(uids[0])!, heroClass: d0.heroClass },
-      { id: uids[1], name: room.players.get(uids[1])!, heroClass: d1.heroClass },
+      { id: uids[0], name: name0, heroClass: d0.heroClass },
+      { id: uids[1], name: name1, heroClass: d1.heroClass },
     ];
 
     room.game = createGame(entries, { deckLists: [d0.cards, d1.cards] });

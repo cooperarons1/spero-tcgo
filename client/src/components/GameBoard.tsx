@@ -496,6 +496,7 @@ function BoardMinionCard({
   animationClass,
   isBuffed,
   onPointerDown,
+  animStyle,
 }: {
   minion: BoardMinion;
   isMyMinion: boolean;
@@ -507,6 +508,7 @@ function BoardMinionCard({
   animationClass?: string;
   isBuffed?: boolean;
   onPointerDown?: (e: React.PointerEvent) => void;
+  animStyle?: Record<string, string | number>;
 }) {
   const [showTooltip, setShowTooltip] = useState(false);
   const def = getCard(minion.cardCode);
@@ -525,6 +527,7 @@ function BoardMinionCard({
       onPointerDown={onPointerDown}
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
+      style={animStyle as React.CSSProperties}
       className={`relative w-[9rem] h-[10.5rem] select-none touch-none transition-all
         ${hasTaunt ? 'minion-oval-taunt' : 'minion-oval'}
         ${hasDivine && !isSilenced ? 'ring-[3px] ring-yellow-300 ring-offset-1 ring-offset-transparent animate-divine-sparkle' : ''}
@@ -2130,6 +2133,33 @@ export default function GameBoard({
     return undefined;
   }, [entranceIds, damageIds, lungeId, defenderLungeId]);
 
+  // ─── Convert server animation params to CSS custom properties ───
+  const getAnimStyle = useCallback((cardCode: string): Record<string, string | number> | undefined => {
+    const ap = gs.animParams?.[cardCode];
+    if (!ap) return undefined;
+    const style: Record<string, string | number> = {};
+    if (ap.entrance_duration) style['--anim-entrance-duration'] = `${ap.entrance_duration}s`;
+    if (ap.entrance_scale_from != null) style['--anim-entrance-scale-from'] = ap.entrance_scale_from;
+    if (ap.entrance_scale_to != null) style['--anim-entrance-scale-to'] = ap.entrance_scale_to;
+    if (ap.entrance_opacity_from != null) style['--anim-entrance-opacity-from'] = ap.entrance_opacity_from;
+    if (ap.entrance_translate_y) style['--anim-entrance-translate-y'] = `${ap.entrance_translate_y}px`;
+    if (ap.attack_lunge_dist) style['--anim-attack-lunge-dist'] = `${ap.attack_lunge_dist}px`;
+    if (ap.attack_lunge_dur) style['--anim-attack-lunge-dur'] = `${ap.attack_lunge_dur}s`;
+    if (ap.death_fade_dur) style['--anim-death-fade-dur'] = `${ap.death_fade_dur}s`;
+    if (ap.death_scale_to != null) style['--anim-death-scale-to'] = ap.death_scale_to;
+    if (ap.dmg_flash_dur) style['--anim-dmg-flash-dur'] = `${ap.dmg_flash_dur}s`;
+    if (ap.dmg_shake_amp) style['--anim-dmg-shake-amp'] = `${ap.dmg_shake_amp}px`;
+    if (ap.buff_pulse_scale) style['--anim-buff-pulse-scale'] = ap.buff_pulse_scale;
+    if (ap.buff_pulse_dur) style['--anim-buff-pulse-dur'] = `${ap.buff_pulse_dur}s`;
+    if (ap.buff_glow_intensity != null) style['--anim-buff-glow-intensity'] = ap.buff_glow_intensity;
+    if (ap.spell_proj_dur) style['--anim-spell-proj-dur'] = `${ap.spell_proj_dur}s`;
+    if (ap.spell_impact_scale) style['--anim-spell-impact-scale'] = ap.spell_impact_scale;
+    if (ap.spell_impact_dur) style['--anim-spell-impact-dur'] = `${ap.spell_impact_dur}s`;
+    if (ap.draw_slide_dur) style['--anim-draw-slide-dur'] = `${ap.draw_slide_dur}s`;
+    if (ap.draw_slide_dist) style['--anim-draw-slide-dist'] = `${ap.draw_slide_dist}px`;
+    return Object.keys(style).length > 0 ? style : undefined;
+  }, [gs.animParams]);
+
   // ─── Dynamic board gap + per-board scale ───
   // Old version returned a NEGATIVE gap (-0.5rem) when the board hit 7
   // minions, which made them overlap and look "crammed" — the user's
@@ -2161,14 +2191,12 @@ export default function GameBoard({
   // ─── Mulligan ───
   if (gs.phase === 'MULLIGAN') {
     const alreadyConfirmed = gs.mulliganConfirmed[gs.myPlayerIndex];
-    console.log('[MULLIGAN] myIdx:', gs.myPlayerIndex, 'confirmed:', gs.mulliganConfirmed, 'hand:', gs.myHand.length);
     return (
       <div className="relative h-screen w-screen bg-stone-950">
         <MulliganScreen
           hand={gs.myHand}
           confirmed={alreadyConfirmed}
           onConfirm={(replacements) => {
-            console.log('[MULLIGAN] confirming with', replacements);
             actions.confirmMulligan(replacements);
           }}
         />
@@ -2503,6 +2531,7 @@ export default function GameBoard({
                   onClick={() => handleEnemyTargetClick(m.instanceId)}
                   animationClass={getMinionAnim(m.instanceId, false)}
                   isBuffed={buffedIds.has(m.instanceId)}
+                  animStyle={getAnimStyle(m.cardCode)}
                 />
               </div>
               );
@@ -2680,6 +2709,7 @@ export default function GameBoard({
                         animationClass={getMinionAnim(m.instanceId, true)}
                         isBuffed={buffedIds.has(m.instanceId)}
                         onPointerDown={(e) => handleMinionPointerDown(e, m)}
+                        animStyle={getAnimStyle(m.cardCode)}
                       />
                     </div>
                   );

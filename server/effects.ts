@@ -430,9 +430,9 @@ export function executeEffect(
       break;
     }
     case 'BUFF_ALL_FRIENDLY_MINIONS': {
-      const atkBuff = (effect as any).attackBuff ?? 0;
-      const hpBuff = (effect as any).healthBuff ?? 0;
-      const grantDS = (effect as any).grantDivineShield ?? false;
+      const atkBuff = effect.attackBuff ?? 0;
+      const hpBuff = effect.healthBuff ?? 0;
+      const grantDS = effect.grantDivineShield ?? false;
       for (const m of me.board) {
         m.currentAttack += atkBuff;
         m.maxHealth += hpBuff;
@@ -444,8 +444,8 @@ export function executeEffect(
       break;
     }
     case 'SUMMON_TOKENS': {
-      const count = (effect as any).count ?? 1;
-      const tokenCode = (effect as any).tokenCode;
+      const count = effect.count ?? 1;
+      const tokenCode = effect.tokenCode;
       for (let i = 0; i < count; i++) {
         if (me.board.length >= MAX_BOARD_SIZE) break;
         if (tokenCode) {
@@ -460,13 +460,13 @@ export function executeEffect(
       // Deathrattle: return the dying minion to hand (handled specially in combat death processing)
       // For now, just add a card to hand
       if (me.hand.length < MAX_HAND_SIZE) {
-        const cardCode = (effect as any).cardCode ?? '';
+        const cardCode = effect.cardCode ?? '';
         if (cardCode) me.hand.push(makeInstance(cardCode));
       }
       break;
     }
     case 'BOUNCE_ENEMY_MINIONS_CONDITIONAL': {
-      const maxAttack = (effect as any).maxAttack ?? 3;
+      const maxAttack = effect.maxAttack ?? 3;
       const bounced: string[] = [];
       for (let i = opp.board.length - 1; i >= 0; i--) {
         if (opp.board[i].currentAttack <= maxAttack) {
@@ -483,8 +483,8 @@ export function executeEffect(
       break;
     }
     case 'GAIN_ARMOR_AND_DRAW': {
-      const armor = (effect as any).armor ?? 0;
-      const draw = (effect as any).draw ?? 0;
+      const armor = effect.armor ?? 0;
+      const draw = effect.draw ?? 0;
       me.armor += armor;
       for (let i = 0; i < draw; i++) drawCard(game, casterIndex, true);
       addLog(game, casterIndex, `Gains ${armor} Armor and draws ${draw} card(s)`, 'EFFECT');

@@ -30,7 +30,7 @@ export function registerMatchmakingHandlers(
     try {
       const doc = await adminDb.collection('users').doc(uid).get();
       if (doc.exists && doc.data()?.elo) elo = doc.data()!.elo;
-    } catch {}
+    } catch (err) { console.warn('Failed to load ELO for', uid, err); }
     addToQueue({
       uid,
       socketId: socket.id,

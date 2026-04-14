@@ -30,7 +30,7 @@ export function checkSecrets(
   }
 ): { triggered: boolean; countered?: boolean } {
   // Prevent re-entrancy — secrets should not trigger other secrets
-  if ((game as any)._secretResolving) {
+  if (game._secretResolving) {
     return { triggered: false };
   }
 
@@ -73,7 +73,7 @@ export function checkSecrets(
   secretTriggerCount++;
 
   // Set re-entrancy guard
-  (game as any)._secretResolving = true;
+  game._secretResolving = true;
 
   try {
     // Log the reveal
@@ -138,7 +138,7 @@ export function checkSecrets(
 
     return { triggered: true, countered };
   } finally {
-    (game as any)._secretResolving = false;
+    game._secretResolving = false;
   }
 }
 

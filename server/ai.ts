@@ -331,11 +331,11 @@ export function scheduleAITurn(
   if (game.players[game.currentPlayerIndex].playerId !== aiPlayerId) return;
 
   // Prevent duplicate scheduling
-  if ((game as any)._aiScheduled) return;
-  (game as any)._aiScheduled = true;
+  if (game._aiScheduled) return;
+  game._aiScheduled = true;
 
   setTimeout(() => {
-    delete (game as any)._aiScheduled;
+    game._aiScheduled = undefined;
     executeAITurn(game, aiPlayerId, broadcast);
   }, DELAYS.action);
 }

@@ -5,6 +5,8 @@ import type { UserSeasonData } from '../../shared/seasons.js';
 import { adminDb } from '../firebaseAdmin.js';
 import { generateDailyQuests, shouldRefreshQuests, getLevel } from '../quests.js';
 import type { RateLimiter } from '../state.js';
+import { validated } from '../state.js';
+import { SelectCardBackSchema, ClaimBattlepassRewardSchema } from '../validation.js';
 
 export function registerProfileHandlers(
   io: Server,
@@ -175,10 +177,10 @@ export function registerProfileHandlers(
     }
   });
 
-  socket.on('select-card-back', async (data: { cardBackId: string }) => {
+  socket.on('select-card-back', validated(SelectCardBackSchema, async (data) => {
     if (!socialLimiter.allow(uid)) return;
-    const id = typeof data?.cardBackId === 'string' ? data.cardBackId : '';
-    if (!id || !CARD_BACKS.find(cb => cb.id === id)) {
+    const id = data.cardBackId;
+    if (!CARD_BACKS.find(cb => cb.id === id)) {
       socket.emit('error', 'Invalid card back');
       return;
     }
@@ -195,7 +197,7 @@ export function registerProfileHandlers(
     } catch (err) {
       console.error('select-card-back error:', err);
     }
-  });
+  }));
 
   // ── Daily Login Bonus ──
 
@@ -278,7 +280,7 @@ export function registerProfileHandlers(
     }
   });
 
-  socket.on('claim-battlepass-reward', async (data: { tier: number; track: 'free' | 'premium' }) => {
+  socket.on('claim-battlepass-reward', validated(ClaimBattlepassRewardSchema, async (data) => {
     try {
       const { BATTLE_PASS_TIERS, CURRENT_SEASON, getTierFromXP } = await import('../../shared/battlePass.js');
       const userRef = adminDb.collection('users').doc(uid);
@@ -335,5 +337,5 @@ export function registerProfileHandlers(
     } catch (err) {
       console.error('claim-battlepass error:', err);
     }
-  });
+  }));
 }

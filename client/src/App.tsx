@@ -186,7 +186,6 @@ function App() {
       const isOpponentActing = current && !phaseChanged && !state.winner && isOpponentTurn;
 
       if (phaseChanged) {
-        console.log('[STATE] Phase changed:', current?.phase, '->', state.phase, 'applying immediately');
         // Force-sync ref immediately so subsequent events in the same tick see the new phase
         displayedRef.current = state;
       }
@@ -205,7 +204,6 @@ function App() {
     });
 
     socket.on('needs-target', (data: { cardInstanceId?: string; heroPower?: boolean; locationInstanceId?: string; validTargets: string[] }) => {
-      console.log('[needs-target]', data.heroPower ? 'hero-power' : data.locationInstanceId ? 'location' : data.cardInstanceId, 'targets:', data.validTargets);
       const isHeroPower = !!data.heroPower;
       const isLocation = !!data.locationInstanceId;
       const interactionId = isHeroPower ? 'needs-target-hero-power'

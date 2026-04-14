@@ -107,18 +107,21 @@ setInterval(() => {
         try {
           const doc = await adminDb.collection('users').doc(pUid).get();
           room.cardBacks.set(pUid, doc.data()?.selectedCardBack ?? 'default');
-        } catch { room.cardBacks.set(pUid, 'default'); }
+        } catch (err) { console.warn('Failed to load card back for', pUid, err); room.cardBacks.set(pUid, 'default'); }
       }
 
       s1.join(room.code);
       s2.join(room.code);
 
       const uids = Array.from(room.players.keys());
-      const d0 = room.selectedDecks.get(uids[0])!;
-      const d1 = room.selectedDecks.get(uids[1])!;
+      const d0 = room.selectedDecks.get(uids[0]);
+      const d1 = room.selectedDecks.get(uids[1]);
+      const name0 = room.players.get(uids[0]);
+      const name1 = room.players.get(uids[1]);
+      if (!d0 || !d1 || !name0 || !name1) return;
       const entries = [
-        { id: uids[0], name: room.players.get(uids[0])!, heroClass: d0.heroClass },
-        { id: uids[1], name: room.players.get(uids[1])!, heroClass: d1.heroClass },
+        { id: uids[0], name: name0, heroClass: d0.heroClass },
+        { id: uids[1], name: name1, heroClass: d1.heroClass },
       ];
 
       room.game = createGame(entries, { deckLists: [d0.cards, d1.cards] });
@@ -156,13 +159,13 @@ io.on('connection', (socket) => {
 
   adminDb.collection('users').doc(uid).get().then(doc => {
     const data = doc.data() ?? {};
-    const updates: Record<string, any> = { displayName, displayNameLower: displayName.toLowerCase(), lastSeen: Date.now() };
+    const updates: Record<string, string | number | string[]> = { displayName, displayNameLower: displayName.toLowerCase(), lastSeen: Date.now() };
     // Initialize gold/dust for new users
     if (data.gold === undefined) updates.gold = 500;
     if (data.dust === undefined) updates.dust = 0;
     if (data.cardBacks === undefined) updates.cardBacks = ['default'];
     adminDb.collection('users').doc(uid).set(updates, { merge: true });
-  }).catch(() => {});
+  }).catch((err) => { console.warn('Failed to init user profile for', uid, err); });
 
   // Check for reconnection
   const reconnectedRoom = tryReconnect(uid, socket.id);
@@ -218,7 +221,6 @@ io.on('connection', (socket) => {
       } else {
         // Room doesn't exist (server restarted) — tell client to go back to lobby
         socket.emit('room-lost');
-        sessionStorage?.removeItem?.('spero-room-code');
       }
     }
   });

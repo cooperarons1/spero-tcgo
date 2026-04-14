@@ -19,7 +19,8 @@ export type Keyword =
   | 'COMBO'
   | 'BOND'
   | 'COLLAR'
-  | 'ORRA_CHARGE';
+  | 'ORRA_CHARGE'
+  | 'LIFESTEAL';
 
 // ─── Secrets ───
 
@@ -132,6 +133,13 @@ export interface EffectDef {
   summonCount?: number;
   grantKeyword?: Keyword; // for GRANT_KEYWORD effect
   condition?: string;     // for conditional effects (e.g. 'HAS_DIVINE_SHIELD_MINION')
+  grantDivineShield?: boolean;
+  count?: number;
+  tokenCode?: string;
+  cardCode?: string;
+  maxAttack?: number;
+  armor?: number;
+  draw?: number;
 }
 
 // ─── Enchantment (buff/debuff on a minion) ───
@@ -237,6 +245,9 @@ export interface GameState {
   pendingInteraction: PendingInteraction | null;
   cardsPlayedThisTurn: number; // for COMBO mechanic
   spectators?: string[];       // spectator user IDs
+  _matchWritten?: boolean;
+  _aiScheduled?: boolean;
+  _secretResolving?: boolean;
   pendingBattlecry?: {
     playerIndex: 0 | 1;
     minionInstanceId: string;
@@ -372,6 +383,10 @@ export interface ClientGameState {
   playerStats: [PlayerStats, PlayerStats];
   spectatorCount: number;
   isSpectator?: boolean;
+  opponentCardBack?: string;
+  myCardBack?: string;
+  gameMode?: string;
+  animParams?: Record<string, Record<string, number>>;
 }
 
 // ─── Constants ───

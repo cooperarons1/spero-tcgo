@@ -108,3 +108,24 @@ export const ChallengeResponseSchema = z.object({
   heroClass: z.enum(['DEREK', 'TALA', 'JIMMY', 'ANDERS', 'DES', 'ASTRID', 'AVA', 'LUCAS', 'IZZY']).optional(),
   deckCards: z.array(z.string()).length(30).optional(),
 });
+
+// ── Shop ──
+
+export const CraftCardSchema = z.object({
+  cardCode: z.string().min(1).max(50),
+});
+
+export const DisenchantCardSchema = z.object({
+  cardCode: z.string().min(1).max(50),
+});
+
+// ── Profile ──
+
+export const SelectCardBackSchema = z.object({
+  cardBackId: z.string().min(1).max(50),
+});
+
+export const ClaimBattlepassRewardSchema = z.object({
+  tier: z.number().int().min(1).max(100),
+  track: z.enum(['free', 'premium']),
+});

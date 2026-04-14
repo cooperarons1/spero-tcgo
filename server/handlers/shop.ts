@@ -1,5 +1,7 @@
 import type { Server, Socket } from 'socket.io';
 import { adminDb } from '../firebaseAdmin.js';
+import { validated } from '../state.js';
+import { CraftCardSchema, DisenchantCardSchema } from '../validation.js';
 
 export function registerShopHandlers(
   io: Server,
@@ -97,7 +99,7 @@ export function registerShopHandlers(
 
   // ── Craft / Disenchant ──
 
-  socket.on('craft-card', async (data: { cardCode: string }) => {
+  socket.on('craft-card', validated(CraftCardSchema, async (data) => {
     try {
       const { CRAFT_COSTS } = await import('../packs.js');
       const { getCardDef } = await import('../cards.js');
@@ -134,9 +136,9 @@ export function registerShopHandlers(
       console.error('craft-card error:', err);
       socket.emit('craft-error', 'Failed to craft');
     }
-  });
+  }));
 
-  socket.on('disenchant-card', async (data: { cardCode: string }) => {
+  socket.on('disenchant-card', validated(DisenchantCardSchema, async (data) => {
     try {
       const { DUST_VALUES } = await import('../packs.js');
       const { getCardDef } = await import('../cards.js');
@@ -168,7 +170,7 @@ export function registerShopHandlers(
       console.error('disenchant-card error:', err);
       socket.emit('disenchant-error', 'Failed to disenchant');
     }
-  });
+  }));
 
   // ── Get inventory (dust, gold, owned cards) ──
 

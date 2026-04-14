@@ -16,8 +16,7 @@ export function requestTargetChoice(
   const interactionId = `ti-${nextInteractionId++}`;
   const targetChoice: TargetChoice = { ...choice, interactionId };
 
-  game.log; // ensure game reference is valid
-  (game as any).pendingInteraction = {
+  game.pendingInteraction = {
     type: 'CHOOSE_TARGET' as const,
     waitingForPlayerId: playerId,
     timeoutAt: Date.now() + 30000,
@@ -31,7 +30,7 @@ export function resolveTargetChoice(
   playerId: string,
   selectedId: string | null
 ): { valid: boolean; selectedId: string | null } {
-  const interaction = (game as any).pendingInteraction as PendingInteraction | null;
+  const interaction = game.pendingInteraction;
   if (!interaction || interaction.type !== 'CHOOSE_TARGET') {
     return { valid: false, selectedId: null };
   }
@@ -43,13 +42,13 @@ export function resolveTargetChoice(
 
   // Skip allowed
   if (selectedId === null && choice.allowSkip) {
-    (game as any).pendingInteraction = null;
+    game.pendingInteraction = null;
     return { valid: true, selectedId: null };
   }
 
   // Validate the selected ID is in valid targets
   if (selectedId && choice.validTargets.some(t => t.id === selectedId)) {
-    (game as any).pendingInteraction = null;
+    game.pendingInteraction = null;
     return { valid: true, selectedId };
   }
 

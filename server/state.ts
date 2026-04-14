@@ -13,6 +13,7 @@ import { isAIPlayer, scheduleAITurn, getAIMulliganReplacements } from './ai.js';
 import { calculateElo } from './matchmaking.js';
 import { calculateXP, getLevel, calculateHeroXP, getHeroLevel, generateDailyQuests, shouldRefreshQuests, updateQuestProgress } from './quests.js';
 import { validateDeck } from '../shared/deckRules.js';
+import { isAnimModelAvailable, getAnimationParams } from './animation-model.js';
 import { getCardDef } from './cards.js';
 
 // ── Rate limiting ──
@@ -130,9 +131,24 @@ export function createBroadcastGameState(io: Server) {
       const state = getClientState(room.game, uid);
       // Attach card back info for rendering
       const oppUid = Array.from(room.players.keys()).find(u => u !== uid);
-      (state as any).opponentCardBack = room.cardBacks?.get(oppUid ?? '') ?? 'default';
-      (state as any).myCardBack = room.cardBacks?.get(uid) ?? 'default';
-      (state as any).gameMode = room.mode ?? (room.isAIGame ? 'ai' : 'casual');
+      state.opponentCardBack = room.cardBacks?.get(oppUid ?? '') ?? 'default';
+      state.myCardBack = room.cardBacks?.get(uid) ?? 'default';
+      state.gameMode = room.mode ?? (room.isAIGame ? 'ai' : 'casual');
+
+      // Attach neural animation params if model is loaded
+      if (isAnimModelAvailable()) {
+        const ap: Record<string, Record<string, number>> = {};
+        for (const m of state.myBoard) {
+          const p = getAnimationParams(m.cardCode, 'entrance');
+          if (p) ap[m.cardCode] = p;
+        }
+        for (const m of state.opponent.board) {
+          const p = getAnimationParams(m.cardCode, 'entrance');
+          if (p) ap[m.cardCode] = p;
+        }
+        state.animParams = ap;
+      }
+
       io.to(socketId).emit('game-state', state);
     }
 
@@ -196,8 +212,8 @@ async function finalizeGame(io: Server, room: Room) {
   if (!room?.game?.winner) return;
   const game = room.game;
 
-  if ((game as any)._matchWritten) return;
-  (game as any)._matchWritten = true;
+  if (game._matchWritten) return;
+  game._matchWritten = true;
 
   const uids = Array.from(room.players.keys());
   if (uids.length !== 2) return;
@@ -215,7 +231,7 @@ async function finalizeGame(io: Server, room: Room) {
     try {
       const doc = await adminDb.collection('users').doc(uids[i]).get();
       if (doc.exists && doc.data()?.elo) elos[i] = doc.data()!.elo;
-    } catch {}
+    } catch (err) { console.warn('Failed to load ELO for', uids[i], err); }
   }
 
   // Calculate new ELO (only for ranked PvP games)

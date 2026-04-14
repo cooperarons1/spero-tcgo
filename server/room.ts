@@ -1,6 +1,7 @@
 import type { Room, GameState } from '../shared/types.js';
 
 const rooms = new Map<string, Room>();
+const playerToRoom = new Map<string, string>(); // uid → roomCode (O(1) lookup)
 const disconnectedPlayers = new Map<string, { roomCode: string; timer: ReturnType<typeof setTimeout> }>();
 
 const RECONNECT_GRACE_MS = 120_000; // 2 minutes
@@ -35,6 +36,7 @@ export function createRoom(uid: string, socketId: string, name: string): Room {
     selectedDecks: new Map(),
   };
   rooms.set(code, room);
+  playerToRoom.set(uid, code);
   return room;
 }
 
@@ -45,6 +47,7 @@ export function joinRoom(code: string, uid: string, socketId: string, name: stri
   if (room.players.size >= 2) return null;
   room.players.set(uid, name);
   room.sockets.set(uid, socketId);
+  playerToRoom.set(uid, room.code);
   return room;
 }
 
@@ -53,10 +56,9 @@ export function getRoom(code: string): Room | null {
 }
 
 export function getRoomByPlayer(uid: string): Room | null {
-  for (const room of rooms.values()) {
-    if (room.players.has(uid)) return room;
-  }
-  return null;
+  const code = playerToRoom.get(uid);
+  if (!code) return null;
+  return rooms.get(code) ?? null;
 }
 
 /** Mark a player as disconnected with a reconnect grace period.
@@ -113,6 +115,7 @@ export function removePlayer(uid: string): Room | null {
   if (!room) return null;
   room.players.delete(uid);
   room.sockets.delete(uid);
+  playerToRoom.delete(uid);
   // Clean up any pending disconnect timer
   const dc = disconnectedPlayers.get(uid);
   if (dc) {
