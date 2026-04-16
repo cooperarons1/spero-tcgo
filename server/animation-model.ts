@@ -20,8 +20,6 @@ import { getCardDef } from './cards.js';
 
 // ── Schema constants ──────────────────────────────────────────────────
 
-const WEIGHTS_SCHEMA_VERSION = 1;
-
 const CARD_TYPES = ['MINION', 'SPELL', 'WEAPON', 'LOCATION'] as const;
 const RARITIES = ['COMMON', 'RARE', 'EPIC', 'LEGENDARY'] as const;
 const HERO_CLASSES: HeroClass[] = [
