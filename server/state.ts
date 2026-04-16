@@ -13,7 +13,7 @@ import { isAIPlayer, scheduleAITurn, getAIMulliganReplacements } from './ai.js';
 import { calculateElo } from './matchmaking.js';
 import { calculateXP, getLevel, calculateHeroXP, getHeroLevel, generateDailyQuests, shouldRefreshQuests, updateQuestProgress } from './quests.js';
 import { validateDeck } from '../shared/deckRules.js';
-import { isAnimModelAvailable, getAnimationParams } from './animation-model.js';
+import { isAnimModelAvailable, getCardAnimParams } from './animation-model.js';
 import { getCardDef } from './cards.js';
 
 // ── Rate limiting ──
@@ -135,17 +135,28 @@ export function createBroadcastGameState(io: Server) {
       state.myCardBack = room.cardBacks?.get(uid) ?? 'default';
       state.gameMode = room.mode ?? (room.isAIGame ? 'ai' : 'casual');
 
-      // Attach neural animation params if model is loaded
+      // Attach neural animation params if model is loaded. We collect
+      // every cardCode the client might render an animation for — board
+      // minions, locations, weapons, and the owner's own hand (for draw
+      // slide-in + prepared-spell animations). Opponent hand cards are
+      // hidden (cardCode null) and skipped. getCardAnimParams merges
+      // params from all contexts relevant to each card's type, so one
+      // flat per-card map drives entrance/attack/death/damage/buff/spell
+      // animations alike.
       if (isAnimModelAvailable()) {
         const ap: Record<string, Record<string, number>> = {};
-        for (const m of state.myBoard) {
-          const p = getAnimationParams(m.cardCode, 'entrance');
-          if (p) ap[m.cardCode] = p;
-        }
-        for (const m of state.opponent.board) {
-          const p = getAnimationParams(m.cardCode, 'entrance');
-          if (p) ap[m.cardCode] = p;
-        }
+        const addParamsFor = (cardCode: string | null | undefined) => {
+          if (!cardCode || ap[cardCode]) return;
+          const p = getCardAnimParams(cardCode);
+          if (p) ap[cardCode] = p;
+        };
+        for (const m of state.myBoard) addParamsFor(m.cardCode);
+        for (const m of state.opponent.board) addParamsFor(m.cardCode);
+        for (const c of state.myHand) addParamsFor(c.cardCode);
+        for (const l of state.myLocations) addParamsFor(l.cardCode);
+        for (const l of state.opponent.locations) addParamsFor(l.cardCode);
+        if (state.myWeapon) addParamsFor(state.myWeapon.cardCode);
+        if (state.opponent.weapon) addParamsFor(state.opponent.weapon.cardCode);
         state.animParams = ap;
       }
 

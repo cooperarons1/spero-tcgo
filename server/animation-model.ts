@@ -280,6 +280,11 @@ function denormalize(normalized: number[]): AnimationParams {
 
 // ── Public API ───────────────────────────────────────────────────────
 
+// Forward-pass output is deterministic for a given (cardCode, context),
+// so we memoize across broadcasts. A match touches <100 unique cardCodes;
+// ~8 contexts each → cache stays small (<1k entries) for a whole session.
+const animParamsCache = new Map<string, AnimationParams>();
+
 /**
  * Get predicted animation parameters for a card + animation context.
  * Returns null if the model is not available.
@@ -289,14 +294,81 @@ export function getAnimationParams(
   context: AnimContext,
 ): AnimationParams | null {
   if (!animWeights) return null;
+  const key = `${cardCode}|${context}`;
+  const cached = animParamsCache.get(key);
+  if (cached) return cached;
 
   try {
     const features = extractAnimFeatures(cardCode, context);
     const normalized = animForward(features);
-    return denormalize(normalized);
+    const params = denormalize(normalized);
+    animParamsCache.set(key, params);
+    return params;
   } catch {
     return null;
   }
+}
+
+// Maps an animation context to the PARAM_DEFS prefixes owned by that
+// context. We query the MLP once per relevant context and only take the
+// params that belong to it — attack_* from 'attack' pass, death_* from
+// 'death' pass, etc. Without this, every param would be biased toward
+// the one context used as the input one-hot.
+const CONTEXT_PARAM_PREFIXES: Record<AnimContext, readonly string[]> = {
+  entrance: ['entrance_'],
+  attack: ['attack_'],
+  death: ['death_'],
+  spell: ['spell_'],
+  damage: ['dmg_'],
+  buff: ['buff_'],
+  draw: ['draw_'],
+  // Non-context-specific params (card-level tint + timing) ride on 'idle'.
+  idle: ['delay_offset', 'color_shift_'],
+};
+
+function contextsForCardType(type: string | undefined): AnimContext[] {
+  switch (type) {
+    case 'MINION':
+      return ['entrance', 'attack', 'death', 'damage', 'buff', 'draw', 'idle'];
+    case 'SPELL':
+      return ['spell', 'damage', 'draw', 'idle'];
+    case 'WEAPON':
+      return ['entrance', 'attack', 'draw', 'idle'];
+    case 'LOCATION':
+      return ['entrance', 'draw', 'idle'];
+    default:
+      return ['entrance', 'draw', 'idle'];
+  }
+}
+
+/**
+ * Merged animation params for a card across every context relevant to
+ * its type. Each context's forward pass contributes only the params it
+ * owns (attack_* from 'attack' pass, etc.), so the returned flat map is
+ * what the client needs to drive every animation that card can take
+ * part in. Returns null if the model isn't loaded or the card is
+ * unknown.
+ */
+export function getCardAnimParams(cardCode: string): AnimationParams | null {
+  if (!animWeights) return null;
+  const card = getCardDef(cardCode) as any;
+  if (!card) return null;
+
+  const merged: AnimationParams = {};
+  for (const ctx of contextsForCardType(card.type)) {
+    const p = getAnimationParams(cardCode, ctx);
+    if (!p) continue;
+    const prefixes = CONTEXT_PARAM_PREFIXES[ctx];
+    for (const [name, val] of Object.entries(p)) {
+      for (const pre of prefixes) {
+        if (name === pre || name.startsWith(pre)) {
+          merged[name] = val;
+          break;
+        }
+      }
+    }
+  }
+  return Object.keys(merged).length > 0 ? merged : null;
 }
 
 /**

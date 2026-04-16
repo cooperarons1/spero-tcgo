@@ -1,9 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import {
   getAnimationParams,
+  getCardAnimParams,
   getDefaultAnimParams,
   isAnimModelAvailable,
 } from '../animation-model.js';
+import { getAllCardDefs } from '../cards.js';
 
 // The 38 param names are a contract with the client (GameBoard.tsx maps
 // each to a CSS custom property). If this list drifts, renames land as a
@@ -82,5 +84,20 @@ describe('animation-model without trained weights', () => {
     expect(getAnimationParams('NEU001', 'entrance')).toBeNull();
     expect(getAnimationParams('NEU001', 'attack')).toBeNull();
     expect(getAnimationParams('DOES_NOT_EXIST', 'entrance')).toBeNull();
+  });
+
+  it('getCardAnimParams returns null for every real card code', () => {
+    // Covers all four card types (MINION/SPELL/WEAPON/LOCATION) via the
+    // real catalog — if a type path throws instead of returning null,
+    // one of the 319 cards will catch it.
+    const defs = getAllCardDefs();
+    expect(defs.length).toBeGreaterThan(0);
+    for (const def of defs) {
+      expect(getCardAnimParams(def.cardCode)).toBeNull();
+    }
+  });
+
+  it('getCardAnimParams returns null for unknown cardCode', () => {
+    expect(getCardAnimParams('DOES_NOT_EXIST')).toBeNull();
   });
 });
