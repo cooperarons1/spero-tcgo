@@ -619,7 +619,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
                 <button
                   onClick={() => { setPageDir('left'); setPage(p => Math.max(0, p - 1)); }}
                   disabled={page === 0}
-                  className="text-gray-400 hover:text-amber-300 text-2xl font-bold px-4 py-1 cursor-pointer disabled:opacity-15 disabled:cursor-not-allowed transition-colors"
+                  className="text-gray-400 hover:text-amber-300 text-2xl font-bold px-4 py-1 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 >
                   &#9664;
                 </button>
@@ -637,7 +637,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
                 <button
                   onClick={() => { setPageDir('right'); setPage(p => Math.min(totalPages - 1, p + 1)); }}
                   disabled={page >= totalPages - 1}
-                  className="text-gray-400 hover:text-amber-300 text-2xl font-bold px-4 py-1 cursor-pointer disabled:opacity-15 disabled:cursor-not-allowed transition-colors"
+                  className="text-gray-400 hover:text-amber-300 text-2xl font-bold px-4 py-1 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 >
                   &#9654;
                 </button>
@@ -857,8 +857,14 @@ export function Collection({ uid, onBack }: CollectionProps) {
 
       {/* Hero Class Picker Modal */}
       {showHeroPicker && (
-        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center">
-          <div className="bg-slate-800 rounded-2xl p-6 border border-slate-700 max-w-md w-full mx-4">
+        <div
+          className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center"
+          onClick={() => setShowHeroPicker(false)}
+        >
+          <div
+            className="bg-slate-800 rounded-2xl p-6 border border-slate-700 max-w-md w-full mx-4"
+            onClick={e => e.stopPropagation()}
+          >
             <h2 className="text-white font-bold text-lg text-center mb-1">Choose a Hero</h2>
             <p className="text-gray-500 text-xs text-center mb-5">Select a class for your new deck</p>
             <div className="grid grid-cols-2 gap-3">

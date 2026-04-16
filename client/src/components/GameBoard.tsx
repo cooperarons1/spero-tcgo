@@ -894,6 +894,7 @@ function HeroPortrait({
           onClick={onHeroPowerClick}
           onPointerDown={onHeroPowerPointerDown}
           disabled={!canUseHeroPower}
+          aria-label={`Hero Power: ${HERO_POWER_DESC[heroClass]}`}
           className={`relative flex h-16 w-16 md:h-20 md:w-20 items-center justify-center rounded-full border-[3px] transition-all touch-none
             ${heroPowerUpgraded
               ? (canUseHeroPower

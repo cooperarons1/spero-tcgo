@@ -48,6 +48,12 @@ export function PackOpening({ onBack, gold }: PackOpeningProps) {
   }, []);
 
   useEffect(() => {
+    if (!error) return;
+    const t = setTimeout(() => setError(''), 3500);
+    return () => clearTimeout(t);
+  }, [error]);
+
+  useEffect(() => {
     const onPackOpened = (data: { cards: PackCard[]; dustGained: number; newGold: number; newDust: number }) => {
       setCards(data.cards);
       setDustGained(data.dustGained);

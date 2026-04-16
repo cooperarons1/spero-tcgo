@@ -22,7 +22,6 @@ const BUNDLE_COSTS: Record<number, number> = { 1: 100, 5: 450, 10: 800 };
 export function Shop({ onBack, onOpenPacks }: ShopProps) {
   const [gold, setGold] = useState(0);
   const [dust, setDust] = useState(0);
-  const [purchaseMsg, setPurchaseMsg] = useState<string | null>(null);
 
   useEffect(() => {
     socket.emit('get-inventory');
@@ -59,13 +58,6 @@ export function Shop({ onBack, onOpenPacks }: ShopProps) {
           <span className="text-blue-400 font-bold text-sm">{dust} Dust</span>
         </div>
       </div>
-
-      {/* Purchase toast */}
-      {purchaseMsg && (
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-amber-600/90 text-white font-bold px-5 py-2 rounded-full shadow-2xl animate-fade-in">
-          {purchaseMsg}
-        </div>
-      )}
 
       {/* Shop content — animate-slide-up gives the whole panel a single
           coherent entrance instead of all sections snapping in. */}

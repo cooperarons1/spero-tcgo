@@ -405,7 +405,7 @@ export function DeckPicker({ mode, queueMode = 'casual', uid, onBack }: DeckPick
               disabled={!isValidDeck || starting || matchmaking}
               className="w-36 h-36 rounded-full bg-gradient-to-br from-green-500 to-green-700 text-white font-extrabold text-2xl hover:brightness-110 hover:scale-105 active:scale-95 transition-all shadow-[0_0_30px_rgba(34,197,94,0.4)] cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed disabled:scale-100 border-4 border-green-400/60 flex items-center justify-center"
             >
-              {starting ? '...' : matchmaking ? '...' : 'Play'}
+              {starting ? '...' : matchmaking ? 'Finding…' : 'Play'}
             </button>
             <button
               onClick={onBack}

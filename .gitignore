@@ -14,8 +14,16 @@ data/sim-history*.jsonl
 data/sim-history*.jsonl.*
 data/teacher-decisions.jsonl
 data/llama-labels.jsonl
+data/llama-labels-smoke.jsonl
 data/llama-queue.jsonl
+
+# Animation model preview frames (regenerated from scripts/animation-model)
+data/animation-preview/
 
 # Python venv created by the trainer
 .venv/
+
+# Python bytecode caches
+__pycache__/
+*.pyc
 

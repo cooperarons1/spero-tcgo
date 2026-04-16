@@ -10,6 +10,7 @@ import {
   tryReconnect,
   hasActiveGracePeriod,
   clearRoomTimer,
+  cleanupStaleRooms,
 } from '../room.js';
 
 // Room module uses global state. We create fresh rooms per test and
@@ -200,5 +201,52 @@ describe('disconnect and reconnect', () => {
     expect(hasActiveGracePeriod(room)).toBe(true);
     vi.useRealTimers();
     room.game = null;
+  });
+});
+
+// ── Stale room cleanup ────────────────────────────────────────────
+//
+// cleanupStaleRooms() fires on a 5-minute interval (see index.ts) as a
+// safety net for rooms that reach players.size === 0 through a code path
+// other than removePlayer (which already self-deletes empty rooms). We
+// reach that state in tests by mutating room.players directly — the
+// public API doesn't expose a way to leave an empty room alive.
+
+describe('cleanupStaleRooms', () => {
+  it('removes rooms with no players', () => {
+    const room = createRoom(trackUid('host_cs1'), 'sock_cs1', 'Host');
+    room.players.clear();
+    cleanupStaleRooms();
+    expect(getRoom(room.code)).toBeNull();
+  });
+
+  it('preserves rooms with active players', () => {
+    const room = createRoom(trackUid('host_cs2'), 'sock_cs2', 'Host');
+    cleanupStaleRooms();
+    expect(getRoom(room.code)).toBe(room);
+  });
+
+  it('preserves empty rooms whose players still have an active grace period', () => {
+    vi.useFakeTimers();
+    const room = createRoom(trackUid('host_cs3'), 'sock_cs3', 'Host');
+    joinRoom(room.code, trackUid('p2_cs3'), 'sock_p2_cs3', 'P2');
+    room.game = { winner: null } as any;
+    markDisconnected('p2_cs3');
+    room.players.clear();
+    cleanupStaleRooms();
+    expect(getRoom(room.code)).toBe(room);
+    // Restore for afterEach cleanup
+    room.players.set('p2_cs3', 'P2');
+    room.game = null;
+    vi.useRealTimers();
+  });
+
+  it('clears the room timer interval when removing a stale room', () => {
+    const room = createRoom(trackUid('host_cs4'), 'sock_cs4', 'Host');
+    room.players.clear();
+    room.timerInterval = setInterval(() => {}, 1_000_000);
+    cleanupStaleRooms();
+    expect(room.timerInterval).toBeNull();
+    expect(getRoom(room.code)).toBeNull();
   });
 });
