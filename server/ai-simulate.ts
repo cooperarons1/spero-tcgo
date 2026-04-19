@@ -69,6 +69,14 @@ interface SimRecord {
   // Phase 4 — needed for margin-of-victory weighting in train_neural_eval.py.
   // The final life of the winner; useful as a "decisiveness" signal.
   final_winner_life?: number;
+  // Per-hero + played-card manifest so scripts/aggregate_balance.py can
+  // compute true per-card play-winrate without needing to invert the bloom
+  // fingerprint features. Populated for every game (regardless of whether
+  // SIM_HISTORY_FILE is set, since the balance-audit pipeline uses it too).
+  winner_hero?: string;
+  loser_hero?: string;
+  winner_cards?: string[];
+  loser_cards?: string[];
   snapshots: SimSnapshot[];
 }
 
@@ -545,7 +553,14 @@ for (let g = 0; g < gameCount && Date.now() < endTime; g++) {
       simRecord.winner_id = game.winner ?? null;
       if (game.winner) {
         const widx = game.players.findIndex(p => p.playerId === game.winner);
-        if (widx >= 0) simRecord.final_winner_life = game.players[widx].health;
+        const lidx = widx === 0 ? 1 : 0;
+        if (widx >= 0) {
+          simRecord.final_winner_life = game.players[widx].health;
+          simRecord.winner_hero = game.players[widx].heroClass;
+          simRecord.loser_hero = game.players[lidx].heroClass;
+          simRecord.winner_cards = Array.from(cardsPlayed[widx]);
+          simRecord.loser_cards = Array.from(cardsPlayed[lidx]);
+        }
       }
       appendSimRecord(simRecord);
     }

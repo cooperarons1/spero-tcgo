@@ -351,7 +351,15 @@ function contextsForCardType(type: string | undefined): AnimContext[] {
  */
 export function getCardAnimParams(cardCode: string): AnimationParams | null {
   if (!animWeights) return null;
-  const card = getCardDef(cardCode) as any;
+  let card: any;
+  try {
+    card = getCardDef(cardCode);
+  } catch {
+    // Unknown cardCode — getCardDef throws instead of returning null.
+    // Graceful degrade so a stale cardCode in game state doesn't kill
+    // the broadcast.
+    return null;
+  }
   if (!card) return null;
 
   const merged: AnimationParams = {};

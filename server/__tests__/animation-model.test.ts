@@ -72,32 +72,52 @@ describe('getDefaultAnimParams', () => {
   });
 });
 
-// No trained weights file ships with the repo — these tests lock in the
-// graceful-degradation path so a regression (throw instead of null) lands
-// here rather than crashing broadcastGameState() in production.
-describe('animation-model without trained weights', () => {
-  it('isAnimModelAvailable returns false', () => {
-    expect(isAnimModelAvailable()).toBe(false);
+// Trained weights (data/animation-weights.json) now ship with the repo.
+// These tests lock in the "weights present" contract: real card codes
+// return a full 38-param dict, unknown codes degrade to null (not throw),
+// and the param values stay inside declared bounds.
+describe('animation-model with trained weights', () => {
+  it('isAnimModelAvailable returns true', () => {
+    expect(isAnimModelAvailable()).toBe(true);
   });
 
-  it('getAnimationParams returns null for any card / context', () => {
-    expect(getAnimationParams('NEU001', 'entrance')).toBeNull();
-    expect(getAnimationParams('NEU001', 'attack')).toBeNull();
+  it('getAnimationParams returns bounded params for real cards', () => {
+    const defs = getAllCardDefs();
+    const sample = defs[0];
+    const p = getAnimationParams(sample.cardCode, 'entrance');
+    expect(p).not.toBeNull();
+    if (!p) return;
+    // Every value should be a finite number; entrance-context params
+    // should at least respect their bounds. (Other-context params ride
+    // through and may sit at default in this call — bounds still hold.)
+    for (const name of Object.keys(p)) {
+      expect(Number.isFinite(p[name]), `${name} not finite`).toBe(true);
+      const bounds = PARAM_BOUNDS[name];
+      if (bounds) {
+        expect(p[name], `${name} below min`).toBeGreaterThanOrEqual(bounds[0]);
+        expect(p[name], `${name} above max`).toBeLessThanOrEqual(bounds[1]);
+      }
+    }
+  });
+
+  it('getAnimationParams returns null for unknown cardCode', () => {
     expect(getAnimationParams('DOES_NOT_EXIST', 'entrance')).toBeNull();
   });
 
-  it('getCardAnimParams returns null for every real card code', () => {
+  it('getCardAnimParams returns a param dict for every real card code', () => {
     // Covers all four card types (MINION/SPELL/WEAPON/LOCATION) via the
-    // real catalog — if a type path throws instead of returning null,
+    // real catalog. If a type path throws instead of returning a dict,
     // one of the 319 cards will catch it.
     const defs = getAllCardDefs();
     expect(defs.length).toBeGreaterThan(0);
     for (const def of defs) {
-      expect(getCardAnimParams(def.cardCode)).toBeNull();
+      const p = getCardAnimParams(def.cardCode);
+      expect(p, `null params for ${def.cardCode}`).not.toBeNull();
     }
   });
 
-  it('getCardAnimParams returns null for unknown cardCode', () => {
+  it('getCardAnimParams returns null for unknown cardCode (graceful degrade)', () => {
+    // A stale cardCode in game state must not crash broadcastGameState().
     expect(getCardAnimParams('DOES_NOT_EXIST')).toBeNull();
   });
 });

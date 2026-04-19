@@ -32,8 +32,11 @@ def analyze(path: Path) -> None:
     class_wins = defaultdict(int)
     class_losses = defaultdict(int)
     matchup_wins = defaultdict(int)  # (winner_hero, loser_hero) → count
+    # Per-card: (hero, cardCode) → {"wins": int, "losses": int}
+    card_stats = defaultdict(lambda: {"wins": 0, "losses": 0})
     n_games = 0
     n_skipped = 0
+    n_card_games = 0
 
     with path.open("r") as f:
         for line in f:
@@ -47,22 +50,23 @@ def analyze(path: Path) -> None:
                 continue
 
             winner_id = game.get("winner_id")
-            snapshots = game.get("snapshots", [])
-            if not winner_id or not snapshots:
+            if not winner_id:
                 n_skipped += 1
                 continue
 
-            # Find a snapshot where winner is active → features[31..39] = winner's hero,
-            # features[95..103] = loser's hero.
-            winner_hero = None
-            loser_hero = None
-            for s in snapshots:
-                if s.get("active_player_id") == winner_id:
-                    feats = s.get("features", [])
-                    if len(feats) >= OPP_HERO_END:
-                        winner_hero = hero_of(feats[PERSP_HERO_START:PERSP_HERO_END])
-                        loser_hero = hero_of(feats[OPP_HERO_START:OPP_HERO_END])
-                        break
+            # Prefer inline winner_hero / loser_hero (added 2026-04-19). Fall
+            # back to snapshot feature-decode for older SimRecord files.
+            winner_hero = game.get("winner_hero")
+            loser_hero = game.get("loser_hero")
+            if not winner_hero or not loser_hero:
+                snapshots = game.get("snapshots", [])
+                for s in snapshots:
+                    if s.get("active_player_id") == winner_id:
+                        feats = s.get("features", [])
+                        if len(feats) >= OPP_HERO_END:
+                            winner_hero = hero_of(feats[PERSP_HERO_START:PERSP_HERO_END])
+                            loser_hero = hero_of(feats[OPP_HERO_START:OPP_HERO_END])
+                            break
 
             if not winner_hero or not loser_hero:
                 n_skipped += 1
@@ -72,6 +76,16 @@ def analyze(path: Path) -> None:
             class_losses[loser_hero] += 1
             matchup_wins[(winner_hero, loser_hero)] += 1
             n_games += 1
+
+            # Per-card tallies (only when the new fields are present).
+            winner_cards = game.get("winner_cards")
+            loser_cards = game.get("loser_cards")
+            if winner_cards is not None and loser_cards is not None:
+                n_card_games += 1
+                for cc in winner_cards:
+                    card_stats[(winner_hero, cc)]["wins"] += 1
+                for cc in loser_cards:
+                    card_stats[(loser_hero, cc)]["losses"] += 1
 
     # ── Class winrates ────────────────────────────────────────────────
     print(f"\n=== Balance audit: {n_games:,} games ({n_skipped:,} skipped) ===\n")
@@ -116,6 +130,34 @@ def analyze(path: Path) -> None:
             rare.append((wr, winner, loser, w, total))
     for wr, winner, loser, w, total in sorted(rare, key=lambda r: -r[0]):
         print(f"  {winner:<10} vs {loser:<10}: {w:>4}/{total:<5} ({wr*100:.1f}%)")
+
+    # ── Per-card WR (only when SimRecord includes winner_cards/loser_cards) ─
+    if n_card_games > 0:
+        print(f"\n=== Per-card winrate ({n_card_games:,} games w/ card manifest) ===\n")
+        # Aggregate per hero → top carries + bottom drags
+        by_hero = defaultdict(list)
+        for (hero, cc), stats in card_stats.items():
+            total = stats["wins"] + stats["losses"]
+            if total < 100:
+                continue
+            wr = stats["wins"] / total
+            by_hero[hero].append((wr, cc, stats["wins"], total))
+
+        for hero in HERO_CLASSES + ["NEUTRAL"]:
+            rows = by_hero.get(hero, [])
+            if not rows:
+                continue
+            rows.sort(key=lambda r: -r[0])
+            print(f"\n-- {hero} --")
+            print(f"{'Card':<16} {'Wins':>6} {'Plays':>6} {'WR':>7}")
+            # Top 5 + bottom 5 if enough
+            show = rows[:5] + ([("---", "", 0, 0)] if len(rows) > 10 else []) + rows[-5:] \
+                if len(rows) > 10 else rows
+            for wr, cc, w, total in show:
+                if cc == "":
+                    print("...")
+                    continue
+                print(f"{cc:<16} {w:>6} {total:>6} {wr*100:>6.1f}%")
 
 
 if __name__ == "__main__":
