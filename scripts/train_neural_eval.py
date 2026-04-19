@@ -44,10 +44,10 @@ Usage
         --model-size medium --epochs 60 --batch-size 4096 \\
         --label-mode both --gamma 0.95
 
-    # Llama-distilled (Run C, after find_disagreements + llama_label_positions):
+    # Teacher-distilled (Run C, after find_disagreements + gemma_label_positions):
     python scripts/train_neural_eval.py \\
         --simulation-data data/sim-history.jsonl \\
-        --llama-labels data/llama-labels.jsonl --llama-weight 0.3 \\
+        --teacher-labels data/teacher-labels.jsonl --teacher-weight 0.3 \\
         --model-size medium --epochs 60
 
 Then in the server:
@@ -159,7 +159,7 @@ def _label_for(outcome: float, t: int, T: int, margin_w: float, label_mode: str,
 
 
 def feature_hash_fp32(arr: np.ndarray) -> str:
-    """Stable join key between this trainer and scripts/llama_label_positions.py.
+    """Stable join key between this trainer and scripts/gemma_label_positions.py.
 
     MUST stay in sync with that script's `feature_hash`. Both sides cast
     the JSON-parsed feature list to fp32 numpy and sha1 the bytes — bit
@@ -169,10 +169,10 @@ def feature_hash_fp32(arr: np.ndarray) -> str:
     return hashlib.sha1(arr.tobytes()).hexdigest()[:16]
 
 
-def load_llama_labels(path: Path) -> dict[str, float]:
+def load_teacher_labels(path: Path) -> dict[str, float]:
     """
-    Read scripts/llama_label_positions.py output JSONL into a
-    {feature_hash: llama_score} dict. Confidence is currently ignored —
+    Read scripts/gemma_label_positions.py output JSONL into a
+    {feature_hash: teacher_score} dict. Confidence is currently ignored —
     we trust the score uniformly. Could later weight per-position by
     confidence if Run D underperforms.
     """
@@ -187,7 +187,7 @@ def load_llama_labels(path: Path) -> dict[str, float]:
             except json.JSONDecodeError:
                 continue
             fh = row.get("feature_hash")
-            score = row.get("llama_score")
+            score = row.get("teacher_score")
             if fh and isinstance(score, (int, float)):
                 labels[fh] = float(score)
     return labels
@@ -248,7 +248,7 @@ def load_simulation_data_chunked(
     dtype: torch.dtype,
     max_samples: int | None = None,
     chunk_rows: int = 1_048_576,  # 1M snapshots per fp32 staging buffer (~1 GB)
-    llama_labels: Optional[dict[str, float]] = None,
+    teacher_labels: Optional[dict[str, float]] = None,
 ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, Optional[torch.Tensor], Optional[torch.Tensor]]:
     """
     Two-pass loader that streams JSONL into pre-allocated device tensors.
@@ -287,23 +287,23 @@ def load_simulation_data_chunked(
     est_gb = (n_rows * bytes_per_row) / (1024 ** 3)
     print(f"  estimated ~{n_rows:,} snapshots, allocating ~{est_gb:.1f} GB on {device} ({dtype})")
 
-    use_llama = llama_labels is not None and len(llama_labels) > 0
-    if use_llama:
-        print(f"  llama labels: {len(llama_labels):,} entries — will hash every snapshot for join")
+    use_teacher = teacher_labels is not None and len(teacher_labels) > 0
+    if use_teacher:
+        print(f"  teacher labels: {len(teacher_labels):,} entries — will hash every snapshot for join")
 
     X = torch.empty((n_rows, FEATURE_DIM), dtype=dtype, device=device)
     y = torch.empty((n_rows,), dtype=dtype, device=device)
     w = torch.empty((n_rows,), dtype=dtype, device=device)
-    ll = torch.zeros((n_rows,), dtype=dtype, device=device) if use_llama else None
-    lm = torch.zeros((n_rows,), dtype=dtype, device=device) if use_llama else None
+    ll = torch.zeros((n_rows,), dtype=dtype, device=device) if use_teacher else None
+    lm = torch.zeros((n_rows,), dtype=dtype, device=device) if use_teacher else None
 
     # Staging buffers — fp32 numpy is the smallest native format json yields
     X_buf = np.empty((chunk_rows, FEATURE_DIM), dtype=np.float32)
     y_buf = np.empty((chunk_rows,), dtype=np.float32)
     w_buf = np.empty((chunk_rows,), dtype=np.float32)
-    ll_buf = np.zeros((chunk_rows,), dtype=np.float32) if use_llama else None
-    lm_buf = np.zeros((chunk_rows,), dtype=np.float32) if use_llama else None
-    n_llama_matched = 0
+    ll_buf = np.zeros((chunk_rows,), dtype=np.float32) if use_teacher else None
+    lm_buf = np.zeros((chunk_rows,), dtype=np.float32) if use_teacher else None
+    n_teacher_matched = 0
 
     print(f"  streaming JSONL into device tensors (chunks of {chunk_rows:,})...")
     written = 0
@@ -327,7 +327,7 @@ def load_simulation_data_chunked(
         y[written:end].copy_(y_t)
         w[written:end].copy_(w_t)
         del x_t, y_t, w_t
-        if use_llama:
+        if use_teacher:
             ll_t = torch.from_numpy(ll_buf[:chunk_pos]).to(device=device, dtype=dtype)
             lm_t = torch.from_numpy(lm_buf[:chunk_pos]).to(device=device, dtype=dtype)
             ll[written:end].copy_(ll_t)
@@ -384,7 +384,7 @@ def load_simulation_data_chunked(
                         f"(skipped {skipped_lines} bad lines, {skipped_games} games without a winner) "
                         f"— hit --max-samples cap"
                     )
-                    if use_llama:
+                    if use_teacher:
                         return X[:written], y[:written], w[:written], ll[:written], lm[:written]
                     return X[:written], y[:written], w[:written], None, None
 
@@ -398,7 +398,7 @@ def load_simulation_data_chunked(
                     X = torch.cat([X, extra_X], dim=0)
                     y = torch.cat([y, extra_y], dim=0)
                     w = torch.cat([w, extra_w], dim=0)
-                    if use_llama:
+                    if use_teacher:
                         extra_ll = torch.zeros((grow_by,), dtype=dtype, device=device)
                         extra_lm = torch.zeros((grow_by,), dtype=dtype, device=device)
                         ll = torch.cat([ll, extra_ll], dim=0)
@@ -416,13 +416,13 @@ def load_simulation_data_chunked(
                 X_buf[chunk_pos] = feats
                 y_buf[chunk_pos] = label
                 w_buf[chunk_pos] = weight
-                if use_llama:
+                if use_teacher:
                     fh = hashlib.sha1(X_buf[chunk_pos].tobytes()).hexdigest()[:16]
-                    score = llama_labels.get(fh)
+                    score = teacher_labels.get(fh)
                     if score is not None:
                         ll_buf[chunk_pos] = score
                         lm_buf[chunk_pos] = 1.0
-                        n_llama_matched += 1
+                        n_teacher_matched += 1
                 chunk_pos += 1
                 if chunk_pos >= chunk_rows:
                     flush_chunk()
@@ -442,10 +442,10 @@ def load_simulation_data_chunked(
         f"  loaded {written:,} snapshots from {games_used:,} games in {elapsed:.1f}s "
         f"(skipped {skipped_lines} bad lines, {skipped_games} games without a winner)"
     )
-    if use_llama:
-        coverage_pct = 100.0 * n_llama_matched / max(1, written)
+    if use_teacher:
+        coverage_pct = 100.0 * n_teacher_matched / max(1, written)
         print(
-            f"  llama join: matched {n_llama_matched:,} of {len(llama_labels):,} labels "
+            f"  teacher join: matched {n_teacher_matched:,} of {len(teacher_labels):,} labels "
             f"to training rows ({coverage_pct:.2f}% of dataset)"
         )
 
@@ -454,7 +454,7 @@ def load_simulation_data_chunked(
         X = X[:written]
         y = y[:written]
         w = w[:written]
-        if use_llama:
+        if use_teacher:
             ll = ll[:written]
             lm = lm[:written]
 
@@ -572,18 +572,18 @@ def train(args: argparse.Namespace) -> int:
     device = pick_device()
     dtype = torch.bfloat16 if args.dtype == "bf16" else torch.float32
 
-    llama_labels: Optional[dict[str, float]] = None
-    if args.llama_labels:
-        ll_path = Path(args.llama_labels)
+    teacher_labels: Optional[dict[str, float]] = None
+    if args.teacher_labels:
+        ll_path = Path(args.teacher_labels)
         if not ll_path.exists():
-            print(f"--llama-labels file not found: {ll_path}", file=sys.stderr)
+            print(f"--teacher-labels file not found: {ll_path}", file=sys.stderr)
             return 1
-        print(f"Loading llama labels from {ll_path}...")
-        llama_labels = load_llama_labels(ll_path)
-        print(f"  loaded {len(llama_labels):,} llama-scored positions")
+        print(f"Loading teacher labels from {ll_path}...")
+        teacher_labels = load_teacher_labels(ll_path)
+        print(f"  loaded {len(teacher_labels):,} teacher-scored positions")
         if args.no_chunked:
             print(
-                "--llama-labels requires the chunked loader (drop --no-chunked).",
+                "--teacher-labels requires the chunked loader (drop --no-chunked).",
                 file=sys.stderr,
             )
             return 1
@@ -633,7 +633,7 @@ def train(args: argparse.Namespace) -> int:
             device=device,
             dtype=dtype,
             max_samples=args.max_samples,
-            llama_labels=llama_labels,
+            teacher_labels=teacher_labels,
         )
         n_total = X_all.shape[0]
         if n_total == 0:
@@ -718,13 +718,13 @@ def train(args: argparse.Namespace) -> int:
                     bce_loss = (per * wb.float()).mean()
                     if llb is not None:
                         # MSE on probabilities (sigmoid). Mask out positions
-                        # without a llama label so they don't contribute zeros
+                        # without a teacher label so they don't contribute zeros
                         # that would bias the loss toward 0.5.
                         probs = torch.sigmoid(logits.float())
                         sq = (probs - llb.float()) ** 2
                         denom = lmb.float().sum().clamp(min=1.0)
-                        llama_mse = (sq * lmb.float()).sum() / denom
-                        loss = (1.0 - args.llama_weight) * bce_loss + args.llama_weight * llama_mse
+                        teacher_mse = (sq * lmb.float()).sum() / denom
+                        loss = (1.0 - args.teacher_weight) * bce_loss + args.teacher_weight * teacher_mse
                     else:
                         loss = bce_loss
             else:
@@ -739,8 +739,8 @@ def train(args: argparse.Namespace) -> int:
                     probs = torch.sigmoid(logits)
                     sq = (probs - llb) ** 2
                     denom = lmb.sum().clamp(min=1.0)
-                    llama_mse = (sq * lmb).sum() / denom
-                    loss = (1.0 - args.llama_weight) * bce_loss + args.llama_weight * llama_mse
+                    teacher_mse = (sq * lmb).sum() / denom
+                    loss = (1.0 - args.teacher_weight) * bce_loss + args.teacher_weight * teacher_mse
                 else:
                     loss = bce_loss
 
@@ -869,14 +869,14 @@ def main() -> int:
                         help="Use the legacy in-memory list-build loader instead "
                              "of the chunked streaming loader. Don't use for "
                              "datasets >10M snapshots.")
-    parser.add_argument("--llama-labels", default=None,
-                        help="Path to scripts/llama_label_positions.py output JSONL. "
+    parser.add_argument("--teacher-labels", default=None,
+                        help="Path to scripts/gemma_label_positions.py output JSONL. "
                              "When set, the loader hashes every snapshot and joins "
-                             "matching positions to a llama-distillation MSE loss.")
-    parser.add_argument("--llama-weight", type=float, default=0.3,
-                        help="Mix factor for the llama MSE term: "
-                             "loss = (1-w)*BCE + w*MSE(sigmoid(pred), llama_score). "
-                             "Default 0.3 — llama is teacher, not ground truth.")
+                             "matching positions to a teacher-distillation MSE loss.")
+    parser.add_argument("--teacher-weight", type=float, default=0.3,
+                        help="Mix factor for the teacher MSE term: "
+                             "loss = (1-w)*BCE + w*MSE(sigmoid(pred), teacher_score). "
+                             "Default 0.3 — teacher score is a soft signal, not ground truth.")
     args = parser.parse_args()
     return train(args)
 

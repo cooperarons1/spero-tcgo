@@ -13,12 +13,19 @@ dist/
 data/sim-history*.jsonl
 data/sim-history*.jsonl.*
 data/teacher-decisions.jsonl
-data/llama-labels.jsonl
-data/llama-labels-smoke.jsonl
-data/llama-queue.jsonl
+data/teacher-labels.jsonl
+data/teacher-labels-smoke.jsonl
+data/teacher-queue.jsonl
+data/teacher-labels.llama-contaminated.bak.jsonl
+data/teacher-labels-smoke.llama-contaminated.bak.jsonl
+data/teacher-labels.e4b.bak.jsonl
 
 # Animation model preview frames (regenerated from scripts/animation-model)
 data/animation-preview/
+# Animation model training JSONL + checkpoint (regenerated)
+data/animation-training.jsonl
+data/animation-training.jsonl.bak
+data/animation-checkpoint.json
 
 # Python venv created by the trainer
 .venv/

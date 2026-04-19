@@ -2,11 +2,11 @@
 """
 find_disagreements.py — pick the positions where the current MLP is wrong.
 
-This is the "active learning" picker for the Llama distillation pipeline.
+This is the "active learning" picker for the teacher distillation pipeline (Gemma 4).
 For each snapshot in a sim-history JSONL, we run the current Run C MLP
 forward pass and compare its prediction to the eventual game outcome.
 Positions with the largest |prediction - outcome| are the ones the MLP
-is most confused about — exactly the cases where Llama 70B's stronger
+is most confused about — exactly the cases where the teacher's stronger
 reasoning is most likely to provide useful new training signal.
 
 Stratification
@@ -21,12 +21,12 @@ three turn buckets:
   late  — turns 13+   (34% of budget)
 
 We also exclude positions ≤2 turns from game end because by then the
-outcome is essentially deterministic; nothing for Llama to teach us.
+outcome is essentially deterministic; nothing for the teacher to teach us.
 
 Output
 ------
 A queue JSONL where each line is one position the labeler should query
-Llama on:
+the teacher on:
 
     {
       "features": [256 floats],
@@ -35,14 +35,14 @@ Llama on:
       "phase": "early"|"mid"|"late",
       "mlp_pred": float,
       "disagreement": float,
-      "summary": "rendered text description for Llama prompt"
+      "summary": "rendered text description for teacher prompt"
     }
 
 The features are decoded back into a human-readable summary at pick
 time using the canonical layout from server/ai-neural.ts. Card names
 are lost (the bloom hand fingerprint can't be inverted) but the
 positional info — life, mana, board stats, turn count, hero classes —
-is enough for Llama to make a useful judgement.
+is enough for the teacher to make a useful judgement.
 
 Usage
 -----
@@ -50,7 +50,7 @@ Usage
         --sim-data data/sim-history-runC.jsonl \\
         --weights data/neural-eval-weights.json \\
         --top-k 5000 \\
-        --output data/llama-queue.jsonl
+        --output data/teacher-queue.jsonl
 """
 
 from __future__ import annotations
@@ -94,7 +94,7 @@ def feat_to_int(x: float, scale: float) -> int:
 def render_position(features: list[float], turn: int) -> str:
     """
     Decode an extracted feature vector back into a human-readable text
-    summary suitable for Llama to evaluate.
+    summary suitable for the teacher to evaluate.
 
     The bloom hand fingerprint (slots 128-187) can't be inverted, so the
     summary doesn't include card names. Everything else — life, mana,
@@ -213,10 +213,10 @@ def load_model(path: Path, device: str) -> BoardEvaluator:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Pick disagreement positions for Llama labeling")
+    parser = argparse.ArgumentParser(description="Pick disagreement positions for teacher labeling (Gemma 4)")
     parser.add_argument("--sim-data", required=True)
     parser.add_argument("--weights", required=True)
-    parser.add_argument("--output", default="data/llama-queue.jsonl")
+    parser.add_argument("--output", default="data/teacher-queue.jsonl")
     parser.add_argument("--top-k", type=int, default=5000,
                         help="Total positions to keep (split across early/mid/late)")
     parser.add_argument("--exclude-end-turns", type=int, default=2,

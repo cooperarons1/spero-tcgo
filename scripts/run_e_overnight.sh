@@ -6,10 +6,11 @@
 #         Run C2's mild val/train gap (0.59 vs 0.40) was capacity-bound.
 #         Cost: ~30 min training + ~22 min chunked load.
 #
-# Run E2: label the remaining 6499 disagreement positions with Gemma 4 31B
-#         (already-labeled 3500 are skipped via --resume), then retrain
-#         the LARGE model with --llama-weight 0.5 (up from D's 0.3).
-#         Cost: ~5 hours of Gemma labeling + ~52 min training.
+# Run E2: label all 9999 disagreement positions with Gemma 4 (the old
+#         Llama labels from Run C/D are discarded; --resume skips any
+#         already in data/teacher-labels.jsonl), then retrain the LARGE
+#         model with --teacher-weight 0.5 (up from D's 0.3).
+#         Cost: ~6.5 hours of Gemma labeling + ~52 min training.
 #
 # Eval at the end: head-to-head vs Run C, C2, D, E, E2 on a held-out
 # 1M-position test set. Now uses the fast normal-approx binomial.
@@ -37,11 +38,10 @@ caffeinate -i -s $PY -u scripts/train_neural_eval.py \
 echo "[$(date '+%H:%M:%S')] Run E training done"
 
 echo "[$(date '+%H:%M:%S')] === Run E2: label remaining disagreement queue (Gemma 4) ==="
-# --resume skips the 3500 positions already in data/llama-labels.jsonl,
-# so this only does the remaining ~6500.
-caffeinate -i -s $PY -u scripts/llama_label_positions.py \
-  --queue data/llama-queue.jsonl \
-  --output data/llama-labels.jsonl \
+# --resume skips any positions already in data/teacher-labels.jsonl.
+caffeinate -i -s $PY -u scripts/gemma_label_positions.py \
+  --queue data/teacher-queue.jsonl \
+  --output data/teacher-labels.jsonl \
   --concurrency 4 \
   --resume
 echo "[$(date '+%H:%M:%S')] Gemma labeling done"
@@ -49,8 +49,8 @@ echo "[$(date '+%H:%M:%S')] Gemma labeling done"
 echo "[$(date '+%H:%M:%S')] === Run E2: large model + full Gemma 4 distillation ==="
 caffeinate -i -s $PY -u scripts/train_neural_eval.py \
   --simulation-data data/sim-history-runC2.jsonl \
-  --llama-labels data/llama-labels.jsonl \
-  --llama-weight 0.5 \
+  --teacher-labels data/teacher-labels.jsonl \
+  --teacher-weight 0.5 \
   --output data/neural-eval-weights.runE2.json \
   --model-size large \
   --epochs 60 \

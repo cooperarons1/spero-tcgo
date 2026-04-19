@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-llama_label_positions.py — query Gemma 4 31B for soft labels on disagreement
+gemma_label_positions.py — query Gemma 4 for soft labels on disagreement
 positions.
 
 Reads the queue JSONL produced by find_disagreements.py, sends each position
@@ -24,9 +24,9 @@ or the M5 reboots overnight.
 
 Usage
 -----
-    python scripts/llama_label_positions.py \\
-        --queue data/llama-queue.jsonl \\
-        --output data/llama-labels.jsonl \\
+    python scripts/gemma_label_positions.py \\
+        --queue data/teacher-queue.jsonl \\
+        --output data/teacher-labels.jsonl \\
         --concurrency 4 \\
         --max-positions 5000
 
@@ -36,10 +36,10 @@ Output JSONL line shape
       "queue_idx": int,
       "feature_hash": "abcd1234...",  // first 16 hex chars of sha1(features)
       "hard_outcome": 0 or 1,
-      "llama_score": float in [0, 1],
-      "llama_confidence": float,
+      "teacher_score": float in [0, 1],
+      "teacher_confidence": float,
       "raw_response": "SCORE: 0.XX | CONF: 0.YY",
-      "model": "mlx-community/gemma-4-31b-it-4bit",
+      "model": "mlx-community/gemma-4-e4b-it-8bit",
       "elapsed_ms": int
     }
 """
@@ -163,8 +163,8 @@ async def label_one(
             "queue_idx": idx,
             "feature_hash": feature_hash(item["features"]),
             "hard_outcome": item["hard_outcome"],
-            "llama_score": score,
-            "llama_confidence": conf if conf is not None else 0.5,
+            "teacher_score": score,
+            "teacher_confidence": conf if conf is not None else 0.5,
             "raw_response": resp.text.strip(),
             "model": resp.model,
             "elapsed_ms": elapsed_ms,
@@ -282,8 +282,8 @@ async def main_async(args: argparse.Namespace) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Query Gemma 4 for soft labels on disagreement positions")
-    parser.add_argument("--queue", default="data/llama-queue.jsonl")
-    parser.add_argument("--output", default="data/llama-labels.jsonl")
+    parser.add_argument("--queue", default="data/teacher-queue.jsonl")
+    parser.add_argument("--output", default="data/teacher-labels.jsonl")
     parser.add_argument("--model", default=TEACHER_MODEL)
     parser.add_argument("--concurrency", type=int, default=4)
     parser.add_argument("--max-positions", type=int, default=None)

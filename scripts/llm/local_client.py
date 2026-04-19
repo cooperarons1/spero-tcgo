@@ -3,14 +3,14 @@ Thin httpx wrapper around mlx_lm.server for the Gemma 4 distillation pipeline.
 
 Mirrors the shape of coopbot's src/llm/local-client.ts so the two LLM
 clients in the user's portfolio stay consistent. Used by:
-  - scripts/llama_label_positions.py — labels disagreement positions
+  - scripts/gemma_label_positions.py — labels disagreement positions
   - any future spero-tcgo Python script that needs a local LLM call
 
 Defaults
 --------
   Endpoint:  LLM_HOST env var, fallback http://127.0.0.1:8080
-  Model:     TEACHER_MODEL env var, fallback "mlx-community/gemma-4-31b-it-4bit"
-  Timeout:   180 s per call (long enough for 31B cold-start + ~50 tokens)
+  Model:     TEACHER_MODEL env var, fallback "mlx-community/gemma-4-e4b-it-8bit"
+  Timeout:   180 s per call (long enough for cold-start + ~50 tokens)
 
 Concurrency
 -----------
@@ -61,7 +61,7 @@ def _check_model_allowed(model: str) -> None:
             raise SystemExit(
                 f"Refusing to call model '{model}' — Chinese-origin LLMs "
                 f"are excluded (matched substring: {blocked!r}). Use "
-                f"gemma-4-31b, llama3.1:70b, or mistral-large instead."
+                f"gemma-4-31b, gemma-4-e4b, or mistral-large instead."
             )
 
 
