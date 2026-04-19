@@ -91,11 +91,52 @@ This is a **design crisis**, not a numbers-tuning problem. Two distinct issues:
    JIMMY cards. Recommend per-card winrate analysis (play-count weighted)
    to find the top 5 over-performing JIMMY cards before another patch.
 
-Per-card winrate aggregation is not in `aggregate_balance.py` yet — the
-bloom-fingerprint features don't invert to card identity. Would need to
-extend `server/ai-simulate.ts` to log per-card played/won counts directly
-in each `SimRecord`, or instrument the simulator to write per-card stats
-to a sidecar file.
+Per-card winrate aggregation is not in `aggregate_balance.py` — the
+bloom-fingerprint features don't invert to card identity. Instead, a
+proxy analysis in `scripts/card_strength.py` reads the 98 GB
+`data/teacher-decisions.jsonl` and surfaces each card's mean AI score
+across all plays (`play_count × mean_score` as carry proxy).
+
+## Per-card strength (2026-04-19 decisions, 5M-line sample)
+
+### JIMMY carries (mean AI score, min 100 plays)
+
+| Card | Description | Mean Score |
+|---|---|---:|
+| JIM030 | Infernic (6/6 LEGENDARY, 5 mana) — already patched 2026-04-13 | **59.16** |
+| JIM026 | Engulfed in Flames (7-cost spell, EPIC) | 59.11 |
+| NEU102 | — | 56.01 |
+| NEU103 | — | 54.10 |
+| JIM032 | Nova Ramiro (6/4 LEGENDARY, 7 mana) — already patched 2026-04-13 | 50.65 |
+| JIM028 | Flaming Sword of Pain (5/2 weapon, 5 mana) | 47.85 |
+| JIM022 | Brutus (6/5 EPIC, 6 mana) | 46.68 |
+
+The 2026-04-13 nerfs touched JIM030 cost and JIM032 health but those
+cards remain **top-3 JIMMY carries**. The next patch needs to hit the
+stat lines (attack/health) and/or the under-nerfed JIM026/JIM028/JIM022.
+
+### DEREK has no carries
+
+Every DEREK class card has near-zero or **negative** mean AI score:
+
+| Card | Plays | Mean Score |
+|---|---:|---:|
+| NEU103 (neutral) | 185 | 24.22 |
+| NEU102 (neutral) | 298 | 15.48 |
+| DRK041 | 635 | 3.71 |
+| DRK028 | 807 | 0.54 |
+| DRK019 | 1,561 | −1.54 |
+| DRK042 | 1,034 | −3.31 |
+| **DRK038** | **2,782** | **−4.01** (highest-volume net-negative) |
+| DRK045 | 1,998 | −6.59 |
+
+DEREK's kit doesn't build a winning board — the AI plays DRK038 2,782
+times per sample knowing each play reduces win-prob. This is curve-forced
+(nothing better in hand), confirming DEREK's mana curve is broken.
+
+Top priority: rework DRK038 and buff the other DRK* cards so at least
+some have positive contribution. Alternatively add 3-5 new strong DEREK
+class cards.
 
 ## Reproducing
 
