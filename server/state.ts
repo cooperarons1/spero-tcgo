@@ -316,10 +316,15 @@ async function finalizeGame(io: Server, room: Room) {
         const oldHeroXP = heroLevels[heroClass]?.xp ?? 0;
         const oldHeroWins = heroLevels[heroClass]?.wins ?? 0;
         const newHeroXP = oldHeroXP + heroXPGain;
+        const oldRankedWins = heroLevels[heroClass]?.rankedWins ?? 0;
+        // Golden-hero threshold: 500 ranked wins unlocks a golden-
+        // animated hero portrait + hero power + frame.
+        const newRankedWins = oldRankedWins + (isRanked && isWin ? 1 : 0);
         heroLevels[heroClass] = {
           xp: newHeroXP,
           level: getHeroLevel(newHeroXP),
           wins: oldHeroWins + (isWin ? 1 : 0),
+          rankedWins: newRankedWins,
         };
 
         // Battle pass XP (same as game XP)

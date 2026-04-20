@@ -51,6 +51,9 @@ export function createGame(
      * Cards in the deck whose code is in the set enter with
      * isGolden=true on the CardInstance. */
     goldenCodes?: [Set<string>, Set<string>];
+    /** Per-player flag — true if the player has 500+ ranked wins on
+     * their hero class, which unlocks the golden-hero animation. */
+    goldenHero?: [boolean, boolean];
   }
 ): GameState {
   if (playerEntries.length !== 2) throw new Error('Exactly 2 players required');
@@ -71,6 +74,8 @@ export function createGame(
     makePlayerState(playerEntries[0].id, playerEntries[0].name, playerEntries[0].heroClass),
     makePlayerState(playerEntries[1].id, playerEntries[1].name, playerEntries[1].heroClass),
   ];
+  if (options?.goldenHero?.[0]) players[0].isGoldenHero = true;
+  if (options?.goldenHero?.[1]) players[1].isGoldenHero = true;
 
   const firstPlayer = options?.firstPlayerIndex ?? (Math.random() < 0.5 ? 0 : 1);
   const secondPlayer = firstPlayer === 0 ? 1 : 0;

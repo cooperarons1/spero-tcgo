@@ -63,6 +63,7 @@ export function getClientState(game: GameState, playerId: string): ClientGameSta
     secretCount: opp.secrets.length,
     heroPowerUpgraded: opp.heroPowerUpgraded,
     upgradeProgress: getEffectiveUpgradeProgress(opp, game.playerStats[oppIdx]),
+    isGoldenHero: opp.isGoldenHero,
   };
 
   const phaseTimeout = game.phase === 'MULLIGAN' ? MULLIGAN_TIMEOUT_MS : TURN_TIMEOUT_MS;
@@ -92,6 +93,7 @@ export function getClientState(game: GameState, playerId: string): ClientGameSta
     mySecrets: me.secrets,
     myHeroPowerUpgraded: me.heroPowerUpgraded,
     myUpgradeProgress: getEffectiveUpgradeProgress(me, game.playerStats[myIdx]),
+    myIsGoldenHero: me.isGoldenHero,
     opponent,
     deckCount: game.decks[myIdx].length,
     opponentDeckCount: game.decks[oppIdx].length,

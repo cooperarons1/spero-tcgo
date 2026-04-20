@@ -781,6 +781,7 @@ function HeroPortrait({
   onHeroPointerDown,
   onHeroPowerPointerDown,
   weaponEquipFlash,
+  goldenHero,
 }: {
   heroClass: HeroClass;
   health: number;
@@ -807,6 +808,7 @@ function HeroPortrait({
   onHeroPointerDown?: (e: React.PointerEvent) => void;
   onHeroPowerPointerDown?: (e: React.PointerEvent) => void;
   weaponEquipFlash?: boolean;
+  goldenHero?: boolean;
 }) {
   const borderClass = CLASS_BORDER[heroClass];
   const bgClass = CLASS_BG[heroClass];
@@ -895,14 +897,26 @@ function HeroPortrait({
             ${heroDamage ? 'animate-hero-damage animate-damage-shake' : (health <= 5 && health > 0 ? 'animate-health-critical' : '')}
           `}
         >
-          {/* Character portrait */}
+          {/* Character portrait. Golden hero variant overlays a warm
+               tint + infinite shimmer sweep on the portrait image and
+               puts an inset gold ring around the whole button via a
+               sibling pointer-events-none div. */}
           <div className="absolute inset-0 rounded-full overflow-hidden">
             {HERO_PORTRAIT_PNGS[heroClass] ? (
               <img src={HERO_PORTRAIT_PNGS[heroClass]} alt="" className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full opacity-80">{HERO_PORTRAIT_SVG[heroClass]}</div>
             )}
+            {goldenHero && (
+              <>
+                <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.3) 0%, rgba(252,211,77,0.14) 50%, rgba(245,158,11,0.3) 100%)' }} />
+                <div className="absolute -inset-y-6 -left-1/2 w-1/3 pointer-events-none animate-[shimmer_3s_linear_infinite]" style={{ background: 'linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.65) 50%, transparent 70%)' }} />
+              </>
+            )}
           </div>
+          {goldenHero && (
+            <div className="absolute inset-0 pointer-events-none rounded-t-full rounded-b-lg" style={{ boxShadow: 'inset 0 0 0 3px #fbbf24, 0 0 16px 2px rgba(251,191,36,0.5)' }} />
+          )}
           {/* HP overlay at bottom */}
           <span className={`absolute bottom-1 left-1/2 -translate-x-1/2 text-xl md:text-3xl font-extrabold z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] ${isDamaged ? 'text-red-400' : 'text-white'}`}>
             {health}
@@ -941,6 +955,15 @@ function HeroPortrait({
           <span className="pointer-events-none absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white shadow">
             {HERO_POWER_COST}
           </span>
+          {goldenHero && (
+            <>
+              <div className="absolute inset-0 rounded-full pointer-events-none overflow-hidden">
+                <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.3) 0%, rgba(252,211,77,0.1) 50%, rgba(245,158,11,0.3) 100%)' }} />
+                <div className="absolute -inset-y-4 -left-1/2 w-1/3 animate-[shimmer_3s_linear_infinite]" style={{ background: 'linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.65) 50%, transparent 70%)' }} />
+              </div>
+              <div className="absolute inset-0 rounded-full pointer-events-none" style={{ boxShadow: 'inset 0 0 0 2px #fbbf24, 0 0 12px 2px rgba(251,191,36,0.5)' }} />
+            </>
+          )}
           {/* No upgrade badges */}
         </button>
         {/* Styled tooltip on hover */}
@@ -2584,6 +2607,7 @@ export default function GameBoard({
             heroPowerUpgraded={gs.opponent.heroPowerUpgraded}
             upgradeProgress={gs.opponent.upgradeProgress}
             weaponEquipFlash={oppWeaponEquipFlash}
+            goldenHero={!!gs.opponent.isGoldenHero}
           />
           {/* Opponent mana */}
           <ManaCrystals current={gs.opponent.mana} max={gs.opponent.maxMana} />
@@ -2879,6 +2903,7 @@ export default function GameBoard({
             onHeroPointerDown={handleHeroPointerDown}
             onHeroPowerPointerDown={handleHeroPowerPointerDown}
             weaponEquipFlash={weaponEquipFlash}
+            goldenHero={!!gs.myIsGoldenHero}
           />
 
           {/* My mana */}

@@ -9,6 +9,9 @@ import { generateAIPlayerId, randomAIName } from '../ai.js';
 import { STARTER_DECKS } from '../../shared/starterDecks.js';
 import { adminDb } from '../firebaseAdmin.js';
 import { isAdminUid } from '../admin.js';
+import type { HeroClass as HeroClass_ } from '../../shared/types.js';
+
+const GOLDEN_HERO_THRESHOLD = 500;
 
 // Build the golden-cards Set for a given user. Admins get every card
 // as gold; regular accounts use their Firestore `ownedGolden` map.
@@ -22,6 +25,19 @@ async function buildGoldenCodes(uid: string, cards: string[]): Promise<Set<strin
     return new Set(cards.filter(c => (ownedGolden[c] ?? 0) > 0));
   } catch {
     return new Set();
+  }
+}
+
+// Golden hero unlocks at GOLDEN_HERO_THRESHOLD ranked wins on the
+// given hero class. Admins are always golden.
+async function isGoldenHero(uid: string, heroClass: HeroClass_): Promise<boolean> {
+  if (isAdminUid(uid)) return true;
+  try {
+    const doc = await adminDb.collection('users').doc(uid).get();
+    const heroLevels = (doc.data()?.heroLevels ?? {}) as Record<string, { rankedWins?: number }>;
+    return (heroLevels[heroClass]?.rankedWins ?? 0) >= GOLDEN_HERO_THRESHOLD;
+  } catch {
+    return false;
   }
 }
 import {
@@ -163,11 +179,13 @@ export function registerGameHandlers(
       { id: uids[1], name: name1, heroClass: d1.heroClass },
     ];
 
-    const [g0, g1] = await Promise.all([
+    const [g0, g1, h0, h1] = await Promise.all([
       buildGoldenCodes(uids[0], d0.cards),
       buildGoldenCodes(uids[1], d1.cards),
+      isGoldenHero(uids[0], d0.heroClass),
+      isGoldenHero(uids[1], d1.heroClass),
     ]);
-    room.game = createGame(entries, { deckLists: [d0.cards, d1.cards], goldenCodes: [g0, g1] });
+    room.game = createGame(entries, { deckLists: [d0.cards, d1.cards], goldenCodes: [g0, g1], goldenHero: [h0, h1] });
     room.lastFirstPlayerIndex = room.game.currentPlayerIndex;
 
     startRoomTimer(room, broadcastGameState);

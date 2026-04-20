@@ -240,6 +240,10 @@ export interface PlayerState {
   heroPowerUpgraded: boolean;
   upgradeProgress: number; // tracks progress toward upgrade condition
   spellDiscount: number;   // next spell costs this much less (consumed on use)
+  /** Golden hero: unlocked at 500 ranked wins on this hero class.
+   * Drives animated hero portrait, animated hero power, and gold frame
+   * around the hero in-game. Set at game-create time from heroLevels. */
+  isGoldenHero?: boolean;
 }
 
 // ─── Game State ───
@@ -359,6 +363,7 @@ export interface ClientPlayerInfo {
   secretCount: number;
   heroPowerUpgraded: boolean;
   upgradeProgress: number;
+  isGoldenHero?: boolean;
 }
 
 export interface ClientGameState {
@@ -383,6 +388,7 @@ export interface ClientGameState {
   mySecrets: ActiveSecret[];
   myHeroPowerUpgraded: boolean;
   myUpgradeProgress: number;
+  myIsGoldenHero?: boolean;
   opponent: ClientPlayerInfo;
   deckCount: number;
   opponentDeckCount: number;
