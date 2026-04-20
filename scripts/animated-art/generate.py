@@ -51,21 +51,20 @@ def load_svd_pipeline():
 
     device = "mps" if torch.backends.mps.is_available() else "cpu"
     dtype = torch.float16 if device == "mps" else torch.float32
-    print(f"[svd] loading model on {device}/{dtype} ...", flush=True)
+    # Use the SMALLER non-xt variant. xt peaks at 126GB unified memory
+    # even at 480x832 × 12 frames — above the machine's usability
+    # threshold. img2vid (non-xt) is ~40% smaller parameter count,
+    # native 14-frame output, and visually comparable for small in-game
+    # card art. Weights cached separately in HF hub.
+    print(f"[svd] loading model on {device}/{dtype} (non-xt variant)...", flush=True)
     pipe = StableVideoDiffusionPipeline.from_pretrained(
-        "stabilityai/stable-video-diffusion-img2vid-xt",
+        "stabilityai/stable-video-diffusion-img2vid",
         torch_dtype=dtype,
         variant="fp16" if dtype == torch.float16 else None,
     )
     pipe = pipe.to(device)
-    # Memory discipline for M5 unified pool — attention slicing "max"
-    # + VAE slicing caps the peak allocation during decode which was
-    # spiking past 120GB on 14 frames. Keeps pipeline usable alongside
-    # the rest of the OS.
+    # Memory discipline — attention slicing + tiling where supported.
     pipe.enable_attention_slicing("max")
-    # AutoencoderKLTemporalDecoder doesn't support enable_slicing (it's a
-    # video VAE, different API). Try tiling — sometimes implemented —
-    # then fall back to decode_chunk_size for frame-level memory control.
     for method in ("enable_slicing", "enable_tiling"):
         try:
             getattr(pipe.vae, method)()
