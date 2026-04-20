@@ -23,24 +23,28 @@ quality is not great; acceptable baseline.
 
 ## Immediate next actions (prioritized)
 
-### 1. Balance patches (USER DECISION, design-level) — blocked on you
+### 1. Balance patches — round 2+3 shipped, round 4 still pending
 
-See `docs/balance-patch-proposal-2026-04-19.md`. Two scopes:
+**Shipped 2026-04-19** (commit `f703390`, 10-card patch):
+  - JIMMY stat nerfs: JIM030 cost 5→6, JIM032 atk 6→5, JIM022 lost
+    CHARGE, JIM028 atk 5→4, JIM026 spellEffect damage 5→4
+  - JIMMY battlecry damage cuts: JIM030 4→3, JIM032 3→2, JIM026 4→3
+  - DEREK +1 stat buffs across 5 bottom-performers (DRK019/028/038/042/045)
 
-**A. JIMMY nerfs** — 5 recommended edits to cards.json. I tested
-JIM030 hp 6→5 alone; it did NOTHING (the battlecry is the OP part, not
-the stat line). Next attempt should hit MULTIPLE carries simultaneously:
-- JIM030 Infernic: reduce battlecry damage 4→3 OR raise cost 5→6
-- JIM026 Engulfed in Flames: reduce damage 5→4 OR raise cost 7→8
-- JIM022 Brutus: remove Charge (the burst is the problem, not the body)
-- JIM028 Flaming Sword of Pain: durability 2→1 (only one swing)
+Post-patch sim (80k games): JIMMY 70.4% → 68.8% (-1.6pp),
+DEREK 7.8% → 8.1% (+0.3pp). Direction correct but MAGNITUDE insufficient.
 
-**B. DEREK — not tunable, needs mechanics rework.** Data shows every DRK*
-class card has near-zero or NEGATIVE mean AI score. Top-volume offender
-DRK038 "Scrap Scythe" played 2,782×/5M decisions at −4.01 mean.
-Options from proposal: stat buffs (won't be enough), DRK038 rework,
-add 3-5 new DEREK cards, introduce a GAIN_ARMOR spellEffect keyword.
-Claude recommends **Option D (ARMOR keyword)** as the real fix.
+**Round 4 — DEREK mechanics rework (still blocked on you).** Numbers
+tuning maxed out. Real fix is Option D from the patch proposal: add a
+`GAIN_ARMOR` spellEffect type to the game engine, seed 3-4 DEREK cards
+with it, synergize with DRK's existing defensive-minion baseline. That
+requires engine-level code in server/effects.ts, not just card-data
+edits. Scope: half a day. Document the design before starting.
+
+**Round 5 — remove a JIMMY carry from the random-deck pool.** Last
+resort if round 4 still leaves JIMMY above 60%. Either remove one of
+JIM030/JIM026 from the random deck builder entirely, or cap JIMMY's
+random decks at 1 copy of the top 3 carries.
 
 Verify any patch with `npx tsx scripts/parallel-simulate.ts --workers 16
 --games-per-worker 5000 --teacher-vs-teacher --output
@@ -59,13 +63,26 @@ Script already exists at `scripts/runF-26b-switch.sh`. Would need the
 Likely outcome: marginally better labels than e4b, maybe beats Run E
 but user decided not worth the wait (see earlier session notes).
 
-### 3. Animation model v2 (low priority)
+### 3. Animation model v3 — regenerate training data
 
-Val loss is stuck at 0.083 because the objective is score-weighted MSE
-on random-sampled params — model collapses to predicting the mean. Fixes
-attempted (top-K filtering at min-score 60 + 70) gave marginal wins.
-Real fix needs objective redesign: score-conditional generation or
-rank-learning with paired samples. Not started.
+**v2 shipped 2026-04-19** (commit `6d8ddc5`): added target_quality
+feature (62-dim) + cubic score weighting. Infrastructure works, but val
+loss only moved 0.0836 → 0.0832. The real bottleneck is the training
+DATA, not the OBJECTIVE: ~2 samples per (card, context) bin means the
+"best" sample per bin is the lucky winner of random-sampling noise, not
+a systematic "good params" target.
+
+**v3 plan:** regenerate `data/animation-training.jsonl` with ~10-20
+samples per bin (at ~319 cards × 8 contexts that's 25-50k samples vs
+today's 5k). After 10 samples per bin the top-quality one is an
+informative target. Cost: 25-50 min of Gemma-4-e4b VLM labeling per
+5000 samples.
+
+Run: `python3 scripts/animation-model/generate.py --samples 40000`
+Then: `python3 scripts/animation-model/train.py`
+Expect: val loss should break below 0.07 once the signal-to-noise
+improves. If not, the objective needs deeper work (rank learning on
+paired samples).
 
 ### 4. Ship observability on the game
 
