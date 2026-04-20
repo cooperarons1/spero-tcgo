@@ -23,6 +23,9 @@ interface CardProps {
   greyed?: boolean;
   small?: boolean;
   className?: string;
+  /** Golden/foil variant: adds a shimmer animation + warm gold tint
+   * over the art region while keeping the frame and HUD unchanged. */
+  golden?: boolean;
 }
 
 // ── Hero class frame colors ──
@@ -161,7 +164,7 @@ for (const c of cardsData as CardDef[]) {
   cardsByCode[c.cardCode] = c;
 }
 
-export function Card({ cardCode, onClick, selected, greyed, small, className }: CardProps) {
+export function Card({ cardCode, onClick, selected, greyed, small, className, golden }: CardProps) {
   // Card back
   if (!cardCode) {
     return (
@@ -237,13 +240,25 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
         </div>
       )}
 
-      {/* ── Card art — large, edge-to-edge, ~60% of card ── */}
+      {/* ── Card art — large, edge-to-edge, ~60% of card. Golden
+           variant overlays a shimmer/tint sweep and a gold border glow. ── */}
       <div className={`
         ${small ? 'h-[82px]' : 'h-[118px]'}
-        w-full overflow-hidden shrink-0
+        w-full overflow-hidden shrink-0 relative
         bg-stone-800 flex items-center justify-center
+        ${golden ? 'shadow-[inset_0_0_0_2px_rgba(245,158,11,0.8)]' : ''}
       `}>
         <CardArt cardCode={cardCode} className="w-full h-full" />
+        {golden && (
+          <>
+            {/* Warm gold tint wash */}
+            <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.22) 0%, rgba(252,211,77,0.12) 50%, rgba(245,158,11,0.24) 100%)' }} />
+            {/* Animated shimmer sweep */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+              <div className="absolute -inset-y-4 -left-1/2 w-1/3 animate-[shimmer_3s_linear_infinite]" style={{ background: 'linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.55) 50%, transparent 70%)' }} />
+            </div>
+          </>
+        )}
       </div>
 
       {/* ── Rarity gem — Hearthstone-style jewel, positioned to overlap the

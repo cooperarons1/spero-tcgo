@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import cardData from '../../../data/cards.json';
 import { DECK_SIZE, MAX_COPIES_PER_CARD, MAX_COPIES_LEGENDARY } from '../../../shared/deckRules';
 import { validateDeck } from '../../../shared/deckRules';
@@ -92,6 +92,11 @@ const MANA_FILTERS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
 
 export function Collection({ uid, onBack }: CollectionProps) {
   const [decks, setDecks] = useState<DeckList[]>([]);
+  // Long-press / hover preview of a deck (shows card list + mana curve).
+  // Desktop: hover to open, leave to close.
+  // Mobile: touch-and-hold 400ms to open, tap away to close.
+  const [deckPreview, setDeckPreview] = useState<DeckList | null>(null);
+  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Editing state
@@ -126,14 +131,16 @@ export function Collection({ uid, onBack }: CollectionProps) {
   const [craftingCard, setCraftingCard] = useState<string | null>(null);
   const [dust, setDust] = useState(0);
   const [ownedCards, setOwnedCards] = useState<Record<string, number>>({});
+  const [ownedGolden, setOwnedGolden] = useState<Record<string, number>>({});
   const [craftError, setCraftError] = useState<string | null>(null);
 
   // Load inventory on mount
   useEffect(() => {
     socket.emit('get-inventory');
-    const onInventory = (data: { dust: number; ownedCards: Record<string, number> }) => {
+    const onInventory = (data: { dust: number; ownedCards: Record<string, number>; ownedGolden?: Record<string, number> }) => {
       setDust(data.dust);
       setOwnedCards(data.ownedCards);
+      setOwnedGolden(data.ownedGolden ?? {});
     };
     const onCraftSuccess = (data: { cardCode: string; newDust: number; newCount: number }) => {
       setDust(data.newDust);
@@ -228,8 +235,20 @@ export function Collection({ uid, onBack }: CollectionProps) {
     setPageDir(null);
   }, [filterClass, filterMana, filterSearch, filterRarity, filterType]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredCards.length / CARDS_PER_PAGE));
-  const paginatedCards = filteredCards.slice(page * CARDS_PER_PAGE, (page + 1) * CARDS_PER_PAGE);
+  // Expand each card into (regular, golden) tiles so every card shows
+  // both variants side-by-side in the grid. Gold tile sits immediately
+  // after its regular sibling.
+  const expandedCards = useMemo(() => {
+    const out: { def: CardDef; golden: boolean }[] = [];
+    for (const c of filteredCards) {
+      out.push({ def: c, golden: false });
+      out.push({ def: c, golden: true });
+    }
+    return out;
+  }, [filteredCards]);
+
+  const totalPages = Math.max(1, Math.ceil(expandedCards.length / CARDS_PER_PAGE));
+  const paginatedCards = expandedCards.slice(page * CARDS_PER_PAGE, (page + 1) * CARDS_PER_PAGE);
 
   // Card counts per filter category (computed from class-filtered base, excluding tokens)
   const filterCounts = useMemo(() => {
@@ -430,7 +449,22 @@ export function Collection({ uid, onBack }: CollectionProps) {
                   const deckBg = HERO_BG_MAP[deck.heroClass] || 'bg-gray-500/10';
                   const deckBorder = HERO_COLOR_MAP[deck.heroClass] || 'border-l-gray-600';
                   return (
-                    <div key={deck.id} className="relative">
+                    <div
+                      key={deck.id}
+                      className="relative"
+                      onMouseEnter={() => setDeckPreview(deck)}
+                      onMouseLeave={() => setDeckPreview(p => (p?.id === deck.id ? null : p))}
+                      onTouchStart={() => {
+                        if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+                        longPressTimerRef.current = setTimeout(() => setDeckPreview(deck), 400);
+                      }}
+                      onTouchEnd={() => {
+                        if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+                      }}
+                      onTouchCancel={() => {
+                        if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+                      }}
+                    >
                       <button
                         onClick={() => editingDeck ? undefined : startEditing(deck)}
                         className={`w-full text-left rounded-lg text-xs cursor-pointer transition-all overflow-hidden
@@ -478,6 +512,47 @@ export function Collection({ uid, onBack }: CollectionProps) {
                           <span className="text-[10px] text-white">Delete?</span>
                           <button onClick={() => handleDelete(deck.id)} className="text-[10px] bg-red-600 text-white px-2 py-0.5 rounded cursor-pointer">Yes</button>
                           <button onClick={() => setDeleteConfirm(null)} className="text-[10px] bg-gray-700 text-white px-2 py-0.5 rounded cursor-pointer">No</button>
+                        </div>
+                      )}
+                      {/* Hover / long-press preview — anchored to the
+                           LEFT of the deck tile. Shows mana curve + card
+                           list so the user can peek without opening the
+                           deck for edit. */}
+                      {deckPreview?.id === deck.id && !deleteConfirm && (
+                        <div className="absolute right-full mr-3 top-0 z-40 bg-stone-900/98 border border-amber-700/40 rounded-lg shadow-2xl w-64 p-3 pointer-events-none">
+                          <div className="flex items-center gap-1.5 mb-2">
+                            {deck.isStarterDeck && <span className="text-yellow-400 text-[10px]">★</span>}
+                            <span className="text-amber-200 font-bold text-xs truncate">{deck.name}</span>
+                            <span className="ml-auto text-[9px] text-gray-500">{HERO_CLASSES.find(h => h.id === deck.heroClass)?.label}</span>
+                          </div>
+                          <div className="flex items-center justify-between mb-2 text-[10px]">
+                            <span className="text-gray-400">Cards:</span>
+                            <span className={`font-bold ${deck.cards.length === DECK_SIZE ? 'text-green-400' : 'text-yellow-400'}`}>
+                              {deck.cards.length}/{DECK_SIZE}
+                            </span>
+                          </div>
+                          {(() => {
+                            const seen = new Map<string, { name: string; cost: number; count: number; rarity: string }>();
+                            for (const code of deck.cards) {
+                              const def = getCardDef(code);
+                              if (!def) continue;
+                              const prev = seen.get(code);
+                              if (prev) prev.count++;
+                              else seen.set(code, { name: def.name, cost: def.manaCost, count: 1, rarity: def.rarity });
+                            }
+                            const rows = [...seen.values()].sort((a, b) => a.cost - b.cost || a.name.localeCompare(b.name));
+                            return (
+                              <div className="max-h-64 overflow-y-auto space-y-0.5">
+                                {rows.map(r => (
+                                  <div key={r.name} className="flex items-center gap-1.5 text-[10px] py-0.5">
+                                    <span className="w-4 h-4 rounded bg-blue-600 text-white text-[8px] font-bold flex items-center justify-center shrink-0">{r.cost}</span>
+                                    <span className="text-gray-200 truncate flex-1">{r.name}</span>
+                                    {r.count > 1 && <span className="text-amber-300 font-bold shrink-0">×{r.count}</span>}
+                                  </div>
+                                ))}
+                              </div>
+                            );
+                          })()}
                         </div>
                       )}
                     </div>
@@ -609,17 +684,26 @@ export function Collection({ uid, onBack }: CollectionProps) {
                   pageDir === 'left' ? 'animate-page-slide-in-left' : 'animate-page-slide-in-right'
                 }`}
               >
-                {paginatedCards.map(c => {
+                {paginatedCards.map(entry => {
+                  const c = entry.def;
+                  const tileKey = `${c.cardCode}${entry.golden ? '_G' : ''}`;
                   const count = editingCounts.get(c.cardCode) || 0;
                   const max = c.rarity === 'LEGENDARY' ? MAX_COPIES_LEGENDARY : MAX_COPIES_PER_CARD;
                   const isMaxed = editingDeck ? count >= max : false;
                   const isWrongClass = editingDeck
                     ? c.heroClass !== 'NEUTRAL' && c.heroClass !== editingDeck.heroClass
                     : false;
-                  const greyed = isMaxed || isWrongClass;
+                  // Golden variants are not-yet-playable as deck slots
+                  // (they use the same cardCode in-deck); the variant
+                  // is purely cosmetic on owned copies. Don't allow
+                  // clicking the gold tile to add cards in editing mode.
+                  const greyed = isMaxed || isWrongClass || (!!editingDeck && entry.golden);
+                  const ownedCount = entry.golden
+                    ? (ownedGolden[c.cardCode] ?? 0)
+                    : (ownedCards[c.cardCode] ?? 0);
                   return (
                     <div
-                      key={c.cardCode}
+                      key={tileKey}
                       className={`relative transition-all select-none ${
                         editingDeck && !greyed ? 'cursor-pointer hover:scale-105' : greyed ? 'cursor-not-allowed' : 'cursor-pointer hover:scale-105'
                       }`}
@@ -632,22 +716,25 @@ export function Collection({ uid, onBack }: CollectionProps) {
                         cardCode={c.cardCode}
                         greyed={greyed}
                         small
+                        golden={entry.golden}
                       />
-                      {editingDeck && count > 0 && (
-                        // In-deck count — compact gold ribbon at top-right
-                        // (the old blue circle read as "2/2" stat noise
-                        // and overlapped the card frame). Uses bg color
-                        // to differentiate full-slot (count===max) so
-                        // users see at a glance when a card is maxed.
+                      {entry.golden && (
+                        <div className="absolute -top-2 left-1/2 -translate-x-1/2 z-10 px-1.5 py-px rounded bg-gradient-to-b from-yellow-400 to-amber-600 border border-amber-300 text-[8px] font-black text-stone-900 shadow tracking-wider">
+                          GOLDEN
+                        </div>
+                      )}
+                      {editingDeck && count > 0 && !entry.golden && (
                         <div className={`absolute top-1 right-1 text-white text-[8px] font-bold px-1 py-0.5 rounded shadow z-10 leading-none ${
                           count >= max ? 'bg-amber-600' : 'bg-stone-900/80 border border-amber-600/60'
                         }`}>
                           ×{count}
                         </div>
                       )}
-                      {!editingDeck && (ownedCards[c.cardCode] ?? 0) > 0 && (
-                        <div className="absolute top-1 right-1 bg-stone-900/80 border border-green-500/60 text-green-300 text-[8px] font-bold px-1 py-0.5 rounded z-10 leading-none">
-                          ×{ownedCards[c.cardCode]}
+                      {!editingDeck && ownedCount > 0 && (
+                        <div className={`absolute top-1 right-1 bg-stone-900/80 border text-[8px] font-bold px-1 py-0.5 rounded z-10 leading-none ${
+                          entry.golden ? 'border-yellow-400/70 text-yellow-300' : 'border-green-500/60 text-green-300'
+                        }`}>
+                          ×{ownedCount}
                         </div>
                       )}
                   </div>

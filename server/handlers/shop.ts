@@ -4,6 +4,7 @@ import { adminDb } from '../firebaseAdmin.js';
 import { validated } from '../state.js';
 import { CraftCardSchema, DisenchantCardSchema } from '../validation.js';
 import { isAdminUid } from '../admin.js';
+import { CARD_BACKS, COINS } from '../../shared/cosmetics.js';
 
 // Synthesize "all cards maxed" inventory for admin accounts so owners
 // don't have to buy packs to test the full card pool.
@@ -12,6 +13,18 @@ function buildAdminOwnedCards(): Record<string, number> {
   for (const c of getAllCardDefs()) {
     if (c.cardCode === 'COIN' || c.cardCode.includes('_TOKEN_')) continue;
     owned[c.cardCode] = c.rarity === 'LEGENDARY' ? 1 : 2;
+  }
+  return owned;
+}
+
+// Same layout as ownedCards but tracks golden/foil copies separately.
+// Admins get one gold copy of every card so they can preview the
+// foil render path without opening packs.
+function buildAdminOwnedGolden(): Record<string, number> {
+  const owned: Record<string, number> = {};
+  for (const c of getAllCardDefs()) {
+    if (c.cardCode === 'COIN' || c.cardCode.includes('_TOKEN_')) continue;
+    owned[c.cardCode] = 1;
   }
   return owned;
 }
@@ -192,22 +205,37 @@ export function registerShopHandlers(
       const userDoc = await adminDb.collection('users').doc(uid).get();
       const userData = userDoc.data() ?? {};
       if (isAdminUid(uid)) {
-        // Admins: synthesize unlimited economy + full collection. No
-        // Firestore write — keeps the underlying doc untouched in case
-        // admin status is later revoked.
+        // Admins: synthesize unlimited economy + full collection + gold
+        // copies + every cosmetic. No Firestore write — keeps the
+        // underlying doc untouched in case admin status is later
+        // revoked.
         socket.emit('inventory-update', {
           dust: 999999,
           gold: 999999,
           ownedCards: buildAdminOwnedCards(),
+          ownedGolden: buildAdminOwnedGolden(),
+          ownedCardBacks: CARD_BACKS.map(c => c.id),
+          ownedCoins: COINS.map(c => c.id),
+          selectedCardBack: userData.selectedCardBack ?? 'default',
+          selectedCoin: userData.selectedCoin ?? 'default',
           packsOpened: userData.packsOpened ?? 0,
           isAdmin: true,
         });
         return;
       }
+      // Non-admins: everyone gets the base card back + base coin for
+      // free; others are tracked in Firestore as they're earned.
+      const ownedBacks = Array.isArray(userData.ownedCardBacks) ? userData.ownedCardBacks : [];
+      const ownedCoins = Array.isArray(userData.ownedCoins) ? userData.ownedCoins : [];
       socket.emit('inventory-update', {
         dust: userData.dust ?? 0,
         gold: userData.gold ?? 0,
         ownedCards: userData.ownedCards ?? {},
+        ownedGolden: userData.ownedGolden ?? {},
+        ownedCardBacks: Array.from(new Set(['default', ...ownedBacks])),
+        ownedCoins: Array.from(new Set(['default', ...ownedCoins])),
+        selectedCardBack: userData.selectedCardBack ?? 'default',
+        selectedCoin: userData.selectedCoin ?? 'default',
         packsOpened: userData.packsOpened ?? 0,
       });
     } catch (err) {
