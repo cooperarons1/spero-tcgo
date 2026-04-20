@@ -6,19 +6,13 @@ client/dist
 .git
 *.md
 
-# Exclude giant data files not needed in the Cloud Run container.
-# Server reads at runtime: cards.json, ai-weights.json,
-# neural-eval-weights.json, animation-weights.json,
-# animation-weights-rank.json — everything else is training/audit data.
-data/balance-audit-*.jsonl
-data/balance-audit-*.jsonl.*
-data/animation-training.jsonl
-data/animation-training.jsonl.bak
-data/animation-checkpoint.json
-data/teacher-*.jsonl
-data/teacher-*.jsonl.bak
-data/llama-*.jsonl
-data/teacher-queue.jsonl
-data/teacher-decisions.jsonl
-data/neural-eval-weights.runE*.json
-data/neural-eval-weights.runE*.bak
+# Exclude ALL of data/ then whitelist only the runtime files the server
+# reads. Previous list-based exclusions kept missing huge files
+# (sim-history-*.jsonl at 100 GB each, alt neural-eval weights, etc.).
+data/**
+!data/cards.json
+!data/cardArtMap.json
+!data/ai-weights.json
+!data/neural-eval-weights.json
+!data/animation-weights.json
+!data/animation-weights-rank.json
