@@ -3,7 +3,8 @@
 Living doc for picking up where a prior session left off. Update this
 whenever a multi-session workstream changes state.
 
-Last session: 2026-04-19 (full-day arc, 10 commits).
+Last session: 2026-04-19 (15-round balance overhaul, 12+ commits, teacher
+retrain, animation v3 data gen started).
 
 ## Current state
 
@@ -11,44 +12,54 @@ Last session: 2026-04-19 (full-day arc, 10 commits).
 labels, weight 0.3, acc=0.6992 on 1M held-out). Undefeated against all
 2026-04-19 experiments (E2-E6 Gemma-e4b sweep, Run F Gemma-31B).
 
-**Balance (2026-04-19 audit):**
-- DEREK 7.8% WR — CATASTROPHIC. 2026-04-13 DRK034 patch FAILED.
-- JIMMY 70.3% WR — BROKEN DOMINANT. 2026-04-13 JIMMY nerfs FAILED.
-- JIMMY vs DEREK = 99.5% (unwinnable mirror).
-- Other 7 heroes: 49.5-54.9% (perfectly balanced among themselves).
+**Balance — 15 rounds shipped 2026-04-19 (post-patch audit):**
+- DEREK 44.6% (was 7.8% at session start, +36.8pp)
+- JIMMY 47.0% (was 70.3%, -23.3pp) — IN the balanced band
+- Spread 44.6%-54.1% (was 7.8%-70.3%)
+- Worst mirror JIMMY vs DEREK 74.1% (was 99.5% — unwinnable before)
+- Worst remaining: IZZY vs DEREK 74.5% (rush vs control; acceptable)
 
-**Animation model:** trained + shipped as `data/animation-weights.json`
-(59.5K params). Val loss 0.083 (flat — predicts the mean). Works but
-quality is not great; acceptable baseline.
+**What landed the fix (after stat-only nerfs plateaued in rounds 1-8):**
+1. Round 10 — DEREK hero power "Tinker" rewritten from "draw 1" to
+   "gain 2 armor + draw 1" (round 15 bumped to 3 armor). +8.9pp DEREK.
+   Stat buffs couldn't close the gap; DEREK had no persistent tempo tool.
+2. Round 9 — `classBonus` in buildRandomDeck (server/ai-simulate.ts)
+   raised 1.5 → 3.0. Random decks now heavily favor class cards, so
+   DEREK's 6 rounds of class buffs actually get represented. +2.8pp.
+3. Round 11 — JIMMY hero power "Orra Arrow" 2→1 base damage (upgraded
+   still 2+1 adjacent). -15.3pp JIMMY in one round. The 2-dmg-to-anything
+   was the engine behind JIMMY's 66% WR floor.
+4. Round 12-13 — DEREK starts with 10 armor (effective 40hp vs aggro).
+5. Teacher AI retrain on current pool — fixed the JIMMY mirror.
+
+**Animation model:** v2 shipped 2026-04-19 (val loss 0.083, still predicts
+mean). Animation v3 data gen running (~2500/20000 samples as of session
+end) — when done, train v3 and see if denser bins break the plateau.
 
 ## Immediate next actions (prioritized)
 
-### 1. Balance patches — round 2+3 shipped, round 4 still pending
+### 1. Balance — DONE this session (15 rounds, +36.8pp DEREK, −23.3pp JIMMY)
 
-**Shipped 2026-04-19** (commit `f703390`, 10-card patch):
-  - JIMMY stat nerfs: JIM030 cost 5→6, JIM032 atk 6→5, JIM022 lost
-    CHARGE, JIM028 atk 5→4, JIM026 spellEffect damage 5→4
-  - JIMMY battlecry damage cuts: JIM030 4→3, JIM032 3→2, JIM026 4→3
-  - DEREK +1 stat buffs across 5 bottom-performers (DRK019/028/038/042/045)
+Commits: `019a4b6` (rounds 7-10), `c77cf77` (rounds 11-15), plus
+`f703390`/`bfe2624`/`9a2e157`/`cbfd69d` from earlier in session.
 
-Post-patch sim (80k games): JIMMY 70.4% → 68.8% (-1.6pp),
-DEREK 7.8% → 8.1% (+0.3pp). Direction correct but MAGNITUDE insufficient.
+Balance converged on:
+- DEREK 44.6% (entry to band), JIMMY 47.0%, spread 44.6-54.1%
+- No mirror >74.5%; worst remaining IZZY→DEREK 74.5% (aggro vs control)
 
-**Round 4 — DEREK mechanics rework (still blocked on you).** Numbers
-tuning maxed out. Real fix is Option D from the patch proposal: add a
-`GAIN_ARMOR` spellEffect type to the game engine, seed 3-4 DEREK cards
-with it, synergize with DRK's existing defensive-minion baseline. That
-requires engine-level code in server/effects.ts, not just card-data
-edits. Scope: half a day. Document the design before starting.
+**Only remaining balance task:** IZZY-vs-DEREK 74.5% if you want it
+tighter, but cost would be nerfing IZZY which is otherwise fine.
 
-**Round 5 — remove a JIMMY carry from the random-deck pool.** Last
-resort if round 4 still leaves JIMMY above 60%. Either remove one of
-JIM030/JIM026 from the random deck builder entirely, or cap JIMMY's
-random decks at 1 copy of the top 3 carries.
+### 1b. Final teacher retrain on post-round-15 pool (in progress)
 
-Verify any patch with `npx tsx scripts/parallel-simulate.ts --workers 16
---games-per-worker 5000 --teacher-vs-teacher --output
-data/balance-audit-YYYY-MM-DD.jsonl` + `python3 scripts/aggregate_balance.py`.
+`npx tsx server/ai-simulate.ts --learn --games 5000 --cycles 5
+--teacher-vs-teacher` kicked off after the rounds 11-15 commit, so the
+teacher is learning on the new card pool + new hero powers + 10-armor
+DEREK. Takes ~70 min.
+
+After it completes:
+1. Run 80k-game audit one more time — teacher may further tighten balance
+2. Commit ai-weights.json if audit looks clean
 
 ### 2. 26B-A4B labeler retry (optional, ~30h overnight)
 
