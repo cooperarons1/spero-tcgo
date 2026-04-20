@@ -459,8 +459,8 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "RARE",
-    "attack": 3,
-    "health": 2,
+    "attack": 4,
+    "health": 3,
     "text": "Stealth. Bond: If you control Rosie, draw 2 cards.",
     "flavor": "The leopard moves like a reef shadow \u2014 silent, patient, lethal.",
     "keywords": [
@@ -482,8 +482,8 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "RARE",
-    "attack": 1,
-    "health": 3,
+    "attack": 2,
+    "health": 4,
     "text": "Bond: If you control Sengo, draw 2 cards.",
     "flavor": "She nudges lost things back to shore \u2014 including hope.",
     "keywords": [
@@ -977,8 +977,8 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 4,
-    "health": 3,
+    "attack": 5,
+    "health": 4,
     "text": "Deathrattle: Deal 3 damage to a random enemy.",
     "flavor": "Built to fight. Fights to build. It's a whole cycle.",
     "keywords": [
@@ -1139,8 +1139,8 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 5,
-    "health": 6,
+    "attack": 6,
+    "health": 7,
     "text": "Taunt. Battlecry: Gain 2 armor.",
     "flavor": "Slow, steady, and completely unstoppable.",
     "keywords": [
@@ -1162,7 +1162,7 @@
     "type": "WEAPON",
     "heroClass": "JIMMY",
     "rarity": "COMMON",
-    "attack": 4,
+    "attack": 3,
     "health": 2,
     "text": "A heavy polearm that hits hard.",
     "flavor": "It hungers for more than just blood.",
@@ -1308,12 +1308,12 @@
   {
     "cardCode": "JIM022",
     "name": "Brutus",
-    "manaCost": 6,
+    "manaCost": 7,
     "type": "MINION",
     "heroClass": "JIMMY",
     "rarity": "EPIC",
     "attack": 5,
-    "health": 5,
+    "health": 4,
     "text": "Bruiser \u2014 no surprises.",
     "flavor": "They called him unkillable. They were almost right.",
     "keywords": [],
@@ -1365,8 +1365,8 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 3,
-    "health": 3,
+    "attack": 4,
+    "health": 4,
     "text": "A reliable mech with solid construction.",
     "flavor": "She'll work for parts. Good parts.",
     "keywords": [],
@@ -1427,8 +1427,8 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "RARE",
-    "attack": 3,
-    "health": 4,
+    "attack": 4,
+    "health": 5,
     "text": "Battlecry: Draw a card.",
     "flavor": "His memory banks contain every recipe ever compiled.",
     "keywords": [
@@ -1605,8 +1605,8 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 3,
-    "health": 3,
+    "attack": 4,
+    "health": 4,
     "text": "Battlecry: Draw a card if you control a MECH.",
     "flavor": "If it has gears, he can make it better.",
     "keywords": [
@@ -1827,7 +1827,7 @@
     "type": "MINION",
     "heroClass": "JIMMY",
     "rarity": "EPIC",
-    "attack": 4,
+    "attack": 3,
     "health": 4,
     "text": "Battlecry: Deal 3 damage to a random enemy minion.",
     "flavor": "Born from the last ember of a dying volcano.",
@@ -1899,19 +1899,19 @@
   {
     "cardCode": "JIM026",
     "name": "Engulfed in Flames",
-    "manaCost": 7,
+    "manaCost": 8,
     "type": "SPELL",
     "heroClass": "JIMMY",
     "rarity": "EPIC",
     "attack": 0,
     "health": 0,
-    "text": "Deal 3 damage to all characters.",
+    "text": "Deal 2 damage to all characters.",
     "flavor": "When the forest burns, new life begins \u2014 eventually.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE_ALL_ENEMIES",
       "target": "ALL_MINIONS",
-      "value": 3
+      "value": 2
     }
   },
   {
@@ -2061,8 +2061,8 @@
     "type": "MINION",
     "heroClass": "JIMMY",
     "rarity": "EPIC",
-    "attack": 5,
-    "health": 4,
+    "attack": 4,
+    "health": 3,
     "text": "Deathrattle: Deal 2 damage to all enemies.",
     "flavor": "His howl echoes through the frozen peaks of Aster.",
     "keywords": [
@@ -2109,11 +2109,11 @@
   {
     "cardCode": "JIM028",
     "name": "Flaming Sword of Pain",
-    "manaCost": 5,
+    "manaCost": 6,
     "type": "WEAPON",
     "heroClass": "JIMMY",
     "rarity": "COMMON",
-    "attack": 4,
+    "attack": 3,
     "health": 2,
     "text": "A devastating blade forged in flame.",
     "flavor": "Forged in Gavalon's deepest furnace. Handle with extreme caution.",
@@ -2177,8 +2177,8 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "EPIC",
-    "attack": 3,
-    "health": 4,
+    "attack": 4,
+    "health": 5,
     "text": "Battlecry: Draw a card for each MECH you control.",
     "flavor": "Processes data faster than you can blink. Much faster.",
     "keywords": [
@@ -2415,8 +2415,8 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 3,
-    "health": 2,
+    "attack": 4,
+    "health": 3,
     "text": "Charge.",
     "flavor": "Fast, cheap, and only occasionally explodes.",
     "keywords": [],
@@ -2504,13 +2504,13 @@
   {
     "cardCode": "JIM030",
     "name": "Infernic",
-    "manaCost": 6,
+    "manaCost": 7,
     "type": "MINION",
     "heroClass": "JIMMY",
     "rarity": "LEGENDARY",
-    "attack": 6,
+    "attack": 5,
     "health": 5,
-    "text": "Battlecry: Deal 3 damage to all enemy minions.",
+    "text": "Battlecry: Deal 2 damage to all enemy minions.",
     "flavor": "Ancient, enormous, and thoroughly unimpressed by your army.",
     "keywords": [
       "BATTLECRY"
@@ -2519,7 +2519,7 @@
     "battlecryEffect": {
       "type": "DEAL_DAMAGE_ALL_ENEMIES",
       "target": "ALL_ENEMY_MINIONS",
-      "value": 3
+      "value": 2
     }
   },
   {
@@ -2681,8 +2681,8 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "EPIC",
-    "attack": 2,
-    "health": 3,
+    "attack": 3,
+    "health": 4,
     "text": "Deathrattle: Add a random MECH to your hand.",
     "flavor": "One bot's junk is another bot's treasure.",
     "keywords": [
@@ -2813,8 +2813,8 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 2,
-    "health": 4,
+    "attack": 3,
+    "health": 5,
     "text": "Battlecry: Give a friendly MECH +1/+1.",
     "flavor": "He talks to machines. They talk back.",
     "keywords": [
@@ -2857,8 +2857,8 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 6,
-    "health": 6,
+    "attack": 7,
+    "health": 7,
     "text": "Taunt. Divine Shield. Battlecry: Gain 3 armor.",
     "flavor": "Half knight, half machine. All paladin.",
     "keywords": [
@@ -3236,8 +3236,8 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "EPIC",
-    "attack": 5,
-    "health": 5,
+    "attack": 6,
+    "health": 6,
     "text": "Battlecry: Draw a card.",
     "flavor": "A whole megabyte of trouble.",
     "keywords": [
@@ -3302,7 +3302,7 @@
     "type": "WEAPON",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 1,
+    "attack": 2,
     "health": 3,
     "text": "A precise instrument repurposed for combat.",
     "flavor": "Finds metal underground. Finds trouble everywhere else.",
@@ -3480,7 +3480,7 @@
   {
     "cardCode": "JIM032",
     "name": "Nova Ramiro",
-    "manaCost": 7,
+    "manaCost": 8,
     "type": "MINION",
     "heroClass": "JIMMY",
     "rarity": "LEGENDARY",
@@ -3495,7 +3495,7 @@
     "battlecryEffect": {
       "type": "DEAL_DAMAGE_ALL_ENEMIES",
       "target": "ALL_ENEMY_MINIONS",
-      "value": 2
+      "value": 1
     }
   },
   {
@@ -3662,8 +3662,8 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 2,
-    "health": 2,
+    "attack": 3,
+    "health": 3,
     "text": "A basic mech unit ready for deployment.",
     "flavor": "Simple design. Simple function. Simply effective.",
     "keywords": [],
@@ -3796,8 +3796,8 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "LEGENDARY",
-    "attack": 6,
-    "health": 6,
+    "attack": 7,
+    "health": 7,
     "text": "Taunt. Deathrattle: Summon two 3/3 mechs.",
     "flavor": "The last line of defense. Literally.",
     "keywords": [
@@ -4022,8 +4022,8 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "RARE",
-    "attack": 1,
-    "health": 3,
+    "attack": 2,
+    "health": 4,
     "text": "Battlecry: Draw a card.",
     "flavor": "Records everything. Forgets nothing. Judges constantly.",
     "keywords": [
@@ -4250,7 +4250,7 @@
     "type": "WEAPON",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 3,
+    "attack": 4,
     "health": 3,
     "text": "Battlecry: Gain 3 armor.",
     "flavor": "Recycled from seventeen different machines. Works like new.",
@@ -4396,8 +4396,8 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 1,
-    "health": 2,
+    "attack": 2,
+    "health": 3,
     "text": "Deathrattle: Draw a card.",
     "flavor": "He skips the small talk and gets right to the point.",
     "keywords": [
@@ -4466,8 +4466,8 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 2,
-    "health": 2,
+    "attack": 3,
+    "health": 3,
     "text": "Battlecry: Add a spare part to your hand.",
     "flavor": "He puts the 'mad' in 'mad scientist.' The chameleon puts the 'cool.'",
     "keywords": [
@@ -4586,8 +4586,8 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "LEGENDARY",
-    "attack": 6,
-    "health": 7,
+    "attack": 7,
+    "health": 8,
     "text": "Taunt. Battlecry: Gain 5 armor. Deathrattle: Summon a 5/5 mech with Taunt.",
     "flavor": "The biggest bot on the battlefield, and he knows it.",
     "keywords": [
@@ -4617,8 +4617,8 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 5,
-    "health": 6,
+    "attack": 6,
+    "health": 7,
     "text": "Taunt. Battlecry: Gain 2 armor.",
     "flavor": "Medium-sized problems require medium-sized solutions.",
     "keywords": [
@@ -4640,8 +4640,8 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 2,
-    "health": 3,
+    "attack": 3,
+    "health": 4,
     "text": "Deathrattle: Summon a 1/1 mech.",
     "flavor": "Small, scrappy, and surprisingly hard to kill.",
     "keywords": [
@@ -4777,8 +4777,8 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 2,
-    "health": 3,
+    "attack": 3,
+    "health": 4,
     "text": "Battlecry: Return a friendly minion to your hand.",
     "flavor": "Fastest transport in the Helix district. No questions asked.",
     "keywords": [
@@ -4879,8 +4879,8 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 5,
-    "health": 3,
+    "attack": 6,
+    "health": 4,
     "text": "Deathrattle: Summon a 2/2 mech.",
     "flavor": "Leaves tracks wherever he goes. Deliberately.",
     "keywords": [
@@ -4917,8 +4917,8 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 3,
-    "health": 2,
+    "attack": 4,
+    "health": 3,
     "text": "Deathrattle: Deal 3 damage to a random enemy.",
     "flavor": "Trims hedges, enemies, and awkward conversations.",
     "keywords": [
@@ -5380,8 +5380,8 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 2,
-    "health": 3,
+    "attack": 3,
+    "health": 4,
     "text": "Battlecry: Give a friendly MECH +1 Attack.",
     "flavor": "He gives mechs a little extra spark.",
     "keywords": [
@@ -6200,13 +6200,13 @@
     "rarity": "RARE",
     "attack": 0,
     "health": 0,
-    "text": "Deal 5 damage to a minion.",
+    "text": "Deal 6 damage to a minion.",
     "flavor": "Measure twice. Cut once. Measure again just to be sure.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE",
       "target": "TARGET_MINION",
-      "value": 5
+      "value": 6
     }
   },
   {
@@ -6218,14 +6218,14 @@
     "rarity": "EPIC",
     "attack": 0,
     "health": 0,
-    "text": "Deal 3 damage to all enemy minions. Gain 3 armor.",
+    "text": "Deal 4 damage to all enemy minions. Gain 3 armor.",
     "flavor": "The whole system goes dark. Only you had a generator.",
     "keywords": [],
     "spellEffects": [
       {
         "type": "DEAL_DAMAGE_ALL_ENEMIES",
         "target": "ALL_ENEMY_MINIONS",
-        "value": 3
+        "value": 4
       },
       {
         "type": "GAIN_ARMOR",
@@ -6237,7 +6237,7 @@
   {
     "cardCode": "DRK052",
     "name": "Demolition",
-    "manaCost": 5,
+    "manaCost": 4,
     "type": "SPELL",
     "heroClass": "DEREK",
     "rarity": "EPIC",
@@ -6275,6 +6275,103 @@
       "type": "SILENCE_TARGET",
       "target": "TARGET_MINION",
       "value": 0
+    }
+  },
+  {
+    "cardCode": "DRK060",
+    "name": "The Architect",
+    "manaCost": 6,
+    "type": "MINION",
+    "heroClass": "DEREK",
+    "rarity": "LEGENDARY",
+    "attack": 6,
+    "health": 8,
+    "text": "Taunt. Battlecry: Gain 12 armor and draw 2 cards.",
+    "flavor": "The blueprints were never found. Perhaps they were never needed.",
+    "keywords": [
+      "TAUNT",
+      "BATTLECRY"
+    ],
+    "battlecryEffects": [
+      {
+        "type": "GAIN_ARMOR",
+        "target": "NONE",
+        "value": 12
+      },
+      {
+        "type": "DRAW_CARDS",
+        "target": "NONE",
+        "value": 2
+      }
+    ]
+  },
+  {
+    "cardCode": "DRK061",
+    "name": "Reinforcement",
+    "manaCost": 3,
+    "type": "SPELL",
+    "heroClass": "DEREK",
+    "rarity": "EPIC",
+    "attack": 0,
+    "health": 0,
+    "text": "Give a friendly minion +2/+2 and Taunt.",
+    "flavor": "Some parts were spare. Most were stolen.",
+    "keywords": [],
+    "spellEffects": [
+      {
+        "type": "BUFF_MINION",
+        "target": "TARGET_FRIENDLY",
+        "value": 2,
+        "extra": "TAUNT"
+      }
+    ]
+  },
+  {
+    "cardCode": "DRK062",
+    "name": "Counter-Measure",
+    "manaCost": 4,
+    "type": "SPELL",
+    "heroClass": "DEREK",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 3 damage to a minion. Gain 4 armor. Draw a card.",
+    "flavor": "Hit them before they hit you, and bring a shield just in case.",
+    "keywords": [],
+    "spellEffects": [
+      {
+        "type": "DEAL_DAMAGE",
+        "target": "TARGET_MINION",
+        "value": 3
+      },
+      {
+        "type": "GAIN_ARMOR",
+        "target": "NONE",
+        "value": 4
+      },
+      {
+        "type": "DRAW_CARDS",
+        "target": "NONE",
+        "value": 1
+      }
+    ]
+  },
+  {
+    "cardCode": "DRK063",
+    "name": "Fortify",
+    "manaCost": 2,
+    "type": "SPELL",
+    "heroClass": "DEREK",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Gain 5 armor.",
+    "flavor": "It was always going to hurt. Now it hurts less.",
+    "keywords": [],
+    "spellEffect": {
+      "type": "GAIN_ARMOR",
+      "target": "NONE",
+      "value": 5
     }
   }
 ]
