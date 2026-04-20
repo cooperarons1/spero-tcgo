@@ -10,10 +10,12 @@ import { checkDeaths } from './combat.js';
 export { TURN_TIMEOUT_MS };
 
 function makePlayerState(id: string, name: string, heroClass: HeroClass): PlayerState {
-  // DEREK starts with 10 armor — effectively 40hp, matching control-class
-  // health budgets. 5 armor only moved WR +1.3pp; needs more headroom vs
-  // IZZY-style rush that still wins 74%.
-  const startingArmor = heroClass === 'DEREK' ? 10 : 0;
+  // All heroes start with 0 armor. An earlier tuning gave DEREK 10
+  // starting armor to close an aggro gap in 80k-game sims; it moved the
+  // needle +3pp but played poorly at human pace (effectively 40hp
+  // before the opponent even had a turn). Reverted — DEREK keeps armor
+  // gain through Tinker hero power and DRK cards instead.
+  const startingArmor = 0;
   return {
     playerId: id,
     playerName: name,

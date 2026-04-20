@@ -63,27 +63,57 @@ const rarityColor: Record<string, string> = {
 // gem with bronze ring, light-reflected facets. Used for the mana cost
 // badge. `value` is the mana cost rendered centered on the gem.
 export function ManaGem({ value, size = 28 }: { value: number; size?: number }) {
+  // Hearthstone-reference mana gem: big multi-faceted blue crystal, no
+  // bronze ring, sits as a standalone shape you can drop over a card
+  // frame. Each facet is a distinct polygon with its own shade so the
+  // gem reads as crystalline rather than flat.
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }}>
+    <svg width={size} height={size} viewBox="0 0 40 44" style={{ filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.7))', overflow: 'visible' }}>
       <defs>
-        <linearGradient id="mana-light" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#9ecbff" />
-          <stop offset="100%" stopColor="#2d62c6" />
+        <linearGradient id="mgBlueTop" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#bfe0ff" />
+          <stop offset="100%" stopColor="#4a82d6" />
         </linearGradient>
-        <linearGradient id="mana-dark" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#1e4a9e" />
-          <stop offset="100%" stopColor="#0b214d" />
+        <linearGradient id="mgBlueMid" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#2c5ba8" />
+          <stop offset="100%" stopColor="#15306b" />
+        </linearGradient>
+        <linearGradient id="mgBlueDeep" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#1a3a78" />
+          <stop offset="100%" stopColor="#0a1938" />
         </linearGradient>
       </defs>
-      {/* Bronze ring backdrop */}
-      <circle cx="16" cy="16" r="14" fill="#3a2a15" stroke="#c28a42" strokeWidth="1.2" />
-      <circle cx="16" cy="16" r="12" fill="#241607" stroke="#8a5a28" strokeWidth="0.7" />
-      {/* Diamond body — two triangles per half for a faceted look */}
-      <polygon points="16,5 26,16 16,27 6,16" fill="url(#mana-dark)" stroke="#0a1a38" strokeWidth="0.4" />
-      <polygon points="16,5 16,27 6,16" fill="url(#mana-light)" opacity="0.9" />
-      <polygon points="16,5 22,16 16,20 10,16" fill="#b5d4ff" opacity="0.5" />
-      {/* Mana number centered */}
-      <text x="16" y="21" textAnchor="middle" fontSize="13" fontWeight="900" fill="#ffffff" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.9)' }} stroke="#0a1a38" strokeWidth="0.5" paintOrder="stroke">
+
+      {/* Outer crystal outline — dark navy border */}
+      <polygon
+        points="20,1 38,14 32,40 8,40 2,14"
+        fill="url(#mgBlueMid)"
+        stroke="#061030"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+      {/* Top bright facet */}
+      <polygon points="20,2 37,13 30,22 20,18 10,22 3,13" fill="url(#mgBlueTop)" />
+      {/* Left inner facet */}
+      <polygon points="10,22 20,18 18,40 8,39 3,14" fill="url(#mgBlueMid)" opacity="0.85" />
+      {/* Right inner facet */}
+      <polygon points="30,22 20,18 22,40 32,39 37,14" fill="url(#mgBlueDeep)" opacity="0.95" />
+      {/* Bottom deep facet */}
+      <polygon points="18,40 22,40 32,39 20,41 8,39" fill="#0a1938" />
+      {/* Specular highlight on top-left */}
+      <polygon points="9,7 16,4 19,9 13,14" fill="#ffffff" opacity="0.6" />
+      <polygon points="20,11 24,9 28,13 22,15" fill="#ffffff" opacity="0.3" />
+
+      {/* Mana number — big, white with thick black stroke */}
+      <text
+        x="20" y="30"
+        textAnchor="middle"
+        fontSize="20" fontWeight="900"
+        fill="#ffffff"
+        stroke="#000000" strokeWidth="2.2"
+        paintOrder="stroke"
+        style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
+      >
         {value}
       </text>
     </svg>
