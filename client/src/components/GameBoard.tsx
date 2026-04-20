@@ -860,7 +860,7 @@ function HeroPortrait({
           changes, so the slide-in animation re-fires. Without the key,
           replacing one weapon with another would just snap the art. */}
       {weapon && (
-        <div className={`relative ${weaponEquipFlash ? 'animate-weapon-slide-in' : ''}`} key={weapon.cardCode}>
+        <div className={`relative group/weapon ${weaponEquipFlash ? 'animate-weapon-slide-in' : ''}`} key={weapon.cardCode}>
           <div className={`relative h-16 w-16 md:h-24 md:w-24 rounded-full overflow-hidden border-[3px] bg-stone-900
             ${canHeroAttack ? 'border-green-400 shadow-[0_0_16px_4px_rgba(34,197,94,0.6)]' : 'border-stone-500'}
             ${weaponEquipFlash ? 'animate-weapon-equip' : ''}`}
@@ -876,6 +876,15 @@ function HeroPortrait({
           {/* Durability badge — outside overflow, bottom-right */}
           <div className="absolute -bottom-1 -right-1 w-7 h-7 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-stone-400 to-stone-600 border-2 border-stone-300 flex items-center justify-center shadow-lg z-20">
             <span className="text-white font-extrabold text-xs md:text-sm drop-shadow-md">{weapon.durability}</span>
+          </div>
+          {/* Hover preview: blown-up full card (same pattern as action
+               history hover + collection hover). pointer-events-none so
+               it never blocks clicks on the weapon circle. */}
+          <div
+            className="absolute left-1/2 -translate-x-1/2 bottom-full mb-3 hidden group-hover/weapon:block z-50 pointer-events-none"
+            style={{ transform: 'translateX(-50%) scale(1.3)', transformOrigin: 'bottom center' }}
+          >
+            <CardComponent cardCode={weapon.cardCode} />
           </div>
         </div>
       )}
