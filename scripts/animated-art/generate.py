@@ -63,10 +63,15 @@ def load_svd_pipeline():
     # spiking past 120GB on 14 frames. Keeps pipeline usable alongside
     # the rest of the OS.
     pipe.enable_attention_slicing("max")
-    if hasattr(pipe, "vae") and hasattr(pipe.vae, "enable_slicing"):
-        pipe.vae.enable_slicing()
-    if hasattr(pipe, "vae") and hasattr(pipe.vae, "enable_tiling"):
-        pipe.vae.enable_tiling()
+    # AutoencoderKLTemporalDecoder doesn't support enable_slicing (it's a
+    # video VAE, different API). Try tiling — sometimes implemented —
+    # then fall back to decode_chunk_size for frame-level memory control.
+    for method in ("enable_slicing", "enable_tiling"):
+        try:
+            getattr(pipe.vae, method)()
+            print(f"[svd] vae.{method}() enabled", flush=True)
+        except (AttributeError, NotImplementedError):
+            pass
     return pipe, device
 
 
@@ -118,10 +123,13 @@ def generate_card(pipe, device: str, card_code: str, frames: int, fps: int,
     out_webm = OUT_DIR / f"{card_code}.webm"
 
     img = Image.open(src).convert("RGB")
-    # SVD expects 1024x576 or 576x1024. Card art is tall — resize to
-    # 576x1024 so the card aspect is preserved; we'll crop on the
-    # client via object-fit: cover.
-    img = img.resize((576, 1024), Image.LANCZOS)
+    # SVD supports sub-1024 spatial resolutions. Dropping from 576x1024
+    # → 480x832 cuts frame activation memory by ~32%, taking peak
+    # unified-memory usage from ~125 GB → ~120 GB so the rest of the
+    # OS stays usable during a batch. Card art is rendered behind
+    # object-fit: cover on the client, so the slightly lower source
+    # resolution is not visually noticeable at deck/board zoom.
+    img = img.resize((480, 832), Image.LANCZOS)
 
     motion, noise = motion_from_code(card_code)
     seed = sum(ord(c) * (i + 1) for i, c in enumerate(card_code))
