@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { CARD_ART_PNGS } from './cardArtPngs';
+import { CARD_ART_ANIMS } from './cardArtAnims';
 
 // Shared gradient definitions by theme
 const jimmyGradients = (
@@ -4397,6 +4398,7 @@ export function CardArt({
   cardCode,
   className,
   square,
+  golden,
 }: {
   cardCode: string;
   className?: string;
@@ -4407,9 +4409,30 @@ export function CardArt({
   // hero weapon slot. The PNG path uses objectFit: 'cover' which already
   // does the right thing — square only affects the SVG branch.
   square?: boolean;
+  /** When true + a WebM loop exists for this card, render the
+   * animated video instead of the static PNG. This is the
+   * Hearthstone-style golden-card art motion. */
+  golden?: boolean;
 }) {
   const [pngFailed, setPngFailed] = useState(false);
+  const [webmFailed, setWebmFailed] = useState(false);
   const hasPng = CARD_ART_PNGS.has(cardCode) && !pngFailed;
+  const hasAnim = !!golden && CARD_ART_ANIMS.has(cardCode) && !webmFailed;
+
+  if (hasAnim) {
+    return (
+      <video
+        src={`/cards/anims/${cardCode}.webm`}
+        className={className}
+        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        autoPlay
+        loop
+        muted
+        playsInline
+        onError={() => setWebmFailed(true)}
+      />
+    );
+  }
 
   if (hasPng) {
     return (

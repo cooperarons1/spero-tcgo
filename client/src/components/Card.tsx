@@ -252,7 +252,7 @@ export function Card({ cardCode, onClick, selected, greyed, small, className, go
         bg-stone-800 flex items-center justify-center
         ${golden ? 'shadow-[inset_0_0_0_2px_rgba(245,158,11,0.8)]' : ''}
       `}>
-        <CardArt cardCode={cardCode} className="w-full h-full" />
+        <CardArt cardCode={cardCode} className="w-full h-full" golden={golden} />
         {golden && (
           <>
             {/* Warm gold tint wash */}

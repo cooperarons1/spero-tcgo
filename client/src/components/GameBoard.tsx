@@ -567,7 +567,7 @@ function BoardMinionCard({
       {/* Art fills entire oval — clip to oval shape. Gold variant
            overlays a warm tint + infinite shimmer sweep. */}
       <div className="absolute inset-0 bg-amber-900/80 overflow-hidden" style={{ borderRadius: '42%' }}>
-        {minion.cardCode && <CardArt cardCode={minion.cardCode} className="w-full h-full" />}
+        {minion.cardCode && <CardArt cardCode={minion.cardCode} className="w-full h-full" golden={minion.isGolden} />}
         {minion.isGolden && (
           <>
             <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.25) 0%, rgba(252,211,77,0.1) 50%, rgba(245,158,11,0.28) 100%)' }} />
@@ -1054,7 +1054,7 @@ function HandCard({
       <div className="absolute -left-1.5 -top-1.5 z-10"><ManaGem value={def.manaCost} size={30} /></div>
       {/* Card Art — larger. Gold overlay + shimmer for foil copies. */}
       <div className={`relative w-full h-24 mt-3 rounded overflow-hidden bg-stone-600/60 flex-shrink-0 ${card.isGolden ? 'shadow-[inset_0_0_0_2px_rgba(251,191,36,0.8)]' : ''}`}>
-        <CardArt cardCode={card.cardCode!} className="w-full h-full" />
+        <CardArt cardCode={card.cardCode!} className="w-full h-full" golden={card.isGolden} />
         {card.isGolden && (
           <>
             <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.22) 0%, rgba(252,211,77,0.1) 50%, rgba(245,158,11,0.24) 100%)' }} />
