@@ -120,7 +120,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
   const [page, setPage] = useState(0);
   const [pageDir, setPageDir] = useState<'left' | 'right' | null>(null);
   const [animating, setAnimating] = useState(false);
-  const CARDS_PER_PAGE = 15;
+  const CARDS_PER_PAGE = 20; // 5 cols × 4 rows — fills the viewport better than 15
 
   // Crafting state
   const [craftingCard, setCraftingCard] = useState<string | null>(null);
@@ -634,13 +634,20 @@ export function Collection({ uid, onBack }: CollectionProps) {
                         small
                       />
                       {editingDeck && count > 0 && (
-                        <div className="absolute -top-1 -right-1 bg-blue-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center z-10">
-                          {count}/{max}
+                        // In-deck count — compact gold ribbon at top-right
+                        // (the old blue circle read as "2/2" stat noise
+                        // and overlapped the card frame). Uses bg color
+                        // to differentiate full-slot (count===max) so
+                        // users see at a glance when a card is maxed.
+                        <div className={`absolute top-1 right-1 text-white text-[8px] font-bold px-1 py-0.5 rounded shadow z-10 leading-none ${
+                          count >= max ? 'bg-amber-600' : 'bg-stone-900/80 border border-amber-600/60'
+                        }`}>
+                          ×{count}
                         </div>
                       )}
                       {!editingDeck && (ownedCards[c.cardCode] ?? 0) > 0 && (
-                        <div className="absolute -bottom-1 -right-1 bg-green-600 text-white text-[8px] font-bold px-1 py-px rounded z-10">
-                          x{ownedCards[c.cardCode]}
+                        <div className="absolute top-1 right-1 bg-stone-900/80 border border-green-500/60 text-green-300 text-[8px] font-bold px-1 py-0.5 rounded z-10 leading-none">
+                          ×{ownedCards[c.cardCode]}
                         </div>
                       )}
                   </div>

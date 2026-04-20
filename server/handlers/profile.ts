@@ -240,11 +240,14 @@ export function registerProfileHandlers(
         };
         const reward = rewards[day] ?? rewards[1];
 
-        tx.update(userRef, {
+        // set+merge instead of update so the write succeeds even if the
+        // user doc doesn't exist yet (new Firestore after project
+        // migration, or brand-new user whose doc hasn't been created).
+        tx.set(userRef, {
           gold: (data.gold ?? 0) + reward.gold,
           lastDailyLogin: now,
           loginStreak: streak,
-        });
+        }, { merge: true });
 
         return { ok: true as const, streak, day, reward };
       });

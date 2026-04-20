@@ -1,7 +1,20 @@
 import type { Server, Socket } from 'socket.io';
+import cardsData from '../../data/cards.json' with { type: 'json' };
 import { adminDb } from '../firebaseAdmin.js';
 import { validated } from '../state.js';
 import { CraftCardSchema, DisenchantCardSchema } from '../validation.js';
+import { isAdminUid } from '../admin.js';
+
+// Synthesize "all cards maxed" inventory for admin accounts so owners
+// don't have to buy packs to test the full card pool.
+function buildAdminOwnedCards(): Record<string, number> {
+  const owned: Record<string, number> = {};
+  for (const c of (cardsData as Array<{ cardCode: string; rarity: string }>)) {
+    if (c.cardCode === 'COIN' || c.cardCode.includes('_TOKEN_')) continue;
+    owned[c.cardCode] = c.rarity === 'LEGENDARY' ? 1 : 2;
+  }
+  return owned;
+}
 
 export function registerShopHandlers(
   io: Server,
@@ -178,6 +191,19 @@ export function registerShopHandlers(
     try {
       const userDoc = await adminDb.collection('users').doc(uid).get();
       const userData = userDoc.data() ?? {};
+      if (isAdminUid(uid)) {
+        // Admins: synthesize unlimited economy + full collection. No
+        // Firestore write — keeps the underlying doc untouched in case
+        // admin status is later revoked.
+        socket.emit('inventory-update', {
+          dust: 999999,
+          gold: 999999,
+          ownedCards: buildAdminOwnedCards(),
+          packsOpened: userData.packsOpened ?? 0,
+          isAdmin: true,
+        });
+        return;
+      }
       socket.emit('inventory-update', {
         dust: userData.dust ?? 0,
         gold: userData.gold ?? 0,

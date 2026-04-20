@@ -59,6 +59,36 @@ const rarityColor: Record<string, string> = {
   LEGENDARY: '#f59e0b',
 };
 
+// Hearthstone-style teardrop gem rendered with inline SVG. Gold-rimmed
+// circular frame with a rarity-colored jewel inside, highlighted with a
+// subtle glint. `size` in px for square bounding box.
+function RarityGem({ rarity, size = 14 }: { rarity: string; size?: number }) {
+  const stroke = '#d4a24a';
+  const fill = rarityColor[rarity] || rarityColor.COMMON;
+  const glow = `${fill}99`;
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" style={{ filter: `drop-shadow(0 0 4px ${glow})` }}>
+      {/* Gold ring */}
+      <circle cx="12" cy="12" r="10" fill="#2a1f10" stroke={stroke} strokeWidth="1.4" />
+      <circle cx="12" cy="12" r="8.5" fill="#1a1108" stroke={stroke} strokeWidth="0.6" opacity="0.6" />
+      {/* Teardrop gem — point up for RARE/EPIC/LEGENDARY, round for COMMON */}
+      {rarity === 'COMMON' ? (
+        <>
+          <circle cx="12" cy="12" r="6" fill={fill} />
+          <ellipse cx="10" cy="9.5" rx="2" ry="1.2" fill="#ffffff" opacity="0.6" />
+        </>
+      ) : (
+        <>
+          {/* Teardrop path: point at top, round at bottom */}
+          <path d="M 12 4.5 C 8.5 8 7 11 7 13.5 C 7 16.5 9.2 18.8 12 18.8 C 14.8 18.8 17 16.5 17 13.5 C 17 11 15.5 8 12 4.5 Z" fill={fill} />
+          {/* Gem highlight */}
+          <path d="M 10 8 C 9 10 8.5 12 9 13.5 C 9.5 12.5 10.5 10.5 11.5 8.5 Z" fill="#ffffff" opacity="0.55" />
+        </>
+      )}
+    </svg>
+  );
+}
+
 const cardsByCode: Record<string, CardDef> = {};
 for (const c of cardsData as CardDef[]) {
   cardsByCode[c.cardCode] = c;
@@ -122,9 +152,10 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
         ${className ?? ''}
       `}
     >
-      {/* ── Mana cost gem — top-left, inside card ── */}
+      {/* ── Mana cost gem — top-left, inside card. Slightly smaller than
+           before (user feedback: symbols felt oversized at card-grid zoom). ── */}
       <div className={`
-        absolute ${small ? 'top-1 left-1 w-5 h-5 text-[9px]' : 'top-1 left-1 w-7 h-7 text-xs'}
+        absolute ${small ? 'top-0.5 left-0.5 w-4 h-4 text-[8px]' : 'top-1 left-1 w-6 h-6 text-[11px]'}
         rounded-full bg-gradient-to-br from-blue-400 to-blue-700
         border-2 border-blue-300 shadow-lg shadow-blue-500/50
         flex items-center justify-center font-extrabold text-white z-20
@@ -135,7 +166,7 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
       {/* ── Secret badge — top-right, inside card ── */}
       {isSecret && (
         <div className={`
-          absolute ${small ? 'top-1 right-1 w-4 h-4 text-[7px]' : 'top-1 right-1 w-6 h-6 text-[10px]'}
+          absolute ${small ? 'top-0.5 right-0.5 w-3.5 h-3.5 text-[6px]' : 'top-1 right-1 w-5 h-5 text-[9px]'}
           rounded-full bg-gradient-to-b from-amber-400 to-amber-600
           border border-amber-300 shadow-md
           flex items-center justify-center font-bold text-white z-20
@@ -153,15 +184,12 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
         <CardArt cardCode={cardCode} className="w-full h-full" />
       </div>
 
-      {/* ── Rarity gem — centered between art and name ── */}
-      <div className={`flex justify-center ${small ? '-mt-1.5 z-10' : '-mt-2 z-10'}`}>
-        <div
-          className={`${small ? 'w-3 h-3' : 'w-3.5 h-3.5'} rotate-45 border border-white/40`}
-          style={{
-            backgroundColor: rarityColor[def.rarity],
-            boxShadow: `0 0 8px ${rarityColor[def.rarity]}aa, inset 0 1px 2px rgba(255,255,255,0.4)`,
-          }}
-        />
+      {/* ── Rarity gem — Hearthstone-style jewel, positioned to overlap the
+           bottom edge of the art (higher than before, as requested, so
+           it reads as a frame ornament rather than an orphan above the
+           name banner). ── */}
+      <div className={`flex justify-center ${small ? '-mt-2 z-10' : '-mt-3 z-10'}`}>
+        <RarityGem rarity={def.rarity} size={small ? 11 : 16} />
       </div>
 
       {/* ── Card name banner ── */}
@@ -207,7 +235,7 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
         <>
           {/* Attack — bottom-left */}
           <div className={`
-            absolute ${small ? 'bottom-1 left-1 w-5 h-5 text-[9px]' : 'bottom-1.5 left-1.5 w-7 h-7 text-xs'}
+            absolute ${small ? 'bottom-0.5 left-0.5 w-4 h-4 text-[8px]' : 'bottom-1 left-1 w-6 h-6 text-[11px]'}
             rounded-full bg-gradient-to-br from-yellow-500 to-yellow-700
             border-2 border-yellow-400 shadow-md shadow-yellow-500/40
             flex items-center justify-center font-extrabold text-white z-20
@@ -217,7 +245,7 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
 
           {/* Health/Durability — bottom-right */}
           <div className={`
-            absolute ${small ? 'bottom-1 right-1 w-5 h-5 text-[9px]' : 'bottom-1.5 right-1.5 w-7 h-7 text-xs'}
+            absolute ${small ? 'bottom-0.5 right-0.5 w-4 h-4 text-[8px]' : 'bottom-1 right-1 w-6 h-6 text-[11px]'}
             rounded-full
             ${isWeapon
               ? 'bg-gradient-to-br from-emerald-400 to-emerald-700 border-emerald-300 shadow-emerald-500/40'
