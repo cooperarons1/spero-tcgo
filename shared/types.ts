@@ -173,6 +173,14 @@ export interface BoardMinion {
   isSilenced: boolean;
   hasStealthUntilAttack: boolean;
   enchantments: Enchantment[];
+  // Turn this minion was summoned on. Authoritative gate for summoning
+  // sickness: minion can attack if current turn > summonedTurn (or has
+  // CHARGE). Defensive backstop in case canAttack gets stuck false due
+  // to a missed startTurn reset.
+  summonedTurn: number;
+  // Optional transfer timestamp — set when a minion changes sides (Collar).
+  // Summoning sickness resets on transfer.
+  transferredTurn?: number;
   // Orra Charge state
   currentOrraCharge?: number;
   // Collar state

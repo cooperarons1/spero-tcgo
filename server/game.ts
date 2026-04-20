@@ -236,13 +236,26 @@ export function startTurn(game: GameState): void {
     }
   }
 
-  // Unfreeze minions that were frozen last turn, enable attacks
-  for (const minion of player.board) {
-    // Frozen minions: unfreeze but can't attack this turn (standard freeze mechanic)
-    // Non-frozen minions: can attack normally
-    minion.canAttack = !minion.isFrozen;
+  // Unfreeze minions that were frozen last turn, enable attacks.
+  // Iterate a SNAPSHOT of player.board so side-effects from Orra Charge
+  // earlier in startTurn don't skip minions. Gate sickness on summonedTurn
+  // as the authoritative source — canAttack is refreshed each turn,
+  // summonedTurn doesn't change after creation.
+  const boardSnapshot = [...player.board];
+  for (const minion of boardSnapshot) {
+    // If the minion has been removed mid-loop, skip.
+    if (!player.board.includes(minion)) continue;
+
+    // Sick only if summoned (or transferred) on the CURRENT turn.
+    const sickFromSummon = minion.summonedTurn !== undefined
+      && minion.summonedTurn >= game.turnNumber
+      && !(minion.transferredTurn !== undefined && minion.transferredTurn < game.turnNumber);
+
     if (minion.isFrozen) {
-      minion.isFrozen = false;
+      minion.canAttack = false;
+      minion.isFrozen = false; // thaw for next turn
+    } else if (!sickFromSummon) {
+      minion.canAttack = true;
     }
     // Reset attacks remaining
     minion.attacksRemaining = minionHasKeyword(minion, 'WINDFURY') ? 2 : 1;
@@ -308,6 +321,7 @@ function resolveEndOfTurnEffects(game: GameState, playerIndex: 0 | 1): void {
     minion.isCollared = false;
     minion.collarOwnerIndex = undefined;
     minion.canAttack = false; // summoning sickness on new side
+    minion.transferredTurn = game.turnNumber;
     newOwner.board.push(minion);
     const mDef = getCardDef(minion.cardCode);
     addLog(game, minion.collarOwnerIndex ?? oppIdx, `${mDef.name} switches sides (Collar)!`, 'EFFECT');

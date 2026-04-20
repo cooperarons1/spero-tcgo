@@ -1,6 +1,7 @@
 import {
   collection,
   getDocs,
+  getDoc,
   setDoc,
   deleteDoc,
   doc,
@@ -144,8 +145,7 @@ export async function seedStarterDecks(uid: string): Promise<void> {
   // Give new players starting gold (500) on first setup
   if (firstTime) {
     const userRef = doc(db, 'users', uid);
-    const { getDoc: getDocFS } = await import('firebase/firestore');
-    const userDoc = await getDocFS(userRef);
+    const userDoc = await getDoc(userRef);
     if (!userDoc.exists() || !(userDoc.data()?.gold)) {
       await setDoc(userRef, { gold: 500, dust: 0 }, { merge: true });
     }

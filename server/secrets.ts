@@ -110,7 +110,7 @@ export function checkSecrets(
       );
 
       if (sourceBoardMinion && owner.board.length < MAX_BOARD_SIZE) {
-        const copy = createBoardMinion(sourceBoardMinion.cardCode);
+        const copy = createBoardMinion(sourceBoardMinion.cardCode, game.turnNumber);
         owner.board.push(copy);
         addLog(
           game,

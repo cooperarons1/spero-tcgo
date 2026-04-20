@@ -9,8 +9,10 @@ import { applySummonRules } from './keywords.js';
 import { checkSecrets } from './secrets.js';
 import { checkHeroPowerUpgrade } from './upgrade.js';
 
-/** Create a BoardMinion from a card code */
-export function createBoardMinion(cardCode: string): BoardMinion {
+/** Create a BoardMinion from a card code. Pass `turnNumber` to stamp the
+ * summon turn — the authoritative summoning-sickness gate. Defaults to 0
+ * for test fixtures that aren't inside a real game. */
+export function createBoardMinion(cardCode: string, turnNumber: number = 0): BoardMinion {
   const def = getCardDef(cardCode);
   const minion: BoardMinion = {
     instanceId: nextTransientInstanceId('bm'),
@@ -25,6 +27,7 @@ export function createBoardMinion(cardCode: string): BoardMinion {
     isSilenced: false,
     hasStealthUntilAttack: false,
     enchantments: [],
+    summonedTurn: turnNumber,
   };
   applySummonRules(minion);
   return minion;
@@ -59,7 +62,21 @@ export function attack(
   } else {
     attackerMinion = me.board.find(m => m.instanceId === attackerInstanceId) ?? null;
     if (!attackerMinion) return { success: false, error: 'Attacker not found on your board' };
-    if (!attackerMinion.canAttack) return { success: false, error: 'This minion has summoning sickness' };
+    // Summoning sickness: use summonedTurn as the authoritative gate.
+    // canAttack is a convenience flag but gets stuck false if startTurn
+    // misses a minion (e.g. board mutation during Orra Charge). A minion
+    // is sick only on the same turn it was summoned (or transferred).
+    // CHARGE minions bypass this via canAttack=true from applySummonRules.
+    const sickFromSummon = !attackerMinion.canAttack
+      && attackerMinion.summonedTurn !== undefined
+      && attackerMinion.summonedTurn >= game.turnNumber
+      && !(attackerMinion.transferredTurn !== undefined && attackerMinion.transferredTurn < game.turnNumber);
+    if (sickFromSummon) return { success: false, error: 'This minion has summoning sickness' };
+    // Self-heal: if canAttack got stuck false but the minion is no longer
+    // sick by turn count, flip it now so future gates behave correctly.
+    if (!attackerMinion.canAttack && !sickFromSummon) {
+      attackerMinion.canAttack = true;
+    }
     if (attackerMinion.attacksRemaining <= 0) return { success: false, error: 'This minion has no attacks remaining' };
     if (attackerMinion.isFrozen) return { success: false, error: 'This minion is frozen' };
     if (attackerMinion.currentAttack <= 0) return { success: false, error: 'This minion has 0 attack' };

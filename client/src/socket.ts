@@ -1,4 +1,5 @@
 import { io } from 'socket.io-client';
+import { auth } from './firebase';
 
 const SERVER_URL = import.meta.env.DEV
   ? 'http://localhost:3002'
@@ -13,7 +14,6 @@ export const socket = io(SERVER_URL, {
   timeout: 45000,                   // 45s connection timeout
   transports: ['websocket', 'polling'],
   auth: async (cb) => {
-    const { auth } = await import('./firebase');
     const user = auth.currentUser;
     if (user) {
       cb({ token: await user.getIdToken(true) }); // force refresh token on reconnect

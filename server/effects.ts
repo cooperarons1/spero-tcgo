@@ -145,7 +145,7 @@ export function executeEffect(
       if (!code) break;
       for (let i = 0; i < count; i++) {
         if (me.board.length >= MAX_BOARD_SIZE) break;
-        const minion = createBoardMinion(code);
+        const minion = createBoardMinion(code, game.turnNumber);
         me.board.push(minion);
         const def = getCardDef(code);
         addLog(game, casterIndex, `Summons ${def.name}`, 'EFFECT');
@@ -449,7 +449,7 @@ export function executeEffect(
       for (let i = 0; i < count; i++) {
         if (me.board.length >= MAX_BOARD_SIZE) break;
         if (tokenCode) {
-          const token = createBoardMinion(tokenCode);
+          const token = createBoardMinion(tokenCode, game.turnNumber);
           me.board.push(token);
         }
       }

@@ -62,9 +62,14 @@ export function BattlePass({ onBack }: BattlePassProps) {
 
   const currentTier = getTierFromXP(bp.xp);
   const progress = getTierProgress(bp.xp);
-  const currentTierXP = bp.xp - (currentTier * 100);
-  const xpForNext = 100;
   const atMax = currentTier >= MAX_TIER;
+  // At max tier, xp - currentTier*100 can go past xpForNext (or be
+  // capped depending on getTierFromXP's clamp), so clamp for display.
+  const xpForNext = 100;
+  const rawTierXP = bp.xp - (currentTier * 100);
+  const currentTierXP = atMax
+    ? xpForNext
+    : Math.max(0, Math.min(rawTierXP, xpForNext));
 
   // Next 3 upcoming reward tiers (unclaimed, after current tier)
   const upcomingRewards = BATTLE_PASS_TIERS

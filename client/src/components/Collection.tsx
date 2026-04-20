@@ -126,6 +126,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
   const [craftingCard, setCraftingCard] = useState<string | null>(null);
   const [dust, setDust] = useState(0);
   const [ownedCards, setOwnedCards] = useState<Record<string, number>>({});
+  const [craftError, setCraftError] = useState<string | null>(null);
 
   // Load inventory on mount
   useEffect(() => {
@@ -138,21 +139,38 @@ export function Collection({ uid, onBack }: CollectionProps) {
       setDust(data.newDust);
       setOwnedCards(prev => ({ ...prev, [data.cardCode]: data.newCount }));
       setCraftingCard(null);
+      setCraftError(null);
     };
     const onDisenchantSuccess = (data: { cardCode: string; newDust: number; newCount: number }) => {
       setDust(data.newDust);
       setOwnedCards(prev => ({ ...prev, [data.cardCode]: data.newCount }));
       setCraftingCard(null);
+      setCraftError(null);
+    };
+    const onCraftError = (data: { message?: string } | string) => {
+      const msg = typeof data === 'string' ? data : (data?.message ?? 'Craft failed');
+      setCraftError(msg);
+      // Auto-clear after 4s so the toast doesn't linger
+      setTimeout(() => setCraftError(null), 4000);
     };
     socket.on('inventory-update', onInventory);
     socket.on('craft-success', onCraftSuccess);
     socket.on('disenchant-success', onDisenchantSuccess);
+    socket.on('craft-error', onCraftError);
+    socket.on('disenchant-error', onCraftError);
     return () => {
       socket.off('inventory-update', onInventory);
       socket.off('craft-success', onCraftSuccess);
       socket.off('disenchant-success', onDisenchantSuccess);
+      socket.off('craft-error', onCraftError);
+      socket.off('disenchant-error', onCraftError);
     };
   }, []);
+
+  // Clear stale error when user closes the craft modal
+  useEffect(() => {
+    if (!craftingCard) setCraftError(null);
+  }, [craftingCard]);
 
   const refresh = useCallback(async () => {
     const d = await loadDecks(uid);
@@ -162,12 +180,15 @@ export function Collection({ uid, onBack }: CollectionProps) {
 
   useEffect(() => { refresh(); }, [refresh]);
 
-  // Auto-filter to editing deck's class + neutral
+  // Auto-filter to editing deck's class + neutral. Dep on the whole deck
+  // object so switching decks with the same id (unlikely but possible
+  // during quick-edit flows) still re-fires, and filterClass stays in
+  // sync with the deck being edited.
   useEffect(() => {
     if (editingDeck) {
       setFilterClass(editingDeck.heroClass);
     }
-  }, [editingDeck?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [editingDeck]);
 
   const filteredCards = useMemo(() => {
     return allCards.filter(c => {
@@ -192,8 +213,12 @@ export function Collection({ uid, onBack }: CollectionProps) {
     }).sort((a, b) => a.manaCost - b.manaCost || a.name.localeCompare(b.name));
   }, [filterClass, filterMana, filterSearch, filterRarity, filterType]);
 
-  // Reset page on filter change
-  useEffect(() => { setPage(0); }, [filterClass, filterMana, filterSearch, filterRarity, filterType]);
+  // Reset page (and clear slide-direction) on filter change so the grid
+  // doesn't animate with a stale direction from the last paginate click.
+  useEffect(() => {
+    setPage(0);
+    setPageDir(null);
+  }, [filterClass, filterMana, filterSearch, filterRarity, filterType]);
 
   const totalPages = Math.max(1, Math.ceil(filteredCards.length / CARDS_PER_PAGE));
   const paginatedCards = filteredCards.slice(page * CARDS_PER_PAGE, (page + 1) * CARDS_PER_PAGE);
@@ -850,6 +875,11 @@ export function Collection({ uid, onBack }: CollectionProps) {
               <div className="text-center mt-3">
                 <span className="text-blue-400 text-xs font-bold">Your Dust: {dust}</span>
               </div>
+              {craftError && (
+                <div className="mt-3 rounded-lg bg-red-900/60 border border-red-500/50 px-3 py-2 text-center">
+                  <span className="text-red-200 text-xs font-semibold">{craftError}</span>
+                </div>
+              )}
             </div>
           </div>
         );

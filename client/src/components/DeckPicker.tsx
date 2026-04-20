@@ -85,11 +85,16 @@ export function DeckPicker({ mode, queueMode = 'casual', uid, onBack }: DeckPick
         const autoSelect = d.find(dk => dk.cards.length === DECK_SIZE);
         if (autoSelect) {
           setSelectedId(autoSelect.id);
-          setSelectedDeckId(autoSelect.id);
         }
       }
     });
   }, [uid]);
+
+  // Persist selectedId to localStorage in a dedicated effect so the write
+  // happens reliably even if the component unmounts before setState batches.
+  useEffect(() => {
+    if (selectedId) setSelectedDeckId(selectedId);
+  }, [selectedId]);
 
   const selectedDeck = decks.find(d => d.id === selectedId) ?? null;
   const isValidDeck = selectedDeck && selectedDeck.cards.length === DECK_SIZE;
@@ -124,8 +129,9 @@ export function DeckPicker({ mode, queueMode = 'casual', uid, onBack }: DeckPick
   const maxCurveValue = Math.max(1, ...Object.values(manaCurve));
 
   const handleSelect = (id: string) => {
+    // setSelectedDeckId is driven by the selectedId effect above to avoid
+    // duplicate writes / race with unmount.
     setSelectedId(id);
-    setSelectedDeckId(id);
   };
 
   const handleStart = () => {

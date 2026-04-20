@@ -18,6 +18,7 @@ import { useStateDiff } from '../hooks/useStateDiff';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 import { soundManager } from '../utils/soundManager';
 import { CardArt } from '../utils/cardArt';
+import { socket } from '../socket';
 import { FloatingNumbers } from './FloatingNumbers';
 import { Settings } from './Settings';
 import { DeathAnimation } from './DeathAnimation';
@@ -1471,14 +1472,42 @@ export default function GameBoard({
     prevOpHeroPowerUsed.current = gs.opponent.heroPowerUsed;
   }, [gs.opponent.heroPowerUsed]);
 
-  // ─── Weapon equip flash ───
+  // ─── Weapon equip flash (my + opponent side) ───
+  // Fires whenever the equipped weapon cardCode changes — including
+  // swaps (sword→axe) and break→equip cycles. Previous version only
+  // triggered on null→weapon, so swaps snapped in with no animation.
   useEffect(() => {
-    if (gs.myWeapon && !prevWeaponRef.current) {
+    const prevCode = prevWeaponRef.current?.cardCode ?? null;
+    const nextCode = gs.myWeapon?.cardCode ?? null;
+    if (nextCode && nextCode !== prevCode) {
       setWeaponEquipFlash(true);
-      setTimeout(() => setWeaponEquipFlash(false), 400);
+      const t = setTimeout(() => setWeaponEquipFlash(false), 400);
+      prevWeaponRef.current = gs.myWeapon;
+      return () => clearTimeout(t);
+    }
+    if (!nextCode && prevCode) {
+      // Weapon broke / removed — reset flash so a future equip re-fires.
+      setWeaponEquipFlash(false);
     }
     prevWeaponRef.current = gs.myWeapon;
   }, [gs.myWeapon]);
+
+  const [oppWeaponEquipFlash, setOppWeaponEquipFlash] = useState(false);
+  const prevOppWeaponRef = useRef<Weapon | null>(null);
+  useEffect(() => {
+    const prevCode = prevOppWeaponRef.current?.cardCode ?? null;
+    const nextCode = gs.opponent.weapon?.cardCode ?? null;
+    if (nextCode && nextCode !== prevCode) {
+      setOppWeaponEquipFlash(true);
+      const t = setTimeout(() => setOppWeaponEquipFlash(false), 400);
+      prevOppWeaponRef.current = gs.opponent.weapon;
+      return () => clearTimeout(t);
+    }
+    if (!nextCode && prevCode) {
+      setOppWeaponEquipFlash(false);
+    }
+    prevOppWeaponRef.current = gs.opponent.weapon;
+  }, [gs.opponent.weapon]);
 
   // Track mouse for attack arrows — no longer needs dragover, handled by pointer move
   // mousePos is updated via the pointer drag global handler
@@ -1790,11 +1819,9 @@ export default function GameBoard({
           const cardInstanceId = pendingTarget.interactionId.replace('needs-target-', '');
           actions.playCard(cardInstanceId, undefined, targetId);
         } else {
-          import('../socket').then(({ socket }) => {
-            socket.emit('resolve-target', {
-              interactionId: pendingTarget.interactionId,
-              targetId,
-            });
+          socket.emit('resolve-target', {
+            interactionId: pendingTarget.interactionId,
+            targetId,
           });
         }
         // serverCancel:false because we just resolved the battlecry
@@ -2225,11 +2252,9 @@ export default function GameBoard({
       {pendingTarget.allowSkip && (
         <button
           onClick={() => {
-            import('../socket').then(({ socket }) => {
-              socket.emit('resolve-target', {
-                interactionId: pendingTarget.interactionId,
-                targetId: null,
-              });
+            socket.emit('resolve-target', {
+              interactionId: pendingTarget.interactionId,
+              targetId: null,
             });
             cancelTargeting();
           }}
@@ -2473,6 +2498,7 @@ export default function GameBoard({
             heroPowerFlash={opHeroPowerFlash}
             heroPowerUpgraded={gs.opponent.heroPowerUpgraded}
             upgradeProgress={gs.opponent.upgradeProgress}
+            weaponEquipFlash={oppWeaponEquipFlash}
           />
           {/* Opponent mana */}
           <ManaCrystals current={gs.opponent.mana} max={gs.opponent.maxMana} />
