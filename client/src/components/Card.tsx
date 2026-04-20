@@ -57,6 +57,47 @@ const classFrameBg: Record<string, string> = {
   NEUTRAL: 'bg-gradient-to-b from-stone-800 via-stone-700/80 to-stone-800',
 };
 
+// Class-themed name-banner gradient + cap + text-accent colors.
+// Kept in sync with classBorder so the banner reads as "this card
+// belongs to this hero". Neutrals stay on the amber scroll look
+// (no class identity → default Hearthstone-ish gold).
+const classBannerCenter: Record<string, string> = {
+  JIMMY:   'from-red-700 via-red-600 to-red-900',
+  TALA:    'from-green-700 via-green-600 to-green-900',
+  DEREK:   'from-yellow-600 via-yellow-500 to-yellow-800',
+  ANDERS:  'from-blue-700 via-blue-600 to-blue-900',
+  DES:     'from-purple-700 via-purple-600 to-purple-900',
+  ASTRID:  'from-amber-700 via-amber-500 to-amber-900',
+  AVA:     'from-pink-700 via-pink-500 to-pink-900',
+  LUCAS:   'from-teal-700 via-teal-500 to-teal-900',
+  IZZY:    'from-orange-700 via-orange-500 to-orange-900',
+  NEUTRAL: 'from-amber-700 via-amber-600 to-amber-800',
+};
+const classBannerCap: Record<string, string> = {
+  JIMMY:   'from-red-950 to-red-800',
+  TALA:    'from-green-950 to-green-800',
+  DEREK:   'from-yellow-950 to-yellow-800',
+  ANDERS:  'from-blue-950 to-blue-800',
+  DES:     'from-purple-950 to-purple-800',
+  ASTRID:  'from-amber-950 to-amber-800',
+  AVA:     'from-pink-950 to-pink-800',
+  LUCAS:   'from-teal-950 to-teal-800',
+  IZZY:    'from-orange-950 to-orange-800',
+  NEUTRAL: 'from-amber-900 to-amber-700',
+};
+const classBannerBorder: Record<string, string> = {
+  JIMMY:   'border-red-300/60',
+  TALA:    'border-green-300/60',
+  DEREK:   'border-yellow-300/60',
+  ANDERS:  'border-blue-300/60',
+  DES:     'border-purple-300/60',
+  ASTRID:  'border-amber-300/60',
+  AVA:     'border-pink-300/60',
+  LUCAS:   'border-teal-300/60',
+  IZZY:    'border-orange-300/60',
+  NEUTRAL: 'border-amber-400/60',
+};
+
 const rarityColor: Record<string, string> = {
   COMMON: '#9ca3af',
   RARE: '#3b82f6',
@@ -229,7 +270,46 @@ export function Card({ cardCode, onClick, selected, greyed, small, className, go
         ${greyed ? 'opacity-40 grayscale' : ''}
         ${className ?? ''}
       `}
+      style={{
+        // Metallic gold inlay + dark stone carved-out ring. Stacked
+        // insets: inner amber hairline, thin dark seat, then outer
+        // dark stroke. Reads as "gold frame embedded in stone" not
+        // a flat colored border.
+        boxShadow:
+          'inset 0 0 0 1px rgba(212,162,74,0.9),' +
+          'inset 0 0 0 3px rgba(23,15,6,0.85),' +
+          'inset 0 2px 6px rgba(255,215,130,0.15),' +
+          'inset 0 -3px 6px rgba(0,0,0,0.5),' +
+          '0 3px 8px rgba(0,0,0,0.55)',
+      }}
     >
+      {/* ── Legendary crest — small dragon-style SVG medallion at the
+           top-center of the frame, above the mana gem. Marks out
+           LEGENDARIES visually the way Hearthstone does with its
+           dragon adornment. Skipped on 'small' size where the top
+           strip is already crowded. ── */}
+      {def.rarity === 'LEGENDARY' && !small && (
+        <svg
+          className="absolute left-1/2 -translate-x-1/2 -top-1 w-10 h-3 z-[3] pointer-events-none"
+          viewBox="0 0 40 12"
+          aria-hidden
+        >
+          <defs>
+            <linearGradient id="legcrest-g" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#f5d58a" />
+              <stop offset="50%" stopColor="#d4a24a" />
+              <stop offset="100%" stopColor="#8a5a28" />
+            </linearGradient>
+          </defs>
+          {/* Wing left */}
+          <path d="M 2 7 Q 8 2 14 6 Q 10 3 6 9 Z" fill="url(#legcrest-g)" stroke="#2a1a08" strokeWidth="0.5" />
+          {/* Wing right */}
+          <path d="M 38 7 Q 32 2 26 6 Q 30 3 34 9 Z" fill="url(#legcrest-g)" stroke="#2a1a08" strokeWidth="0.5" />
+          {/* Center orb */}
+          <circle cx="20" cy="6" r="3" fill="url(#legcrest-g)" stroke="#2a1a08" strokeWidth="0.6" />
+          <circle cx="20" cy="5" r="1" fill="#fff5d0" opacity="0.8" />
+        </svg>
+      )}
       {/* ── Ornate corner flourishes (skip on small size where they'd
            fight for space with the stat badges). Thin amber arcs on
            each corner of the frame, pure SVG. ── */}
@@ -308,14 +388,18 @@ export function Card({ cardCode, onClick, selected, greyed, small, className, go
            reference. Implemented with overlaid CSS shapes: center
            rectangle plus two angled end-caps. ── */}
       <div className={`relative ${small ? 'mx-0 -mt-0.5 mb-0.5 h-3' : 'mx-0 -mt-1 mb-1 h-5'} z-10 shrink-0 flex items-center justify-center`}>
+        {/* Hearthstone-style name scroll — neutral gold on every class.
+             Class identity reads through the outer FRAME (below), not
+             the banner. Parchment highlights at top + darker amber at
+             bottom give it a rolled-paper feel. */}
         {/* Scroll left cap */}
-        <div className={`absolute left-0 top-0 bottom-0 ${small ? 'w-2' : 'w-3'} bg-gradient-to-r from-amber-900 to-amber-700 border-y border-amber-400/50`}
+        <div className={`absolute left-0 top-0 bottom-0 ${small ? 'w-2' : 'w-3'} bg-gradient-to-r from-amber-900 to-amber-700 border-y border-amber-400/60`}
           style={{ clipPath: 'polygon(0 50%, 50% 0, 100% 0, 100% 100%, 50% 100%)' }} />
         {/* Scroll right cap */}
-        <div className={`absolute right-0 top-0 bottom-0 ${small ? 'w-2' : 'w-3'} bg-gradient-to-l from-amber-900 to-amber-700 border-y border-amber-400/50`}
+        <div className={`absolute right-0 top-0 bottom-0 ${small ? 'w-2' : 'w-3'} bg-gradient-to-l from-amber-900 to-amber-700 border-y border-amber-400/60`}
           style={{ clipPath: 'polygon(0 0, 50% 0, 100% 50%, 50% 100%, 0 100%)' }} />
-        {/* Scroll center */}
-        <div className={`absolute ${small ? 'left-1.5 right-1.5' : 'left-2 right-2'} top-0 bottom-0 bg-gradient-to-b from-amber-700 via-amber-600 to-amber-800 border-y-2 border-amber-400/60 shadow-inner`} />
+        {/* Scroll center — parchment highlight then darker bottom */}
+        <div className={`absolute ${small ? 'left-1.5 right-1.5' : 'left-2 right-2'} top-0 bottom-0 bg-gradient-to-b from-amber-300 via-amber-500 to-amber-800 border-y-2 border-amber-400/70 shadow-inner`} />
         <span className={`
           relative text-amber-50 font-black leading-tight block truncate px-2 tracking-wide
           ${small
