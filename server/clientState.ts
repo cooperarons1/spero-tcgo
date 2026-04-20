@@ -8,7 +8,7 @@ import type {
   PlayerStats,
   PlayerState,
 } from '../shared/types.js';
-import { TURN_TIMEOUT_MS } from '../shared/types.js';
+import { TURN_TIMEOUT_MS, MULLIGAN_TIMEOUT_MS } from '../shared/types.js';
 
 /**
  * Compute effective upgrade progress from playerStats + upgradeProgress.
@@ -63,8 +63,9 @@ export function getClientState(game: GameState, playerId: string): ClientGameSta
     upgradeProgress: getEffectiveUpgradeProgress(opp, game.playerStats[oppIdx]),
   };
 
+  const phaseTimeout = game.phase === 'MULLIGAN' ? MULLIGAN_TIMEOUT_MS : TURN_TIMEOUT_MS;
   const turnDeadline = game.turnStartedAt && !game.winner
-    ? game.turnStartedAt + TURN_TIMEOUT_MS
+    ? game.turnStartedAt + phaseTimeout
     : null;
 
   return {
@@ -135,8 +136,9 @@ export function getSpectatorState(game: GameState): ClientGameState {
     upgradeProgress: getEffectiveUpgradeProgress(p1, game.playerStats[1]),
   };
 
+  const phaseTimeout = game.phase === 'MULLIGAN' ? MULLIGAN_TIMEOUT_MS : TURN_TIMEOUT_MS;
   const turnDeadline = game.turnStartedAt && !game.winner
-    ? game.turnStartedAt + TURN_TIMEOUT_MS
+    ? game.turnStartedAt + phaseTimeout
     : null;
 
   return {

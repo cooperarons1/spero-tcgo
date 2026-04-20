@@ -1,7 +1,7 @@
 import type { Server } from 'socket.io';
 import type { ZodSchema } from 'zod';
 import type { HeroClass, Room } from '../shared/types.js';
-import { TURN_TIMEOUT_MS, getRankTier } from '../shared/types.js';
+import { TURN_TIMEOUT_MS, MULLIGAN_TIMEOUT_MS, getRankTier } from '../shared/types.js';
 import { getSeasonForDate } from '../shared/seasons.js';
 import type { UserSeasonData } from '../shared/seasons.js';
 import { adminDb } from './firebaseAdmin.js';
@@ -100,6 +100,24 @@ export function startRoomTimer(room: Room, broadcastGameState: (code: string) =>
       if (!room.game || room.game.winner) {
         clearRoomTimer(room);
         return;
+      }
+      // Mulligan timeout — auto-confirm any player who hasn't confirmed
+      // by MULLIGAN_TIMEOUT_MS with 'keep everything' (empty replacements).
+      // startsPlaying() fires automatically once both sides are confirmed,
+      // so a passive / disconnected player won't block the game.
+      if (room.game.phase === 'MULLIGAN' && room.game.turnStartedAt) {
+        const now = Date.now();
+        if (now - room.game.turnStartedAt > MULLIGAN_TIMEOUT_MS) {
+          let changed = false;
+          for (let i = 0; i < room.game.players.length; i++) {
+            if (!room.game.mulliganConfirmed[i as 0 | 1]) {
+              const keepAll = room.game.players[i].hand.map(() => false);
+              confirmMulligan(room.game, room.game.players[i].playerId, keepAll);
+              changed = true;
+            }
+          }
+          if (changed) broadcastGameState(room.code);
+        }
       }
       // Turn timeout
       if (room.game.phase === 'PLAYING' && room.game.turnStartedAt) {

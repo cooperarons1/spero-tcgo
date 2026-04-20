@@ -411,6 +411,10 @@ export const MAX_MANA = 10;
 export const STARTING_HEALTH = 30;
 export const HERO_POWER_COST = 2;
 export const TURN_TIMEOUT_MS = 75_000;
+// Mulligan phase deadline. If a player hasn't clicked Confirm by then,
+// we auto-confirm whatever they currently have selected (usually 'keep
+// everything' since replacements default to []).
+export const MULLIGAN_TIMEOUT_MS = 65_000;
 
 // ─── Lobby ───
 

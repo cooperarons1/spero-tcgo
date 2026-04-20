@@ -18,7 +18,7 @@ import { useStateDiff } from '../hooks/useStateDiff';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 import { soundManager } from '../utils/soundManager';
 import { CardArt } from '../utils/cardArt';
-import { Card as CardComponent } from './Card';
+import { Card as CardComponent, ManaGem } from './Card';
 import { socket } from '../socket';
 import { FloatingNumbers } from './FloatingNumbers';
 import { Settings } from './Settings';
@@ -393,12 +393,23 @@ function MulliganScreen({
   hand,
   onConfirm,
   confirmed,
+  deadlineAt,
 }: {
   hand: ClientCardInstance[];
   onConfirm: (replacements: boolean[]) => void;
   confirmed: boolean;
+  deadlineAt: number | null;
 }) {
   const [replacing, setReplacing] = useState<boolean[]>(hand.map(() => false));
+  const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!deadlineAt) { setSecondsLeft(null); return; }
+    const tick = () => setSecondsLeft(Math.max(0, Math.ceil((deadlineAt - Date.now()) / 1000)));
+    tick();
+    const id = setInterval(tick, 500);
+    return () => clearInterval(id);
+  }, [deadlineAt]);
 
   const toggle = (i: number) => {
     if (confirmed) return;
@@ -413,6 +424,14 @@ function MulliganScreen({
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center" style={{ background: 'radial-gradient(ellipse at center, #2a1a08 0%, #0a0604 100%)' }}>
       <h2 className="mb-0.5 text-2xl md:text-4xl font-extrabold text-amber-100 drop-shadow-lg tracking-wide animate-bounce-in">Starting Hand</h2>
       <p className="mb-4 md:mb-8 text-amber-300/60 text-xs md:text-sm italic animate-fade-in" style={{ animationDelay: '180ms', animationFillMode: 'both' }}>Keep or Replace Cards</p>
+      {secondsLeft !== null && (
+        <div className={`absolute top-6 right-6 flex items-center gap-1 rounded-full px-4 py-2 border-2 font-bold text-lg shadow-lg ${
+          secondsLeft <= 10 ? 'bg-red-900/80 border-red-400 text-red-100 animate-pulse' : 'bg-stone-900/80 border-amber-500/60 text-amber-200'
+        }`}>
+          <span className="text-sm opacity-70">⏱</span>
+          {secondsLeft}s
+        </div>
+      )}
       <div className="flex gap-3 md:gap-5 px-2">
         {hand.map((c, i) => {
           const def = getCard(c.cardCode);
@@ -433,9 +452,7 @@ function MulliganScreen({
               style={{ background: 'linear-gradient(to bottom, #3d2a14, #2a1a08)', animationDelay: dealDelay, animationFillMode: 'both' }}
             >
               {/* Mana gem */}
-              <div className="absolute -left-1 -top-1 z-20 flex h-7 w-7 md:h-9 md:w-9 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-700 border-2 border-blue-300 text-xs md:text-sm font-extrabold text-white shadow-lg">
-                {def?.manaCost ?? '?'}
-              </div>
+              <div className="absolute -left-1 -top-1 z-20"><ManaGem value={def?.manaCost ?? 0} size={32} /></div>
               {/* Card art — large */}
               <div className="w-full h-24 md:h-32 mt-1 overflow-hidden">
                 {c.cardCode && <CardArt cardCode={c.cardCode} className="w-full h-full" />}
@@ -1001,9 +1018,7 @@ function HandCard({
       }}
     >
       {/* Mana gem */}
-      <div className="absolute -left-1.5 -top-1.5 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-700 border-2 border-blue-300 text-sm font-extrabold text-white shadow-lg">
-        {def.manaCost}
-      </div>
+      <div className="absolute -left-1.5 -top-1.5 z-10"><ManaGem value={def.manaCost} size={30} /></div>
       {/* Card Art — larger */}
       <div className="w-full h-24 mt-3 rounded overflow-hidden bg-stone-600/60 flex-shrink-0">
         <CardArt cardCode={card.cardCode!} className="w-full h-full" />
@@ -1251,6 +1266,9 @@ export default function GameBoard({
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [emoteOpen, setEmoteOpen] = useState(false);
   const [myEmote, setMyEmote] = useState<string | null>(null);
+  // Mute toggle — click the opponent's hero portrait to silence their
+  // emotes (and any future chat). Persists across the match via state.
+  const [opponentMuted, setOpponentMuted] = useState(false);
   const emoteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Auto-close emote popup after 3 seconds
@@ -2228,6 +2246,7 @@ export default function GameBoard({
           onConfirm={(replacements) => {
             actions.confirmMulligan(replacements);
           }}
+          deadlineAt={gs.turnDeadline}
         />
       </div>
     );
@@ -2360,9 +2379,7 @@ export default function GameBoard({
             className="pointer-events-none fixed top-1/2 left-1/2 z-[60] animate-card-showcase"
           >
             <div className="w-56 h-72 rounded-2xl border-4 border-amber-300 shadow-[0_0_60px_16px_rgba(245,158,11,0.7)] bg-gradient-to-b from-stone-800 via-stone-900 to-black overflow-hidden flex flex-col">
-              <div className="absolute top-2 left-2 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-700 border-2 border-blue-200 text-lg font-extrabold text-white shadow-lg">
-                {def.manaCost}
-              </div>
+              <div className="absolute top-2 left-2 z-10"><ManaGem value={def.manaCost} size={40} /></div>
               <div className="w-full h-44 mt-3 mx-auto rounded overflow-hidden bg-stone-700">
                 <CardArt cardCode={opponentCardShowcase.cardCode} className="w-full h-full" />
               </div>
@@ -2451,10 +2468,15 @@ export default function GameBoard({
         </svg>
       )}
 
-      {/* Opponent Emote */}
-      {opponentEmote && (
+      {/* Opponent Emote (hidden when muted) */}
+      {opponentEmote && !opponentMuted && (
         <div className="fixed right-8 top-24 z-30 animate-bounce rounded-lg bg-stone-800 px-4 py-2 text-2xl shadow-lg border border-stone-600">
           {opponentEmote}
+        </div>
+      )}
+      {opponentMuted && (
+        <div className="fixed right-8 top-24 z-30 rounded-lg bg-stone-900/80 border border-stone-600 px-3 py-1 text-xs text-stone-400 shadow">
+          🔇 muted — shift-click opponent to unmute
         </div>
       )}
 
@@ -2508,7 +2530,15 @@ export default function GameBoard({
             canUseHeroPower={false}
             isValidTarget={validTargetIds.has(`hero-${1 - gs.myPlayerIndex}`)}
             onHeroPowerClick={() => {}}
-            onHeroClick={() => handleEnemyTargetClick(`hero-${1 - gs.myPlayerIndex}`)}
+            onHeroClick={(e) => {
+              // Alt/right-click mutes; regular click still targets the hero.
+              // Mute is a toggle — second alt-click unmutes.
+              if (e && ((e as any).altKey || (e as any).shiftKey)) {
+                setOpponentMuted(m => !m);
+                return;
+              }
+              handleEnemyTargetClick(`hero-${1 - gs.myPlayerIndex}`);
+            }}
             heroDamage={opHeroDamage}
             secretCount={gs.opponent.secretCount}
             entityId={`hero-${1 - gs.myPlayerIndex}`}
@@ -2960,9 +2990,7 @@ export default function GameBoard({
               style={{ borderColor: rColor }}
             >
               {/* Mana gem */}
-              <div className="absolute top-1 left-1 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-700 border-2 border-blue-300 text-sm font-extrabold text-white shadow-lg">
-                {def.manaCost}
-              </div>
+              <div className="absolute top-1 left-1 z-10"><ManaGem value={def.manaCost} size={30} /></div>
               {/* Art */}
               <div className="w-full h-[120px] overflow-hidden">
                 <CardArt cardCode={hoveredCard.cardCode} className="w-full h-full" />
@@ -3081,9 +3109,7 @@ export default function GameBoard({
                   </div>
                 )}
                 {/* Mana cost badge */}
-                <div className="absolute -top-0.5 -left-0.5 w-7 h-7 rounded-full bg-gradient-to-br from-blue-400 to-blue-700 border-2 border-blue-300 text-[13px] font-black text-white flex items-center justify-center z-10">
-                  {def?.manaCost ?? '?'}
-                </div>
+                <div className="absolute -top-0.5 -left-0.5 z-10"><ManaGem value={def?.manaCost ?? 0} size={28} /></div>
                 {/* Card name */}
                 <div className="absolute bottom-5 left-0 right-0 text-[9px] font-bold text-white text-center px-1 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
                   {def?.name ?? 'Card'}
