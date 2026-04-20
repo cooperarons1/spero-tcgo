@@ -176,8 +176,10 @@ export interface BoardMinion {
   // Turn this minion was summoned on. Authoritative gate for summoning
   // sickness: minion can attack if current turn > summonedTurn (or has
   // CHARGE). Defensive backstop in case canAttack gets stuck false due
-  // to a missed startTurn reset.
-  summonedTurn: number;
+  // to a missed startTurn reset. Optional so older state clones (and
+  // ai-state-pool rehydration paths) don't need to fill it in; the
+  // combat.ts gate falls back to canAttack when unset.
+  summonedTurn?: number;
   // Optional transfer timestamp — set when a minion changes sides (Collar).
   // Summoning sickness resets on transfer.
   transferredTurn?: number;
