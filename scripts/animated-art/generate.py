@@ -62,8 +62,20 @@ def load_svd_pipeline():
         torch_dtype=dtype,
         variant="fp16" if dtype == torch.float16 else None,
     )
-    pipe = pipe.to(device)
-    # Memory discipline — attention slicing + tiling where supported.
+    # Use sequential CPU offload: only the ACTIVELY running submodule
+    # (unet, vae, image_encoder) is on GPU at a time; the rest lives on
+    # CPU. This swaps memory for ~10-20% inference-time overhead but is
+    # the biggest single lever for bringing peak unified memory from
+    # 125-126GB down into the 110-120GB target band on the M5.
+    try:
+        pipe.enable_sequential_cpu_offload(device=device)
+        print(f"[svd] enable_sequential_cpu_offload -> {device}", flush=True)
+    except Exception as e:
+        # Fall back to regular .to() if offload API differs on this
+        # diffusers version; user will see higher peaks but at least
+        # the pipeline runs.
+        print(f"[svd] sequential offload unavailable ({e}); falling back to .to({device})", flush=True)
+        pipe = pipe.to(device)
     pipe.enable_attention_slicing("max")
     for method in ("enable_slicing", "enable_tiling"):
         try:
@@ -122,13 +134,11 @@ def generate_card(pipe, device: str, card_code: str, frames: int, fps: int,
     out_webm = OUT_DIR / f"{card_code}.webm"
 
     img = Image.open(src).convert("RGB")
-    # SVD supports sub-1024 spatial resolutions. Dropping from 576x1024
-    # → 480x832 cuts frame activation memory by ~32%, taking peak
-    # unified-memory usage from ~125 GB → ~120 GB so the rest of the
-    # OS stays usable during a batch. Card art is rendered behind
-    # object-fit: cover on the client, so the slightly lower source
-    # resolution is not visually noticeable at deck/board zoom.
-    img = img.resize((480, 832), Image.LANCZOS)
+    # 384x672 ≈ 40% fewer pixels than 576x1024 → activation memory down
+    # ~40%. Combined with sequential CPU offload, peak should land in
+    # the 110-120GB band the user specified. Client renders at
+    # <200px tall so this resolution is still above the display size.
+    img = img.resize((384, 672), Image.LANCZOS)
 
     motion, noise = motion_from_code(card_code)
     seed = sum(ord(c) * (i + 1) for i, c in enumerate(card_code))
