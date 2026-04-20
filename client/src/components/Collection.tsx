@@ -197,7 +197,15 @@ export function Collection({ uid, onBack }: CollectionProps) {
       if (c.heroClass === 'NEUTRAL' && c.rarity === 'COMMON' && c.cardCode.startsWith('TOK')) return false;
 
       if (filterClass !== 'ALL') {
-        if (c.heroClass !== filterClass) return false;
+        // When filtering by a specific hero class, include NEUTRAL too
+        // because decks can only legally hold class + neutral cards —
+        // seeing other classes is never useful while editing a deck.
+        // Explicit NEUTRAL filter still shows only neutrals.
+        if (filterClass === 'NEUTRAL') {
+          if (c.heroClass !== 'NEUTRAL') return false;
+        } else if (c.heroClass !== filterClass && c.heroClass !== 'NEUTRAL') {
+          return false;
+        }
       }
       if (filterMana !== null) {
         if (filterMana === 10) {
@@ -228,7 +236,13 @@ export function Collection({ uid, onBack }: CollectionProps) {
     const base = allCards.filter(c => {
       if (c.cardCode === 'COIN') return false;
       if (c.heroClass === 'NEUTRAL' && c.rarity === 'COMMON' && c.cardCode.startsWith('TOK')) return false;
-      if (filterClass !== 'ALL' && c.heroClass !== filterClass) return false;
+      if (filterClass !== 'ALL') {
+        if (filterClass === 'NEUTRAL') {
+          if (c.heroClass !== 'NEUTRAL') return false;
+        } else if (c.heroClass !== filterClass && c.heroClass !== 'NEUTRAL') {
+          return false;
+        }
+      }
       return true;
     });
     return {
@@ -786,8 +800,12 @@ export function Collection({ uid, onBack }: CollectionProps) {
         const py = Math.max(8, Math.min(hoveredCard.y - 60, window.innerHeight - 400));
         const keywords = (def.keywords || []).filter((k: string) => KEYWORD_DESCRIPTIONS[k]);
         return (
-          <div className="fixed z-[60] pointer-events-none" style={{ left: px, top: py }}>
-            <Card cardCode={hoveredCard.code} className="!w-[200px] !h-[286px] shadow-2xl" />
+          // Use CSS scale instead of overriding w/h: the Card's internal
+          // text + badges are sized for the base 140×200, so forcing a
+          // larger w/h breaks proportions (text looks tiny). scale(1.5)
+          // on the wrapper keeps everything in sync.
+          <div className="fixed z-[60] pointer-events-none" style={{ left: px, top: py, transform: 'scale(1.5)', transformOrigin: 'top left' }}>
+            <Card cardCode={hoveredCard.code} className="shadow-2xl" />
             {keywords.length > 0 && (
               <div className="mt-1.5 bg-stone-900/95 border border-amber-700/40 rounded-lg px-3 py-2 max-w-[200px] shadow-xl">
                 {keywords.map((kw: string) => (
