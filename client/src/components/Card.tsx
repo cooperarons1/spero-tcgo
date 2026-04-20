@@ -269,32 +269,41 @@ export function Card({ cardCode, onClick, selected, greyed, small, className, go
         <RarityGem rarity={def.rarity} size={small ? 11 : 16} />
       </div>
 
-      {/* ── Card name banner ── */}
-      <div className={`
-        ${small ? 'mx-0.5 px-1 py-px' : 'mx-1 px-1.5 py-0.5'}
-        bg-stone-900/80 border-y border-amber-700/40
-        text-center z-10 shrink-0 overflow-hidden
-      `}>
+      {/* ── Card name banner — gold scroll with tapered ends, Hearthstone
+           reference. Implemented with overlaid CSS shapes: center
+           rectangle plus two angled end-caps. ── */}
+      <div className={`relative ${small ? 'mx-0 -mt-0.5 mb-0.5 h-3' : 'mx-0 -mt-1 mb-1 h-5'} z-10 shrink-0 flex items-center justify-center`}>
+        {/* Scroll left cap */}
+        <div className={`absolute left-0 top-0 bottom-0 ${small ? 'w-2' : 'w-3'} bg-gradient-to-r from-amber-900 to-amber-700 border-y border-amber-400/50`}
+          style={{ clipPath: 'polygon(0 50%, 50% 0, 100% 0, 100% 100%, 50% 100%)' }} />
+        {/* Scroll right cap */}
+        <div className={`absolute right-0 top-0 bottom-0 ${small ? 'w-2' : 'w-3'} bg-gradient-to-l from-amber-900 to-amber-700 border-y border-amber-400/50`}
+          style={{ clipPath: 'polygon(0 0, 50% 0, 100% 50%, 50% 100%, 0 100%)' }} />
+        {/* Scroll center */}
+        <div className={`absolute ${small ? 'left-1.5 right-1.5' : 'left-2 right-2'} top-0 bottom-0 bg-gradient-to-b from-amber-700 via-amber-600 to-amber-800 border-y-2 border-amber-400/60 shadow-inner`} />
         <span className={`
-          text-amber-100 font-bold leading-tight block truncate drop-shadow-md
+          relative text-amber-50 font-black leading-tight block truncate px-2 tracking-wide
           ${small
             ? 'text-[6px]'
-            : def.name.length > 20 ? 'text-[7px]' : def.name.length > 15 ? 'text-[8px]' : 'text-[8.5px]'
+            : def.name.length > 20 ? 'text-[7px]' : def.name.length > 15 ? 'text-[8px]' : 'text-[9px]'
           }
-        `}>
+        `} style={{ textShadow: '0 1px 2px rgba(0,0,0,0.8), 0 0 4px rgba(0,0,0,0.6)' }}>
           {def.name}
         </span>
       </div>
 
-      {/* ── Card text ── */}
+      {/* ── Card text — parchment-tan panel inside a dark stone cutout. ── */}
       {def.text ? (
         <div className={`
-          flex-1 ${small ? 'mx-0.5 px-0.5 py-px pb-4' : 'mx-1 px-1.5 py-0.5 pb-5'}
-          bg-stone-900/50 rounded-sm
+          flex-1 ${small ? 'mx-0.5 px-0.5 py-px pb-4' : 'mx-1.5 px-1.5 py-1 pb-5'}
+          rounded-sm
           flex items-start justify-center overflow-hidden min-h-0
-        `}>
+          border border-amber-900/40 shadow-inner
+        `}
+          style={{ background: 'linear-gradient(to bottom, #d9c7a0 0%, #c5ad85 50%, #b79a6d 100%)' }}
+        >
           <p className={`
-            text-gray-300 text-center leading-tight
+            text-stone-900 text-center leading-tight font-semibold
             ${small
               ? 'text-[5px] line-clamp-2'
               : def.text.length > 60 ? 'text-[5.5px] line-clamp-3' : 'text-[6.5px] line-clamp-2'
