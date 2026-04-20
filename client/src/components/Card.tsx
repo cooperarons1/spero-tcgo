@@ -376,30 +376,39 @@ export function Card({ cardCode, onClick, selected, greyed, small, className, go
         )}
       </div>
 
-      {/* ── Rarity gem — Hearthstone-style jewel, positioned to overlap the
-           bottom edge of the art (higher than before, as requested, so
-           it reads as a frame ornament rather than an orphan above the
-           name banner). ── */}
-      <div className={`flex justify-center relative ${small ? '-mt-[14px] z-10' : '-mt-[20px] z-10'}`}>
-        <RarityGem rarity={def.rarity} size={small ? 11 : 16} />
+      {/* ── Rarity gem — absolutely positioned over the bottom edge
+           of the card art so it can't be hidden behind the name
+           banner below. top offset picked so gem sits with 2/3 over
+           the art + 1/3 over the scroll. z-30 beats the banner's z-10. ── */}
+      <div
+        className="absolute left-1/2 -translate-x-1/2 z-30 pointer-events-none"
+        style={{ top: small ? '72px' : '108px' }}
+      >
+        <RarityGem rarity={def.rarity} size={small ? 11 : 18} />
       </div>
 
       {/* ── Card name banner — gold scroll with tapered ends, Hearthstone
            reference. Implemented with overlaid CSS shapes: center
            rectangle plus two angled end-caps. ── */}
       <div className={`relative ${small ? 'mx-0 -mt-0.5 mb-0.5 h-3' : 'mx-0 -mt-1 mb-1 h-5'} z-10 shrink-0 flex items-center justify-center`}>
-        {/* Hearthstone-style name scroll — neutral gold on every class.
-             Class identity reads through the outer FRAME (below), not
-             the banner. Parchment highlights at top + darker amber at
-             bottom give it a rolled-paper feel. */}
-        {/* Scroll left cap */}
-        <div className={`absolute left-0 top-0 bottom-0 ${small ? 'w-2' : 'w-3'} bg-gradient-to-r from-amber-900 to-amber-700 border-y border-amber-400/60`}
-          style={{ clipPath: 'polygon(0 50%, 50% 0, 100% 0, 100% 100%, 50% 100%)' }} />
-        {/* Scroll right cap */}
-        <div className={`absolute right-0 top-0 bottom-0 ${small ? 'w-2' : 'w-3'} bg-gradient-to-l from-amber-900 to-amber-700 border-y border-amber-400/60`}
-          style={{ clipPath: 'polygon(0 0, 50% 0, 100% 50%, 50% 100%, 0 100%)' }} />
-        {/* Scroll center — parchment highlight then darker bottom */}
-        <div className={`absolute ${small ? 'left-1.5 right-1.5' : 'left-2 right-2'} top-0 bottom-0 bg-gradient-to-b from-amber-300 via-amber-500 to-amber-800 border-y-2 border-amber-400/70 shadow-inner`} />
+        {(() => {
+          const cls = def.heroClass || 'NEUTRAL';
+          const cap = classBannerCap[cls] ?? classBannerCap.NEUTRAL;
+          const center = classBannerCenter[cls] ?? classBannerCenter.NEUTRAL;
+          const bord = classBannerBorder[cls] ?? classBannerBorder.NEUTRAL;
+          return (
+            <>
+              {/* Scroll left cap */}
+              <div className={`absolute left-0 top-0 bottom-0 ${small ? 'w-2' : 'w-3'} bg-gradient-to-r ${cap} border-y ${bord}`}
+                style={{ clipPath: 'polygon(0 50%, 50% 0, 100% 0, 100% 100%, 50% 100%)' }} />
+              {/* Scroll right cap */}
+              <div className={`absolute right-0 top-0 bottom-0 ${small ? 'w-2' : 'w-3'} bg-gradient-to-l ${cap} border-y ${bord}`}
+                style={{ clipPath: 'polygon(0 0, 50% 0, 100% 50%, 50% 100%, 0 100%)' }} />
+              {/* Scroll center */}
+              <div className={`absolute ${small ? 'left-1.5 right-1.5' : 'left-2 right-2'} top-0 bottom-0 bg-gradient-to-b ${center} border-y-2 ${bord} shadow-inner`} />
+            </>
+          );
+        })()}
         <span className={`
           relative text-amber-50 font-black leading-tight block truncate px-2 tracking-wide
           ${small
@@ -412,7 +421,21 @@ export function Card({ cardCode, onClick, selected, greyed, small, className, go
       </div>
 
       {/* ── Card text — parchment-tan panel inside a dark stone cutout. ── */}
-      {def.text ? (
+      {/* Vanilla cards (no keywords, no battlecry/deathrattle/spellEffect
+           and whose text is just flavor) don't need the parchment text
+           box. Check data signals, not the text itself, to decide. */}
+      {(() => {
+        const hasKeywords = !!def.keywords?.length;
+        const hasMechanic = !!(def as any).battlecry
+          || !!(def as any).deathrattle
+          || !!(def as any).spellEffect
+          || !!(def as any).spellEffects
+          || !!(def as any).heropower
+          || !!(def as any).secretTrigger
+          || !!(def as any).battlecryEffect;
+        const isFlavorOnly = !hasKeywords && !hasMechanic && def.type === 'MINION';
+        return !isFlavorOnly;
+      })() && (def.text ? (
         <div className={`
           flex-1 ${small ? 'mx-0.5 px-0.5 py-px pb-4' : 'mx-1.5 px-1.5 py-1 pb-5'}
           rounded-sm
@@ -431,9 +454,7 @@ export function Card({ cardCode, onClick, selected, greyed, small, className, go
             {def.text}
           </p>
         </div>
-      ) : (
-        <div className="flex-1" />
-      )}
+      ) : null)}
 
       {/* ── Bottom stats — absolute positioned inside card ── */}
       {hasStats && (

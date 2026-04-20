@@ -619,7 +619,13 @@ export function Collection({ uid, onBack }: CollectionProps) {
               >
                 All
               </button>
-              {HERO_CLASSES.map(h => (
+              {HERO_CLASSES
+                // When editing a deck, only show ALL + the deck's own
+                // hero + NEUTRAL (the only cards the deck can legally
+                // hold). Other hero buttons would just grey everything
+                // they filter to, which confuses players.
+                .filter(h => !editingDeck || h.id === editingDeck.heroClass)
+                .map(h => (
                 <button
                   key={h.id}
                   onClick={() => setFilterClass(filterClass === h.id ? 'ALL' : h.id)}
