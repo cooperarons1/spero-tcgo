@@ -6,6 +6,7 @@ import { loadDecks, saveDeck, deleteDeck, generateId, type DeckList } from '../u
 import { Card } from './Card';
 import { socket } from '../socket';
 import type { HeroClass, CardDef } from '../../../shared/types';
+import { CARD_BACKS } from '../../../shared/seasons';
 
 const CRAFT_COSTS: Record<string, number> = { COMMON: 40, RARE: 100, EPIC: 400, LEGENDARY: 1600 };
 const DUST_VALUES: Record<string, number> = { COMMON: 5, RARE: 20, EPIC: 100, LEGENDARY: 400 };
@@ -133,6 +134,10 @@ export function Collection({ uid, onBack }: CollectionProps) {
   const [ownedCards, setOwnedCards] = useState<Record<string, number>>({});
   const [ownedGolden, setOwnedGolden] = useState<Record<string, number>>({});
   const [craftError, setCraftError] = useState<string | null>(null);
+  // Cosmetics picker (card backs).
+  const [showCosmetics, setShowCosmetics] = useState(false);
+  const [ownedCardBacks, setOwnedCardBacks] = useState<string[]>(['default']);
+  const [selectedCardBack, setSelectedCardBack] = useState<string>('default');
 
   // Load inventory on mount
   useEffect(() => {
@@ -160,15 +165,22 @@ export function Collection({ uid, onBack }: CollectionProps) {
       // Auto-clear after 4s so the toast doesn't linger
       setTimeout(() => setCraftError(null), 4000);
     };
+    const onCardBacks = (data: { owned: string[]; selected: string }) => {
+      setOwnedCardBacks(data.owned ?? ['default']);
+      setSelectedCardBack(data.selected ?? 'default');
+    };
     socket.on('inventory-update', onInventory);
     socket.on('craft-success', onCraftSuccess);
     socket.on('disenchant-success', onDisenchantSuccess);
     socket.on('craft-error', onCraftError);
     socket.on('disenchant-error', onCraftError);
+    socket.on('card-backs-update', onCardBacks);
+    socket.emit('get-card-backs');
     return () => {
       socket.off('inventory-update', onInventory);
       socket.off('craft-success', onCraftSuccess);
       socket.off('disenchant-success', onDisenchantSuccess);
+      socket.off('card-backs-update', onCardBacks);
       socket.off('craft-error', onCraftError);
       socket.off('disenchant-error', onCraftError);
     };
@@ -425,6 +437,13 @@ export function Collection({ uid, onBack }: CollectionProps) {
           </div>
         </div>
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowCosmetics(true)}
+            className="text-[10px] uppercase tracking-wider font-bold text-amber-300 hover:text-amber-200 border border-amber-700/50 rounded-full px-3 py-1 cursor-pointer hover:bg-amber-900/30"
+            title="Card backs + coins"
+          >
+            🎨 Cosmetics
+          </button>
           <span className="text-yellow-400 font-bold text-xs">{dust} Dust</span>
         </div>
       </div>
@@ -931,6 +950,64 @@ export function Collection({ uid, onBack }: CollectionProps) {
           </div>
         );
       })()}
+
+      {/* Cosmetics modal — card-back picker. */}
+      {showCosmetics && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center" onClick={() => setShowCosmetics(false)}>
+          <div className="bg-stone-900 border-2 border-amber-700/50 rounded-2xl p-6 max-w-3xl w-full mx-4 shadow-2xl max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-2xl font-bold text-amber-100">Cosmetics</h2>
+                <p className="text-xs text-gray-500 mt-0.5">Pick a favorite card back. More unlock via ranked, seasons, and battle pass.</p>
+              </div>
+              <button
+                onClick={() => setShowCosmetics(false)}
+                className="text-gray-500 hover:text-white text-2xl leading-none"
+              >×</button>
+            </div>
+
+            <h3 className="text-xs uppercase tracking-wider font-bold text-amber-300/80 mb-2">Card Backs</h3>
+            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-3">
+              {CARD_BACKS.map(cb => {
+                const owned = ownedCardBacks.includes(cb.id);
+                const selected = selectedCardBack === cb.id;
+                const style = (cb as any).style;
+                const bg = style?.type === 'image' && style?.value
+                  ? { backgroundImage: `url('${style.value}')`, backgroundSize: 'cover', backgroundPosition: 'center' }
+                  : style?.type === 'gradient' && style?.value
+                  ? { background: style.value as string }
+                  : { background: '#1f2937' };
+                return (
+                  <button
+                    key={cb.id}
+                    disabled={!owned}
+                    onClick={() => {
+                      socket.emit('select-card-back', { cardBackId: cb.id });
+                    }}
+                    className={`relative rounded-lg overflow-hidden aspect-[5/7] border-2 transition-all cursor-pointer group
+                      ${selected ? 'border-green-400 shadow-[0_0_16px_rgba(74,222,128,0.6)] scale-105' : 'border-amber-700/40 hover:border-amber-400'}
+                      ${!owned ? 'opacity-40 cursor-not-allowed' : ''}`}
+                  >
+                    <div className="absolute inset-0" style={bg} />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                    <div className="absolute bottom-1 left-1 right-1 text-center">
+                      <p className="text-white text-[10px] font-bold drop-shadow leading-tight truncate">{cb.name}</p>
+                    </div>
+                    {!owned && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                        <span className="text-white text-2xl">🔒</span>
+                      </div>
+                    )}
+                    {selected && (
+                      <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-bold shadow">✓</div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Crafting Modal */}
       {craftingCard && (() => {
