@@ -105,8 +105,13 @@ async def generate_sample(
 
     total = compute_total_score(scores)
 
-    # Build training record
-    features = extract_card_features(card, anim_context)
+    # Build training record. target_quality is this sample's ACTUAL
+    # achieved quality (normalized score) — the trainer uses this to
+    # condition "these random params produced this score". Inference
+    # always passes 1.0 to ask for top-quality params.
+    features = extract_card_features(
+        card, anim_context, target_quality=total / 100.0,
+    )
 
     return {
         "sample_id": sample_id,

@@ -52,11 +52,17 @@ ANIM_CONTEXTS = [
 # ── Feature dimensions ───────────────────────────────────────────────
 
 # card_type(4) + rarity(4) + hero_class(10) + mana(1) + atk(1) + hp(1)
-# + keywords(12) + effects(20) + anim_context(8) = 61
+# + keywords(12) + effects(20) + anim_context(8) + target_quality(1) = 62
+# The trailing target_quality feature is score-conditional generation:
+# at training time it's the sample's normalized Gemma score; at inference
+# we always set it to 1.0 so the MLP is asked "what params for this card
+# + context produce the HIGHEST-quality animation?" — fixes the v1 model
+# collapsing to the mean of random params (val loss ~0.083).
 CARD_FEATURE_DIM = (
     len(CARD_TYPES) + len(RARITIES) + len(HERO_CLASSES)
     + 3  # mana, attack, health
     + len(KEYWORDS) + len(EFFECT_TYPES) + len(ANIM_CONTEXTS)
+    + 1  # target_quality (v2, 2026-04-19)
 )
 
 # ── Animation parameters ─────────────────────────────────────────────
@@ -155,10 +161,21 @@ def _get_effect_types(card: dict) -> list[str]:
     return types
 
 
-def extract_card_features(card: dict, anim_context: str = "entrance") -> np.ndarray:
+def extract_card_features(
+    card: dict,
+    anim_context: str = "entrance",
+    target_quality: float = 1.0,
+) -> np.ndarray:
     """
     Convert a card dict (from cards.json) + animation context into a
     fixed-size float feature vector of length CARD_FEATURE_DIM.
+
+    ``target_quality`` is the v2 score-conditional knob: at training time
+    it's the sample's Gemma score normalized to [0, 1] (so each example
+    tells the model "these random params got this quality"). At inference
+    the server always passes 1.0 so the MLP is asked for the best-quality
+    params for the given (card, context). Default 1.0 matches the
+    inference semantics.
     """
     feats: list[float] = []
 
@@ -178,6 +195,9 @@ def extract_card_features(card: dict, anim_context: str = "entrance") -> np.ndar
 
     # Animation context
     feats.extend(_one_hot(anim_context, ANIM_CONTEXTS))
+
+    # v2: score-conditional target. Clamped to [0, 1].
+    feats.append(max(0.0, min(1.0, float(target_quality))))
 
     assert len(feats) == CARD_FEATURE_DIM, f"Expected {CARD_FEATURE_DIM}, got {len(feats)}"
     return np.array(feats, dtype=np.float32)

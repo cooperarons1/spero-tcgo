@@ -47,9 +47,10 @@ const ANIM_CONTEXTS = [
 
 type AnimContext = typeof ANIM_CONTEXTS[number];
 
-// FEATURE_DIM = 4 + 4 + 10 + 3 + 12 + 20 + 8 = 61
+// FEATURE_DIM = 4 + 4 + 10 + 3 + 12 + 20 + 8 + 1 (target_quality, v2) = 62
 const FEATURE_DIM = CARD_TYPES.length + RARITIES.length + HERO_CLASSES_WITH_NEUTRAL.length
-  + 3 + KEYWORDS.length + EFFECT_TYPES.length + ANIM_CONTEXTS.length;
+  + 3 + KEYWORDS.length + EFFECT_TYPES.length + ANIM_CONTEXTS.length
+  + 1; // target_quality — always 1.0 at inference (ask for best-quality params)
 
 // ── Animation parameter definitions ──────────────────────────────────
 
@@ -217,6 +218,11 @@ function extractAnimFeatures(cardCode: string, context: AnimContext): number[] {
   features.push(...multiHot(card.keywords ?? [], KEYWORDS));
   features.push(...multiHot(getEffectTypes(card), EFFECT_TYPES));
   features.push(...oneHot(context, ANIM_CONTEXTS));
+
+  // v2: target_quality = 1.0 at inference (ask the MLP for best-quality
+  // params for this (card, context)). The trainer sees per-sample scores
+  // in [0, 1] so the model conditions on this feature.
+  features.push(1.0);
 
   return features;
 }

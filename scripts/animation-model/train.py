@@ -91,11 +91,17 @@ def load_training_data(
         features: (N, CARD_FEATURE_DIM) — input card features
         params: (N, ANIM_PARAM_DIM) — target animation params (normalized)
         weights: (N,) — sample weights based on total_score
+
+    v2 (2026-04-19): CARD_FEATURE_DIM grew by 1 (target_quality). Legacy
+    rows serialized with 61-dim features are migrated in-place by
+    appending `total_score / 100.0` as the quality target, matching what
+    inference will pass (1.0 for top quality).
     """
     features_list: list[list[float]] = []
     params_list: list[list[float]] = []
     scores_list: list[float] = []
     skipped = 0
+    migrated = 0
 
     with open(path) as f:
         for line in f:
@@ -119,7 +125,17 @@ def load_training_data(
                 skipped += 1
                 continue
 
-            if len(feats) != CARD_FEATURE_DIM or len(params) != ANIM_PARAM_DIM:
+            if len(params) != ANIM_PARAM_DIM:
+                skipped += 1
+                continue
+
+            # Migrate legacy 61-dim rows to 62-dim by appending the
+            # normalized quality target. This lets v1 training data be
+            # reused without re-running the VLM labeler.
+            if len(feats) == CARD_FEATURE_DIM - 1:
+                feats = list(feats) + [max(0.0, min(1.0, total / 100.0))]
+                migrated += 1
+            elif len(feats) != CARD_FEATURE_DIM:
                 skipped += 1
                 continue
 
@@ -132,14 +148,20 @@ def load_training_data(
 
     if skipped:
         print(f"  Skipped {skipped} records (malformed or below threshold)")
+    if migrated:
+        print(f"  Migrated {migrated} legacy 61-dim rows → 62-dim (target_quality appended)")
 
     X = np.array(features_list, dtype=np.float32)
     Y = np.array(params_list, dtype=np.float32)
 
-    # Score-based sample weights: higher scores → higher weight
-    # Normalize to mean=1 so loss scale is consistent
-    raw_weights = np.array(scores_list, dtype=np.float32)
-    raw_weights = np.maximum(raw_weights, 1.0)  # avoid zero weights
+    # v2 (2026-04-19): cubic score weighting — amplifies top scorers so
+    # the loss is dominated by high-quality examples instead of the mean
+    # of random params. The v1 linear normalization produced weights in
+    # [0.02, 1.44] → basically uniform → model collapsed to predicting the
+    # mean. Cubing gives weights in roughly [0, 4+] with a long tail on
+    # the top scorers — enough signal for the model to move off the mean.
+    raw_scores = np.array(scores_list, dtype=np.float32)
+    raw_weights = np.maximum(raw_scores / 100.0, 0.01) ** 3
     raw_weights = raw_weights / raw_weights.mean()
 
     return X, Y, raw_weights
