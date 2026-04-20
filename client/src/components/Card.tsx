@@ -382,9 +382,9 @@ export function Card({ cardCode, onClick, selected, greyed, small, className, go
            the art + 1/3 over the scroll. z-30 beats the banner's z-10. ── */}
       <div
         className="absolute left-1/2 -translate-x-1/2 z-30 pointer-events-none"
-        style={{ top: small ? '72px' : '108px' }}
+        style={{ top: small ? '68px' : '100px' }}
       >
-        <RarityGem rarity={def.rarity} size={small ? 11 : 18} />
+        <RarityGem rarity={def.rarity} size={small ? 10 : 14} />
       </div>
 
       {/* ── Card name banner — gold scroll with tapered ends, Hearthstone
