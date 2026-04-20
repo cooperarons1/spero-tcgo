@@ -368,17 +368,22 @@ export function useHeroPower(
       break;
     }
     case 'DEREK': {
-      // Tinker: Draw a card (upgraded: draw 1, costs 1 less — implemented as 1 mana refund)
+      // Tinker: Gain 2 armor and draw a card (upgraded: gain 3 armor + draw + 1 mana refund).
+      // Was "draw a card" alone — DEREK had no tempo tool, which partly
+      // explains the 7.8% → 24% WR floor even after heavy card buffs. Armor
+      // gives DEREK a persistent survival edge over 10+ turns.
       player.mana -= HERO_POWER_COST;
       player.heroPowerUsed = true;
       game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
       game.playerStats[pIdx as 0 | 1].heroPowerUses++;
+      const armorGain = upgraded ? 3 : 2;
+      executeEffect(game, pIdx as 0 | 1, { type: 'GAIN_ARMOR', target: 'NONE', value: armorGain });
       drawCard(game, pIdx as 0 | 1, true);
       if (upgraded) {
         player.mana = Math.min(player.mana + 1, player.maxMana);
-        addLog(game, pIdx as 0 | 1, `${player.playerName} uses Master Tinker — draws a card (1 mana refunded)`, 'PLAY');
+        addLog(game, pIdx as 0 | 1, `${player.playerName} uses Master Tinker — gains 3 armor, draws a card (1 mana refunded)`, 'PLAY');
       } else {
-        addLog(game, pIdx as 0 | 1, `${player.playerName} uses Tinker — draws a card`, 'PLAY');
+        addLog(game, pIdx as 0 | 1, `${player.playerName} uses Tinker — gains 2 armor, draws a card`, 'PLAY');
       }
       break;
     }

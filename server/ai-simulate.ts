@@ -154,8 +154,9 @@ function buildRandomDeck(heroClass: HeroClass): { heroClass: HeroClass; cards: s
   // Weighted random selection biased toward the chosen mana curve
   const weightedPool = pool.map(c => {
     const w = curve[Math.min(c.manaCost, 10)] ?? 0.005;
-    // Prefer class cards slightly over neutral
-    const classBonus = c.heroClass === heroClass ? 1.5 : 1.0;
+    // Prefer class cards strongly over neutral (was 1.5 — produced
+    // JIMMY-dominant neutral-carry decks regardless of hero class).
+    const classBonus = c.heroClass === heroClass ? 3.0 : 1.0;
     return { card: c, weight: w * classBonus };
   });
   const totalWeight = weightedPool.reduce((s, e) => s + e.weight, 0);
