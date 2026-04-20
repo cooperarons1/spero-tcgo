@@ -300,7 +300,7 @@ export function Card({ cardCode, onClick, selected, greyed, small, className, go
            bottom edge of the art (higher than before, as requested, so
            it reads as a frame ornament rather than an orphan above the
            name banner). ── */}
-      <div className={`flex justify-center ${small ? '-mt-2 z-10' : '-mt-3 z-10'}`}>
+      <div className={`flex justify-center relative ${small ? '-mt-[14px] z-10' : '-mt-[20px] z-10'}`}>
         <RarityGem rarity={def.rarity} size={small ? 11 : 16} />
       </div>
 
