@@ -18,6 +18,7 @@ import { useStateDiff } from '../hooks/useStateDiff';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 import { soundManager } from '../utils/soundManager';
 import { CardArt } from '../utils/cardArt';
+import { Card as CardComponent } from './Card';
 import { socket } from '../socket';
 import { FloatingNumbers } from './FloatingNumbers';
 import { Settings } from './Settings';
@@ -2314,9 +2315,25 @@ export default function GameBoard({
                       </div>
                     )}
                   </div>
-                  {/* Hover tooltip */}
-                  <div className="absolute left-full ml-1 top-0 hidden group-hover:block bg-stone-900/95 border border-stone-600 rounded px-2 py-1 z-50 whitespace-nowrap shadow-lg pointer-events-none">
-                    <span className="text-[10px] text-gray-300">{entry.message}</span>
+                  {/* Hover tooltip — show the full card when the log
+                       entry has a cardCode (so you can see what actually
+                       happened), fall back to text for COMBAT-only
+                       entries that don't reference a specific card. */}
+                  <div className="absolute left-full ml-2 top-0 hidden group-hover:block z-50 pointer-events-none">
+                    {cardCode ? (
+                      <div className="flex flex-col gap-1">
+                        <div style={{ transform: 'scale(1.5)', transformOrigin: 'top left' }}>
+                          <CardComponent cardCode={cardCode} />
+                        </div>
+                        <div className="bg-stone-900/95 border border-amber-700/40 rounded px-2 py-1 mt-[88px] shadow-xl max-w-[220px]">
+                          <span className="text-[10px] text-amber-100 leading-tight">{entry.message}</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="bg-stone-900/95 border border-stone-600 rounded px-2 py-1 whitespace-nowrap shadow-lg">
+                        <span className="text-[10px] text-gray-300">{entry.message}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               );
