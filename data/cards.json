@@ -1899,19 +1899,19 @@
   {
     "cardCode": "JIM026",
     "name": "Engulfed in Flames",
-    "manaCost": 9,
+    "manaCost": 8,
     "type": "SPELL",
     "heroClass": "JIMMY",
     "rarity": "EPIC",
     "attack": 0,
     "health": 0,
-    "text": "Deal 2 damage to all characters.",
+    "text": "Deal 1 damage to all characters.",
     "flavor": "When the forest burns, new life begins \u2014 eventually.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE_ALL_ENEMIES",
       "target": "ALL_MINIONS",
-      "value": 2
+      "value": 1
     }
   },
   {

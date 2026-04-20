@@ -10,13 +10,17 @@ import { checkDeaths } from './combat.js';
 export { TURN_TIMEOUT_MS };
 
 function makePlayerState(id: string, name: string, heroClass: HeroClass): PlayerState {
+  // DEREK starts with 10 armor — effectively 40hp, matching control-class
+  // health budgets. 5 armor only moved WR +1.3pp; needs more headroom vs
+  // IZZY-style rush that still wins 74%.
+  const startingArmor = heroClass === 'DEREK' ? 10 : 0;
   return {
     playerId: id,
     playerName: name,
     heroClass,
     health: STARTING_HEALTH,
     maxHealth: STARTING_HEALTH,
-    armor: 0,
+    armor: startingArmor,
     mana: 0,
     maxMana: 0,
     hand: [],

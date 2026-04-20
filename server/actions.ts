@@ -297,8 +297,11 @@ export function useHeroPower(
   const upgraded = false;
   switch (player.heroClass) {
     case 'JIMMY': {
-      // Orra Arrow: Deal 2 damage to any target (upgraded: 2 dmg + 1 dmg to adjacent)
-      const dmg = 2;
+      // Orra Arrow: Deal 1 damage to any target (upgraded: 2 dmg + 1 dmg to adjacent).
+      // Was 2 dmg base. At 2m for 2-to-anything the teacher AI used it as
+      // a reliable removal + face clock, which was the engine driving
+      // JIMMY's 66% WR. Drop to 1 base; upgraded still strong at 2+1.
+      const dmg = upgraded ? 2 : 1;
       if (!targetId) {
         const targets = [
           ...game.players[0].board.filter(m => !m.hasStealthUntilAttack).map(m => m.instanceId),
@@ -376,14 +379,14 @@ export function useHeroPower(
       player.heroPowerUsed = true;
       game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
       game.playerStats[pIdx as 0 | 1].heroPowerUses++;
-      const armorGain = upgraded ? 3 : 2;
+      const armorGain = upgraded ? 4 : 3;
       executeEffect(game, pIdx as 0 | 1, { type: 'GAIN_ARMOR', target: 'NONE', value: armorGain });
       drawCard(game, pIdx as 0 | 1, true);
       if (upgraded) {
         player.mana = Math.min(player.mana + 1, player.maxMana);
-        addLog(game, pIdx as 0 | 1, `${player.playerName} uses Master Tinker — gains 3 armor, draws a card (1 mana refunded)`, 'PLAY');
+        addLog(game, pIdx as 0 | 1, `${player.playerName} uses Master Tinker — gains 4 armor, draws a card (1 mana refunded)`, 'PLAY');
       } else {
-        addLog(game, pIdx as 0 | 1, `${player.playerName} uses Tinker — gains 2 armor, draws a card`, 'PLAY');
+        addLog(game, pIdx as 0 | 1, `${player.playerName} uses Tinker — gains 3 armor, draws a card`, 'PLAY');
       }
       break;
     }
