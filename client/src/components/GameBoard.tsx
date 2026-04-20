@@ -19,6 +19,7 @@ import { useSoundEffects } from '../hooks/useSoundEffects';
 import { soundManager } from '../utils/soundManager';
 import { CardArt } from '../utils/cardArt';
 import { Card as CardComponent, ManaGem } from './Card';
+import { GoldenEffectsOverlay } from './GoldenEffectsOverlay';
 import { socket } from '../socket';
 import { FloatingNumbers } from './FloatingNumbers';
 import { Settings } from './Settings';
@@ -516,6 +517,7 @@ function BoardMinionCard({
   isBuffed,
   onPointerDown,
   animStyle,
+  animParams,
 }: {
   minion: BoardMinion;
   isMyMinion: boolean;
@@ -528,7 +530,12 @@ function BoardMinionCard({
   isBuffed?: boolean;
   onPointerDown?: (e: React.PointerEvent) => void;
   animStyle?: Record<string, string | number>;
+  /** Per-card rank-loss MLP params (from gs.animParams[cardCode]).
+   * Passed into GoldenEffectsOverlay for gold variants so each minion
+   * animates with its specifically predicted color + rhythm + intensity. */
+  animParams?: Record<string, number>;
 }) {
+  const minionAnimParams = animParams;
   const [showTooltip, setShowTooltip] = useState(false);
   const def = getCard(minion.cardCode);
   const isDamaged = minion.currentHealth < minion.maxHealth;
@@ -570,8 +577,13 @@ function BoardMinionCard({
         {minion.cardCode && <CardArt cardCode={minion.cardCode} className="w-full h-full" golden={minion.isGolden} />}
         {minion.isGolden && (
           <>
-            <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.25) 0%, rgba(252,211,77,0.1) 50%, rgba(245,158,11,0.28) 100%)' }} />
             <div className="absolute -inset-y-4 -left-1/2 w-1/3 pointer-events-none animate-[shimmer_3s_linear_infinite]" style={{ background: 'linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.55) 50%, transparent 70%)' }} />
+            <GoldenEffectsOverlay
+              cardCode={minion.cardCode}
+              rarity={(def?.rarity ?? 'COMMON') as any}
+              params={minionAnimParams}
+              enabled
+            />
           </>
         )}
       </div>
@@ -997,6 +1009,7 @@ function HandCard({
   comboActive,
   onClick,
   onPointerDown,
+  animParams,
 }: {
   card: ClientCardInstance;
   canPlay: boolean;
@@ -1004,9 +1017,11 @@ function HandCard({
   isDragging?: boolean;
   isNew?: boolean;
   comboActive?: boolean;
+  animParams?: Record<string, number>;
   onClick: () => void;
   onPointerDown?: (e: React.PointerEvent) => void;
 }) {
+  const handAnimParams = animParams;
   const def = getCard(card.cardCode);
   const isComboCard = !!def && comboActive && def.keywords.includes('COMBO') && canPlay;
 
@@ -1066,8 +1081,13 @@ function HandCard({
         <CardArt cardCode={card.cardCode!} className="w-full h-full" golden={card.isGolden} />
         {card.isGolden && (
           <>
-            <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.22) 0%, rgba(252,211,77,0.1) 50%, rgba(245,158,11,0.24) 100%)' }} />
             <div className="absolute -inset-y-4 -left-1/2 w-1/3 pointer-events-none animate-[shimmer_3s_linear_infinite]" style={{ background: 'linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.55) 50%, transparent 70%)' }} />
+            <GoldenEffectsOverlay
+              cardCode={card.cardCode!}
+              rarity={(def?.rarity ?? 'COMMON') as any}
+              params={handAnimParams}
+              enabled
+            />
           </>
         )}
       </div>
@@ -2677,6 +2697,7 @@ export default function GameBoard({
                   animationClass={getMinionAnim(m.instanceId, false)}
                   isBuffed={buffedIds.has(m.instanceId)}
                   animStyle={getAnimStyle(m.cardCode)}
+                  animParams={gs.animParams?.[m.cardCode]}
                 />
               </div>
               );
@@ -2855,6 +2876,7 @@ export default function GameBoard({
                         isBuffed={buffedIds.has(m.instanceId)}
                         onPointerDown={(e) => handleMinionPointerDown(e, m)}
                         animStyle={getAnimStyle(m.cardCode)}
+                  animParams={gs.animParams?.[m.cardCode]}
                       />
                     </div>
                   );
@@ -3021,6 +3043,7 @@ export default function GameBoard({
                   isDragging={isDrag}
                   isNew={newCardIds.has(card.instanceId)}
                   comboActive={((gs as any).cardsPlayedThisTurn ?? 0) > 0}
+                  animParams={card.cardCode ? gs.animParams?.[card.cardCode] : undefined}
                   onClick={() => handleHandCardClick(card)}
                   onPointerDown={(e) => handleCardPointerDown(e, card)}
                 />

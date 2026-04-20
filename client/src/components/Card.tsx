@@ -1,5 +1,8 @@
 import cardsData from '../../../data/cards.json';
 import { CardArt } from '../utils/cardArt';
+// Re-export as Lazy-named alias just to avoid any namespace clash with
+// potential future CardComponent imports that already name an overlay.
+import { GoldenEffectsOverlay as GoldenEffectsOverlayLazy } from './GoldenEffectsOverlay';
 
 interface CardDef {
   cardCode: string;
@@ -253,6 +256,9 @@ export function Card({ cardCode, onClick, selected, greyed, small, className, go
         ${golden ? 'shadow-[inset_0_0_0_2px_rgba(245,158,11,0.8)]' : ''}
       `}>
         <CardArt cardCode={cardCode} className="w-full h-full" golden={golden} />
+        {golden && (
+          <GoldenEffectsOverlayLazy cardCode={cardCode} rarity={def.rarity} />
+        )}
         {golden && (
           <>
             {/* Warm gold tint wash */}

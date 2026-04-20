@@ -105,14 +105,20 @@ def load_anim_params() -> dict[str, dict]:
 
 def motion_from_code(card_code: str) -> tuple[int, float]:
     """Deterministic (motion_bucket_id, noise_aug) from cardCode.
-    motion_bucket_id: SVD's main knob. 127 = default, 200 = livelier,
-    80 = calmer. Spread cards across 90-180 so every card is visibly
-    different without ever going frantic."""
+
+    motion_bucket_id: SVD's main knob. 127 = default. 180+ is
+    frantic/distorted; 60 or below is nearly still. Tuned range
+    70-130 keeps every card within the 'Hearthstone golden' band —
+    character breathes/sways/hair-flows but doesn't morph into
+    something unrecognizable.
+
+    noise_aug_strength: lower = faithful to source, higher = free to
+    diverge. 0.02-0.10 band keeps each frame on-model."""
     h = 0
     for ch in card_code:
         h = (h * 31 + ord(ch)) & 0xFFFFFFFF
-    motion = 90 + (h % 91)           # 90..180
-    noise = 0.02 + ((h >> 8) % 40) * 0.004  # 0.02..0.18
+    motion = 70 + (h % 61)                  # 70..130
+    noise = 0.02 + ((h >> 8) % 40) * 0.002  # 0.02..0.10
     return motion, noise
 
 
