@@ -1139,7 +1139,7 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 4,
+    "attack": 5,
     "health": 5,
     "text": "Taunt.",
     "flavor": "Slow, steady, and completely unstoppable.",
@@ -1305,11 +1305,9 @@
     "rarity": "EPIC",
     "attack": 6,
     "health": 5,
-    "text": "Charge.",
+    "text": "Bruiser \u2014 no surprises.",
     "flavor": "They called him unkillable. They were almost right.",
-    "keywords": [
-      "CHARGE"
-    ],
+    "keywords": [],
     "minionType": "HUMAN"
   },
   {
@@ -1898,13 +1896,13 @@
     "rarity": "EPIC",
     "attack": 0,
     "health": 0,
-    "text": "Deal 5 damage to all characters.",
+    "text": "Deal 3 damage to all characters.",
     "flavor": "When the forest burns, new life begins \u2014 eventually.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE_ALL_ENEMIES",
       "target": "ALL_MINIONS",
-      "value": 5
+      "value": 3
     }
   },
   {
@@ -2106,7 +2104,7 @@
     "type": "WEAPON",
     "heroClass": "JIMMY",
     "rarity": "COMMON",
-    "attack": 5,
+    "attack": 4,
     "health": 2,
     "text": "A devastating blade forged in flame.",
     "flavor": "Forged in Gavalon's deepest furnace. Handle with extreme caution.",
@@ -2497,13 +2495,13 @@
   {
     "cardCode": "JIM030",
     "name": "Infernic",
-    "manaCost": 5,
+    "manaCost": 6,
     "type": "MINION",
     "heroClass": "JIMMY",
     "rarity": "LEGENDARY",
     "attack": 6,
     "health": 6,
-    "text": "Battlecry: Deal 4 damage to all enemy minions.",
+    "text": "Battlecry: Deal 3 damage to all enemy minions.",
     "flavor": "Ancient, enormous, and thoroughly unimpressed by your army.",
     "keywords": [
       "BATTLECRY"
@@ -2512,7 +2510,7 @@
     "battlecryEffect": {
       "type": "DEAL_DAMAGE_ALL_ENEMIES",
       "target": "ALL_ENEMY_MINIONS",
-      "value": 4
+      "value": 3
     }
   },
   {
@@ -2850,7 +2848,7 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 5,
+    "attack": 6,
     "health": 6,
     "text": "Taunt. Divine Shield.",
     "flavor": "Half knight, half machine. All paladin.",
@@ -3468,9 +3466,9 @@
     "type": "MINION",
     "heroClass": "JIMMY",
     "rarity": "LEGENDARY",
-    "attack": 6,
+    "attack": 5,
     "health": 4,
-    "text": "Battlecry: Deal 3 damage to all enemies.",
+    "text": "Battlecry: Deal 2 damage to all enemies.",
     "flavor": "Where she walks, the ground remembers.",
     "keywords": [
       "BATTLECRY"
@@ -3479,7 +3477,7 @@
     "battlecryEffect": {
       "type": "DEAL_DAMAGE_ALL_ENEMIES",
       "target": "ALL_ENEMY_MINIONS",
-      "value": 3
+      "value": 2
     }
   },
   {
@@ -4228,7 +4226,7 @@
     "heroClass": "DEREK",
     "rarity": "COMMON",
     "attack": 3,
-    "health": 2,
+    "health": 3,
     "text": "Cobbled together from spare parts. Still deadly.",
     "flavor": "Recycled from seventeen different machines. Works like new.",
     "keywords": []
@@ -4577,7 +4575,7 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 4,
+    "attack": 5,
     "health": 5,
     "text": "Taunt.",
     "flavor": "Medium-sized problems require medium-sized solutions.",
@@ -4830,7 +4828,7 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 4,
+    "attack": 5,
     "health": 3,
     "text": "Deathrattle: Summon a 2/2 mech.",
     "flavor": "Leaves tracks wherever he goes. Deliberately.",
