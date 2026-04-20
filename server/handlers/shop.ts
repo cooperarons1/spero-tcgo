@@ -1,5 +1,5 @@
 import type { Server, Socket } from 'socket.io';
-import cardsData from '../../data/cards.json' with { type: 'json' };
+import { getAllCardDefs } from '../cards.js';
 import { adminDb } from '../firebaseAdmin.js';
 import { validated } from '../state.js';
 import { CraftCardSchema, DisenchantCardSchema } from '../validation.js';
@@ -9,7 +9,7 @@ import { isAdminUid } from '../admin.js';
 // don't have to buy packs to test the full card pool.
 function buildAdminOwnedCards(): Record<string, number> {
   const owned: Record<string, number> = {};
-  for (const c of (cardsData as Array<{ cardCode: string; rarity: string }>)) {
+  for (const c of getAllCardDefs()) {
     if (c.cardCode === 'COIN' || c.cardCode.includes('_TOKEN_')) continue;
     owned[c.cardCode] = c.rarity === 'LEGENDARY' ? 1 : 2;
   }

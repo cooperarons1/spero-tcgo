@@ -59,6 +59,37 @@ const rarityColor: Record<string, string> = {
   LEGENDARY: '#f59e0b',
 };
 
+// Diamond-faceted mana gem modeled on the Shadow-of-Demise style: blue
+// gem with bronze ring, light-reflected facets. Used for the mana cost
+// badge. `value` is the mana cost rendered centered on the gem.
+export function ManaGem({ value, size = 28 }: { value: number; size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" style={{ filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }}>
+      <defs>
+        <linearGradient id="mana-light" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#9ecbff" />
+          <stop offset="100%" stopColor="#2d62c6" />
+        </linearGradient>
+        <linearGradient id="mana-dark" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#1e4a9e" />
+          <stop offset="100%" stopColor="#0b214d" />
+        </linearGradient>
+      </defs>
+      {/* Bronze ring backdrop */}
+      <circle cx="16" cy="16" r="14" fill="#3a2a15" stroke="#c28a42" strokeWidth="1.2" />
+      <circle cx="16" cy="16" r="12" fill="#241607" stroke="#8a5a28" strokeWidth="0.7" />
+      {/* Diamond body — two triangles per half for a faceted look */}
+      <polygon points="16,5 26,16 16,27 6,16" fill="url(#mana-dark)" stroke="#0a1a38" strokeWidth="0.4" />
+      <polygon points="16,5 16,27 6,16" fill="url(#mana-light)" opacity="0.9" />
+      <polygon points="16,5 22,16 16,20 10,16" fill="#b5d4ff" opacity="0.5" />
+      {/* Mana number centered */}
+      <text x="16" y="21" textAnchor="middle" fontSize="13" fontWeight="900" fill="#ffffff" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.9)' }} stroke="#0a1a38" strokeWidth="0.5" paintOrder="stroke">
+        {value}
+      </text>
+    </svg>
+  );
+}
+
 // Hearthstone-style teardrop gem rendered with inline SVG. Gold-rimmed
 // circular frame with a rarity-colored jewel inside, highlighted with a
 // subtle glint. `size` in px for square bounding box.
@@ -152,15 +183,10 @@ export function Card({ cardCode, onClick, selected, greyed, small, className }: 
         ${className ?? ''}
       `}
     >
-      {/* ── Mana cost gem — top-left, inside card. Slightly smaller than
-           before (user feedback: symbols felt oversized at card-grid zoom). ── */}
-      <div className={`
-        absolute ${small ? 'top-0.5 left-0.5 w-4 h-4 text-[8px]' : 'top-1 left-1 w-6 h-6 text-[11px]'}
-        rounded-full bg-gradient-to-br from-blue-400 to-blue-700
-        border-2 border-blue-300 shadow-lg shadow-blue-500/50
-        flex items-center justify-center font-extrabold text-white z-20
-      `}>
-        {def.manaCost}
+      {/* ── Mana gem — diamond-faceted blue gem in a bronze ring,
+           modeled on Hearthstone/Shadow-of-Demise visuals. ── */}
+      <div className={`absolute ${small ? 'top-0.5 left-0.5' : 'top-1 left-1'} z-20`}>
+        <ManaGem value={def.manaCost} size={small ? 18 : 26} />
       </div>
 
       {/* ── Secret badge — top-right, inside card ── */}
