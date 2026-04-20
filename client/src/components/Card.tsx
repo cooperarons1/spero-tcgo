@@ -421,21 +421,7 @@ export function Card({ cardCode, onClick, selected, greyed, small, className, go
       </div>
 
       {/* ── Card text — parchment-tan panel inside a dark stone cutout. ── */}
-      {/* Vanilla cards (no keywords, no battlecry/deathrattle/spellEffect
-           and whose text is just flavor) don't need the parchment text
-           box. Check data signals, not the text itself, to decide. */}
-      {(() => {
-        const hasKeywords = !!def.keywords?.length;
-        const hasMechanic = !!(def as any).battlecry
-          || !!(def as any).deathrattle
-          || !!(def as any).spellEffect
-          || !!(def as any).spellEffects
-          || !!(def as any).heropower
-          || !!(def as any).secretTrigger
-          || !!(def as any).battlecryEffect;
-        const isFlavorOnly = !hasKeywords && !hasMechanic && def.type === 'MINION';
-        return !isFlavorOnly;
-      })() && (def.text ? (
+      {def.text ? (
         <div className={`
           flex-1 ${small ? 'mx-0.5 px-0.5 py-px pb-4' : 'mx-1.5 px-1.5 py-1 pb-5'}
           rounded-sm
@@ -454,7 +440,9 @@ export function Card({ cardCode, onClick, selected, greyed, small, className, go
             {def.text}
           </p>
         </div>
-      ) : null)}
+      ) : (
+        <div className="flex-1" />
+      )}
 
       {/* ── Bottom stats — absolute positioned inside card ── */}
       {hasStats && (
