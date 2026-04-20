@@ -11,9 +11,9 @@ COPY data/ ./data/
 COPY server/package.json server/package-lock.json* ./server/
 RUN cd server && npm install
 
-# Copy server source and compile
-COPY server/*.ts ./server/
-COPY server/tsconfig.json ./server/
+# Copy server source and compile. Includes server/handlers/ (added by the
+# 2026-04-13 refactor); plain server/*.ts misses subdirectories.
+COPY server/ ./server/
 RUN cd server && npx tsc --rootDir .. --outDir dist
 
 # ── Runtime stage ──
