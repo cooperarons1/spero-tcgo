@@ -7,6 +7,8 @@ import { Card } from './Card';
 import { socket } from '../socket';
 import type { HeroClass, CardDef } from '../../../shared/types';
 import { CARD_BACKS } from '../../../shared/seasons';
+import { COINS } from '../../../shared/cosmetics';
+import { FEATURE_FLAGS } from '../utils/featureFlags';
 
 const CRAFT_COSTS: Record<string, number> = { COMMON: 40, RARE: 100, EPIC: 400, LEGENDARY: 1600 };
 const DUST_VALUES: Record<string, number> = { COMMON: 5, RARE: 20, EPIC: 100, LEGENDARY: 400 };
@@ -138,6 +140,8 @@ export function Collection({ uid, onBack }: CollectionProps) {
   const [showCosmetics, setShowCosmetics] = useState(false);
   const [ownedCardBacks, setOwnedCardBacks] = useState<string[]>(['default']);
   const [selectedCardBack, setSelectedCardBack] = useState<string>('default');
+  const [ownedCoins, setOwnedCoins] = useState<string[]>(['default']);
+  const [selectedCoin, setSelectedCoin] = useState<string>('default');
 
   // Load inventory on mount
   useEffect(() => {
@@ -169,18 +173,25 @@ export function Collection({ uid, onBack }: CollectionProps) {
       setOwnedCardBacks(data.owned ?? ['default']);
       setSelectedCardBack(data.selected ?? 'default');
     };
+    const onCoins = (data: { owned: string[]; selected: string }) => {
+      setOwnedCoins(data.owned ?? ['default']);
+      setSelectedCoin(data.selected ?? 'default');
+    };
     socket.on('inventory-update', onInventory);
     socket.on('craft-success', onCraftSuccess);
     socket.on('disenchant-success', onDisenchantSuccess);
     socket.on('craft-error', onCraftError);
     socket.on('disenchant-error', onCraftError);
     socket.on('card-backs-update', onCardBacks);
+    socket.on('coins-update', onCoins);
     socket.emit('get-card-backs');
+    socket.emit('get-coins');
     return () => {
       socket.off('inventory-update', onInventory);
       socket.off('craft-success', onCraftSuccess);
       socket.off('disenchant-success', onDisenchantSuccess);
       socket.off('card-backs-update', onCardBacks);
+      socket.off('coins-update', onCoins);
       socket.off('craft-error', onCraftError);
       socket.off('disenchant-error', onCraftError);
     };
@@ -247,14 +258,17 @@ export function Collection({ uid, onBack }: CollectionProps) {
     setPageDir(null);
   }, [filterClass, filterMana, filterSearch, filterRarity, filterType]);
 
-  // Expand each card into (regular, golden) tiles so every card shows
-  // both variants side-by-side in the grid. Gold tile sits immediately
-  // after its regular sibling.
+  // Expand each card into tiles. Golden pair is feature-flagged off
+  // while the real per-card animation approach is being designed as
+  // a side project; flip FEATURE_FLAGS.COLLECTION_GOLDEN_TILES back
+  // to true once that lands.
   const expandedCards = useMemo(() => {
     const out: { def: CardDef; golden: boolean }[] = [];
     for (const c of filteredCards) {
       out.push({ def: c, golden: false });
-      out.push({ def: c, golden: true });
+      if (FEATURE_FLAGS.COLLECTION_GOLDEN_TILES) {
+        out.push({ def: c, golden: true });
+      }
     }
     return out;
   }, [filteredCards]);
@@ -965,7 +979,10 @@ export function Collection({ uid, onBack }: CollectionProps) {
               >×</button>
             </div>
 
-            <h3 className="text-xs uppercase tracking-wider font-bold text-amber-300/80 mb-2">Card Backs</h3>
+            <h3 className="text-xs uppercase tracking-wider font-bold text-amber-300/80 mb-2 flex items-center gap-2">
+              Card Backs
+              <span className="text-[9px] font-normal text-gray-500 normal-case tracking-normal">({ownedCardBacks.length} owned)</span>
+            </h3>
             <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-3">
               {CARD_BACKS.map(cb => {
                 const owned = ownedCardBacks.includes(cb.id);
@@ -995,6 +1012,49 @@ export function Collection({ uid, onBack }: CollectionProps) {
                     {!owned && (
                       <div className="absolute inset-0 flex items-center justify-center bg-black/50">
                         <span className="text-white text-2xl">🔒</span>
+                      </div>
+                    )}
+                    {selected && (
+                      <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-bold shadow">✓</div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            <h3 className="text-xs uppercase tracking-wider font-bold text-amber-300/80 mb-2 mt-6 flex items-center gap-2">
+              Coins
+              <span className="text-[9px] font-normal text-gray-500 normal-case tracking-normal">({ownedCoins.length} owned)</span>
+            </h3>
+            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-3">
+              {COINS.map(co => {
+                const owned = ownedCoins.includes(co.id);
+                const selected = selectedCoin === co.id;
+                const unlockLabel = co.unlock.type === 'BASE' ? 'Free'
+                  : co.unlock.type === 'BATTLEPASS' ? `BP T${(co.unlock as any).tier}`
+                  : co.unlock.type === 'RANKED' ? `Rank ${(co.unlock as any).minRank}`
+                  : co.unlock.type === 'SEASONAL' ? (co.unlock as any).season
+                  : 'Unlock';
+                return (
+                  <button
+                    key={co.id}
+                    disabled={!owned}
+                    onClick={() => socket.emit('select-coin', { coinId: co.id })}
+                    className={`relative rounded-lg overflow-hidden aspect-square border-2 transition-all cursor-pointer group flex items-center justify-center
+                      ${selected ? 'border-green-400 shadow-[0_0_16px_rgba(74,222,128,0.6)] scale-105' : 'border-amber-700/40 hover:border-amber-400'}
+                      ${!owned ? 'opacity-40 cursor-not-allowed' : ''}`}
+                    style={{ background: 'radial-gradient(circle at 50% 45%, #fcd34d 0%, #d97706 55%, #78350f 100%)' }}
+                  >
+                    <div className="w-10 h-10 rounded-full border-2 border-amber-200 bg-gradient-to-b from-yellow-300 to-amber-600 shadow-inner flex items-center justify-center text-stone-900 font-black text-sm">
+                      {co.id === 'default' ? 'M' : co.name.slice(0, 1)}
+                    </div>
+                    <div className="absolute bottom-1 left-1 right-1 text-center">
+                      <p className="text-white text-[9px] font-bold drop-shadow leading-tight truncate">{co.name}</p>
+                      <p className="text-amber-100/70 text-[8px] leading-tight">{owned ? 'Owned' : unlockLabel}</p>
+                    </div>
+                    {!owned && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/55">
+                        <span className="text-white text-xl">🔒</span>
                       </div>
                     )}
                     {selected && (

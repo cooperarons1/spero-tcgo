@@ -125,6 +125,10 @@ export const SelectCardBackSchema = z.object({
   cardBackId: z.string().min(1).max(50),
 });
 
+export const SelectCoinSchema = z.object({
+  coinId: z.string().min(1).max(50),
+});
+
 export const ClaimBattlepassRewardSchema = z.object({
   tier: z.number().int().min(1).max(100),
   track: z.enum(['free', 'premium']),

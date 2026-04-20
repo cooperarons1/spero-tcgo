@@ -18,6 +18,7 @@ import { useStateDiff } from '../hooks/useStateDiff';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 import { soundManager } from '../utils/soundManager';
 import { CardArt } from '../utils/cardArt';
+import { FEATURE_FLAGS } from '../utils/featureFlags';
 import { Card as CardComponent, ManaGem } from './Card';
 import { GoldenEffectsOverlay } from './GoldenEffectsOverlay';
 import { socket } from '../socket';
@@ -574,8 +575,8 @@ function BoardMinionCard({
       {/* Art fills entire oval — clip to oval shape. Gold variant
            overlays a warm tint + infinite shimmer sweep. */}
       <div className="absolute inset-0 bg-amber-900/80 overflow-hidden" style={{ borderRadius: '42%' }}>
-        {minion.cardCode && <CardArt cardCode={minion.cardCode} className="w-full h-full" golden={minion.isGolden} />}
-        {minion.isGolden && (
+        {minion.cardCode && <CardArt cardCode={minion.cardCode} className="w-full h-full" golden={minion.isGolden && FEATURE_FLAGS.GOLDEN_CARDS} />}
+        {minion.isGolden && FEATURE_FLAGS.GOLDEN_CARDS && (
           <>
             <div className="absolute -inset-y-4 -left-1/2 w-1/3 pointer-events-none animate-[shimmer_3s_linear_infinite]" style={{ background: 'linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.55) 50%, transparent 70%)' }} />
             <GoldenEffectsOverlay
@@ -587,7 +588,7 @@ function BoardMinionCard({
           </>
         )}
       </div>
-      {minion.isGolden && (
+      {minion.isGolden && FEATURE_FLAGS.GOLDEN_CARDS && (
         <div className="absolute inset-0 z-[2] pointer-events-none" style={{ borderRadius: '42%', boxShadow: 'inset 0 0 0 3px #fbbf24, 0 0 14px 2px rgba(251,191,36,0.4)' }} />
       )}
 
@@ -928,14 +929,14 @@ function HeroPortrait({
             ) : (
               <div className="w-full h-full opacity-80">{HERO_PORTRAIT_SVG[heroClass]}</div>
             )}
-            {goldenHero && (
+            {goldenHero && FEATURE_FLAGS.GOLDEN_HEROES && (
               <>
                 <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.3) 0%, rgba(252,211,77,0.14) 50%, rgba(245,158,11,0.3) 100%)' }} />
                 <div className="absolute -inset-y-6 -left-1/2 w-1/3 pointer-events-none animate-[shimmer_3s_linear_infinite]" style={{ background: 'linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.65) 50%, transparent 70%)' }} />
               </>
             )}
           </div>
-          {goldenHero && (
+          {goldenHero && FEATURE_FLAGS.GOLDEN_HEROES && (
             <div className="absolute inset-0 pointer-events-none rounded-t-full rounded-b-lg" style={{ boxShadow: 'inset 0 0 0 3px #fbbf24, 0 0 16px 2px rgba(251,191,36,0.5)' }} />
           )}
           {/* HP overlay at bottom */}
@@ -976,7 +977,7 @@ function HeroPortrait({
           <span className="pointer-events-none absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white shadow">
             {HERO_POWER_COST}
           </span>
-          {goldenHero && (
+          {goldenHero && FEATURE_FLAGS.GOLDEN_HEROES && (
             <>
               <div className="absolute inset-0 rounded-full pointer-events-none overflow-hidden">
                 <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.3) 0%, rgba(252,211,77,0.1) 50%, rgba(245,158,11,0.3) 100%)' }} />
@@ -1078,8 +1079,8 @@ function HandCard({
       <div className="absolute -left-1.5 -top-1.5 z-10"><ManaGem value={def.manaCost} size={30} /></div>
       {/* Card Art — larger. Gold overlay + shimmer for foil copies. */}
       <div className={`relative w-full h-24 mt-3 rounded overflow-hidden bg-stone-600/60 flex-shrink-0 ${card.isGolden ? 'shadow-[inset_0_0_0_2px_rgba(251,191,36,0.8)]' : ''}`}>
-        <CardArt cardCode={card.cardCode!} className="w-full h-full" golden={card.isGolden} />
-        {card.isGolden && (
+        <CardArt cardCode={card.cardCode!} className="w-full h-full" golden={card.isGolden && FEATURE_FLAGS.GOLDEN_CARDS} />
+        {card.isGolden && FEATURE_FLAGS.GOLDEN_CARDS && (
           <>
             <div className="absolute -inset-y-4 -left-1/2 w-1/3 pointer-events-none animate-[shimmer_3s_linear_infinite]" style={{ background: 'linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.55) 50%, transparent 70%)' }} />
             <GoldenEffectsOverlay

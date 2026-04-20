@@ -6,7 +6,9 @@ import { adminDb } from '../firebaseAdmin.js';
 import { generateDailyQuests, shouldRefreshQuests, getLevel } from '../quests.js';
 import type { RateLimiter } from '../state.js';
 import { validated } from '../state.js';
-import { SelectCardBackSchema, ClaimBattlepassRewardSchema } from '../validation.js';
+import { SelectCardBackSchema, SelectCoinSchema, ClaimBattlepassRewardSchema } from '../validation.js';
+import { COINS } from '../../shared/cosmetics.js';
+import { isAdminUid } from '../admin.js';
 
 export function registerProfileHandlers(
   io: Server,
@@ -196,6 +198,51 @@ export function registerProfileHandlers(
       socket.emit('card-backs-update', { owned, selected: id });
     } catch (err) {
       console.error('select-card-back error:', err);
+    }
+  }));
+
+  // ── Coins ──
+
+  socket.on('get-coins', async () => {
+    if (!socialLimiter.allow(uid)) return;
+    try {
+      const userDoc = await adminDb.collection('users').doc(uid).get();
+      const userData = userDoc.data() ?? {};
+      // Every account always owns the 'default' coin. Admins own all.
+      const stored: string[] = Array.isArray(userData.ownedCoins) ? userData.ownedCoins : [];
+      const owned = isAdminUid(uid)
+        ? COINS.map(c => c.id)
+        : Array.from(new Set(['default', ...stored]));
+      const selected: string = userData.selectedCoin ?? 'default';
+      socket.emit('coins-update', { owned, selected });
+    } catch (err) {
+      console.error('get-coins error:', err);
+      socket.emit('coins-update', { owned: ['default'], selected: 'default' });
+    }
+  });
+
+  socket.on('select-coin', validated(SelectCoinSchema, async (data) => {
+    if (!socialLimiter.allow(uid)) return;
+    const id = data.coinId;
+    if (!COINS.find(c => c.id === id)) {
+      socket.emit('error', 'Invalid coin');
+      return;
+    }
+    try {
+      const userDoc = await adminDb.collection('users').doc(uid).get();
+      const userData = userDoc.data() ?? {};
+      const stored: string[] = Array.isArray(userData.ownedCoins) ? userData.ownedCoins : [];
+      const owned = isAdminUid(uid)
+        ? COINS.map(c => c.id)
+        : Array.from(new Set(['default', ...stored]));
+      if (!owned.includes(id)) {
+        socket.emit('error', 'You do not own this coin');
+        return;
+      }
+      await adminDb.collection('users').doc(uid).set({ selectedCoin: id }, { merge: true });
+      socket.emit('coins-update', { owned, selected: id });
+    } catch (err) {
+      console.error('select-coin error:', err);
     }
   }));
 

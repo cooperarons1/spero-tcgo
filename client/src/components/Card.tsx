@@ -1,8 +1,7 @@
 import cardsData from '../../../data/cards.json';
 import { CardArt } from '../utils/cardArt';
-// Re-export as Lazy-named alias just to avoid any namespace clash with
-// potential future CardComponent imports that already name an overlay.
 import { GoldenEffectsOverlay as GoldenEffectsOverlayLazy } from './GoldenEffectsOverlay';
+import { FEATURE_FLAGS } from '../utils/featureFlags';
 
 interface CardDef {
   cardCode: string;
@@ -208,10 +207,12 @@ export function Card({ cardCode, onClick, selected, greyed, small, className, go
   const isLocation = def.type === 'LOCATION';
   const isSecret = isSpell && !!def.secretTrigger;
   const hasStats = isMinion || isWeapon;
-  // Golden variants use a gold border + gold-tinted frame across the
-  // whole card, not just the art — the entire frame reads as gold leaf.
-  const border = golden ? 'border-amber-300' : (classBorder[def.heroClass] || classBorder.NEUTRAL);
-  const frameBg = golden
+  // Golden rendering is gated — see utils/featureFlags.ts. Data flag
+  // stays plumbed in the type system; visuals go dormant until the
+  // animation approach ships.
+  const showGold = golden && FEATURE_FLAGS.GOLDEN_CARDS;
+  const border = showGold ? 'border-amber-300' : (classBorder[def.heroClass] || classBorder.NEUTRAL);
+  const frameBg = showGold
     ? 'bg-gradient-to-b from-amber-700 via-amber-800 to-amber-950'
     : (classFrameBg[def.heroClass] || classFrameBg.NEUTRAL);
 
@@ -229,6 +230,30 @@ export function Card({ cardCode, onClick, selected, greyed, small, className, go
         ${className ?? ''}
       `}
     >
+      {/* ── Ornate corner flourishes (skip on small size where they'd
+           fight for space with the stat badges). Thin amber arcs on
+           each corner of the frame, pure SVG. ── */}
+      {!small && (
+        <>
+          <svg className="absolute top-0 left-0 w-4 h-4 z-[1] pointer-events-none" viewBox="0 0 16 16">
+            <path d="M 1 9 Q 1 1 9 1" fill="none" stroke="#d4a24a" strokeWidth="1.3" strokeLinecap="round" />
+            <circle cx="1.8" cy="1.8" r="1.1" fill="#d4a24a" />
+          </svg>
+          <svg className="absolute top-0 right-0 w-4 h-4 z-[1] pointer-events-none" viewBox="0 0 16 16">
+            <path d="M 15 9 Q 15 1 7 1" fill="none" stroke="#d4a24a" strokeWidth="1.3" strokeLinecap="round" />
+            <circle cx="14.2" cy="1.8" r="1.1" fill="#d4a24a" />
+          </svg>
+          <svg className="absolute bottom-0 left-0 w-4 h-4 z-[1] pointer-events-none" viewBox="0 0 16 16">
+            <path d="M 1 7 Q 1 15 9 15" fill="none" stroke="#d4a24a" strokeWidth="1.3" strokeLinecap="round" />
+            <circle cx="1.8" cy="14.2" r="1.1" fill="#d4a24a" />
+          </svg>
+          <svg className="absolute bottom-0 right-0 w-4 h-4 z-[1] pointer-events-none" viewBox="0 0 16 16">
+            <path d="M 15 7 Q 15 15 7 15" fill="none" stroke="#d4a24a" strokeWidth="1.3" strokeLinecap="round" />
+            <circle cx="14.2" cy="14.2" r="1.1" fill="#d4a24a" />
+          </svg>
+        </>
+      )}
+
       {/* ── Mana gem — diamond-faceted blue gem in a bronze ring,
            modeled on Hearthstone/Shadow-of-Demise visuals. ── */}
       <div className={`absolute ${small ? 'top-0.5 left-0.5' : 'top-1 left-1'} z-20`}>
@@ -255,8 +280,8 @@ export function Card({ cardCode, onClick, selected, greyed, small, className, go
         bg-stone-800 flex items-center justify-center
         ${golden ? 'shadow-[inset_0_0_0_2px_rgba(245,158,11,0.8)]' : ''}
       `}>
-        <CardArt cardCode={cardCode} className="w-full h-full" golden={golden} />
-        {golden && (
+        <CardArt cardCode={cardCode} className="w-full h-full" golden={showGold} />
+        {showGold && (
           <GoldenEffectsOverlayLazy cardCode={cardCode} rarity={def.rarity} />
         )}
         {golden && (
@@ -353,15 +378,19 @@ export function Card({ cardCode, onClick, selected, greyed, small, className, go
             {def.health}
           </div>
 
-          {/* Tribe label — bottom center */}
+          {/* Tribe banner — small stylized ribbon centered at the bottom
+               of the frame. Tapered-end clip-path + amber gradient
+               match the name-scroll aesthetic. */}
           {isMinion && def.minionType && (
-            <div className={`absolute ${small ? 'bottom-1' : 'bottom-2'} left-1/2 -translate-x-1/2 z-20`}>
-              <span className={`
-                ${small ? 'text-[4px] px-0.5' : 'text-[6px] px-1.5 py-px'}
-                font-bold text-amber-200 bg-stone-900/80 rounded-sm border border-amber-700/30
-              `}>
-                {def.minionType}
-              </span>
+            <div className={`absolute ${small ? 'bottom-0' : 'bottom-0.5'} left-1/2 -translate-x-1/2 z-20 flex items-center`}>
+              <div
+                className={`${small ? 'px-1.5 py-px' : 'px-2 py-0.5'} bg-gradient-to-b from-amber-600 via-amber-700 to-amber-900 border-y border-amber-400/60 shadow`}
+                style={{ clipPath: 'polygon(6% 0, 94% 0, 100% 50%, 94% 100%, 6% 100%, 0 50%)' }}
+              >
+                <span className={`${small ? 'text-[4px]' : 'text-[6px]'} font-black text-amber-50 tracking-wider drop-shadow-[0_1px_0_rgba(0,0,0,0.6)]`}>
+                  {def.minionType}
+                </span>
+              </div>
             </div>
           )}
         </>
