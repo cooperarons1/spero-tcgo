@@ -471,19 +471,14 @@ export function Card({ cardCode, onClick, selected, greyed, small, className, go
             {def.health}
           </div>
 
-          {/* Tribe banner — small stylized ribbon centered at the bottom
-               of the frame. Tapered-end clip-path + amber gradient
-               match the name-scroll aesthetic. */}
           {isMinion && def.minionType && (
-            <div className={`absolute ${small ? 'bottom-0' : 'bottom-0.5'} left-1/2 -translate-x-1/2 z-20 flex items-center`}>
-              <div
-                className={`${small ? 'px-1.5 py-px' : 'px-2 py-0.5'} bg-gradient-to-b from-amber-600 via-amber-700 to-amber-900 border-y border-amber-400/60 shadow`}
-                style={{ clipPath: 'polygon(6% 0, 94% 0, 100% 50%, 94% 100%, 6% 100%, 0 50%)' }}
+            <div className={`absolute ${small ? 'bottom-0.5' : 'bottom-1'} left-1/2 -translate-x-1/2 z-20 pointer-events-none`}>
+              <span
+                className={`${small ? 'text-[5px]' : 'text-[7px]'} font-black text-amber-200 tracking-wider uppercase`}
+                style={{ textShadow: '0 1px 2px rgba(0,0,0,0.95), 0 0 3px rgba(0,0,0,0.8)' }}
               >
-                <span className={`${small ? 'text-[4px]' : 'text-[6px]'} font-black text-amber-50 tracking-wider drop-shadow-[0_1px_0_rgba(0,0,0,0.6)]`}>
-                  {def.minionType}
-                </span>
-              </div>
+                {def.minionType}
+              </span>
             </div>
           )}
         </>

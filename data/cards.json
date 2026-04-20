@@ -24,7 +24,7 @@
     "type": "MINION",
     "heroClass": "AVA",
     "rarity": "COMMON",
-    "attack": 0,
+    "attack": 1,
     "health": 1,
     "text": "",
     "flavor": "Tiny rotors, tinier brain.",
@@ -462,7 +462,7 @@
     "attack": 4,
     "health": 3,
     "text": "Stealth. Bond: If you control Rosie, draw 2 cards.",
-    "flavor": "The leopard moves like a reef shadow \u2014 silent, patient, lethal.",
+    "flavor": "The leopard moves like a reef shadow — silent, patient, lethal.",
     "keywords": [
       "STEALTH",
       "BOND"
@@ -485,7 +485,7 @@
     "attack": 2,
     "health": 4,
     "text": "Bond: If you control Sengo, draw 2 cards.",
-    "flavor": "She nudges lost things back to shore \u2014 including hope.",
+    "flavor": "She nudges lost things back to shore — including hope.",
     "keywords": [
       "BOND"
     ],
@@ -507,7 +507,7 @@
     "attack": 2,
     "health": 3,
     "text": "Bond: If you control Tala's Ice Orb, both get +1/+2 and gain Taunt.",
-    "flavor": "She always finds Tala first \u2014 small paws, big heart.",
+    "flavor": "She always finds Tala first — small paws, big heart.",
     "keywords": [
       "BOND"
     ],
@@ -663,7 +663,7 @@
     "attack": 2,
     "health": 3,
     "text": "Bond: If you control Fiona, both get +1/+1.",
-    "flavor": "Ava's masterwork \u2014 half scanner, half best friend.",
+    "flavor": "Ava's masterwork — half scanner, half best friend.",
     "keywords": [
       "BOND"
     ],
@@ -686,7 +686,7 @@
     "attack": 3,
     "health": 2,
     "text": "Stealth. Bond: If you control Owl Sketch, both get +2/+2.",
-    "flavor": "Jax trusts no one \u2014 except the boy who draws owls.",
+    "flavor": "Jax trusts no one — except the boy who draws owls.",
     "keywords": [
       "STEALTH",
       "BOND"
@@ -803,7 +803,7 @@
     "attack": 2,
     "health": 4,
     "text": "Bond: If you control Bling, both get +1/+2.",
-    "flavor": "Points toward balance \u2014 and buried treasure.",
+    "flavor": "Points toward balance — and buried treasure.",
     "keywords": [
       "BOND"
     ],
@@ -886,7 +886,7 @@
     "rarity": "COMMON",
     "attack": 0,
     "health": 0,
-    "text": "Deal 3 damage to an enemy minion. Draw a card.",
+    "text": "Deal 3 damage to an enemy minion.",
     "flavor": "Adjust surroundings. If surroundings resist, adjust harder.",
     "keywords": [],
     "spellEffects": [
@@ -894,11 +894,6 @@
         "type": "DEAL_DAMAGE",
         "target": "TARGET_MINION",
         "value": 3
-      },
-      {
-        "type": "DRAW_CARDS",
-        "target": "NONE",
-        "value": 1
       }
     ]
   },
@@ -977,7 +972,7 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 5,
+    "attack": 4,
     "health": 4,
     "text": "Deathrattle: Deal 3 damage to a random enemy.",
     "flavor": "Built to fight. Fights to build. It's a whole cycle.",
@@ -1141,19 +1136,13 @@
     "rarity": "COMMON",
     "attack": 6,
     "health": 7,
-    "text": "Taunt. Battlecry: Gain 2 armor.",
+    "text": "Taunt.",
     "flavor": "Slow, steady, and completely unstoppable.",
     "keywords": [
       "BATTLECRY"
     ],
     "minionType": "MECH",
-    "battlecryEffects": [
-      {
-        "type": "GAIN_ARMOR",
-        "target": "NONE",
-        "value": 2
-      }
-    ]
+    "battlecryEffects": []
   },
   {
     "cardCode": "JIM018",
@@ -1296,8 +1285,8 @@
     "type": "MINION",
     "heroClass": "JIMMY",
     "rarity": "RARE",
-    "attack": 4,
-    "health": 3,
+    "attack": 5,
+    "health": 4,
     "text": "Charge.",
     "flavor": "He doesn't stop running. Ever.",
     "keywords": [
@@ -1312,9 +1301,9 @@
     "type": "MINION",
     "heroClass": "JIMMY",
     "rarity": "EPIC",
-    "attack": 3,
-    "health": 4,
-    "text": "Bruiser \u2014 no surprises.",
+    "attack": 7,
+    "health": 7,
+    "text": "Bruiser — no surprises.",
     "flavor": "They called him unkillable. They were almost right.",
     "keywords": [],
     "minionType": "HUMAN"
@@ -1365,7 +1354,7 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 4,
+    "attack": 3,
     "health": 4,
     "text": "A reliable mech with solid construction.",
     "flavor": "She'll work for parts. Good parts.",
@@ -1429,7 +1418,7 @@
     "rarity": "RARE",
     "attack": 4,
     "health": 5,
-    "text": "Battlecry: Draw a card.",
+    "text": "A reliable recorder of every mission.",
     "flavor": "His memory banks contain every recipe ever compiled.",
     "keywords": [
       "BATTLECRY"
@@ -1607,7 +1596,7 @@
     "rarity": "COMMON",
     "attack": 4,
     "health": 4,
-    "text": "Battlecry: Draw a card if you control a MECH.",
+    "text": "A capable defender.",
     "flavor": "If it has gears, he can make it better.",
     "keywords": [
       "BATTLECRY"
@@ -1660,7 +1649,7 @@
     "name": "Crown Pointe Mines",
     "manaCost": 2,
     "type": "LOCATION",
-    "heroClass": "JIMMY",
+    "heroClass": "NEUTRAL",
     "rarity": "RARE",
     "attack": 0,
     "health": 3,
@@ -1827,8 +1816,8 @@
     "type": "MINION",
     "heroClass": "JIMMY",
     "rarity": "EPIC",
-    "attack": 3,
-    "health": 4,
+    "attack": 5,
+    "health": 5,
     "text": "Battlecry: Deal 3 damage to a random enemy minion.",
     "flavor": "Born from the last ember of a dying volcano.",
     "keywords": [
@@ -1906,7 +1895,7 @@
     "attack": 0,
     "health": 0,
     "text": "Deal 1 damage to all characters.",
-    "flavor": "When the forest burns, new life begins \u2014 eventually.",
+    "flavor": "When the forest burns, new life begins — eventually.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE_ALL_ENEMIES",
@@ -2113,7 +2102,7 @@
     "type": "WEAPON",
     "heroClass": "JIMMY",
     "rarity": "COMMON",
-    "attack": 3,
+    "attack": 4,
     "health": 2,
     "text": "A devastating blade forged in flame.",
     "flavor": "Forged in Gavalon's deepest furnace. Handle with extreme caution.",
@@ -2508,8 +2497,8 @@
     "type": "MINION",
     "heroClass": "JIMMY",
     "rarity": "LEGENDARY",
-    "attack": 4,
-    "health": 5,
+    "attack": 8,
+    "health": 8,
     "text": "Battlecry: Deal 1 damage to all enemy minions.",
     "flavor": "Ancient, enormous, and thoroughly unimpressed by your army.",
     "keywords": [
@@ -2527,7 +2516,7 @@
     "name": "Isolation Arena",
     "manaCost": 3,
     "type": "LOCATION",
-    "heroClass": "NEUTRAL",
+    "heroClass": "DES",
     "rarity": "RARE",
     "attack": 0,
     "health": 2,
@@ -2565,7 +2554,7 @@
     "name": "Ivory Forest",
     "manaCost": 3,
     "type": "LOCATION",
-    "heroClass": "NEUTRAL",
+    "heroClass": "TALA",
     "rarity": "COMMON",
     "attack": 0,
     "health": 2,
@@ -2857,21 +2846,15 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 7,
+    "attack": 6,
     "health": 7,
-    "text": "Taunt. Divine Shield. Battlecry: Gain 3 armor.",
+    "text": "Taunt. Divine Shield.",
     "flavor": "Half knight, half machine. All paladin.",
     "keywords": [
       "BATTLECRY"
     ],
     "minionType": "MECH",
-    "battlecryEffects": [
-      {
-        "type": "GAIN_ARMOR",
-        "target": "NONE",
-        "value": 3
-      }
-    ]
+    "battlecryEffects": []
   },
   {
     "cardCode": "LUC032",
@@ -2979,7 +2962,7 @@
     "name": "Light Lanes Raceway",
     "manaCost": 3,
     "type": "LOCATION",
-    "heroClass": "AVA",
+    "heroClass": "NEUTRAL",
     "rarity": "RARE",
     "attack": 0,
     "health": 2,
@@ -3215,7 +3198,7 @@
     "name": "Mechingham Estates",
     "manaCost": 4,
     "type": "LOCATION",
-    "heroClass": "NEUTRAL",
+    "heroClass": "DEREK",
     "rarity": "EPIC",
     "attack": 0,
     "health": 2,
@@ -3236,8 +3219,8 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "EPIC",
-    "attack": 6,
-    "health": 6,
+    "attack": 5,
+    "health": 5,
     "text": "Battlecry: Draw a card.",
     "flavor": "A whole megabyte of trouble.",
     "keywords": [
@@ -3445,7 +3428,7 @@
     "name": "Nivarra Guild Hall",
     "manaCost": 2,
     "type": "LOCATION",
-    "heroClass": "ASTRID",
+    "heroClass": "NEUTRAL",
     "rarity": "RARE",
     "attack": 0,
     "health": 3,
@@ -3484,8 +3467,8 @@
     "type": "MINION",
     "heroClass": "JIMMY",
     "rarity": "LEGENDARY",
-    "attack": 3,
-    "health": 3,
+    "attack": 7,
+    "health": 7,
     "text": "Battlecry: Deal 2 damage to all enemies.",
     "flavor": "Where she walks, the ground remembers.",
     "keywords": [
@@ -3520,7 +3503,7 @@
     "name": "Obexian Slums",
     "manaCost": 2,
     "type": "LOCATION",
-    "heroClass": "NEUTRAL",
+    "heroClass": "DES",
     "rarity": "COMMON",
     "attack": 0,
     "health": 2,
@@ -3722,7 +3705,7 @@
     "name": "Pinewield Passage",
     "manaCost": 2,
     "type": "LOCATION",
-    "heroClass": "NEUTRAL",
+    "heroClass": "TALA",
     "rarity": "COMMON",
     "attack": 0,
     "health": 2,
@@ -3796,7 +3779,7 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "LEGENDARY",
-    "attack": 8,
+    "attack": 6,
     "health": 7,
     "text": "Taunt. Deathrattle: Summon two 3/3 mechs.",
     "flavor": "The last line of defense. Literally.",
@@ -3854,7 +3837,7 @@
   {
     "cardCode": "DRK033",
     "name": "Quick Fix",
-    "manaCost": 0,
+    "manaCost": 1,
     "type": "SPELL",
     "heroClass": "DEREK",
     "rarity": "COMMON",
@@ -4024,7 +4007,7 @@
     "rarity": "RARE",
     "attack": 2,
     "health": 4,
-    "text": "Battlecry: Draw a card.",
+    "text": "A calm observer.",
     "flavor": "Records everything. Forgets nothing. Judges constantly.",
     "keywords": [
       "BATTLECRY"
@@ -4058,7 +4041,7 @@
   {
     "cardCode": "DRK037",
     "name": "Resourcefulness",
-    "manaCost": 2,
+    "manaCost": 3,
     "type": "SPELL",
     "heroClass": "DEREK",
     "rarity": "RARE",
@@ -4252,18 +4235,12 @@
     "rarity": "COMMON",
     "attack": 4,
     "health": 3,
-    "text": "Battlecry: Gain 3 armor.",
+    "text": "A brutal weapon of repurposed parts.",
     "flavor": "Recycled from seventeen different machines. Works like new.",
     "keywords": [
       "BATTLECRY"
     ],
-    "battlecryEffects": [
-      {
-        "type": "GAIN_ARMOR",
-        "target": "NONE",
-        "value": 3
-      }
-    ]
+    "battlecryEffects": []
   },
   {
     "cardCode": "DES030",
@@ -4292,7 +4269,7 @@
     "name": "Serenity Hot Springs",
     "manaCost": 3,
     "type": "LOCATION",
-    "heroClass": "NEUTRAL",
+    "heroClass": "ANDERS",
     "rarity": "RARE",
     "attack": 0,
     "health": 3,
@@ -4398,17 +4375,16 @@
     "rarity": "COMMON",
     "attack": 2,
     "health": 3,
-    "text": "Deathrattle: Draw a card.",
+    "text": "A brave little scout.",
     "flavor": "He skips the small talk and gets right to the point.",
-    "keywords": [
-      "DEATHRATTLE"
-    ],
+    "keywords": [],
     "minionType": "MECH",
     "deathrattleEffect": {
       "type": "DRAW_CARDS",
       "target": "NONE",
       "value": 1
-    }
+    },
+    "deathrattleEffects": []
   },
   {
     "cardCode": "NEU092",
@@ -4582,13 +4558,13 @@
   {
     "cardCode": "DRK041",
     "name": "Talbot L",
-    "manaCost": 5,
+    "manaCost": 6,
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "LEGENDARY",
     "attack": 7,
     "health": 8,
-    "text": "Taunt. Battlecry: Gain 5 armor. Deathrattle: Summon a 5/5 mech with Taunt.",
+    "text": "Taunt. Battlecry: Gain 3 armor. Deathrattle: Summon a 5/5 mech with Taunt.",
     "flavor": "The biggest bot on the battlefield, and he knows it.",
     "keywords": [
       "TAUNT",
@@ -4606,7 +4582,7 @@
       {
         "type": "GAIN_ARMOR",
         "target": "NONE",
-        "value": 5
+        "value": 3
       }
     ]
   },
@@ -4617,21 +4593,15 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 6,
+    "attack": 5,
     "health": 7,
-    "text": "Taunt. Battlecry: Gain 2 armor.",
+    "text": "Taunt.",
     "flavor": "Medium-sized problems require medium-sized solutions.",
     "keywords": [
       "BATTLECRY"
     ],
     "minionType": "MECH",
-    "battlecryEffects": [
-      {
-        "type": "GAIN_ARMOR",
-        "target": "NONE",
-        "value": 2
-      }
-    ]
+    "battlecryEffects": []
   },
   {
     "cardCode": "DRK043",
@@ -4879,7 +4849,7 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 6,
+    "attack": 5,
     "health": 4,
     "text": "Deathrattle: Summon a 2/2 mech.",
     "flavor": "Leaves tracks wherever he goes. Deliberately.",
@@ -4917,7 +4887,7 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 4,
+    "attack": 3,
     "health": 3,
     "text": "Deathrattle: Deal 3 damage to a random enemy.",
     "flavor": "Trims hedges, enemies, and awkward conversations.",
@@ -6212,7 +6182,7 @@
   {
     "cardCode": "DRK051",
     "name": "Short Circuit",
-    "manaCost": 3,
+    "manaCost": 5,
     "type": "SPELL",
     "heroClass": "DEREK",
     "rarity": "EPIC",
@@ -6237,13 +6207,13 @@
   {
     "cardCode": "DRK052",
     "name": "Demolition",
-    "manaCost": 4,
+    "manaCost": 5,
     "type": "SPELL",
     "heroClass": "DEREK",
     "rarity": "EPIC",
     "attack": 0,
     "health": 0,
-    "text": "Destroy a minion. Gain 4 armor.",
+    "text": "Destroy a minion. Gain 2 armor.",
     "flavor": "We called in the professionals. The professionals brought a wrecking ball.",
     "keywords": [],
     "spellEffects": [
@@ -6255,7 +6225,7 @@
       {
         "type": "GAIN_ARMOR",
         "target": "NONE",
-        "value": 4
+        "value": 2
       }
     ]
   },
@@ -6284,9 +6254,9 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "LEGENDARY",
-    "attack": 6,
-    "health": 8,
-    "text": "Taunt. Battlecry: Gain 15 armor and draw 2 cards.",
+    "attack": 5,
+    "health": 7,
+    "text": "Taunt. Battlecry: Gain 5 armor and draw 1 card.",
     "flavor": "The blueprints were never found. Perhaps they were never needed.",
     "keywords": [
       "TAUNT",
@@ -6296,12 +6266,12 @@
       {
         "type": "GAIN_ARMOR",
         "target": "NONE",
-        "value": 15
+        "value": 5
       },
       {
         "type": "DRAW_CARDS",
         "target": "NONE",
-        "value": 2
+        "value": 1
       }
     ]
   },
@@ -6335,7 +6305,7 @@
     "rarity": "RARE",
     "attack": 0,
     "health": 0,
-    "text": "Deal 3 damage to a minion. Gain 4 armor. Draw a card.",
+    "text": "Deal 3 damage to a minion.",
     "flavor": "Hit them before they hit you, and bring a shield just in case.",
     "keywords": [],
     "spellEffects": [
@@ -6343,7 +6313,40 @@
         "type": "DEAL_DAMAGE",
         "target": "TARGET_MINION",
         "value": 3
-      },
+      }
+    ]
+  },
+  {
+    "cardCode": "DRK063",
+    "name": "Fortify",
+    "manaCost": 2,
+    "type": "SPELL",
+    "heroClass": "DEREK",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Gain 3 armor.",
+    "flavor": "It was always going to hurt. Now it hurts less.",
+    "keywords": [],
+    "spellEffect": {
+      "type": "GAIN_ARMOR",
+      "target": "NONE",
+      "value": 2
+    }
+  },
+  {
+    "cardCode": "DRK070",
+    "name": "Rebuild",
+    "manaCost": 4,
+    "type": "SPELL",
+    "heroClass": "DEREK",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Gain 4 armor. Draw 1 card.",
+    "flavor": "Every time we tear it down, it comes back stronger.",
+    "keywords": [],
+    "spellEffects": [
       {
         "type": "GAIN_ARMOR",
         "target": "NONE",
@@ -6357,49 +6360,6 @@
     ]
   },
   {
-    "cardCode": "DRK063",
-    "name": "Fortify",
-    "manaCost": 2,
-    "type": "SPELL",
-    "heroClass": "DEREK",
-    "rarity": "COMMON",
-    "attack": 0,
-    "health": 0,
-    "text": "Gain 5 armor.",
-    "flavor": "It was always going to hurt. Now it hurts less.",
-    "keywords": [],
-    "spellEffect": {
-      "type": "GAIN_ARMOR",
-      "target": "NONE",
-      "value": 5
-    }
-  },
-  {
-    "cardCode": "DRK070",
-    "name": "Rebuild",
-    "manaCost": 3,
-    "type": "SPELL",
-    "heroClass": "DEREK",
-    "rarity": "RARE",
-    "attack": 0,
-    "health": 0,
-    "text": "Gain 6 armor. Draw 2 cards.",
-    "flavor": "Every time we tear it down, it comes back stronger.",
-    "keywords": [],
-    "spellEffects": [
-      {
-        "type": "GAIN_ARMOR",
-        "target": "NONE",
-        "value": 6
-      },
-      {
-        "type": "DRAW_CARDS",
-        "target": "NONE",
-        "value": 2
-      }
-    ]
-  },
-  {
     "cardCode": "DRK071",
     "name": "Reactor Core",
     "manaCost": 4,
@@ -6408,7 +6368,7 @@
     "rarity": "EPIC",
     "attack": 4,
     "health": 5,
-    "text": "Battlecry: Gain 6 armor. Taunt.",
+    "text": "Battlecry: Gain 4 armor. Taunt.",
     "flavor": "It keeps the lights on. And the walls up.",
     "keywords": [
       "BATTLECRY",
@@ -6418,7 +6378,7 @@
       {
         "type": "GAIN_ARMOR",
         "target": "NONE",
-        "value": 6
+        "value": 4
       }
     ]
   },

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { socket } from '../socket';
+import { FEATURE_FLAGS } from '../utils/featureFlags';
 
 interface ShopProps {
   onBack: () => void;
@@ -55,7 +56,7 @@ export function Shop({ onBack, onOpenPacks }: ShopProps) {
         <h1 className="text-lg font-bold text-amber-100 tracking-wide">SHOP</h1>
         <div className="flex items-center gap-4">
           <span className="text-yellow-400 font-bold text-sm">{gold} Gold</span>
-          <span className="text-blue-400 font-bold text-sm">{dust} Dust</span>
+          {FEATURE_FLAGS.DUST && <span className="text-blue-400 font-bold text-sm">{dust} Dust</span>}
         </div>
       </div>
 

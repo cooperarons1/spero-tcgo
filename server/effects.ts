@@ -124,6 +124,15 @@ export function executeEffect(
       break;
     }
     case 'RESTORE_HEALTH': {
+      if ((effect.target as string) === 'ALL_FRIENDLY_MINIONS') {
+        for (const m of me.board) {
+          restoreHealthToTarget(game, casterIndex, m.instanceId, value);
+        }
+        if (me.board.length > 0) {
+          addLog(game, casterIndex, `Restores ${value} health to all friendly minions`, 'EFFECT');
+        }
+        break;
+      }
       const healTarget = targetId ?? (
         effect.target === 'TARGET_HERO' || effect.target === 'SELF'
           ? `hero-${casterIndex}`

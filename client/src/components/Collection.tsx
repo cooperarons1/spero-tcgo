@@ -227,14 +227,18 @@ export function Collection({ uid, onBack }: CollectionProps) {
       if (c.heroClass === 'NEUTRAL' && c.rarity === 'COMMON' && c.cardCode.startsWith('TOK')) return false;
 
       if (filterClass !== 'ALL') {
-        // When filtering by a specific hero class, include NEUTRAL too
-        // because decks can only legally hold class + neutral cards —
-        // seeing other classes is never useful while editing a deck.
-        // Explicit NEUTRAL filter still shows only neutrals.
         if (filterClass === 'NEUTRAL') {
           if (c.heroClass !== 'NEUTRAL') return false;
-        } else if (c.heroClass !== filterClass && c.heroClass !== 'NEUTRAL') {
-          return false;
+        } else if (editingDeck) {
+          // While editing a deck, decks can only legally hold class +
+          // neutral cards, so the class filter includes neutrals too —
+          // otherwise every deck-editor click gives "where are my neutrals".
+          if (c.heroClass !== filterClass && c.heroClass !== 'NEUTRAL') return false;
+        } else {
+          // Browsing the collection: class filter is literal. Clicking
+          // TALA shows only TALA cards, not TALA + neutrals — neutrals
+          // have their own "Neutral" tab.
+          if (c.heroClass !== filterClass) return false;
         }
       }
       if (filterMana !== null) {
@@ -249,7 +253,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
       if (filterSearch && !c.name.toLowerCase().includes(filterSearch.toLowerCase())) return false;
       return true;
     }).sort((a, b) => a.manaCost - b.manaCost || a.name.localeCompare(b.name));
-  }, [filterClass, filterMana, filterSearch, filterRarity, filterType]);
+  }, [filterClass, filterMana, filterSearch, filterRarity, filterType, editingDeck]);
 
   // Reset page (and clear slide-direction) on filter change so the grid
   // doesn't animate with a stale direction from the last paginate click.
@@ -284,8 +288,10 @@ export function Collection({ uid, onBack }: CollectionProps) {
       if (filterClass !== 'ALL') {
         if (filterClass === 'NEUTRAL') {
           if (c.heroClass !== 'NEUTRAL') return false;
-        } else if (c.heroClass !== filterClass && c.heroClass !== 'NEUTRAL') {
-          return false;
+        } else if (editingDeck) {
+          if (c.heroClass !== filterClass && c.heroClass !== 'NEUTRAL') return false;
+        } else {
+          if (c.heroClass !== filterClass) return false;
         }
       }
       return true;
@@ -306,7 +312,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
         LOCATION: base.filter(c => c.type === 'LOCATION').length,
       },
     };
-  }, [filterClass]);
+  }, [filterClass, editingDeck]);
 
   const editingCounts = useMemo(() => {
     const counts = new Map<string, number>();
@@ -458,7 +464,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
           >
             🎨 Cosmetics
           </button>
-          <span className="text-yellow-400 font-bold text-xs">{dust} Dust</span>
+          {FEATURE_FLAGS.DUST && <span className="text-yellow-400 font-bold text-xs">{dust} Dust</span>}
         </div>
       </div>
 
@@ -746,7 +752,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
                       className={`relative transition-all select-none ${
                         editingDeck && !greyed ? 'cursor-pointer hover:scale-105' : greyed ? 'cursor-not-allowed' : 'cursor-pointer hover:scale-105'
                       }`}
-                      onClick={() => editingDeck ? (!greyed && addCard(c.cardCode)) : setCraftingCard(c.cardCode)}
+                      onClick={() => editingDeck ? (!greyed && addCard(c.cardCode)) : (FEATURE_FLAGS.DUST && setCraftingCard(c.cardCode))}
                       onMouseEnter={(e) => setHoveredCard({ code: c.cardCode, x: e.clientX, y: e.clientY })}
                       onMouseMove={(e) => hoveredCard && setHoveredCard({ code: c.cardCode, x: e.clientX, y: e.clientY })}
                       onMouseLeave={() => setHoveredCard(null)}
@@ -768,7 +774,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
                           ×{count}
                         </div>
                       )}
-                      {!editingDeck && ownedCount > 0 && (
+                      {FEATURE_FLAGS.DUST && !editingDeck && ownedCount > 0 && (
                         <div className={`absolute top-1 right-1 bg-stone-900/80 border text-[8px] font-bold px-1 py-0.5 rounded z-10 leading-none ${
                           entry.golden ? 'border-yellow-400/70 text-yellow-300' : 'border-green-500/60 text-green-300'
                         }`}>

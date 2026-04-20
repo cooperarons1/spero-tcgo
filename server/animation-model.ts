@@ -132,15 +132,28 @@ interface LoadedAnimWeights {
 }
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-// Rank-loss weights (animation-weights-rank.json) actually learn from the
-// data — MSE-trained animation-weights.json collapses to the mean of
-// random params (val loss plateaus at 0.083 regardless of dataset size).
-// Fall back to MSE weights if rank file is missing.
+// v2 (animation-weights-v2.json) appends a 128-dim ResNet18 art embedding
+// to the 62-dim card-metadata features, so the model can distinguish cards
+// with identical metadata by what their art actually depicts. v2 val loss
+// is 0.012 vs v1's 0.083.
+// v1 rank weights (animation-weights-rank.json) trains on metadata only.
+// Earlier MSE weights (animation-weights.json) collapsed to the mean.
+// Load in priority order: v2 → rank → mse.
+const V2_WEIGHTS_PATH = path.join(__dirname, '..', 'data', 'animation-weights-v2.json');
 const RANK_WEIGHTS_PATH = path.join(__dirname, '..', 'data', 'animation-weights-rank.json');
 const MSE_WEIGHTS_PATH = path.join(__dirname, '..', 'data', 'animation-weights.json');
-const WEIGHTS_PATH = fs.existsSync(RANK_WEIGHTS_PATH) ? RANK_WEIGHTS_PATH : MSE_WEIGHTS_PATH;
+const ART_EMBEDS_PATH = path.join(__dirname, '..', 'data', 'animation-art-embeddings.json');
+
+const ART_EMBED_DIM = 128;
+const FEATURE_DIM_V2 = FEATURE_DIM + ART_EMBED_DIM;
+
+let useV2 = false;
+const WEIGHTS_PATH = fs.existsSync(V2_WEIGHTS_PATH)
+  ? (useV2 = true, V2_WEIGHTS_PATH)
+  : fs.existsSync(RANK_WEIGHTS_PATH) ? RANK_WEIGHTS_PATH : MSE_WEIGHTS_PATH;
 
 let animWeights: LoadedAnimWeights | null = null;
+let artEmbeds: Record<string, number[]> | null = null;
 
 function loadAnimWeights(): LoadedAnimWeights | null {
   if (!fs.existsSync(WEIGHTS_PATH)) {
@@ -162,23 +175,37 @@ function loadAnimWeights(): LoadedAnimWeights | null {
   }
 
   const inputDim = raw.W[0]?.[0]?.length ?? 0;
-  if (inputDim !== FEATURE_DIM) {
+  const expectedDim = useV2 ? FEATURE_DIM_V2 : FEATURE_DIM;
+  if (inputDim !== expectedDim) {
     console.warn(
-      `[ANIM-MODEL] Feature dim mismatch: expected ${FEATURE_DIM}, got ${inputDim}. Retrain.`
+      `[ANIM-MODEL] Feature dim mismatch: expected ${expectedDim}, got ${inputDim}. Retrain.`
     );
     return null;
   }
 
   console.log(
-    `[ANIM-MODEL] Loaded animation weights: ${raw.W.length} layers, ` +
+    `[ANIM-MODEL] Loaded animation weights (${useV2 ? 'v2' : 'v1'}): ${raw.W.length} layers, ` +
     `${inputDim}→${raw.W[raw.W.length - 1].length} dims`
   );
 
   return { W: raw.W, b: raw.b, paramNames: raw.paramNames ?? PARAM_DEFS.map(p => p.name) };
 }
 
+function loadArtEmbeds(): Record<string, number[]> | null {
+  if (!fs.existsSync(ART_EMBEDS_PATH)) return null;
+  try {
+    const parsed = JSON.parse(fs.readFileSync(ART_EMBEDS_PATH, 'utf-8'));
+    console.log(`[ANIM-MODEL] Loaded ${Object.keys(parsed).length} art embeddings`);
+    return parsed;
+  } catch (e) {
+    console.warn('[ANIM-MODEL] Failed to parse art embeddings:', e);
+    return null;
+  }
+}
+
 // Try to load on module init
 animWeights = loadAnimWeights();
+if (useV2) artEmbeds = loadArtEmbeds();
 
 export function isAnimModelAvailable(): boolean {
   return animWeights !== null;
@@ -229,6 +256,18 @@ function extractAnimFeatures(cardCode: string, context: AnimContext): number[] {
   // params for this (card, context)). The trainer sees per-sample scores
   // in [0, 1] so the model conditions on this feature.
   features.push(1.0);
+
+  // v2 art-embedding tail: append the 128-dim ResNet18 embedding for this
+  // card's art so the model can distinguish identically-typed cards.
+  if (useV2 && artEmbeds) {
+    const emb = artEmbeds[cardCode];
+    if (emb && emb.length === ART_EMBED_DIM) {
+      features.push(...emb);
+    } else {
+      // Zero-pad when no embedding (token cards, missing PNG) so dims align.
+      for (let i = 0; i < ART_EMBED_DIM; i++) features.push(0);
+    }
+  }
 
   return features;
 }
@@ -296,6 +335,11 @@ function denormalize(normalized: number[]): AnimationParams {
 // so we memoize across broadcasts. A match touches <100 unique cardCodes;
 // ~8 contexts each → cache stays small (<1k entries) for a whole session.
 const animParamsCache = new Map<string, AnimationParams>();
+// Top-level merged-per-card cache — avoids re-merging 8 contexts per card
+// on every game-state broadcast. Card definitions + art embeddings don't
+// change mid-session, so once computed these are valid for the life of
+// the process. Fixes the ~300ms weapon-equip lag spike introduced by v2.
+const cardParamsCache = new Map<string, AnimationParams | null>();
 
 /**
  * Get predicted animation parameters for a card + animation context.
@@ -363,6 +407,9 @@ function contextsForCardType(type: string | undefined): AnimContext[] {
  */
 export function getCardAnimParams(cardCode: string): AnimationParams | null {
   if (!animWeights) return null;
+  const cached = cardParamsCache.get(cardCode);
+  if (cached !== undefined) return cached;
+
   let card: any;
   try {
     card = getCardDef(cardCode);
@@ -370,9 +417,13 @@ export function getCardAnimParams(cardCode: string): AnimationParams | null {
     // Unknown cardCode — getCardDef throws instead of returning null.
     // Graceful degrade so a stale cardCode in game state doesn't kill
     // the broadcast.
+    cardParamsCache.set(cardCode, null);
     return null;
   }
-  if (!card) return null;
+  if (!card) {
+    cardParamsCache.set(cardCode, null);
+    return null;
+  }
 
   const merged: AnimationParams = {};
   for (const ctx of contextsForCardType(card.type)) {
@@ -388,7 +439,9 @@ export function getCardAnimParams(cardCode: string): AnimationParams | null {
       }
     }
   }
-  return Object.keys(merged).length > 0 ? merged : null;
+  const result = Object.keys(merged).length > 0 ? merged : null;
+  cardParamsCache.set(cardCode, result);
+  return result;
 }
 
 /**

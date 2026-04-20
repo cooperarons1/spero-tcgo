@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { CARD_ART_PNGS } from './cardArtPngs';
 import { CARD_ART_ANIMS } from './cardArtAnims';
+import { hasLayers } from './cardArtLayers';
+import { FEATURE_FLAGS } from './featureFlags';
 
 // Shared gradient definitions by theme
 const jimmyGradients = (
@@ -4394,11 +4396,77 @@ function FallbackArt() {
   );
 }
 
+/** Mouse-parallax tilt layer for the 3-layer card art stack.
+ * Separated from CardArt so the useRef/state/handlers don't churn on
+ * every re-render of the parent. Subject layer tilts ±2.5°, background
+ * tilts ±1° in the opposite direction — depth illusion like Live Photos. */
+function LayeredArt({
+  cardCode,
+  className,
+  style,
+  onBgError,
+}: {
+  cardCode: string;
+  className?: string;
+  style: React.CSSProperties;
+  onBgError: () => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [tilt, setTilt] = useState({ rx: 0, ry: 0 });
+  const handleMove = (e: React.MouseEvent) => {
+    const el = ref.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const nx = (e.clientX - rect.left) / rect.width - 0.5;
+    const ny = (e.clientY - rect.top) / rect.height - 0.5;
+    setTilt({ rx: -ny * 5, ry: nx * 5 });
+  };
+  const handleLeave = () => setTilt({ rx: 0, ry: 0 });
+  const tiltOn = FEATURE_FLAGS.CARD_MOUSE_TILT;
+  return (
+    <div
+      ref={ref}
+      className={`relative overflow-hidden ${className ?? ''}`}
+      style={{ ...style, width: '100%', height: '100%', perspective: '600px' }}
+      onMouseMove={tiltOn ? handleMove : undefined}
+      onMouseLeave={tiltOn ? handleLeave : undefined}
+    >
+      {/* Separate tilt wrappers for bg + fg so the keyframe animations
+           (bg-pan / subject-breathe, which set transform) don't clash
+           with the tilt transform. Nested transform contexts compose. */}
+      <div
+        className="absolute inset-0"
+        style={tiltOn ? { transform: `rotateX(${tilt.rx * 0.4}deg) rotateY(${tilt.ry * 0.4}deg)`, transition: 'transform 120ms ease-out' } : undefined}
+      >
+        <img
+          src={`/cards/layers/${cardCode}-bg.png`}
+          alt=""
+          className="layer-bg absolute inset-0 w-full h-full object-cover"
+          loading="lazy"
+          onError={onBgError}
+        />
+      </div>
+      <div
+        className="absolute inset-0"
+        style={tiltOn ? { transform: `rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`, transition: 'transform 120ms ease-out' } : undefined}
+      >
+        <img
+          src={`/cards/layers/${cardCode}-fg.png`}
+          alt=""
+          className="layer-fg absolute inset-0 w-full h-full object-cover"
+          loading="lazy"
+        />
+      </div>
+    </div>
+  );
+}
+
 export function CardArt({
   cardCode,
   className,
   square,
   golden,
+  animParams,
 }: {
   cardCode: string;
   className?: string;
@@ -4413,11 +4481,16 @@ export function CardArt({
    * animated video instead of the static PNG. This is the
    * Hearthstone-style golden-card art motion. */
   golden?: boolean;
+  /** Per-card rank-loss MLP params. When provided + layers exist for
+   * this card, drives the breathe/pan rhythm so each minion has its
+   * own visually distinct motion. */
+  animParams?: Record<string, number>;
 }) {
   const [pngFailed, setPngFailed] = useState(false);
   const [webmFailed, setWebmFailed] = useState(false);
   const hasPng = CARD_ART_PNGS.has(cardCode) && !pngFailed;
   const hasAnim = !!golden && CARD_ART_ANIMS.has(cardCode) && !webmFailed;
+  const hasLayered = FEATURE_FLAGS.CARD_LAYERED_PARALLAX && !pngFailed && hasLayers(cardCode);
 
   if (hasAnim) {
     return (
@@ -4430,6 +4503,37 @@ export function CardArt({
         muted
         playsInline
         onError={() => setWebmFailed(true)}
+      />
+    );
+  }
+
+  if (hasLayered) {
+    // Map MLP params into parallax rhythm. buff_pulse_dur is 0.2-0.8s
+    // (transient-scale) — remap to a 3-6s breathe loop. buff_pulse_scale
+    // 1.0-1.4 → 2-6px vertical amplitude. color_shift_h ±30 → pan
+    // direction + range. Cards without params get mild deterministic
+    // per-cardCode defaults via a tiny hash so the screen doesn't
+    // uniformly beat in sync.
+    const hash = cardCode.split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
+    const pd = animParams?.buff_pulse_dur;
+    const ps = animParams?.buff_pulse_scale;
+    const ch = animParams?.color_shift_h;
+    const breatheDur = pd != null ? 3 + Math.max(0, Math.min(1, (pd - 0.2) / 0.6)) * 3 : 3.2 + (hash % 17) / 10;
+    const breatheAmp = ps != null ? 2 + Math.max(0, Math.min(1, (ps - 1.0) / 0.4)) * 4 : 2 + (hash % 5);
+    const panDur = 12 + (hash % 9);
+    const panRange = ch != null ? Math.max(8, Math.min(28, Math.abs(ch))) * Math.sign(ch || 1) : (hash & 1 ? 1 : -1) * (14 + (hash % 12));
+    const style = {
+      '--breathe-dur': `${breatheDur.toFixed(2)}s`,
+      '--breathe-amp': `${breatheAmp.toFixed(1)}px`,
+      '--pan-dur': `${panDur}s`,
+      '--pan-range': `${panRange}px`,
+    } as React.CSSProperties;
+    return (
+      <LayeredArt
+        cardCode={cardCode}
+        className={className}
+        style={style}
+        onBgError={() => setPngFailed(true)}
       />
     );
   }

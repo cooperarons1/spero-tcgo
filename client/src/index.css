@@ -538,6 +538,29 @@ body {
   100% { transform: translateX(360%); }
 }
 
+/* ═══ Per-card layered parallax — driven by rank-loss MLP params.
+    Each card's foreground breathes vertically (subject-breathe) and
+    its background pans horizontally (bg-pan). Duration + amplitude
+    come from --breathe-dur / --breathe-amp / --pan-dur / --pan-range
+    CSS vars set inline on the container from the per-card anim params,
+    so every minion on screen breathes at a slightly different rhythm.
+    Falls back to sensible defaults when vars aren't set. ═══ */
+@keyframes subject-breathe {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(calc(-1 * var(--breathe-amp, 3px))); }
+}
+@keyframes bg-pan {
+  0%, 100% { transform: translateX(calc(-0.5 * var(--pan-range, 20px))) scale(1.06); }
+  50%      { transform: translateX(calc( 0.5 * var(--pan-range, 20px))) scale(1.06); }
+}
+.layer-bg {
+  animation: bg-pan var(--pan-dur, 16s) ease-in-out infinite;
+  filter: brightness(0.92) contrast(1.05);
+}
+.layer-fg {
+  animation: subject-breathe var(--breathe-dur, 4s) ease-in-out infinite;
+}
+
 /* ═══ Golden overlay effects — layered INSIDE the card art region on
     gold variants. Each layer is driven by CSS custom properties from
     GameBoard.tsx::getAnimStyle so per-card parameters (predicted by

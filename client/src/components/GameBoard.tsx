@@ -159,7 +159,7 @@ const HERO_POWER_TARGETING: Partial<Record<HeroClass, string>> = {
 const HERO_POWER_DESC: Record<HeroClass, string> = {
   JIMMY: 'Orra Arrow: Deal 2 damage to any target',
   TALA: 'Healing Touch: Restore 2 Health to any character',
-  DEREK: 'Tinker: Draw a card',
+  DEREK: 'Tinker: Draw a card, take 2 damage',
   ANDERS: 'Hockbandy Strike: Deal 2 damage to a minion and Freeze it',
   DES: 'Orra Siphon: Deal 1 damage to the enemy hero',
   ASTRID: "Nature's Touch: Give a friendly minion +1/+1",
@@ -1045,104 +1045,31 @@ function HandCard({
   }, [isComboCard]);
 
   if (!def) return null;
-  const classColor = CLASS_COLORS[def.heroClass] ?? '#d4a520';
-  const rarityColor = RARITY_COLORS[def.rarity];
-  const isLocation = def.type === 'LOCATION';
 
   return (
     <button
       onClick={onClick}
       onPointerDown={onPointerDown}
-      // duration-300 ease-out makes the select lift / hover lift smooth
-      // instead of snapping. Tailwind's default transition-all is 150ms
-      // ease which is too fast to read for a +6 translate + 1.1 scale.
-      className={`group relative flex h-44 w-[7.5rem] flex-shrink-0 flex-col items-center rounded-xl border-2 p-1 transition-all duration-300 ease-out overflow-hidden card-frame touch-none
-        ${isComboCard
-          ? 'ring-2 ring-yellow-400/80 shadow-[0_0_16px_4px_rgba(234,179,8,0.5)] border-yellow-400'
-          : ''}
+      className={`relative flex flex-shrink-0 rounded-xl transition-all duration-300 ease-out touch-none
+        ${isComboCard ? 'ring-2 ring-yellow-400/80 shadow-[0_0_16px_4px_rgba(234,179,8,0.5)]' : ''}
         ${comboPopping ? 'animate-combo-ring-pop' : ''}
         ${isSelected
-          ? 'border-green-400 -translate-y-6 scale-110 z-20 shadow-[0_0_20px_4px_rgba(34,197,94,0.5)]'
+          ? '-translate-y-6 scale-110 z-20 ring-[3px] ring-green-400 shadow-[0_0_20px_4px_rgba(34,197,94,0.5)]'
           : canPlay
-            ? 'hover:-translate-y-4 hover:scale-105 hover:z-10 cursor-pointer hover:shadow-[0_0_16px_rgba(245,158,11,0.3)] ring-2 ring-green-400/60 shadow-[0_0_8px_rgba(34,197,94,0.4)]'
-            : 'border-stone-500 opacity-60 cursor-not-allowed'}
+            ? 'hover:-translate-y-4 hover:scale-105 hover:z-10 cursor-pointer ring-2 ring-green-400/60 shadow-[0_0_8px_rgba(34,197,94,0.4)]'
+            : 'opacity-60 cursor-not-allowed'}
         ${isDragging ? 'dragging-card' : ''}
         ${isNew ? 'animate-card-draw-in' : ''}
       `}
-      style={{
-        borderTopColor: classColor,
-        borderTopWidth: '3px',
-        borderColor: isSelected ? undefined : (canPlay ? rarityColor + '90' : undefined),
-      }}
     >
-      {/* Mana gem */}
-      <div className="absolute -left-1.5 -top-1.5 z-10"><ManaGem value={def.manaCost} size={30} /></div>
-      {/* Card Art — larger. Gold overlay + shimmer for foil copies. */}
-      <div className={`relative w-full h-24 mt-3 rounded overflow-hidden bg-stone-600/60 flex-shrink-0 ${card.isGolden ? 'shadow-[inset_0_0_0_2px_rgba(251,191,36,0.8)]' : ''}`}>
-        <CardArt cardCode={card.cardCode!} className="w-full h-full" golden={card.isGolden && FEATURE_FLAGS.GOLDEN_CARDS} />
-        {card.isGolden && FEATURE_FLAGS.GOLDEN_CARDS && (
-          <>
-            <div className="absolute -inset-y-4 -left-1/2 w-1/3 pointer-events-none animate-[shimmer_3s_linear_infinite]" style={{ background: 'linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.55) 50%, transparent 70%)' }} />
-            <GoldenEffectsOverlay
-              cardCode={card.cardCode!}
-              rarity={(def?.rarity ?? 'COMMON') as any}
-              params={handAnimParams}
-              enabled
-            />
-          </>
-        )}
-      </div>
-      {/* Rarity gem — diamond shape centered between art and name */}
-      <div className="flex justify-center -mt-1.5 z-10">
-        <div
-          className="w-3.5 h-3.5 rotate-45 border border-white/30"
-          style={{ backgroundColor: rarityColor, boxShadow: `0 0 8px 2px ${rarityColor}90, inset 0 1px 2px rgba(255,255,255,0.3)` }}
+      <CardComponent cardCode={card.cardCode!} small golden={card.isGolden && FEATURE_FLAGS.GOLDEN_CARDS} />
+      {card.isGolden && FEATURE_FLAGS.GOLDEN_CARDS && (
+        <GoldenEffectsOverlay
+          cardCode={card.cardCode!}
+          rarity={(def?.rarity ?? 'COMMON') as any}
+          params={handAnimParams}
+          enabled
         />
-      </div>
-      {/* Name banner */}
-      <div className="w-full card-name-banner px-1 py-0.5 mt-0.5">
-        <span className={`font-bold text-amber-100 leading-tight w-full text-center block ${
-          def.name.length > 18 ? 'text-[8px]' : def.name.length > 12 ? 'text-[9px]' : 'text-[10px]'
-        }`}>
-          {def.name}
-        </span>
-      </div>
-      {/* Text area with subtle inner frame */}
-      <div className="w-full px-1 flex-1 min-h-0 overflow-hidden bg-black/10 rounded-sm mt-0.5">
-        <span className="text-[7px] text-amber-200/60 text-center leading-tight line-clamp-3 block px-0.5">
-          {def.text}
-        </span>
-      </div>
-      {/* Stats */}
-      {def.type === 'MINION' && (
-        <div className="flex w-full justify-between items-center px-0.5 shrink-0 mt-0.5">
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-yellow-700 border border-yellow-300 text-xs font-extrabold text-white shadow">
-            {def.attack}
-          </span>
-          {def.minionType && (
-            <span className="text-[7px] font-bold text-amber-300/70">{def.minionType}</span>
-          )}
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-red-800 border border-red-400 text-xs font-extrabold text-white shadow">
-            {def.health}
-          </span>
-        </div>
-      )}
-      {def.type === 'WEAPON' && (
-        <div className="flex w-full justify-between px-0.5 shrink-0 mt-0.5">
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-yellow-700 border border-yellow-300 text-xs font-extrabold text-white shadow">
-            {def.attack}
-          </span>
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-emerald-700 border border-emerald-300 text-xs font-extrabold text-white shadow">
-            {def.health}
-          </span>
-        </div>
-      )}
-      {isLocation && (
-        <div className="flex w-full justify-center px-0.5 shrink-0 mt-0.5">
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-emerald-700 border border-emerald-300 text-xs font-extrabold text-white shadow">
-            {def.health}
-          </span>
-        </div>
       )}
     </button>
   );

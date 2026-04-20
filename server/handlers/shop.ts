@@ -57,6 +57,26 @@ export function registerShopHandlers(
       const totalCost = PACK_BUNDLE_COSTS[count];
 
       const userRef = adminDb.collection('users').doc(uid);
+      const admin = isAdminUid(uid);
+
+      // Admins bypass the Firestore economy entirely — no gold deduction,
+      // no ownership tracking (get-inventory synthesizes the full pool +
+      // 999k gold/dust). Just roll packs and return the cards so the
+      // opening flow can be exercised for testing.
+      if (admin) {
+        const allCards: { cardCode: string; rarity: string; isNew: boolean }[] = [];
+        for (let i = 0; i < count; i++) {
+          const r = openPack({}, 0, 0);
+          for (const card of r.cards) allCards.push(card);
+        }
+        socket.emit('pack-opened', {
+          cards: allCards,
+          dustGained: 0,
+          newGold: 999999,
+          newDust: 999999,
+        });
+        return;
+      }
 
       // ── Atomic transaction ──
       const result = await adminDb.runTransaction(async (tx) => {
@@ -133,6 +153,11 @@ export function registerShopHandlers(
       const cost = CRAFT_COSTS[def.rarity] ?? 40;
       const max = def.rarity === 'LEGENDARY' ? 1 : 2;
 
+      if (isAdminUid(uid)) {
+        socket.emit('craft-success', { cardCode: data.cardCode, newDust: 999999, newCount: max });
+        return;
+      }
+
       const userRef = adminDb.collection('users').doc(uid);
 
       const result = await adminDb.runTransaction(async (tx) => {
@@ -170,6 +195,12 @@ export function registerShopHandlers(
       const { getCardDef } = await import('../cards.js');
       const def = getCardDef(data.cardCode);
       const dustValue = DUST_VALUES[def.rarity] ?? 5;
+      const max = def.rarity === 'LEGENDARY' ? 1 : 2;
+
+      if (isAdminUid(uid)) {
+        socket.emit('disenchant-success', { cardCode: data.cardCode, newDust: 999999, dustGained: dustValue, newCount: max });
+        return;
+      }
 
       const userRef = adminDb.collection('users').doc(uid);
 

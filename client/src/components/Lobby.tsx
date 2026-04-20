@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import type { LobbyState } from '../../../shared/types';
 import type { User } from 'firebase/auth';
 import { socket } from '../socket';
+import { FEATURE_FLAGS } from '../utils/featureFlags';
 
 interface LobbyProps {
   lobby: LobbyState | null;
@@ -345,12 +346,14 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
           >
             Packs
           </button>
-          <button
-            onClick={onBattlePass}
-            className="bg-stone-800 border border-purple-700/30 text-purple-300 font-bold py-2 px-3.5 rounded-lg text-xs hover:bg-stone-700 active:scale-95 transition-all cursor-pointer shrink-0"
-          >
-            Pass
-          </button>
+          {FEATURE_FLAGS.BATTLEPASS && (
+            <button
+              onClick={onBattlePass}
+              className="bg-stone-800 border border-purple-700/30 text-purple-300 font-bold py-2 px-3.5 rounded-lg text-xs hover:bg-stone-700 active:scale-95 transition-all cursor-pointer shrink-0"
+            >
+              Pass
+            </button>
+          )}
           <button
             onClick={onMatchHistory}
             className="bg-stone-800 border border-stone-700/50 text-gray-400 font-bold py-2 px-3.5 rounded-lg text-xs hover:bg-stone-700 active:scale-95 transition-all cursor-pointer shrink-0"
@@ -395,7 +398,7 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
                 <span className="text-gray-400">Gold</span>
                 <span className="text-yellow-400 font-bold">+{unclaimed.rewards.goldReward}</span>
               </div>
-              {unclaimed.rewards.dustReward > 0 && (
+              {FEATURE_FLAGS.DUST && unclaimed.rewards.dustReward > 0 && (
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-400">Dust</span>
                   <span className="text-blue-300 font-bold">+{unclaimed.rewards.dustReward}</span>
@@ -434,7 +437,7 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
             <h2 className="text-green-300 font-bold text-xl mb-3">Rewards Claimed!</h2>
             <div className="bg-stone-900/60 rounded-xl p-4 mb-4 space-y-2 text-sm">
               <div className="text-yellow-400 font-bold">+{rewardsClaimed.goldReward} Gold</div>
-              {rewardsClaimed.dustReward > 0 && <div className="text-blue-300 font-bold">+{rewardsClaimed.dustReward} Dust</div>}
+              {FEATURE_FLAGS.DUST && rewardsClaimed.dustReward > 0 && <div className="text-blue-300 font-bold">+{rewardsClaimed.dustReward} Dust</div>}
               <div className="text-amber-300 font-bold">+{rewardsClaimed.packReward} Packs ({rewardsClaimed.packReward * 100}g)</div>
               {rewardsClaimed.cardBack && <div className="text-purple-300 font-bold">New Card Back!</div>}
             </div>

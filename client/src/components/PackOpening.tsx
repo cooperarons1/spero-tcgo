@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { socket } from '../socket';
 import { Card } from './Card';
+import { FEATURE_FLAGS } from '../utils/featureFlags';
 
 interface PackCard {
   cardCode: string;
@@ -115,7 +116,7 @@ export function PackOpening({ onBack, gold }: PackOpeningProps) {
         <h1 className="text-lg font-bold text-amber-100 tracking-wide">OPEN PACKS</h1>
         <div className="flex items-center gap-3">
           <span className="text-yellow-400 font-bold text-sm">{currentGold} Gold</span>
-          <span className="text-blue-400 font-bold text-sm">{currentDust} Dust</span>
+          {FEATURE_FLAGS.DUST && <span className="text-blue-400 font-bold text-sm">{currentDust} Dust</span>}
         </div>
       </div>
 
@@ -208,7 +209,7 @@ export function PackOpening({ onBack, gold }: PackOpeningProps) {
               )}
               {allRevealed && (
                 <>
-                  {dustGained > 0 && (
+                  {FEATURE_FLAGS.DUST && dustGained > 0 && (
                     <span className="text-blue-400 text-sm font-bold">+{dustGained} Dust (from extras)</span>
                   )}
                   <button
