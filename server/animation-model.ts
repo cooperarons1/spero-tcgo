@@ -132,7 +132,13 @@ interface LoadedAnimWeights {
 }
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const WEIGHTS_PATH = path.join(__dirname, '..', 'data', 'animation-weights.json');
+// Rank-loss weights (animation-weights-rank.json) actually learn from the
+// data — MSE-trained animation-weights.json collapses to the mean of
+// random params (val loss plateaus at 0.083 regardless of dataset size).
+// Fall back to MSE weights if rank file is missing.
+const RANK_WEIGHTS_PATH = path.join(__dirname, '..', 'data', 'animation-weights-rank.json');
+const MSE_WEIGHTS_PATH = path.join(__dirname, '..', 'data', 'animation-weights.json');
+const WEIGHTS_PATH = fs.existsSync(RANK_WEIGHTS_PATH) ? RANK_WEIGHTS_PATH : MSE_WEIGHTS_PATH;
 
 let animWeights: LoadedAnimWeights | null = null;
 
