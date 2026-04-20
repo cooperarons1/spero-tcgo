@@ -58,8 +58,15 @@ def load_svd_pipeline():
         variant="fp16" if dtype == torch.float16 else None,
     )
     pipe = pipe.to(device)
-    # On MPS, chunked decode avoids VRAM spikes above the 24GB unified pool.
+    # Memory discipline for M5 unified pool — attention slicing "max"
+    # + VAE slicing caps the peak allocation during decode which was
+    # spiking past 120GB on 14 frames. Keeps pipeline usable alongside
+    # the rest of the OS.
     pipe.enable_attention_slicing("max")
+    if hasattr(pipe, "vae") and hasattr(pipe.vae, "enable_slicing"):
+        pipe.vae.enable_slicing()
+    if hasattr(pipe, "vae") and hasattr(pipe.vae, "enable_tiling"):
+        pipe.vae.enable_tiling()
     return pipe, device
 
 
@@ -100,7 +107,7 @@ def card_has_png(card_code: str) -> bool:
 
 
 def generate_card(pipe, device: str, card_code: str, frames: int, fps: int,
-                  decode_chunk: int = 8) -> bool:
+                  decode_chunk: int = 2) -> bool:
     """Run SVD on one card and encode to WebM. Returns True on success."""
     src = PNG_DIR / f"{card_code}.png"
     if not src.exists():
