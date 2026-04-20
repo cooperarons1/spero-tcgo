@@ -11,8 +11,10 @@ import { checkHeroPowerUpgrade } from './upgrade.js';
 
 /** Create a BoardMinion from a card code. Pass `turnNumber` to stamp the
  * summon turn — the authoritative summoning-sickness gate. Defaults to 0
- * for test fixtures that aren't inside a real game. */
-export function createBoardMinion(cardCode: string, turnNumber: number = 0): BoardMinion {
+ * for test fixtures that aren't inside a real game. Pass `golden=true`
+ * to mark the minion as a foil copy (drives the gold frame + shimmer
+ * in the client). */
+export function createBoardMinion(cardCode: string, turnNumber: number = 0, golden: boolean = false): BoardMinion {
   const def = getCardDef(cardCode);
   const minion: BoardMinion = {
     instanceId: nextTransientInstanceId('bm'),
@@ -28,6 +30,7 @@ export function createBoardMinion(cardCode: string, turnNumber: number = 0): Boa
     hasStealthUntilAttack: false,
     enchantments: [],
     summonedTurn: turnNumber,
+    isGolden: golden,
   };
   applySummonRules(minion);
   return minion;

@@ -737,11 +737,10 @@ export function Collection({ uid, onBack }: CollectionProps) {
                         small
                         golden={entry.golden}
                       />
-                      {entry.golden && (
-                        <div className="absolute -top-2 left-1/2 -translate-x-1/2 z-10 px-1.5 py-px rounded bg-gradient-to-b from-yellow-400 to-amber-600 border border-amber-300 text-[8px] font-black text-stone-900 shadow tracking-wider">
-                          GOLDEN
-                        </div>
-                      )}
+                      {/* The gold tint + shimmer on the card itself
+                           already communicates 'this is the golden
+                           variant' — removed the redundant GOLDEN text
+                           ribbon per user feedback. */}
                       {editingDeck && count > 0 && !entry.golden && (
                         <div className={`absolute top-1 right-1 text-white text-[8px] font-bold px-1 py-0.5 rounded shadow z-10 leading-none ${
                           count >= max ? 'bg-amber-600' : 'bg-stone-900/80 border border-amber-600/60'

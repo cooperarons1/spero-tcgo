@@ -35,10 +35,12 @@ export function getClientState(game: GameState, playerId: string): ClientGameSta
   const me = game.players[myIdx];
   const opp = game.players[oppIdx];
 
-  // My hand: full visibility
+  // My hand: full visibility (including isGolden so the client renders
+  // the gold frame / shimmer / animated art for foil draws).
   const myHand: ClientCardInstance[] = me.hand.map((c) => ({
     instanceId: c.instanceId,
     cardCode: c.cardCode,
+    ...(c.isGolden ? { isGolden: true } : {}),
   }));
 
   const opponent: ClientPlayerInfo = {

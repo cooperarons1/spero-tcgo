@@ -205,8 +205,12 @@ export function Card({ cardCode, onClick, selected, greyed, small, className, go
   const isLocation = def.type === 'LOCATION';
   const isSecret = isSpell && !!def.secretTrigger;
   const hasStats = isMinion || isWeapon;
-  const border = classBorder[def.heroClass] || classBorder.NEUTRAL;
-  const frameBg = classFrameBg[def.heroClass] || classFrameBg.NEUTRAL;
+  // Golden variants use a gold border + gold-tinted frame across the
+  // whole card, not just the art — the entire frame reads as gold leaf.
+  const border = golden ? 'border-amber-300' : (classBorder[def.heroClass] || classBorder.NEUTRAL);
+  const frameBg = golden
+    ? 'bg-gradient-to-b from-amber-700 via-amber-800 to-amber-950'
+    : (classFrameBg[def.heroClass] || classFrameBg.NEUTRAL);
 
   return (
     <button

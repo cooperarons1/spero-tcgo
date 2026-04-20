@@ -3,10 +3,11 @@ import { STARTER_DECKS } from '../shared/starterDecks.js';
 
 let nextInstanceId = 1;
 
-export function makeInstance(cardCode: string): CardInstance {
+export function makeInstance(cardCode: string, isGolden: boolean = false): CardInstance {
   return {
     instanceId: `ci-${nextInstanceId++}`,
     cardCode,
+    ...(isGolden ? { isGolden: true } : {}),
   };
 }
 
@@ -56,9 +57,12 @@ export function getStarterDeckHeroClass(deckId: string): HeroClass {
   return deck?.heroClass ?? 'JIMMY';
 }
 
-/** Create a deck from a list of card codes */
-export function createDeckFromList(cardCodes: string[]): CardInstance[] {
-  return shuffle(cardCodes.map(code => makeInstance(code)));
+/** Create a deck from a list of card codes. `goldenCodes` (if provided)
+ * is a Set of cardCodes the player owns as golden copies — those cards
+ * enter the deck with isGolden=true. Non-owners just get the regular
+ * copy. */
+export function createDeckFromList(cardCodes: string[], goldenCodes?: Set<string>): CardInstance[] {
+  return shuffle(cardCodes.map(code => makeInstance(code, !!goldenCodes?.has(code))));
 }
 
 export function shuffle<T>(arr: T[]): T[] {

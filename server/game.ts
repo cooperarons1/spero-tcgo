@@ -47,6 +47,10 @@ export function createGame(
   options?: {
     deckLists?: [string[] | null, string[] | null];
     firstPlayerIndex?: 0 | 1;
+    /** Per-player set of cardCodes the player owns as golden copies.
+     * Cards in the deck whose code is in the set enter with
+     * isGolden=true on the CardInstance. */
+    goldenCodes?: [Set<string>, Set<string>];
   }
 ): GameState {
   if (playerEntries.length !== 2) throw new Error('Exactly 2 players required');
@@ -56,7 +60,9 @@ export function createGame(
 
   let decks: [CardInstance[], CardInstance[]];
   if (options?.deckLists?.[0] && options?.deckLists?.[1]) {
-    decks = [createDeckFromList(options.deckLists[0]), createDeckFromList(options.deckLists[1])];
+    const g0 = options.goldenCodes?.[0];
+    const g1 = options.goldenCodes?.[1];
+    decks = [createDeckFromList(options.deckLists[0], g0), createDeckFromList(options.deckLists[1], g1)];
   } else {
     decks = createTwoDecks();
   }

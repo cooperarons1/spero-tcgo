@@ -62,7 +62,7 @@ export function playCard(
     game.playerStats[pIdx as 0 | 1].manaSpent += def.manaCost;
     player.hand.splice(cardIdx, 1);
 
-    const minion = createBoardMinion(cardInst.cardCode, game.turnNumber);
+    const minion = createBoardMinion(cardInst.cardCode, game.turnNumber, !!cardInst.isGolden);
     // Clamp the requested insert position to [0, board.length]. The
     // earlier `Math.min(pos, board.length)` allowed pos=-1 to slip
     // through — JavaScript Array.splice treats negative indices as

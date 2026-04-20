@@ -8,6 +8,22 @@ import { addLog } from '../log.js';
 import { generateAIPlayerId, randomAIName } from '../ai.js';
 import { STARTER_DECKS } from '../../shared/starterDecks.js';
 import { adminDb } from '../firebaseAdmin.js';
+import { isAdminUid } from '../admin.js';
+
+// Build the golden-cards Set for a given user. Admins get every card
+// as gold; regular accounts use their Firestore `ownedGolden` map.
+async function buildGoldenCodes(uid: string, cards: string[]): Promise<Set<string>> {
+  if (isAdminUid(uid)) {
+    return new Set(cards);
+  }
+  try {
+    const doc = await adminDb.collection('users').doc(uid).get();
+    const ownedGolden = (doc.data()?.ownedGolden ?? {}) as Record<string, number>;
+    return new Set(cards.filter(c => (ownedGolden[c] ?? 0) > 0));
+  } catch {
+    return new Set();
+  }
+}
 import {
   validated,
   validatePlayerDeck,
@@ -147,7 +163,11 @@ export function registerGameHandlers(
       { id: uids[1], name: name1, heroClass: d1.heroClass },
     ];
 
-    room.game = createGame(entries, { deckLists: [d0.cards, d1.cards] });
+    const [g0, g1] = await Promise.all([
+      buildGoldenCodes(uids[0], d0.cards),
+      buildGoldenCodes(uids[1], d1.cards),
+    ]);
+    room.game = createGame(entries, { deckLists: [d0.cards, d1.cards], goldenCodes: [g0, g1] });
     room.lastFirstPlayerIndex = room.game.currentPlayerIndex;
 
     startRoomTimer(room, broadcastGameState);

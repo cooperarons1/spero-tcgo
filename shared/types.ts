@@ -156,6 +156,9 @@ export interface Enchantment {
 export interface CardInstance {
   instanceId: string;
   cardCode: string;
+  /** Set when the drawn copy is the golden/foil variant. Drives
+   * gold-frame + shimmer + looping art animation in the renderer. */
+  isGolden?: boolean;
 }
 
 // ─── Board Minion (in-play instance) ───
@@ -173,6 +176,9 @@ export interface BoardMinion {
   isSilenced: boolean;
   hasStealthUntilAttack: boolean;
   enchantments: Enchantment[];
+  /** Set when the summoned minion came from the golden/foil variant
+   * of the card. Carried over from the played CardInstance. */
+  isGolden?: boolean;
   // Turn this minion was summoned on. Authoritative gate for summoning
   // sickness: minion can attack if current turn > summonedTurn (or has
   // CHARGE). Defensive backstop in case canAttack gets stuck false due
@@ -330,6 +336,7 @@ export interface PendingInteraction {
 export interface ClientCardInstance {
   instanceId: string;
   cardCode: string | null; // null if in opponent's hand
+  isGolden?: boolean;
 }
 
 export interface ClientPlayerInfo {
