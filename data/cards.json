@@ -2853,7 +2853,7 @@
   {
     "cardCode": "DRK028",
     "name": "Sir Helio, Mech Paladin",
-    "manaCost": 6,
+    "manaCost": 5,
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
@@ -3796,7 +3796,7 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "LEGENDARY",
-    "attack": 7,
+    "attack": 8,
     "health": 7,
     "text": "Taunt. Deathrattle: Summon two 3/3 mechs.",
     "flavor": "The last line of defense. Literally.",
@@ -4582,7 +4582,7 @@
   {
     "cardCode": "DRK041",
     "name": "Talbot L",
-    "manaCost": 6,
+    "manaCost": 5,
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "LEGENDARY",
@@ -6194,38 +6194,38 @@
   {
     "cardCode": "DRK050",
     "name": "Precision Strike",
-    "manaCost": 3,
+    "manaCost": 2,
     "type": "SPELL",
     "heroClass": "DEREK",
     "rarity": "RARE",
     "attack": 0,
     "health": 0,
-    "text": "Deal 6 damage to a minion.",
+    "text": "Deal 5 damage to a minion.",
     "flavor": "Measure twice. Cut once. Measure again just to be sure.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE",
       "target": "TARGET_MINION",
-      "value": 6
+      "value": 5
     }
   },
   {
     "cardCode": "DRK051",
     "name": "Short Circuit",
-    "manaCost": 4,
+    "manaCost": 3,
     "type": "SPELL",
     "heroClass": "DEREK",
     "rarity": "EPIC",
     "attack": 0,
     "health": 0,
-    "text": "Deal 4 damage to all enemy minions. Gain 3 armor.",
+    "text": "Deal 5 damage to all enemy minions. Gain 3 armor.",
     "flavor": "The whole system goes dark. Only you had a generator.",
     "keywords": [],
     "spellEffects": [
       {
         "type": "DEAL_DAMAGE_ALL_ENEMIES",
         "target": "ALL_ENEMY_MINIONS",
-        "value": 4
+        "value": 5
       },
       {
         "type": "GAIN_ARMOR",
@@ -6280,13 +6280,13 @@
   {
     "cardCode": "DRK060",
     "name": "The Architect",
-    "manaCost": 6,
+    "manaCost": 5,
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "LEGENDARY",
     "attack": 6,
     "health": 8,
-    "text": "Taunt. Battlecry: Gain 12 armor and draw 2 cards.",
+    "text": "Taunt. Battlecry: Gain 15 armor and draw 2 cards.",
     "flavor": "The blueprints were never found. Perhaps they were never needed.",
     "keywords": [
       "TAUNT",
@@ -6296,7 +6296,7 @@
       {
         "type": "GAIN_ARMOR",
         "target": "NONE",
-        "value": 12
+        "value": 15
       },
       {
         "type": "DRAW_CARDS",
@@ -6329,7 +6329,7 @@
   {
     "cardCode": "DRK062",
     "name": "Counter-Measure",
-    "manaCost": 4,
+    "manaCost": 3,
     "type": "SPELL",
     "heroClass": "DEREK",
     "rarity": "RARE",
@@ -6373,5 +6373,74 @@
       "target": "NONE",
       "value": 5
     }
+  },
+  {
+    "cardCode": "DRK070",
+    "name": "Rebuild",
+    "manaCost": 3,
+    "type": "SPELL",
+    "heroClass": "DEREK",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Gain 6 armor. Draw 2 cards.",
+    "flavor": "Every time we tear it down, it comes back stronger.",
+    "keywords": [],
+    "spellEffects": [
+      {
+        "type": "GAIN_ARMOR",
+        "target": "NONE",
+        "value": 6
+      },
+      {
+        "type": "DRAW_CARDS",
+        "target": "NONE",
+        "value": 2
+      }
+    ]
+  },
+  {
+    "cardCode": "DRK071",
+    "name": "Reactor Core",
+    "manaCost": 4,
+    "type": "MINION",
+    "heroClass": "DEREK",
+    "rarity": "EPIC",
+    "attack": 4,
+    "health": 5,
+    "text": "Battlecry: Gain 6 armor. Taunt.",
+    "flavor": "It keeps the lights on. And the walls up.",
+    "keywords": [
+      "BATTLECRY",
+      "TAUNT"
+    ],
+    "battlecryEffects": [
+      {
+        "type": "GAIN_ARMOR",
+        "target": "NONE",
+        "value": 6
+      }
+    ]
+  },
+  {
+    "cardCode": "DRK072",
+    "name": "Overclock",
+    "manaCost": 5,
+    "type": "SPELL",
+    "heroClass": "DEREK",
+    "rarity": "EPIC",
+    "attack": 0,
+    "health": 0,
+    "text": "Give your minions +2/+2 and Taunt.",
+    "flavor": "Run them hotter. They can handle it. Probably.",
+    "keywords": [],
+    "spellEffects": [
+      {
+        "type": "BUFF_ALL_FRIENDLY_MINIONS",
+        "target": "ALL_FRIENDLY_MINIONS",
+        "value": 2,
+        "extra": "TAUNT"
+      }
+    ]
   }
 ]
