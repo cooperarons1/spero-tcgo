@@ -1266,9 +1266,11 @@ export default function GameBoard({
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [emoteOpen, setEmoteOpen] = useState(false);
   const [myEmote, setMyEmote] = useState<string | null>(null);
-  // Mute toggle — click the opponent's hero portrait to silence their
-  // emotes (and any future chat). Persists across the match via state.
+  // Mute toggle — clicking the opponent's hero (outside of an attack or
+  // target-resolution context) pops a small bubble with a Mute/Unmute
+  // button.
   const [opponentMuted, setOpponentMuted] = useState(false);
+  const [showMuteBubble, setShowMuteBubble] = useState(false);
   const emoteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Auto-close emote popup after 3 seconds
@@ -2474,10 +2476,26 @@ export default function GameBoard({
           {opponentEmote}
         </div>
       )}
-      {opponentMuted && (
-        <div className="fixed right-8 top-24 z-30 rounded-lg bg-stone-900/80 border border-stone-600 px-3 py-1 text-xs text-stone-400 shadow">
-          🔇 muted — shift-click opponent to unmute
-        </div>
+      {/* Mute bubble — pops up when you click the opponent hero. Speech-
+           bubble tail points down toward the hero portrait area. Click
+           toggles muted state, then auto-closes. */}
+      {showMuteBubble && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setShowMuteBubble(false)} />
+          <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 animate-bounce-in">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpponentMuted(m => !m);
+                setShowMuteBubble(false);
+              }}
+              className="relative rounded-2xl bg-stone-800 border-2 border-amber-500/70 px-5 py-3 text-sm font-bold text-amber-100 shadow-xl hover:bg-stone-700 cursor-pointer"
+            >
+              {opponentMuted ? '🔊 Unmute Opponent' : '🔇 Mute Opponent'}
+              <span className="absolute left-1/2 -bottom-2 -translate-x-1/2 w-0 h-0 border-l-[8px] border-r-[8px] border-t-[10px] border-l-transparent border-r-transparent border-t-amber-500/70" />
+            </button>
+          </div>
+        </>
       )}
 
       {/* My Emote */}
@@ -2530,14 +2548,15 @@ export default function GameBoard({
             canUseHeroPower={false}
             isValidTarget={validTargetIds.has(`hero-${1 - gs.myPlayerIndex}`)}
             onHeroPowerClick={() => {}}
-            onHeroClick={(e) => {
-              // Alt/right-click mutes; regular click still targets the hero.
-              // Mute is a toggle — second alt-click unmutes.
-              if (e && ((e as any).altKey || (e as any).shiftKey)) {
-                setOpponentMuted(m => !m);
+            onHeroClick={() => {
+              // If there's an active click-targeting flow (play-card or
+              // hero-power), let that claim the click. Otherwise pop the
+              // mute bubble.
+              if (targeting.type === 'play-card' || targeting.type === 'hero-power') {
+                handleEnemyTargetClick(`hero-${1 - gs.myPlayerIndex}`);
                 return;
               }
-              handleEnemyTargetClick(`hero-${1 - gs.myPlayerIndex}`);
+              setShowMuteBubble(s => !s);
             }}
             heroDamage={opHeroDamage}
             secretCount={gs.opponent.secretCount}
