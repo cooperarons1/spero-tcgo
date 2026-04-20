@@ -6,13 +6,21 @@ client/dist
 .git
 *.md
 
-# Exclude ALL of data/ then whitelist only the runtime files the server
-# reads. Previous list-based exclusions kept missing huge files
-# (sim-history-*.jsonl at 100 GB each, alt neural-eval weights, etc.).
-data/**
-!data/cards.json
-!data/cardArtMap.json
-!data/ai-weights.json
-!data/neural-eval-weights.json
-!data/animation-weights.json
-!data/animation-weights-rank.json
+# Exclude only the giant training/audit files — keep the data/ directory
+# itself and its runtime files (cards.json, *-weights.json, etc.) so the
+# Dockerfile's `COPY data/` step works.
+data/balance-audit-*
+data/sim-history-*
+data/animation-training.jsonl*
+data/animation-preview/
+data/animation-checkpoint.json
+data/teacher-*
+data/llama-*
+data/neural-eval-weights.runC*.json
+data/neural-eval-weights.runC*.bak
+data/neural-eval-weights.runD*.json
+data/neural-eval-weights.runD*.bak
+data/neural-eval-weights.runE*.json
+data/neural-eval-weights.runE*.bak
+data/neural-eval-weights.runF*.json
+data/neural-eval-weights.runF*.bak
