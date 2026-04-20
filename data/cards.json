@@ -886,14 +886,14 @@
     "rarity": "COMMON",
     "attack": 0,
     "health": 0,
-    "text": "Deal 2 damage to a random enemy minion. Draw a card.",
+    "text": "Deal 3 damage to an enemy minion. Draw a card.",
     "flavor": "Adjust surroundings. If surroundings resist, adjust harder.",
     "keywords": [],
     "spellEffects": [
       {
-        "type": "DEAL_DAMAGE_RANDOM_ENEMY",
-        "target": "RANDOM_ENEMY",
-        "value": 2
+        "type": "DEAL_DAMAGE",
+        "target": "TARGET_MINION",
+        "value": 3
       },
       {
         "type": "DRAW_CARDS",
@@ -979,7 +979,7 @@
     "rarity": "COMMON",
     "attack": 4,
     "health": 3,
-    "text": "Deathrattle: Deal 2 damage to a random enemy.",
+    "text": "Deathrattle: Deal 3 damage to a random enemy.",
     "flavor": "Built to fight. Fights to build. It's a whole cycle.",
     "keywords": [
       "DEATHRATTLE"
@@ -988,7 +988,7 @@
     "deathrattleEffect": {
       "type": "DEAL_DAMAGE_RANDOM_ENEMY",
       "target": "RANDOM_ENEMY",
-      "value": 2
+      "value": 3
     }
   },
   {
@@ -1140,11 +1140,20 @@
     "heroClass": "DEREK",
     "rarity": "COMMON",
     "attack": 5,
-    "health": 5,
-    "text": "Taunt.",
+    "health": 6,
+    "text": "Taunt. Battlecry: Gain 2 armor.",
     "flavor": "Slow, steady, and completely unstoppable.",
-    "keywords": [],
-    "minionType": "MECH"
+    "keywords": [
+      "BATTLECRY"
+    ],
+    "minionType": "MECH",
+    "battlecryEffects": [
+      {
+        "type": "GAIN_ARMOR",
+        "target": "NONE",
+        "value": 2
+      }
+    ]
   },
   {
     "cardCode": "JIM018",
@@ -1303,7 +1312,7 @@
     "type": "MINION",
     "heroClass": "JIMMY",
     "rarity": "EPIC",
-    "attack": 6,
+    "attack": 5,
     "health": 5,
     "text": "Bruiser \u2014 no surprises.",
     "flavor": "They called him unkillable. They were almost right.",
@@ -2500,7 +2509,7 @@
     "heroClass": "JIMMY",
     "rarity": "LEGENDARY",
     "attack": 6,
-    "health": 6,
+    "health": 5,
     "text": "Battlecry: Deal 3 damage to all enemy minions.",
     "flavor": "Ancient, enormous, and thoroughly unimpressed by your army.",
     "keywords": [
@@ -2850,10 +2859,19 @@
     "rarity": "COMMON",
     "attack": 6,
     "health": 6,
-    "text": "Taunt. Divine Shield.",
+    "text": "Taunt. Divine Shield. Battlecry: Gain 3 armor.",
     "flavor": "Half knight, half machine. All paladin.",
-    "keywords": [],
-    "minionType": "MECH"
+    "keywords": [
+      "BATTLECRY"
+    ],
+    "minionType": "MECH",
+    "battlecryEffects": [
+      {
+        "type": "GAIN_ARMOR",
+        "target": "NONE",
+        "value": 3
+      }
+    ]
   },
   {
     "cardCode": "LUC032",
@@ -3218,7 +3236,7 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "EPIC",
-    "attack": 4,
+    "attack": 5,
     "health": 5,
     "text": "Battlecry: Draw a card.",
     "flavor": "A whole megabyte of trouble.",
@@ -3467,7 +3485,7 @@
     "heroClass": "JIMMY",
     "rarity": "LEGENDARY",
     "attack": 5,
-    "health": 4,
+    "health": 3,
     "text": "Battlecry: Deal 2 damage to all enemies.",
     "flavor": "Where she walks, the ground remembers.",
     "keywords": [
@@ -3778,7 +3796,7 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "LEGENDARY",
-    "attack": 5,
+    "attack": 6,
     "health": 6,
     "text": "Taunt. Deathrattle: Summon two 3/3 mechs.",
     "flavor": "The last line of defense. Literally.",
@@ -3842,14 +3860,21 @@
     "rarity": "COMMON",
     "attack": 0,
     "health": 0,
-    "text": "Restore a minion to full Health.",
+    "text": "Restore a minion to full Health. Gain 2 armor.",
     "flavor": "Fixed in five minutes or your money back. Probably.",
     "keywords": [],
-    "spellEffect": {
-      "type": "RESTORE_HEALTH",
-      "target": "TARGET_MINION",
-      "value": 99
-    }
+    "spellEffects": [
+      {
+        "type": "RESTORE_HEALTH",
+        "target": "TARGET_MINION",
+        "value": 99
+      },
+      {
+        "type": "GAIN_ARMOR",
+        "target": "NONE",
+        "value": 2
+      }
+    ]
   },
   {
     "cardCode": "NEU087",
@@ -4227,9 +4252,18 @@
     "rarity": "COMMON",
     "attack": 3,
     "health": 3,
-    "text": "Cobbled together from spare parts. Still deadly.",
+    "text": "Battlecry: Gain 3 armor.",
     "flavor": "Recycled from seventeen different machines. Works like new.",
-    "keywords": []
+    "keywords": [
+      "BATTLECRY"
+    ],
+    "battlecryEffects": [
+      {
+        "type": "GAIN_ARMOR",
+        "target": "NONE",
+        "value": 3
+      }
+    ]
   },
   {
     "cardCode": "DES030",
@@ -4548,17 +4582,18 @@
   {
     "cardCode": "DRK041",
     "name": "Talbot L",
-    "manaCost": 7,
+    "manaCost": 6,
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "LEGENDARY",
     "attack": 6,
     "health": 7,
-    "text": "Taunt. Deathrattle: Summon a 5/5 mech with Taunt.",
+    "text": "Taunt. Battlecry: Gain 5 armor. Deathrattle: Summon a 5/5 mech with Taunt.",
     "flavor": "The biggest bot on the battlefield, and he knows it.",
     "keywords": [
       "TAUNT",
-      "DEATHRATTLE"
+      "DEATHRATTLE",
+      "BATTLECRY"
     ],
     "minionType": "MECH",
     "deathrattleEffect": {
@@ -4566,7 +4601,14 @@
       "target": "NONE",
       "summonCardCode": "NEU_TOKEN_01",
       "summonCount": 1
-    }
+    },
+    "battlecryEffects": [
+      {
+        "type": "GAIN_ARMOR",
+        "target": "NONE",
+        "value": 5
+      }
+    ]
   },
   {
     "cardCode": "DRK042",
@@ -4576,11 +4618,20 @@
     "heroClass": "DEREK",
     "rarity": "COMMON",
     "attack": 5,
-    "health": 5,
-    "text": "Taunt.",
+    "health": 6,
+    "text": "Taunt. Battlecry: Gain 2 armor.",
     "flavor": "Medium-sized problems require medium-sized solutions.",
-    "keywords": [],
-    "minionType": "MECH"
+    "keywords": [
+      "BATTLECRY"
+    ],
+    "minionType": "MECH",
+    "battlecryEffects": [
+      {
+        "type": "GAIN_ARMOR",
+        "target": "NONE",
+        "value": 2
+      }
+    ]
   },
   {
     "cardCode": "DRK043",
@@ -4868,7 +4919,7 @@
     "rarity": "COMMON",
     "attack": 3,
     "health": 2,
-    "text": "Deathrattle: Deal 2 damage to a random enemy.",
+    "text": "Deathrattle: Deal 3 damage to a random enemy.",
     "flavor": "Trims hedges, enemies, and awkward conversations.",
     "keywords": [
       "DEATHRATTLE"
@@ -4877,7 +4928,7 @@
     "deathrattleEffect": {
       "type": "DEAL_DAMAGE_RANDOM_ENEMY",
       "target": "RANDOM_ENEMY",
-      "value": 2
+      "value": 3
     }
   },
   {
@@ -6138,6 +6189,92 @@
       "type": "SPELL_DISCOUNT",
       "target": "NONE",
       "value": 2
+    }
+  },
+  {
+    "cardCode": "DRK050",
+    "name": "Precision Strike",
+    "manaCost": 3,
+    "type": "SPELL",
+    "heroClass": "DEREK",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 5 damage to a minion.",
+    "flavor": "Measure twice. Cut once. Measure again just to be sure.",
+    "keywords": [],
+    "spellEffect": {
+      "type": "DEAL_DAMAGE",
+      "target": "TARGET_MINION",
+      "value": 5
+    }
+  },
+  {
+    "cardCode": "DRK051",
+    "name": "Short Circuit",
+    "manaCost": 4,
+    "type": "SPELL",
+    "heroClass": "DEREK",
+    "rarity": "EPIC",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 3 damage to all enemy minions. Gain 3 armor.",
+    "flavor": "The whole system goes dark. Only you had a generator.",
+    "keywords": [],
+    "spellEffects": [
+      {
+        "type": "DEAL_DAMAGE_ALL_ENEMIES",
+        "target": "ALL_ENEMY_MINIONS",
+        "value": 3
+      },
+      {
+        "type": "GAIN_ARMOR",
+        "target": "NONE",
+        "value": 3
+      }
+    ]
+  },
+  {
+    "cardCode": "DRK052",
+    "name": "Demolition",
+    "manaCost": 5,
+    "type": "SPELL",
+    "heroClass": "DEREK",
+    "rarity": "EPIC",
+    "attack": 0,
+    "health": 0,
+    "text": "Destroy a minion. Gain 4 armor.",
+    "flavor": "We called in the professionals. The professionals brought a wrecking ball.",
+    "keywords": [],
+    "spellEffects": [
+      {
+        "type": "DESTROY_MINION",
+        "target": "TARGET_MINION",
+        "value": 0
+      },
+      {
+        "type": "GAIN_ARMOR",
+        "target": "NONE",
+        "value": 4
+      }
+    ]
+  },
+  {
+    "cardCode": "DRK053",
+    "name": "Factory Reset",
+    "manaCost": 2,
+    "type": "SPELL",
+    "heroClass": "DEREK",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 0,
+    "text": "Silence a minion.",
+    "flavor": "Back to factory defaults. Nothing personal.",
+    "keywords": [],
+    "spellEffect": {
+      "type": "SILENCE_TARGET",
+      "target": "TARGET_MINION",
+      "value": 0
     }
   }
 ]
