@@ -84,6 +84,12 @@ export function ManaGem({ value, size = 28 }: { value: number; size?: number }) 
         </linearGradient>
       </defs>
 
+      {/* Solid opaque base — guarantees the gem is never see-through
+           even where overlapping facets leave sub-pixel gaps. */}
+      <polygon
+        points="20,1 38,14 32,40 8,40 2,14"
+        fill="#15306b"
+      />
       {/* Outer crystal outline — dark navy border */}
       <polygon
         points="20,1 38,14 32,40 8,40 2,14"

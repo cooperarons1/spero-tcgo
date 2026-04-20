@@ -849,7 +849,7 @@ function HeroPortrait({
           replacing one weapon with another would just snap the art. */}
       {weapon && (
         <div className={`relative ${weaponEquipFlash ? 'animate-weapon-slide-in' : ''}`} key={weapon.cardCode}>
-          <div className={`h-16 w-16 md:h-24 md:w-24 rounded-full overflow-hidden border-[3px] bg-stone-900
+          <div className={`relative h-16 w-16 md:h-24 md:w-24 rounded-full overflow-hidden border-[3px] bg-stone-900
             ${canHeroAttack ? 'border-green-400 shadow-[0_0_16px_4px_rgba(34,197,94,0.6)]' : 'border-stone-500'}
             ${weaponEquipFlash ? 'animate-weapon-equip' : ''}`}
             style={{ boxShadow: canHeroAttack ? undefined : 'inset 0 2px 8px rgba(0,0,0,0.6)' }}
@@ -2314,8 +2314,11 @@ export default function GameBoard({
       {ClientTargetingOverlay}
 
       {/* ═══ Left sidebar: Action History (card art thumbnails) ═══ */}
-      <div className="hidden md:flex absolute left-0 top-0 bottom-0 w-14 z-10 flex-col bg-stone-950/50 overflow-hidden">
-        <div className="flex-1 overflow-y-auto flex flex-col-reverse">
+      {/* overflow-visible on the outer container so the hover popup can
+           escape the 14px-wide sidebar. Inner scroller keeps its
+           overflow-y-auto so the thumbnails still scroll. */}
+      <div className="hidden md:flex absolute left-0 top-0 bottom-0 w-14 z-10 flex-col bg-stone-950/50 overflow-visible">
+        <div className="flex-1 overflow-y-auto overflow-x-visible flex flex-col-reverse">
           <div className="py-1 space-y-1 px-1">
             {gs.log.slice(-25).filter(e => e.category === 'PLAY' || e.category === 'COMBAT' || e.category === 'EFFECT').map(entry => {
               const isMe = entry.playerIndex === gs.myPlayerIndex;
