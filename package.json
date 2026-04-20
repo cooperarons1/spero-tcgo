@@ -7,7 +7,7 @@
     "dev:server": "cd server && npx tsx watch index.ts",
     "dev:client": "cd client && npm run dev",
     "build:client": "cd client && npm run build",
-    "deploy:server": "gcloud run deploy spero-tcgo-server --source . --project tcn-kiosk --region us-west1 --allow-unauthenticated --session-affinity --port 8080",
+    "deploy:server": "gcloud run deploy spero-tcgo-server --source . --project spero-tcgo --region us-west1 --allow-unauthenticated --session-affinity --port 8080",
     "deploy:client": "npm run build:client && firebase deploy --only hosting",
     "deploy": "npm run deploy:server && npm run deploy:client",
     "simulate": "npx tsx server/ai-simulate.ts",
