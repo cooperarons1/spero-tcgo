@@ -16,17 +16,12 @@ function makePlayerState(id: string, name: string, heroClass: HeroClass): Player
   // before the opponent even had a turn). Reverted — DEREK keeps armor
   // gain through Tinker hero power and DRK cards instead.
   const startingArmor = 0;
-  // DEREK's armor+draw engine produces ~65% WR at parity HP despite
-  // heavy card nerfs. -4 starting HP directly counters his survivability
-  // lean without breaking his class identity (still an armor/tempo class,
-  // just with less runway to stack it).
-  const startingHealth = heroClass === 'DEREK' ? STARTING_HEALTH - 4 : STARTING_HEALTH;
   return {
     playerId: id,
     playerName: name,
     heroClass,
-    health: startingHealth,
-    maxHealth: startingHealth,
+    health: STARTING_HEALTH,
+    maxHealth: STARTING_HEALTH,
     armor: startingArmor,
     mana: 0,
     maxMana: 0,

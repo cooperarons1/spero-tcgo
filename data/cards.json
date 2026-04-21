@@ -3738,17 +3738,12 @@
     "rarity": "COMMON",
     "attack": 2,
     "health": 1,
-    "text": "Combo: Gain Stealth.",
+    "text": "Stealth.",
     "flavor": "Now you see him... no, actually, you don't.",
     "keywords": [
-      "COMBO"
+      "STEALTH"
     ],
-    "minionType": "BEAST",
-    "comboEffect": {
-      "type": "GRANT_KEYWORD",
-      "target": "SELF",
-      "grantKeyword": "STEALTH"
-    }
+    "minionType": "BEAST"
   },
   {
     "cardCode": "NEU086",
