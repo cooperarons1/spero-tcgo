@@ -179,13 +179,30 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
   const tier = rank?.rankTier ?? 'BRONZE';
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-b from-stone-950 via-stone-900 to-stone-950 overflow-hidden">
+    <div className="flex flex-col h-screen relative overflow-hidden">
+      {/* ── Background: deep purple-black gradient with a subtle radial
+           orra-gem glow anchored behind the logo. Matches the logo's
+           purple accent and gives the home screen real atmosphere. ── */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0b0613] via-[#150821] to-[#07030d]" />
+      <div className="absolute inset-0 opacity-60 pointer-events-none"
+           style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 30%, rgba(139, 92, 246, 0.22) 0%, transparent 60%)' }} />
+      {/* Subtle animated sparkles — css keyframe `shimmer` is already
+           defined in index.css for golden cards; reusing it here keeps
+           the aesthetic unified without new CSS. */}
+      <div className="absolute inset-0 pointer-events-none opacity-20" style={{
+        background: 'radial-gradient(circle at 20% 80%, rgba(217,169,56,0.12) 0%, transparent 30%), radial-gradient(circle at 80% 20%, rgba(139,92,246,0.15) 0%, transparent 35%)',
+      }} />
+
       {/* ── Main content ── */}
-      <div className="flex-1 flex flex-col items-center justify-center px-4 pb-2 relative min-h-0">
-        {/* Title block — bouncy entrance, subtitle fades in slightly behind */}
-        <div className="text-center mb-6">
-          <h1 className="text-7xl font-extrabold text-amber-100 drop-shadow-[0_2px_12px_rgba(217,169,56,0.3)] tracking-wider leading-none animate-bounce-in">MIRO</h1>
-          <p className="text-amber-500/80 font-bold text-xs mt-1 tracking-[0.4em] uppercase animate-fade-in" style={{ animationDelay: '150ms', animationFillMode: 'both' }}>Trading Card Game</p>
+      <div className="flex-1 flex flex-col items-center justify-center px-4 pb-2 relative min-h-0 z-10">
+        {/* Logo — official MIRO art (transparent WebP). Drop shadow gives
+             it lift against the dark background; subtle scale-in on mount. */}
+        <div className="mb-4 animate-bounce-in">
+          <img
+            src="/logo-miro.webp"
+            alt="Miro Trading Card Game"
+            className="w-[min(520px,80vw)] h-auto drop-shadow-[0_6px_24px_rgba(139,92,246,0.45)]"
+          />
         </div>
 
         {/* Season + Rank bar */}
@@ -209,24 +226,41 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
 
         {mode === 'menu' && (
           <div className="w-full max-w-md space-y-5 animate-slide-up" style={{ animationDelay: '250ms', animationFillMode: 'both' }}>
-            {/* Play buttons */}
-            <div className="bg-stone-800/70 border border-amber-800/30 rounded-2xl p-6 shadow-2xl shadow-black/40 space-y-4">
+            {/* Play buttons — panel reskin: deep purple-black glass with
+                 a thin gold-purple dual border that echoes the logo gem. */}
+            <div className="rounded-2xl p-6 shadow-2xl shadow-black/60 space-y-4 relative"
+                 style={{
+                   background: 'linear-gradient(180deg, rgba(30,16,52,0.82) 0%, rgba(16,8,28,0.88) 100%)',
+                   boxShadow: '0 0 0 1px rgba(139,92,246,0.35), 0 0 0 2px rgba(217,169,56,0.12), 0 24px 48px rgba(0,0,0,0.5)',
+                 }}>
               <button
                 onClick={onPlayAI}
-                className="w-full bg-gradient-to-r from-amber-600 via-amber-600 to-amber-700 text-white font-bold py-4 px-6 rounded-xl text-lg hover:brightness-110 active:scale-[0.97] transition-all shadow-lg cursor-pointer border border-amber-500/40"
+                className="w-full text-white font-bold py-4 px-6 rounded-xl text-lg hover:brightness-110 active:scale-[0.97] transition-all cursor-pointer border border-amber-400/50"
+                style={{
+                  background: 'linear-gradient(135deg, #b8842e 0%, #d9a938 45%, #a06a1c 100%)',
+                  boxShadow: '0 6px 20px rgba(217,169,56,0.3), inset 0 1px 0 rgba(255,230,150,0.35)',
+                }}
               >
                 Play vs AI
               </button>
               <div className="flex gap-3">
                 <button
                   onClick={onPlayCasual}
-                  className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold py-4 px-4 rounded-xl text-base hover:brightness-110 active:scale-[0.97] transition-all shadow-lg cursor-pointer border border-blue-500/40"
+                  className="flex-1 text-white font-bold py-4 px-4 rounded-xl text-base hover:brightness-110 active:scale-[0.97] transition-all cursor-pointer border border-indigo-400/50"
+                  style={{
+                    background: 'linear-gradient(135deg, #4338ca 0%, #6366f1 50%, #3730a3 100%)',
+                    boxShadow: '0 6px 16px rgba(99,102,241,0.3), inset 0 1px 0 rgba(200,210,255,0.3)',
+                  }}
                 >
                   Casual
                 </button>
                 <button
                   onClick={onPlayRanked}
-                  className="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-bold py-4 px-4 rounded-xl text-base hover:brightness-110 active:scale-[0.97] transition-all shadow-lg cursor-pointer border border-purple-500/40"
+                  className="flex-1 text-white font-bold py-4 px-4 rounded-xl text-base hover:brightness-110 active:scale-[0.97] transition-all cursor-pointer border border-purple-400/60"
+                  style={{
+                    background: 'linear-gradient(135deg, #6b21a8 0%, #9333ea 50%, #581c87 100%)',
+                    boxShadow: '0 6px 16px rgba(147,51,234,0.4), inset 0 1px 0 rgba(220,200,255,0.3)',
+                  }}
                 >
                   Ranked
                 </button>
@@ -234,20 +268,23 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
               <div className="flex gap-3 pt-1">
                 <button
                   onClick={handleCreate}
-                  className="flex-1 bg-stone-700/80 text-gray-300 font-semibold py-3 px-4 rounded-xl text-sm hover:bg-stone-600 active:scale-95 transition-all cursor-pointer border border-stone-600/40"
+                  className="flex-1 text-stone-200 font-semibold py-3 px-4 rounded-xl text-sm hover:brightness-125 active:scale-95 transition-all cursor-pointer border border-purple-400/25"
+                  style={{ background: 'linear-gradient(180deg, rgba(55,30,90,0.75) 0%, rgba(32,16,56,0.75) 100%)' }}
                 >
                   Create Room
                 </button>
                 <button
                   onClick={() => setMode('join')}
-                  className="flex-1 bg-stone-700/80 text-gray-300 font-semibold py-3 px-4 rounded-xl text-sm hover:bg-stone-600 active:scale-95 transition-all cursor-pointer border border-stone-600/40"
+                  className="flex-1 text-stone-200 font-semibold py-3 px-4 rounded-xl text-sm hover:brightness-125 active:scale-95 transition-all cursor-pointer border border-purple-400/25"
+                  style={{ background: 'linear-gradient(180deg, rgba(55,30,90,0.75) 0%, rgba(32,16,56,0.75) 100%)' }}
                 >
                   Join Room
                 </button>
               </div>
               <button
                 onClick={onFriends}
-                className="w-full bg-stone-700/40 text-gray-400 font-semibold py-2.5 px-6 rounded-xl text-sm hover:bg-stone-600/60 active:scale-95 transition-all cursor-pointer"
+                className="w-full text-stone-300 font-semibold py-2.5 px-6 rounded-xl text-sm hover:brightness-125 active:scale-95 transition-all cursor-pointer"
+                style={{ background: 'rgba(45,22,78,0.5)' }}
               >
                 Friends
               </button>
