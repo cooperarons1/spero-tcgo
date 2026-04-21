@@ -1283,7 +1283,7 @@
     "heroClass": "JIMMY",
     "rarity": "RARE",
     "attack": 5,
-    "health": 4,
+    "health": 5,
     "text": "Charge.",
     "flavor": "He doesn't stop running. Ever.",
     "keywords": [
@@ -1760,7 +1760,7 @@
     "heroClass": "JIMMY",
     "rarity": "COMMON",
     "attack": 4,
-    "health": 4,
+    "health": 5,
     "text": "Battlecry: Deal 1 damage to a random enemy.",
     "flavor": "He picks fights the way others pick flowers.",
     "keywords": [
@@ -4208,7 +4208,7 @@
     "type": "MINION",
     "heroClass": "AVA",
     "rarity": "RARE",
-    "attack": 2,
+    "attack": 3,
     "health": 4,
     "text": "Deathrattle: Summon a 1/1 Gadget Drone.",
     "flavor": "She carries spare parts, spare drones, and spare attitude.",
