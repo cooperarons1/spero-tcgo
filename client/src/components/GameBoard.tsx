@@ -1079,9 +1079,21 @@ function HeroPortrait({
             ${heroPowerFlash ? 'animate-hero-power-flash' : (canUseHeroPower ? 'animate-hero-power-ready' : '')}
           `}
         >
-          <span className={`pointer-events-none ${canUseHeroPower ? (heroPowerUpgraded ? 'text-amber-200' : 'text-amber-300') : 'text-stone-500'}`}>
-            {HERO_POWER_SVG[heroClass]}
-          </span>
+          {/* Real PNG icon when available (SDXL-generated medallion); falls
+               back to the procedural SVG for any class missing a PNG. The
+               PNG sits behind a subtle dim overlay when the power isn't
+               usable so it matches the SVG greyed-out behavior. */}
+          {HERO_POWER_PNGS[heroClass] ? (
+            <img
+              src={HERO_POWER_PNGS[heroClass]}
+              alt=""
+              className={`pointer-events-none absolute inset-0 w-full h-full object-cover rounded-full ${canUseHeroPower ? '' : 'grayscale opacity-60'}`}
+            />
+          ) : (
+            <span className={`pointer-events-none ${canUseHeroPower ? (heroPowerUpgraded ? 'text-amber-200' : 'text-amber-300') : 'text-stone-500'}`}>
+              {HERO_POWER_SVG[heroClass]}
+            </span>
+          )}
           <span className="pointer-events-none absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white shadow">
             {HERO_POWER_COST}
           </span>
@@ -1330,15 +1342,10 @@ function DeckPile({
             {count > 15 && <div className={`absolute -top-1.5 -left-1.5 w-16 h-full rounded-lg border ${borderClass} opacity-10 pointer-events-none`} />}
           </>
         )}
-        {/* Count badge — bottom-right corner so the card back reads clean */}
-        <div className="absolute bottom-1 right-1 bg-stone-900/85 border border-amber-600/60 rounded-md px-1.5 py-0.5 z-10">
-          <span className={`text-xs font-extrabold ${count > 0 ? 'text-amber-200' : 'text-stone-600'}`}>
-            {count}
-          </span>
-        </div>
-        {/* Hover tooltip */}
-        <div className="absolute bottom-full mb-1 hidden group-hover:block bg-stone-900 text-stone-300 text-[10px] px-2 py-1 rounded whitespace-nowrap z-50 border border-stone-700">
-          {count} cards in deck
+        {/* Count is hover-only — the card back art stays clean until the
+             player asks for the number. Tooltip floats above the pile. */}
+        <div className="absolute bottom-full mb-1 hidden group-hover:block bg-stone-900 text-amber-200 text-sm font-bold px-3 py-1 rounded whitespace-nowrap z-50 border border-amber-600/60 shadow-lg">
+          {count} card{count === 1 ? '' : 's'} left
         </div>
       </div>
       {/* Graveyard */}

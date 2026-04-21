@@ -1,116 +1,116 @@
 {
   "version": 2,
-  "generatedAt": "2026-04-21T17:47:31.010Z",
-  "totalGames": 10,
+  "generatedAt": "2026-04-21T18:29:44.140Z",
+  "totalGames": 5000,
   "classWinRates": {
-    "JIMMY": 0,
-    "TALA": 0.5,
-    "DEREK": 0.5,
-    "ANDERS": 0.5,
-    "DES": 0,
-    "ASTRID": 1,
-    "AVA": 0.25,
-    "LUCAS": 0.75,
-    "IZZY": 0.5
+    "JIMMY": 0.47623318385650226,
+    "TALA": 0.5240690281562216,
+    "DEREK": 0.6925087108013938,
+    "ANDERS": 0.4568888888888889,
+    "DES": 0.421551724137931,
+    "ASTRID": 0.3726937269372694,
+    "AVA": 0.49127640036730946,
+    "LUCAS": 0.46734130634774607,
+    "IZZY": 0.5930339138405133
   },
   "matchupMatrix": {
     "JIMMY": {
       "JIMMY": 0.5,
-      "TALA": 0.5,
-      "DEREK": 0.5,
-      "ANDERS": 0.5,
-      "DES": 0.5,
-      "ASTRID": 0.5,
-      "AVA": 0,
-      "LUCAS": 0.5,
-      "IZZY": 0.5
+      "TALA": 0.514018691588785,
+      "DEREK": 0.2413793103448276,
+      "ANDERS": 0.484375,
+      "DES": 0.6209677419354839,
+      "ASTRID": 0.6339285714285714,
+      "AVA": 0.4661016949152542,
+      "LUCAS": 0.46875,
+      "IZZY": 0.41025641025641024
     },
     "TALA": {
-      "JIMMY": 0.5,
+      "JIMMY": 0.48598130841121495,
       "TALA": 0.5,
-      "DEREK": 0.5,
-      "ANDERS": 0.5,
-      "DES": 0.5,
-      "ASTRID": 0.5,
-      "AVA": 0.5,
-      "LUCAS": 0.5,
-      "IZZY": 0.5
+      "DEREK": 0.36134453781512604,
+      "ANDERS": 0.6386554621848739,
+      "DES": 0.6081081081081081,
+      "ASTRID": 0.5798319327731093,
+      "AVA": 0.55,
+      "LUCAS": 0.5317460317460317,
+      "IZZY": 0.4444444444444444
     },
     "DEREK": {
-      "JIMMY": 0.5,
-      "TALA": 0.5,
+      "JIMMY": 0.7586206896551724,
+      "TALA": 0.6386554621848739,
       "DEREK": 0.5,
-      "ANDERS": 0.5,
-      "DES": 0.5,
-      "ASTRID": 0.5,
-      "AVA": 0.5,
-      "LUCAS": 0,
-      "IZZY": 1
+      "ANDERS": 0.7310924369747899,
+      "DES": 0.7637795275590551,
+      "ASTRID": 0.7114093959731543,
+      "AVA": 0.6491228070175439,
+      "LUCAS": 0.746268656716418,
+      "IZZY": 0.7289719626168224
     },
     "ANDERS": {
-      "JIMMY": 0.5,
-      "TALA": 0.5,
-      "DEREK": 0.5,
+      "JIMMY": 0.515625,
+      "TALA": 0.36134453781512604,
+      "DEREK": 0.2689075630252101,
       "ANDERS": 0.5,
-      "DES": 0.5,
-      "ASTRID": 0.5,
-      "AVA": 1,
-      "LUCAS": 0.5,
-      "IZZY": 0
+      "DES": 0.5111111111111111,
+      "ASTRID": 0.5508474576271186,
+      "AVA": 0.5185185185185185,
+      "LUCAS": 0.5244755244755245,
+      "IZZY": 0.3211009174311927
     },
     "DES": {
-      "JIMMY": 0.5,
-      "TALA": 0.5,
-      "DEREK": 0.5,
-      "ANDERS": 0.5,
+      "JIMMY": 0.3790322580645161,
+      "TALA": 0.3918918918918919,
+      "DEREK": 0.23622047244094488,
+      "ANDERS": 0.4888888888888889,
       "DES": 0.5,
-      "ASTRID": 0,
-      "AVA": 0.5,
-      "LUCAS": 0.5,
-      "IZZY": 0.5
+      "ASTRID": 0.6126760563380281,
+      "AVA": 0.42424242424242425,
+      "LUCAS": 0.3963963963963964,
+      "IZZY": 0.32432432432432434
     },
     "ASTRID": {
-      "JIMMY": 0.5,
-      "TALA": 0.5,
-      "DEREK": 0.5,
-      "ANDERS": 0.5,
-      "DES": 1,
+      "JIMMY": 0.36607142857142855,
+      "TALA": 0.42016806722689076,
+      "DEREK": 0.28859060402684567,
+      "ANDERS": 0.4491525423728814,
+      "DES": 0.3873239436619718,
       "ASTRID": 0.5,
-      "AVA": 1,
-      "LUCAS": 0.5,
-      "IZZY": 0.5
+      "AVA": 0.32727272727272727,
+      "LUCAS": 0.3853211009174312,
+      "IZZY": 0.2755905511811024
     },
     "AVA": {
-      "JIMMY": 1,
-      "TALA": 0.5,
-      "DEREK": 0.5,
-      "ANDERS": 0,
-      "DES": 0.5,
-      "ASTRID": 0,
+      "JIMMY": 0.5338983050847458,
+      "TALA": 0.45,
+      "DEREK": 0.3508771929824561,
+      "ANDERS": 0.48148148148148145,
+      "DES": 0.5757575757575758,
+      "ASTRID": 0.6727272727272727,
       "AVA": 0.5,
-      "LUCAS": 0,
-      "IZZY": 0.5
+      "LUCAS": 0.5384615384615384,
+      "IZZY": 0.35172413793103446
     },
     "LUCAS": {
-      "JIMMY": 0.5,
-      "TALA": 0.5,
-      "DEREK": 1,
-      "ANDERS": 0.5,
-      "DES": 0.5,
-      "ASTRID": 0.5,
-      "AVA": 1,
+      "JIMMY": 0.53125,
+      "TALA": 0.46825396825396826,
+      "DEREK": 0.2537313432835821,
+      "ANDERS": 0.4755244755244755,
+      "DES": 0.6036036036036037,
+      "ASTRID": 0.6146788990825688,
+      "AVA": 0.46153846153846156,
       "LUCAS": 0.5,
-      "IZZY": 0.5
+      "IZZY": 0.3416666666666667
     },
     "IZZY": {
-      "JIMMY": 0.5,
-      "TALA": 0.5,
-      "DEREK": 0,
-      "ANDERS": 1,
-      "DES": 0.5,
-      "ASTRID": 0.5,
-      "AVA": 0.5,
-      "LUCAS": 0.5,
+      "JIMMY": 0.5897435897435898,
+      "TALA": 0.5555555555555556,
+      "DEREK": 0.27102803738317754,
+      "ANDERS": 0.6788990825688074,
+      "DES": 0.6756756756756757,
+      "ASTRID": 0.7244094488188977,
+      "AVA": 0.6482758620689655,
+      "LUCAS": 0.6583333333333333,
       "IZZY": 0.5
     }
   },
@@ -127,50 +127,1899 @@
   },
   "classAvgStats": {
     "JIMMY": {
-      "minionsPerGame": 10.75,
-      "spellsPerGame": 4.9,
-      "heroPowerPerGame": 3.5
+      "minionsPerGame": 9.6223,
+      "spellsPerGame": 4.5771,
+      "heroPowerPerGame": 1.882
     },
     "TALA": {
-      "minionsPerGame": 10.75,
-      "spellsPerGame": 4.9,
-      "heroPowerPerGame": 3.5
+      "minionsPerGame": 9.6223,
+      "spellsPerGame": 4.5771,
+      "heroPowerPerGame": 1.882
     },
     "DEREK": {
-      "minionsPerGame": 10.75,
-      "spellsPerGame": 4.9,
-      "heroPowerPerGame": 3.5
+      "minionsPerGame": 9.6223,
+      "spellsPerGame": 4.5771,
+      "heroPowerPerGame": 1.882
     },
     "ANDERS": {
-      "minionsPerGame": 10.75,
-      "spellsPerGame": 4.9,
-      "heroPowerPerGame": 3.5
+      "minionsPerGame": 9.6223,
+      "spellsPerGame": 4.5771,
+      "heroPowerPerGame": 1.882
     },
     "DES": {
-      "minionsPerGame": 10.75,
-      "spellsPerGame": 4.9,
-      "heroPowerPerGame": 3.5
+      "minionsPerGame": 9.6223,
+      "spellsPerGame": 4.5771,
+      "heroPowerPerGame": 1.882
     },
     "ASTRID": {
-      "minionsPerGame": 10.75,
-      "spellsPerGame": 4.9,
-      "heroPowerPerGame": 3.5
+      "minionsPerGame": 9.6223,
+      "spellsPerGame": 4.5771,
+      "heroPowerPerGame": 1.882
     },
     "AVA": {
-      "minionsPerGame": 10.75,
-      "spellsPerGame": 4.9,
-      "heroPowerPerGame": 3.5
+      "minionsPerGame": 9.6223,
+      "spellsPerGame": 4.5771,
+      "heroPowerPerGame": 1.882
     },
     "LUCAS": {
-      "minionsPerGame": 10.75,
-      "spellsPerGame": 4.9,
-      "heroPowerPerGame": 3.5
+      "minionsPerGame": 9.6223,
+      "spellsPerGame": 4.5771,
+      "heroPowerPerGame": 1.882
     },
     "IZZY": {
-      "minionsPerGame": 10.75,
-      "spellsPerGame": 4.9,
-      "heroPowerPerGame": 3.5
+      "minionsPerGame": 9.6223,
+      "spellsPerGame": 4.5771,
+      "heroPowerPerGame": 1.882
     }
   },
-  "cardStats": {}
+  "cardStats": {
+    "NEU111": {
+      "played": 1327,
+      "winRate": 0.4348153730218538,
+      "keepRate": 0.21401657874905802,
+      "keepWinRate": 0.43661971830985913
+    },
+    "NEU079": {
+      "played": 1381,
+      "winRate": 0.4380883417813179,
+      "keepRate": 0.24619840695148443,
+      "keepWinRate": 0.43823529411764706
+    },
+    "NEU068": {
+      "played": 1924,
+      "winRate": 0.498960498960499,
+      "keepRate": 0.2603950103950104,
+      "keepWinRate": 0.5049900199600799
+    },
+    "IZZ026": {
+      "played": 495,
+      "winRate": 0.5434343434343434,
+      "keepRate": 0.16161616161616163,
+      "keepWinRate": 0.5125
+    },
+    "IZZ036": {
+      "played": 271,
+      "winRate": 0.6346863468634686,
+      "keepRate": 0.06642066420664207,
+      "keepWinRate": 0.7777777777777778
+    },
+    "IZZ024": {
+      "played": 308,
+      "winRate": 0.6103896103896104,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "NEU077": {
+      "played": 676,
+      "winRate": 0.599112426035503,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "IZZ023": {
+      "played": 506,
+      "winRate": 0.6146245059288538,
+      "keepRate": 0.30237154150197626,
+      "keepWinRate": 0.6209150326797386
+    },
+    "IZZ041": {
+      "played": 338,
+      "winRate": 0.5976331360946746,
+      "keepRate": 0.07692307692307693,
+      "keepWinRate": 0.5769230769230769
+    },
+    "IZZ022": {
+      "played": 318,
+      "winRate": 0.5628930817610063,
+      "keepRate": 0.07547169811320754,
+      "keepWinRate": 0.6666666666666666
+    },
+    "NEU080": {
+      "played": 1000,
+      "winRate": 0.553,
+      "keepRate": 0.088,
+      "keepWinRate": 0.4772727272727273
+    },
+    "NEU091": {
+      "played": 887,
+      "winRate": 0.6189402480270575,
+      "keepRate": 0.09019165727170236,
+      "keepWinRate": 0.625
+    },
+    "IZZ039": {
+      "played": 236,
+      "winRate": 0.6779661016949152,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "IZZ040": {
+      "played": 198,
+      "winRate": 0.6818181818181818,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "IZZ035": {
+      "played": 319,
+      "winRate": 0.542319749216301,
+      "keepRate": 0.1786833855799373,
+      "keepWinRate": 0.5614035087719298
+    },
+    "NEU065": {
+      "played": 1987,
+      "winRate": 0.4016104680422748,
+      "keepRate": 0.2380473074987418,
+      "keepWinRate": 0.41226215644820297
+    },
+    "NEU106": {
+      "played": 70,
+      "winRate": 0.8857142857142857,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "NEU098": {
+      "played": 1051,
+      "winRate": 0.5490009514747859,
+      "keepRate": 0.08848715509039011,
+      "keepWinRate": 0.5806451612903226
+    },
+    "NEU063": {
+      "played": 1169,
+      "winRate": 0.5577416595380668,
+      "keepRate": 0.07613344739093242,
+      "keepWinRate": 0.5280898876404494
+    },
+    "NEU095": {
+      "played": 915,
+      "winRate": 0.5573770491803278,
+      "keepRate": 0.10491803278688525,
+      "keepWinRate": 0.5104166666666666
+    },
+    "NEU100": {
+      "played": 1900,
+      "winRate": 0.4263157894736842,
+      "keepRate": 0.25526315789473686,
+      "keepWinRate": 0.3917525773195876
+    },
+    "AND021": {
+      "played": 491,
+      "winRate": 0.4154786150712831,
+      "keepRate": 0.15274949083503056,
+      "keepWinRate": 0.32
+    },
+    "AND030": {
+      "played": 446,
+      "winRate": 0.5022421524663677,
+      "keepRate": 0.07623318385650224,
+      "keepWinRate": 0.47058823529411764
+    },
+    "AND025": {
+      "played": 413,
+      "winRate": 0.3898305084745763,
+      "keepRate": 0.07021791767554479,
+      "keepWinRate": 0.2413793103448276
+    },
+    "NEU078": {
+      "played": 1554,
+      "winRate": 0.47554697554697556,
+      "keepRate": 0.2516087516087516,
+      "keepWinRate": 0.45524296675191817
+    },
+    "AND_BOND_02": {
+      "played": 479,
+      "winRate": 0.4342379958246347,
+      "keepRate": 0.2359081419624217,
+      "keepWinRate": 0.40707964601769914
+    },
+    "AND022": {
+      "played": 313,
+      "winRate": 0.4984025559105431,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "AND_S01": {
+      "played": 470,
+      "winRate": 0.3893617021276596,
+      "keepRate": 0.16170212765957448,
+      "keepWinRate": 0.3026315789473684
+    },
+    "AND_BOND_01": {
+      "played": 434,
+      "winRate": 0.4423963133640553,
+      "keepRate": 0.15898617511520738,
+      "keepWinRate": 0.34782608695652173
+    },
+    "AND028": {
+      "played": 544,
+      "winRate": 0.40808823529411764,
+      "keepRate": 0.2261029411764706,
+      "keepWinRate": 0.3983739837398374
+    },
+    "AND016": {
+      "played": 523,
+      "winRate": 0.4149139579349904,
+      "keepRate": 0.22562141491395793,
+      "keepWinRate": 0.3474576271186441
+    },
+    "AND023": {
+      "played": 452,
+      "winRate": 0.49336283185840707,
+      "keepRate": 0.05752212389380531,
+      "keepWinRate": 0.5384615384615384
+    },
+    "AND020": {
+      "played": 529,
+      "winRate": 0.3742911153119093,
+      "keepRate": 0.2627599243856333,
+      "keepWinRate": 0.3381294964028777
+    },
+    "DRK039": {
+      "played": 378,
+      "winRate": 0.7142857142857143,
+      "keepRate": 0.24867724867724866,
+      "keepWinRate": 0.7659574468085106
+    },
+    "DRK023": {
+      "played": 287,
+      "winRate": 0.6411149825783972,
+      "keepRate": 0.27526132404181186,
+      "keepWinRate": 0.6582278481012658
+    },
+    "DRK050": {
+      "played": 301,
+      "winRate": 0.6245847176079734,
+      "keepRate": 0.1362126245847176,
+      "keepWinRate": 0.6097560975609756
+    },
+    "DRK043": {
+      "played": 256,
+      "winRate": 0.68359375,
+      "keepRate": 0.15625,
+      "keepWinRate": 0.65
+    },
+    "DRK031": {
+      "played": 346,
+      "winRate": 0.7023121387283237,
+      "keepRate": 0.2630057803468208,
+      "keepWinRate": 0.6923076923076923
+    },
+    "DRK060": {
+      "played": 123,
+      "winRate": 0.8211382113821138,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "NEU109": {
+      "played": 358,
+      "winRate": 0.5195530726256983,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "DRK029": {
+      "played": 232,
+      "winRate": 0.8232758620689655,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "DRK072": {
+      "played": 284,
+      "winRate": 0.6584507042253521,
+      "keepRate": 0.15492957746478872,
+      "keepWinRate": 0.5909090909090909
+    },
+    "DRK051": {
+      "played": 237,
+      "winRate": 0.729957805907173,
+      "keepRate": 0.06329113924050633,
+      "keepWinRate": 0.8666666666666667
+    },
+    "DRK017": {
+      "played": 327,
+      "winRate": 0.7767584097859327,
+      "keepRate": 0.05504587155963303,
+      "keepWinRate": 0.8888888888888888
+    },
+    "DRK020": {
+      "played": 373,
+      "winRate": 0.7184986595174263,
+      "keepRate": 0.16621983914209115,
+      "keepWinRate": 0.7258064516129032
+    },
+    "DRK061": {
+      "played": 278,
+      "winRate": 0.6438848920863309,
+      "keepRate": 0.20863309352517986,
+      "keepWinRate": 0.603448275862069
+    },
+    "DRK018": {
+      "played": 272,
+      "winRate": 0.6066176470588235,
+      "keepRate": 0.21323529411764705,
+      "keepWinRate": 0.5
+    },
+    "DRK047": {
+      "played": 310,
+      "winRate": 0.7580645161290323,
+      "keepRate": 0.38064516129032255,
+      "keepWinRate": 0.7796610169491526
+    },
+    "DRK063": {
+      "played": 290,
+      "winRate": 0.5586206896551724,
+      "keepRate": 0.2517241379310345,
+      "keepWinRate": 0.4794520547945205
+    },
+    "DRK038": {
+      "played": 390,
+      "winRate": 0.6717948717948717,
+      "keepRate": 0.14102564102564102,
+      "keepWinRate": 0.5636363636363636
+    },
+    "DRK028": {
+      "played": 180,
+      "winRate": 0.8166666666666667,
+      "keepRate": 0.06666666666666667,
+      "keepWinRate": 0.9166666666666666
+    },
+    "NEU069": {
+      "played": 1674,
+      "winRate": 0.4091995221027479,
+      "keepRate": 0.11648745519713262,
+      "keepWinRate": 0.3076923076923077
+    },
+    "NEU081": {
+      "played": 1156,
+      "winRate": 0.527681660899654,
+      "keepRate": 0.14013840830449828,
+      "keepWinRate": 0.5
+    },
+    "NEU110": {
+      "played": 1348,
+      "winRate": 0.4807121661721068,
+      "keepRate": 0.1261127596439169,
+      "keepWinRate": 0.35294117647058826
+    },
+    "NEU085": {
+      "played": 887,
+      "winRate": 0.6414881623449831,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "DRK027": {
+      "played": 277,
+      "winRate": 0.8122743682310469,
+      "keepRate": 0.20938628158844766,
+      "keepWinRate": 0.7413793103448276
+    },
+    "NEU097": {
+      "played": 762,
+      "winRate": 0.6404199475065617,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "NEU075": {
+      "played": 953,
+      "winRate": 0.5613850996852047,
+      "keepRate": 0.09548793284365163,
+      "keepWinRate": 0.46153846153846156
+    },
+    "DRK040": {
+      "played": 306,
+      "winRate": 0.6568627450980392,
+      "keepRate": 0.22875816993464052,
+      "keepWinRate": 0.7142857142857143
+    },
+    "DRK030": {
+      "played": 293,
+      "winRate": 0.5631399317406144,
+      "keepRate": 0.20819112627986347,
+      "keepWinRate": 0.45901639344262296
+    },
+    "NEU071": {
+      "played": 1314,
+      "winRate": 0.4786910197869102,
+      "keepRate": 0.23820395738203956,
+      "keepWinRate": 0.4696485623003195
+    },
+    "AST027": {
+      "played": 369,
+      "winRate": 0.27371273712737126,
+      "keepRate": 0.21138211382113822,
+      "keepWinRate": 0.16666666666666666
+    },
+    "NEU072": {
+      "played": 898,
+      "winRate": 0.5623608017817372,
+      "keepRate": 0.09799554565701558,
+      "keepWinRate": 0.5454545454545454
+    },
+    "AST042": {
+      "played": 310,
+      "winRate": 0.4032258064516129,
+      "keepRate": 0.3387096774193548,
+      "keepWinRate": 0.3523809523809524
+    },
+    "AST031": {
+      "played": 206,
+      "winRate": 0.6844660194174758,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "NEU092": {
+      "played": 1620,
+      "winRate": 0.43703703703703706,
+      "keepRate": 0.2537037037037037,
+      "keepWinRate": 0.40145985401459855
+    },
+    "AST030": {
+      "played": 377,
+      "winRate": 0.2864721485411141,
+      "keepRate": 0.27320954907161804,
+      "keepWinRate": 0.2621359223300971
+    },
+    "AST_BOND_02": {
+      "played": 431,
+      "winRate": 0.3990719257540603,
+      "keepRate": 0.2529002320185615,
+      "keepWinRate": 0.3761467889908257
+    },
+    "NEU084": {
+      "played": 1715,
+      "winRate": 0.5014577259475219,
+      "keepRate": 0.22157434402332363,
+      "keepWinRate": 0.4789473684210526
+    },
+    "AST_S03": {
+      "played": 346,
+      "winRate": 0.3179190751445087,
+      "keepRate": 0.2514450867052023,
+      "keepWinRate": 0.2413793103448276
+    },
+    "NEU094": {
+      "played": 1364,
+      "winRate": 0.5212609970674487,
+      "keepRate": 0.14882697947214077,
+      "keepWinRate": 0.49261083743842365
+    },
+    "AST037": {
+      "played": 345,
+      "winRate": 0.4666666666666667,
+      "keepRate": 0.2579710144927536,
+      "keepWinRate": 0.449438202247191
+    },
+    "AST039": {
+      "played": 307,
+      "winRate": 0.4495114006514658,
+      "keepRate": 0.0749185667752443,
+      "keepWinRate": 0.30434782608695654
+    },
+    "AST_BOND_01": {
+      "played": 463,
+      "winRate": 0.38444924406047515,
+      "keepRate": 0.28077753779697623,
+      "keepWinRate": 0.36923076923076925
+    },
+    "AND017": {
+      "played": 484,
+      "winRate": 0.5144628099173554,
+      "keepRate": 0.13636363636363635,
+      "keepWinRate": 0.4696969696969697
+    },
+    "AND019": {
+      "played": 391,
+      "winRate": 0.4194373401534527,
+      "keepRate": 0.2710997442455243,
+      "keepWinRate": 0.42452830188679247
+    },
+    "AND038": {
+      "played": 322,
+      "winRate": 0.6304347826086957,
+      "keepRate": 0.07453416149068323,
+      "keepWinRate": 0.5
+    },
+    "AND035": {
+      "played": 433,
+      "winRate": 0.47344110854503463,
+      "keepRate": 0.20554272517321015,
+      "keepWinRate": 0.42696629213483145
+    },
+    "AND027": {
+      "played": 306,
+      "winRate": 0.38562091503267976,
+      "keepRate": 0.058823529411764705,
+      "keepWinRate": 0.3333333333333333
+    },
+    "AND031": {
+      "played": 382,
+      "winRate": 0.468586387434555,
+      "keepRate": 0.21727748691099477,
+      "keepWinRate": 0.4578313253012048
+    },
+    "AND039": {
+      "played": 134,
+      "winRate": 0.41044776119402987,
+      "keepRate": 0.1791044776119403,
+      "keepWinRate": 0.3333333333333333
+    },
+    "DRK037": {
+      "played": 293,
+      "winRate": 0.6484641638225256,
+      "keepRate": 0.2150170648464164,
+      "keepWinRate": 0.6507936507936508
+    },
+    "DRK_BOND_02": {
+      "played": 318,
+      "winRate": 0.6981132075471698,
+      "keepRate": 0.29559748427672955,
+      "keepWinRate": 0.6914893617021277
+    },
+    "DRK035": {
+      "played": 283,
+      "winRate": 0.5653710247349824,
+      "keepRate": 0.2791519434628975,
+      "keepWinRate": 0.4810126582278481
+    },
+    "DRK052": {
+      "played": 168,
+      "winRate": 0.7202380952380952,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "NEU061": {
+      "played": 1143,
+      "winRate": 0.5275590551181102,
+      "keepRate": 0.1452318460192476,
+      "keepWinRate": 0.463855421686747
+    },
+    "IZZ034": {
+      "played": 410,
+      "winRate": 0.6317073170731707,
+      "keepRate": 0.07073170731707316,
+      "keepWinRate": 0.6896551724137931
+    },
+    "IZZ027": {
+      "played": 456,
+      "winRate": 0.5767543859649122,
+      "keepRate": 0.19078947368421054,
+      "keepWinRate": 0.5517241379310345
+    },
+    "IZZ_BOND_01": {
+      "played": 441,
+      "winRate": 0.5578231292517006,
+      "keepRate": 0.2585034013605442,
+      "keepWinRate": 0.5614035087719298
+    },
+    "NEU089": {
+      "played": 1311,
+      "winRate": 0.45232646834477497,
+      "keepRate": 0.2128146453089245,
+      "keepWinRate": 0.4946236559139785
+    },
+    "IZZ021": {
+      "played": 517,
+      "winRate": 0.5667311411992263,
+      "keepRate": 0.2611218568665377,
+      "keepWinRate": 0.5259259259259259
+    },
+    "IZZ031": {
+      "played": 364,
+      "winRate": 0.5357142857142857,
+      "keepRate": 0.2664835164835165,
+      "keepWinRate": 0.6185567010309279
+    },
+    "AST021": {
+      "played": 193,
+      "winRate": 0.48704663212435234,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "AST_S01": {
+      "played": 453,
+      "winRate": 0.31567328918322296,
+      "keepRate": 0.23178807947019867,
+      "keepWinRate": 0.3523809523809524
+    },
+    "AST028": {
+      "played": 471,
+      "winRate": 0.35668789808917195,
+      "keepRate": 0.3057324840764331,
+      "keepWinRate": 0.2986111111111111
+    },
+    "AST033": {
+      "played": 265,
+      "winRate": 0.5056603773584906,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "AST032": {
+      "played": 301,
+      "winRate": 0.46179401993355484,
+      "keepRate": 0.2026578073089701,
+      "keepWinRate": 0.4426229508196721
+    },
+    "NEU096": {
+      "played": 1162,
+      "winRate": 0.47074010327022375,
+      "keepRate": 0.22375215146299485,
+      "keepWinRate": 0.4846153846153846
+    },
+    "AST035": {
+      "played": 366,
+      "winRate": 0.2677595628415301,
+      "keepRate": 0.27595628415300544,
+      "keepWinRate": 0.2079207920792079
+    },
+    "AVA036": {
+      "played": 585,
+      "winRate": 0.49401709401709404,
+      "keepRate": 0.2358974358974359,
+      "keepWinRate": 0.43478260869565216
+    },
+    "AVA037": {
+      "played": 511,
+      "winRate": 0.5499021526418787,
+      "keepRate": 0.2602739726027397,
+      "keepWinRate": 0.5413533834586466
+    },
+    "AVA023": {
+      "played": 496,
+      "winRate": 0.5584677419354839,
+      "keepRate": 0.1693548387096774,
+      "keepWinRate": 0.36904761904761907
+    },
+    "AVA027": {
+      "played": 564,
+      "winRate": 0.40602836879432624,
+      "keepRate": 0.24822695035460993,
+      "keepWinRate": 0.35
+    },
+    "AVA_BOND_01": {
+      "played": 484,
+      "winRate": 0.5041322314049587,
+      "keepRate": 0.2892561983471074,
+      "keepWinRate": 0.5142857142857142
+    },
+    "AVA031": {
+      "played": 516,
+      "winRate": 0.436046511627907,
+      "keepRate": 0.07170542635658915,
+      "keepWinRate": 0.2702702702702703
+    },
+    "AVA029": {
+      "played": 309,
+      "winRate": 0.4692556634304207,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "AVA030": {
+      "played": 500,
+      "winRate": 0.504,
+      "keepRate": 0.286,
+      "keepWinRate": 0.5244755244755245
+    },
+    "AVA024": {
+      "played": 545,
+      "winRate": 0.48073394495412847,
+      "keepRate": 0.25321100917431194,
+      "keepWinRate": 0.45652173913043476
+    },
+    "NEU099": {
+      "played": 1029,
+      "winRate": 0.6287657920310982,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "AVA021": {
+      "played": 290,
+      "winRate": 0.7068965517241379,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "AVA025": {
+      "played": 410,
+      "winRate": 0.5829268292682926,
+      "keepRate": 0.1,
+      "keepWinRate": 0.6829268292682927
+    },
+    "AVA028": {
+      "played": 422,
+      "winRate": 0.5639810426540285,
+      "keepRate": 0.07819905213270142,
+      "keepWinRate": 0.5151515151515151
+    },
+    "TAL025": {
+      "played": 370,
+      "winRate": 0.5702702702702702,
+      "keepRate": 0.1891891891891892,
+      "keepWinRate": 0.5285714285714286
+    },
+    "TAL028": {
+      "played": 307,
+      "winRate": 0.50814332247557,
+      "keepRate": 0.11074918566775244,
+      "keepWinRate": 0.5588235294117647
+    },
+    "TAL035": {
+      "played": 372,
+      "winRate": 0.5080645161290323,
+      "keepRate": 0.15591397849462366,
+      "keepWinRate": 0.43103448275862066
+    },
+    "TAL036": {
+      "played": 268,
+      "winRate": 0.5373134328358209,
+      "keepRate": 0.23134328358208955,
+      "keepWinRate": 0.3709677419354839
+    },
+    "TAL024": {
+      "played": 277,
+      "winRate": 0.7075812274368231,
+      "keepRate": 0.10469314079422383,
+      "keepWinRate": 0.5517241379310345
+    },
+    "TAL027": {
+      "played": 257,
+      "winRate": 0.5797665369649806,
+      "keepRate": 0.20622568093385213,
+      "keepWinRate": 0.6792452830188679
+    },
+    "NEU067": {
+      "played": 1086,
+      "winRate": 0.567219152854512,
+      "keepRate": 0.13351749539594843,
+      "keepWinRate": 0.5793103448275863
+    },
+    "TAL032": {
+      "played": 234,
+      "winRate": 0.5811965811965812,
+      "keepRate": 0.09401709401709402,
+      "keepWinRate": 0.6818181818181818
+    },
+    "NEU066": {
+      "played": 1033,
+      "winRate": 0.6321393998063891,
+      "keepRate": 0.06873184898354308,
+      "keepWinRate": 0.5352112676056338
+    },
+    "NEU074": {
+      "played": 1583,
+      "winRate": 0.5818066961465572,
+      "keepRate": 0.1560328490208465,
+      "keepWinRate": 0.5748987854251012
+    },
+    "NEU086": {
+      "played": 1270,
+      "winRate": 0.5291338582677165,
+      "keepRate": 0.2614173228346457,
+      "keepWinRate": 0.4759036144578313
+    },
+    "NEU090": {
+      "played": 1946,
+      "winRate": 0.4090441932168551,
+      "keepRate": 0.2173689619732785,
+      "keepWinRate": 0.3877068557919622
+    },
+    "AND_S03": {
+      "played": 412,
+      "winRate": 0.4029126213592233,
+      "keepRate": 0.16990291262135923,
+      "keepWinRate": 0.34285714285714286
+    },
+    "AND018": {
+      "played": 287,
+      "winRate": 0.4843205574912892,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "AND024": {
+      "played": 486,
+      "winRate": 0.43415637860082307,
+      "keepRate": 0.14609053497942387,
+      "keepWinRate": 0.4507042253521127
+    },
+    "DES028": {
+      "played": 595,
+      "winRate": 0.492436974789916,
+      "keepRate": 0.2823529411764706,
+      "keepWinRate": 0.5178571428571429
+    },
+    "DES040": {
+      "played": 420,
+      "winRate": 0.3261904761904762,
+      "keepRate": 0.20952380952380953,
+      "keepWinRate": 0.2159090909090909
+    },
+    "DES032": {
+      "played": 432,
+      "winRate": 0.45601851851851855,
+      "keepRate": 0.12037037037037036,
+      "keepWinRate": 0.4230769230769231
+    },
+    "DES_S02": {
+      "played": 432,
+      "winRate": 0.5138888888888888,
+      "keepRate": 0.2777777777777778,
+      "keepWinRate": 0.44166666666666665
+    },
+    "DES024": {
+      "played": 244,
+      "winRate": 0.4139344262295082,
+      "keepRate": 0.09836065573770492,
+      "keepWinRate": 0.2916666666666667
+    },
+    "DES037": {
+      "played": 411,
+      "winRate": 0.5474452554744526,
+      "keepRate": 0.11192214111922141,
+      "keepWinRate": 0.391304347826087
+    },
+    "DES_S03": {
+      "played": 350,
+      "winRate": 0.41714285714285715,
+      "keepRate": 0.26,
+      "keepWinRate": 0.37362637362637363
+    },
+    "NEU082": {
+      "played": 1308,
+      "winRate": 0.5527522935779816,
+      "keepRate": 0.1735474006116208,
+      "keepWinRate": 0.5903083700440529
+    },
+    "DES034": {
+      "played": 428,
+      "winRate": 0.5467289719626168,
+      "keepRate": 0.10747663551401869,
+      "keepWinRate": 0.45652173913043476
+    },
+    "DES030": {
+      "played": 336,
+      "winRate": 0.5595238095238095,
+      "keepRate": 0.13392857142857142,
+      "keepWinRate": 0.26666666666666666
+    },
+    "DES_COLLAR_02": {
+      "played": 430,
+      "winRate": 0.5488372093023256,
+      "keepRate": 0.29767441860465116,
+      "keepWinRate": 0.4375
+    },
+    "NEU088": {
+      "played": 975,
+      "winRate": 0.5876923076923077,
+      "keepRate": 0.09128205128205129,
+      "keepWinRate": 0.4943820224719101
+    },
+    "NEU083": {
+      "played": 1427,
+      "winRate": 0.409250175192712,
+      "keepRate": 0.21443587946741416,
+      "keepWinRate": 0.3464052287581699
+    },
+    "TAL038": {
+      "played": 292,
+      "winRate": 0.547945205479452,
+      "keepRate": 0.08904109589041095,
+      "keepWinRate": 0.8076923076923077
+    },
+    "TAL022": {
+      "played": 327,
+      "winRate": 0.4831804281345566,
+      "keepRate": 0.09174311926605505,
+      "keepWinRate": 0.43333333333333335
+    },
+    "NEU102": {
+      "played": 217,
+      "winRate": 0.663594470046083,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "NEU062": {
+      "played": 964,
+      "winRate": 0.5031120331950207,
+      "keepRate": 0.07883817427385892,
+      "keepWinRate": 0.4868421052631579
+    },
+    "TAL039": {
+      "played": 122,
+      "winRate": 0.680327868852459,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "TAL_BOND_02": {
+      "played": 456,
+      "winRate": 0.4868421052631579,
+      "keepRate": 0.23684210526315788,
+      "keepWinRate": 0.5092592592592593
+    },
+    "NEU073": {
+      "played": 570,
+      "winRate": 0.6719298245614035,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "TAL031": {
+      "played": 470,
+      "winRate": 0.49148936170212765,
+      "keepRate": 0.23404255319148937,
+      "keepWinRate": 0.5272727272727272
+    },
+    "TAL030": {
+      "played": 481,
+      "winRate": 0.45322245322245325,
+      "keepRate": 0.17671517671517672,
+      "keepWinRate": 0.4235294117647059
+    },
+    "NEU093": {
+      "played": 1440,
+      "winRate": 0.50625,
+      "keepRate": 0.13402777777777777,
+      "keepWinRate": 0.46632124352331605
+    },
+    "TAL016": {
+      "played": 372,
+      "winRate": 0.5806451612903226,
+      "keepRate": 0.07795698924731183,
+      "keepWinRate": 0.5862068965517241
+    },
+    "TAL020": {
+      "played": 441,
+      "winRate": 0.5396825396825397,
+      "keepRate": 0.1655328798185941,
+      "keepWinRate": 0.4520547945205479
+    },
+    "TAL018": {
+      "played": 519,
+      "winRate": 0.47398843930635837,
+      "keepRate": 0.3140655105973025,
+      "keepWinRate": 0.4233128834355828
+    },
+    "TAL_BOND_01": {
+      "played": 441,
+      "winRate": 0.4852607709750567,
+      "keepRate": 0.2290249433106576,
+      "keepWinRate": 0.4158415841584158
+    },
+    "TAL033": {
+      "played": 446,
+      "winRate": 0.4439461883408072,
+      "keepRate": 0.24663677130044842,
+      "keepWinRate": 0.43636363636363634
+    },
+    "TAL029": {
+      "played": 182,
+      "winRate": 0.7252747252747253,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "IZZ038": {
+      "played": 404,
+      "winRate": 0.5618811881188119,
+      "keepRate": 0.2599009900990099,
+      "keepWinRate": 0.5523809523809524
+    },
+    "IZZ037": {
+      "played": 355,
+      "winRate": 0.6901408450704225,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "NEU070": {
+      "played": 1074,
+      "winRate": 0.5186219739292365,
+      "keepRate": 0.14338919925512103,
+      "keepWinRate": 0.4675324675324675
+    },
+    "NEU103": {
+      "played": 181,
+      "winRate": 0.6685082872928176,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "IZZ030": {
+      "played": 489,
+      "winRate": 0.5603271983640081,
+      "keepRate": 0.24948875255623723,
+      "keepWinRate": 0.5409836065573771
+    },
+    "IZZ025": {
+      "played": 546,
+      "winRate": 0.6282051282051282,
+      "keepRate": 0.17765567765567766,
+      "keepWinRate": 0.7010309278350515
+    },
+    "AND037": {
+      "played": 363,
+      "winRate": 0.4765840220385675,
+      "keepRate": 0.21487603305785125,
+      "keepWinRate": 0.46153846153846156
+    },
+    "AND_S02": {
+      "played": 279,
+      "winRate": 0.5268817204301075,
+      "keepRate": 0.07168458781362007,
+      "keepWinRate": 0.5
+    },
+    "AND026": {
+      "played": 351,
+      "winRate": 0.4843304843304843,
+      "keepRate": 0.15384615384615385,
+      "keepWinRate": 0.48148148148148145
+    },
+    "AND034": {
+      "played": 371,
+      "winRate": 0.4743935309973046,
+      "keepRate": 0.1940700808625337,
+      "keepWinRate": 0.5
+    },
+    "AVA035": {
+      "played": 455,
+      "winRate": 0.5406593406593406,
+      "keepRate": 0.22417582417582418,
+      "keepWinRate": 0.5294117647058824
+    },
+    "JIM038": {
+      "played": 449,
+      "winRate": 0.43875278396436523,
+      "keepRate": 0.2717149220489978,
+      "keepWinRate": 0.45901639344262296
+    },
+    "JIM033": {
+      "played": 460,
+      "winRate": 0.4956521739130435,
+      "keepRate": 0.26304347826086955,
+      "keepWinRate": 0.4132231404958678
+    },
+    "JIM025": {
+      "played": 205,
+      "winRate": 0.6634146341463415,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "JIM_BOND_01": {
+      "played": 417,
+      "winRate": 0.4724220623501199,
+      "keepRate": 0.2997601918465228,
+      "keepWinRate": 0.48
+    },
+    "JIM035": {
+      "played": 364,
+      "winRate": 0.554945054945055,
+      "keepRate": 0.08241758241758242,
+      "keepWinRate": 0.4666666666666667
+    },
+    "JIM_S03": {
+      "played": 330,
+      "winRate": 0.5242424242424243,
+      "keepRate": 0.33636363636363636,
+      "keepWinRate": 0.5045045045045045
+    },
+    "JIM_BOND_02": {
+      "played": 390,
+      "winRate": 0.5,
+      "keepRate": 0.15897435897435896,
+      "keepWinRate": 0.5483870967741935
+    },
+    "JIM031": {
+      "played": 331,
+      "winRate": 0.6193353474320241,
+      "keepRate": 0.11178247734138973,
+      "keepWinRate": 0.5675675675675675
+    },
+    "JIM027": {
+      "played": 163,
+      "winRate": 0.588957055214724,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "JIM034": {
+      "played": 437,
+      "winRate": 0.37986270022883295,
+      "keepRate": 0.07551487414187644,
+      "keepWinRate": 0.30303030303030304
+    },
+    "JIM017": {
+      "played": 439,
+      "winRate": 0.4783599088838269,
+      "keepRate": 0.3143507972665148,
+      "keepWinRate": 0.39855072463768115
+    },
+    "JIM019": {
+      "played": 288,
+      "winRate": 0.4965277777777778,
+      "keepRate": 0.08680555555555555,
+      "keepWinRate": 0.36
+    },
+    "TAL021": {
+      "played": 288,
+      "winRate": 0.6076388888888888,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "DES029": {
+      "played": 156,
+      "winRate": 0.5705128205128205,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "DES035": {
+      "played": 186,
+      "winRate": 0.5645161290322581,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "NEU076": {
+      "played": 722,
+      "winRate": 0.6260387811634349,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "DES033": {
+      "played": 306,
+      "winRate": 0.6143790849673203,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "DES026": {
+      "played": 279,
+      "winRate": 0.6164874551971327,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "DES036": {
+      "played": 266,
+      "winRate": 0.49624060150375937,
+      "keepRate": 0.11654135338345864,
+      "keepWinRate": 0.3225806451612903
+    },
+    "DRK032": {
+      "played": 212,
+      "winRate": 0.8915094339622641,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "DRK024": {
+      "played": 299,
+      "winRate": 0.7658862876254181,
+      "keepRate": 0.06688963210702341,
+      "keepWinRate": 0.9
+    },
+    "DRK021": {
+      "played": 309,
+      "winRate": 0.7637540453074434,
+      "keepRate": 0.045307443365695796,
+      "keepWinRate": 0.8571428571428571
+    },
+    "DRK_BOND_01": {
+      "played": 323,
+      "winRate": 0.7120743034055728,
+      "keepRate": 0.14551083591331268,
+      "keepWinRate": 0.723404255319149
+    },
+    "DRK025": {
+      "played": 349,
+      "winRate": 0.7191977077363897,
+      "keepRate": 0.1518624641833811,
+      "keepWinRate": 0.7924528301886793
+    },
+    "DRK036": {
+      "played": 353,
+      "winRate": 0.7223796033994334,
+      "keepRate": 0.24645892351274787,
+      "keepWinRate": 0.7471264367816092
+    },
+    "TAL017": {
+      "played": 332,
+      "winRate": 0.4759036144578313,
+      "keepRate": 0.42771084337349397,
+      "keepWinRate": 0.45774647887323944
+    },
+    "TAL023": {
+      "played": 372,
+      "winRate": 0.4543010752688172,
+      "keepRate": 0.3602150537634409,
+      "keepWinRate": 0.5223880597014925
+    },
+    "TAL019": {
+      "played": 380,
+      "winRate": 0.48157894736842105,
+      "keepRate": 0.29473684210526313,
+      "keepWinRate": 0.4732142857142857
+    },
+    "NEU087": {
+      "played": 733,
+      "winRate": 0.6425648021828103,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "DRK046": {
+      "played": 269,
+      "winRate": 0.6914498141263941,
+      "keepRate": 0.15985130111524162,
+      "keepWinRate": 0.6046511627906976
+    },
+    "DRK019": {
+      "played": 242,
+      "winRate": 0.8264462809917356,
+      "keepRate": 0.0743801652892562,
+      "keepWinRate": 1
+    },
+    "DRK026": {
+      "played": 249,
+      "winRate": 0.678714859437751,
+      "keepRate": 0.30120481927710846,
+      "keepWinRate": 0.68
+    },
+    "DRK071": {
+      "played": 244,
+      "winRate": 0.7622950819672131,
+      "keepRate": 0.1762295081967213,
+      "keepWinRate": 0.8372093023255814
+    },
+    "DRK022": {
+      "played": 274,
+      "winRate": 0.6605839416058394,
+      "keepRate": 0.1678832116788321,
+      "keepWinRate": 0.6304347826086957
+    },
+    "AST_S02": {
+      "played": 427,
+      "winRate": 0.3185011709601874,
+      "keepRate": 0.2857142857142857,
+      "keepWinRate": 0.28688524590163933
+    },
+    "AST024": {
+      "played": 127,
+      "winRate": 0.2992125984251969,
+      "keepRate": 0.15748031496062992,
+      "keepWinRate": 0.3
+    },
+    "AST029": {
+      "played": 239,
+      "winRate": 0.4309623430962343,
+      "keepRate": 0.12133891213389121,
+      "keepWinRate": 0.4827586206896552
+    },
+    "LUC026": {
+      "played": 317,
+      "winRate": 0.36908517350157727,
+      "keepRate": 0.26498422712933756,
+      "keepWinRate": 0.30952380952380953
+    },
+    "LUC047": {
+      "played": 373,
+      "winRate": 0.47989276139410186,
+      "keepRate": 0.0777479892761394,
+      "keepWinRate": 0.5172413793103449
+    },
+    "LUC_ORB_FIRE": {
+      "played": 287,
+      "winRate": 0.3867595818815331,
+      "keepRate": 0.2857142857142857,
+      "keepWinRate": 0.4268292682926829
+    },
+    "LUC035": {
+      "played": 402,
+      "winRate": 0.3805970149253731,
+      "keepRate": 0.27860696517412936,
+      "keepWinRate": 0.3392857142857143
+    },
+    "LUC_BOND_01": {
+      "played": 272,
+      "winRate": 0.43014705882352944,
+      "keepRate": 0.23897058823529413,
+      "keepWinRate": 0.5538461538461539
+    },
+    "LUC038": {
+      "played": 439,
+      "winRate": 0.43735763097949887,
+      "keepRate": 0.296127562642369,
+      "keepWinRate": 0.5
+    },
+    "LUC039": {
+      "played": 263,
+      "winRate": 0.39923954372623577,
+      "keepRate": 0.2623574144486692,
+      "keepWinRate": 0.43478260869565216
+    },
+    "LUC_ORB_WATER": {
+      "played": 295,
+      "winRate": 0.3423728813559322,
+      "keepRate": 0.2576271186440678,
+      "keepWinRate": 0.3026315789473684
+    },
+    "LUC_BOND_02": {
+      "played": 294,
+      "winRate": 0.5068027210884354,
+      "keepRate": 0.11564625850340136,
+      "keepWinRate": 0.5294117647058824
+    },
+    "LUC036": {
+      "played": 403,
+      "winRate": 0.44168734491315137,
+      "keepRate": 0.2655086848635236,
+      "keepWinRate": 0.40186915887850466
+    },
+    "LUC_ORB_HEALING": {
+      "played": 280,
+      "winRate": 0.37857142857142856,
+      "keepRate": 0.28214285714285714,
+      "keepWinRate": 0.4050632911392405
+    },
+    "LUC034": {
+      "played": 243,
+      "winRate": 0.5843621399176955,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "NEU101": {
+      "played": 681,
+      "winRate": 0.6093979441997063,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "AST034": {
+      "played": 360,
+      "winRate": 0.4305555555555556,
+      "keepRate": 0.1,
+      "keepWinRate": 0.5
+    },
+    "AST040": {
+      "played": 294,
+      "winRate": 0.46938775510204084,
+      "keepRate": 0.24489795918367346,
+      "keepWinRate": 0.4027777777777778
+    },
+    "AVA038": {
+      "played": 153,
+      "winRate": 0.6993464052287581,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "AVA034": {
+      "played": 429,
+      "winRate": 0.43356643356643354,
+      "keepRate": 0.22377622377622378,
+      "keepWinRate": 0.3541666666666667
+    },
+    "AVA_BOND_02": {
+      "played": 447,
+      "winRate": 0.5145413870246085,
+      "keepRate": 0.2080536912751678,
+      "keepWinRate": 0.4731182795698925
+    },
+    "DRK062": {
+      "played": 308,
+      "winRate": 0.6136363636363636,
+      "keepRate": 0.16558441558441558,
+      "keepWinRate": 0.6470588235294118
+    },
+    "DRK034": {
+      "played": 253,
+      "winRate": 0.6086956521739131,
+      "keepRate": 0.22924901185770752,
+      "keepWinRate": 0.46551724137931033
+    },
+    "TAL034": {
+      "played": 158,
+      "winRate": 0.6582278481012658,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "DES025": {
+      "played": 527,
+      "winRate": 0.45161290322580644,
+      "keepRate": 0.08538899430740038,
+      "keepWinRate": 0.4444444444444444
+    },
+    "DES027": {
+      "played": 324,
+      "winRate": 0.5709876543209876,
+      "keepRate": 0.09876543209876543,
+      "keepWinRate": 0.34375
+    },
+    "DES_COLLAR_03": {
+      "played": 137,
+      "winRate": 0.708029197080292,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "DES023": {
+      "played": 260,
+      "winRate": 0.3384615384615385,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "LUC021": {
+      "played": 284,
+      "winRate": 0.41901408450704225,
+      "keepRate": 0.24647887323943662,
+      "keepWinRate": 0.4142857142857143
+    },
+    "LUC029": {
+      "played": 299,
+      "winRate": 0.44481605351170567,
+      "keepRate": 0.26421404682274247,
+      "keepWinRate": 0.4177215189873418
+    },
+    "LUC045": {
+      "played": 417,
+      "winRate": 0.434052757793765,
+      "keepRate": 0.27577937649880097,
+      "keepWinRate": 0.4608695652173913
+    },
+    "AVA026": {
+      "played": 282,
+      "winRate": 0.5921985815602837,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "IZZ029": {
+      "played": 377,
+      "winRate": 0.5755968169761273,
+      "keepRate": 0.11671087533156499,
+      "keepWinRate": 0.6363636363636364
+    },
+    "LUC024": {
+      "played": 440,
+      "winRate": 0.4159090909090909,
+      "keepRate": 0.22727272727272727,
+      "keepWinRate": 0.42
+    },
+    "LUC046": {
+      "played": 354,
+      "winRate": 0.3926553672316384,
+      "keepRate": 0.08192090395480225,
+      "keepWinRate": 0.27586206896551724
+    },
+    "LUC023": {
+      "played": 364,
+      "winRate": 0.5247252747252747,
+      "keepRate": 0.11263736263736264,
+      "keepWinRate": 0.5121951219512195
+    },
+    "LUC048": {
+      "played": 234,
+      "winRate": 0.47863247863247865,
+      "keepRate": 0.07692307692307693,
+      "keepWinRate": 0.4444444444444444
+    },
+    "LUC025": {
+      "played": 361,
+      "winRate": 0.481994459833795,
+      "keepRate": 0.11634349030470914,
+      "keepWinRate": 0.4523809523809524
+    },
+    "LUC040": {
+      "played": 312,
+      "winRate": 0.5192307692307693,
+      "keepRate": 0.07692307692307693,
+      "keepWinRate": 0.625
+    },
+    "LUC022": {
+      "played": 445,
+      "winRate": 0.44269662921348313,
+      "keepRate": 0.27191011235955054,
+      "keepWinRate": 0.45454545454545453
+    },
+    "AST023": {
+      "played": 385,
+      "winRate": 0.4077922077922078,
+      "keepRate": 0.21038961038961038,
+      "keepWinRate": 0.3333333333333333
+    },
+    "DRK042": {
+      "played": 185,
+      "winRate": 0.772972972972973,
+      "keepRate": 0.0972972972972973,
+      "keepWinRate": 0.8888888888888888
+    },
+    "DRK053": {
+      "played": 286,
+      "winRate": 0.5909090909090909,
+      "keepRate": 0.24125874125874125,
+      "keepWinRate": 0.5507246376811594
+    },
+    "DES041": {
+      "played": 242,
+      "winRate": 0.3347107438016529,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "AST026": {
+      "played": 462,
+      "winRate": 0.36796536796536794,
+      "keepRate": 0.30952380952380953,
+      "keepWinRate": 0.34265734265734266
+    },
+    "DES021": {
+      "played": 533,
+      "winRate": 0.4540337711069418,
+      "keepRate": 0.3058161350844278,
+      "keepWinRate": 0.3619631901840491
+    },
+    "DES022": {
+      "played": 290,
+      "winRate": 0.46551724137931033,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "DES031": {
+      "played": 83,
+      "winRate": 0.6144578313253012,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "NEU105": {
+      "played": 74,
+      "winRate": 0.7972972972972973,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "DES_S01": {
+      "played": 380,
+      "winRate": 0.49473684210526314,
+      "keepRate": 0.08947368421052632,
+      "keepWinRate": 0.2647058823529412
+    },
+    "NEU_TOKEN_01": {
+      "played": 29,
+      "winRate": 0.5517241379310345,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "DRK070": {
+      "played": 225,
+      "winRate": 0.6177777777777778,
+      "keepRate": 0.07111111111111111,
+      "keepWinRate": 0.5
+    },
+    "DRK044": {
+      "played": 232,
+      "winRate": 0.6724137931034483,
+      "keepRate": 0.16810344827586207,
+      "keepWinRate": 0.717948717948718
+    },
+    "IZZ033": {
+      "played": 505,
+      "winRate": 0.5544554455445545,
+      "keepRate": 0.2376237623762376,
+      "keepWinRate": 0.525
+    },
+    "AST036": {
+      "played": 91,
+      "winRate": 0.5054945054945055,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "IZZ_BOND_02": {
+      "played": 430,
+      "winRate": 0.586046511627907,
+      "keepRate": 0.1883720930232558,
+      "keepWinRate": 0.5802469135802469
+    },
+    "TAL026": {
+      "played": 154,
+      "winRate": 0.7402597402597403,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "AND036": {
+      "played": 131,
+      "winRate": 0.6106870229007634,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "AND033": {
+      "played": 213,
+      "winRate": 0.5821596244131455,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "JIM024": {
+      "played": 345,
+      "winRate": 0.5478260869565217,
+      "keepRate": 0.11014492753623188,
+      "keepWinRate": 0.4473684210526316
+    },
+    "JIM023": {
+      "played": 473,
+      "winRate": 0.49471458773784355,
+      "keepRate": 0.2854122621564482,
+      "keepWinRate": 0.4888888888888889
+    },
+    "DES039": {
+      "played": 393,
+      "winRate": 0.35877862595419846,
+      "keepRate": 0.08142493638676845,
+      "keepWinRate": 0.21875
+    },
+    "AND040": {
+      "played": 100,
+      "winRate": 0.64,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "DRK016": {
+      "played": 297,
+      "winRate": 0.6835016835016835,
+      "keepRate": 0.12457912457912458,
+      "keepWinRate": 0.6486486486486487
+    },
+    "JIM_S01": {
+      "played": 398,
+      "winRate": 0.48743718592964824,
+      "keepRate": 0.27638190954773867,
+      "keepWinRate": 0.4090909090909091
+    },
+    "JIM029": {
+      "played": 424,
+      "winRate": 0.4834905660377358,
+      "keepRate": 0.07075471698113207,
+      "keepWinRate": 0.4666666666666667
+    },
+    "JIM020": {
+      "played": 447,
+      "winRate": 0.4317673378076063,
+      "keepRate": 0.26174496644295303,
+      "keepWinRate": 0.39316239316239315
+    },
+    "JIM021": {
+      "played": 361,
+      "winRate": 0.5734072022160664,
+      "keepRate": 0.0886426592797784,
+      "keepWinRate": 0.75
+    },
+    "AND032": {
+      "played": 161,
+      "winRate": 0.6956521739130435,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "LUC041": {
+      "played": 358,
+      "winRate": 0.4301675977653631,
+      "keepRate": 0.2206703910614525,
+      "keepWinRate": 0.4177215189873418
+    },
+    "LUC042": {
+      "played": 271,
+      "winRate": 0.3763837638376384,
+      "keepRate": 0.07749077490774908,
+      "keepWinRate": 0.2857142857142857
+    },
+    "LUC031": {
+      "played": 387,
+      "winRate": 0.5142118863049095,
+      "keepRate": 0.07235142118863049,
+      "keepWinRate": 0.32142857142857145
+    },
+    "LUC027": {
+      "played": 258,
+      "winRate": 0.4069767441860465,
+      "keepRate": 0.22868217054263565,
+      "keepWinRate": 0.2711864406779661
+    },
+    "JIM018": {
+      "played": 318,
+      "winRate": 0.41509433962264153,
+      "keepRate": 0.08176100628930817,
+      "keepWinRate": 0.3076923076923077
+    },
+    "LUC028": {
+      "played": 429,
+      "winRate": 0.4662004662004662,
+      "keepRate": 0.27505827505827507,
+      "keepWinRate": 0.4491525423728814
+    },
+    "DRK045": {
+      "played": 213,
+      "winRate": 0.755868544600939,
+      "keepRate": 0.07042253521126761,
+      "keepWinRate": 0.6666666666666666
+    },
+    "JIM_S02": {
+      "played": 410,
+      "winRate": 0.47560975609756095,
+      "keepRate": 0.2658536585365854,
+      "keepWinRate": 0.44036697247706424
+    },
+    "LUC032": {
+      "played": 249,
+      "winRate": 0.5983935742971888,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "LUC_ORB_AIR": {
+      "played": 271,
+      "winRate": 0.36162361623616235,
+      "keepRate": 0.23247232472324722,
+      "keepWinRate": 0.36507936507936506
+    },
+    "AND029": {
+      "played": 208,
+      "winRate": 0.5961538461538461,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "JIM030": {
+      "played": 59,
+      "winRate": 0.6440677966101694,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "DES038": {
+      "played": 118,
+      "winRate": 0.576271186440678,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "AST041": {
+      "played": 97,
+      "winRate": 0.6288659793814433,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "IZZ032": {
+      "played": 397,
+      "winRate": 0.5012594458438288,
+      "keepRate": 0.16624685138539042,
+      "keepWinRate": 0.4393939393939394
+    },
+    "IZZ042": {
+      "played": 113,
+      "winRate": 0.6991150442477876,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "IZZ043": {
+      "played": 106,
+      "winRate": 0.8113207547169812,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "NEU104": {
+      "played": 69,
+      "winRate": 0.7101449275362319,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "DRK033": {
+      "played": 122,
+      "winRate": 0.639344262295082,
+      "keepRate": 0.22950819672131148,
+      "keepWinRate": 0.5357142857142857
+    },
+    "LUC030": {
+      "played": 48,
+      "winRate": 0.6666666666666666,
+      "keepRate": 0.3125,
+      "keepWinRate": 0.6666666666666666
+    },
+    "LUC037": {
+      "played": 414,
+      "winRate": 0.4251207729468599,
+      "keepRate": 0.2246376811594203,
+      "keepWinRate": 0.45161290322580644
+    },
+    "JIM036": {
+      "played": 321,
+      "winRate": 0.5327102803738317,
+      "keepRate": 0.14018691588785046,
+      "keepWinRate": 0.4444444444444444
+    },
+    "LUC049": {
+      "played": 110,
+      "winRate": 0.34545454545454546,
+      "keepRate": 0.2636363636363636,
+      "keepWinRate": 0.20689655172413793
+    },
+    "AST038": {
+      "played": 119,
+      "winRate": 0.46218487394957986,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "AST025": {
+      "played": 199,
+      "winRate": 0.49748743718592964,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "JIM037": {
+      "played": 242,
+      "winRate": 0.5619834710743802,
+      "keepRate": 0.09504132231404959,
+      "keepWinRate": 0.43478260869565216
+    },
+    "NEU107": {
+      "played": 59,
+      "winRate": 0.8813559322033898,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "TAL037": {
+      "played": 31,
+      "winRate": 0.7741935483870968,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "JIM022": {
+      "played": 116,
+      "winRate": 0.6551724137931034,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "JIM028": {
+      "played": 195,
+      "winRate": 0.4256410256410256,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "LUC044": {
+      "played": 94,
+      "winRate": 0.6170212765957447,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "NEU_TOKEN_RECRUIT": {
+      "played": 17,
+      "winRate": 0.8235294117647058,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "JIM032": {
+      "played": 62,
+      "winRate": 0.6290322580645161,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "NEU108": {
+      "played": 70,
+      "winRate": 0.7714285714285715,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "AVA039": {
+      "played": 35,
+      "winRate": 0.45714285714285713,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "JIM026": {
+      "played": 53,
+      "winRate": 0.4528301886792453,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "LUC043": {
+      "played": 83,
+      "winRate": 0.6867469879518072,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    },
+    "DRK041": {
+      "played": 126,
+      "winRate": 0.8253968253968254,
+      "keepRate": 0,
+      "keepWinRate": 0.5
+    }
+  }
 }
