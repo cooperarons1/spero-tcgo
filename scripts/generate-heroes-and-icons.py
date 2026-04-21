@@ -83,9 +83,12 @@ POWER_PROMPTS = {
 }
 
 BASE_POWER = (
-    "Hearthstone hero power medallion icon, centered, round composition, "
-    "dark circular border, single clear symbol, painterly fantasy art, "
-    "no text, no frame, high contrast"
+    "circular medallion icon, symbol centered tightly in the middle with "
+    "generous empty dark padding around all edges so circular cropping "
+    "keeps the subject whole, radially symmetric composition, single "
+    "clear glowing icon on a dark radial-gradient background, painterly "
+    "fantasy button art, no text, no frame, high contrast, square format "
+    "but subject confined to center circle"
 )
 BASE_HERO = (
     "Hearthstone hero portrait, painterly fantasy illustration, "
