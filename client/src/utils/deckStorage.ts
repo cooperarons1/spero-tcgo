@@ -111,23 +111,56 @@ export async function deleteDeck(uid: string, id: string): Promise<void> {
   }
 }
 
-export async function seedStarterDecks(uid: string): Promise<void> {
-  const existing = await loadDecks(uid);
-  const starterIds = STARTER_DECKS.map(s => s.id);
+/** Bump this key when you need to force-wipe all player decks in response to
+ * a class-pool overhaul. Users with an older migration version in their user
+ * doc get all decks wiped and starters re-seeded on next login. */
+const DECK_MIGRATION_VERSION = 2;
 
-  // Check if any starter deck needs fixing (wrong card count, missing, or cards changed)
+export async function seedStarterDecks(uid: string): Promise<void> {
+  const userRef = doc(db, 'users', uid);
+  const userDoc = await getDoc(userRef);
+  const userVersion = (userDoc.data()?.deckMigrationVersion ?? 0) as number;
+
+  // Class-pool overhaul wipe: user is on a prior migration — wipe all decks
+  // (starter + custom) and re-seed starters from scratch.
+  if (userVersion < DECK_MIGRATION_VERSION) {
+    const snap = await getDocs(collection(db, 'users', uid, 'decks'));
+    for (const d of snap.docs) {
+      await deleteDoc(doc(db, 'users', uid, 'decks', d.id));
+    }
+    const now = Date.now();
+    for (const starter of STARTER_DECKS) {
+      await setDoc(doc(db, 'users', uid, 'decks', starter.id), {
+        name: starter.name,
+        heroClass: starter.heroClass,
+        cards: starter.cards,
+        createdAt: now,
+        updatedAt: now,
+        isStarterDeck: true,
+      });
+    }
+    // Also clear locally-selected deck (points at a card-code list that
+    // may have been renamed/rethemed on the server).
+    localStorage.removeItem(SELECTED_KEY);
+    await setDoc(userRef, { deckMigrationVersion: DECK_MIGRATION_VERSION }, { merge: true });
+
+    // First-time setup gold grant
+    if (!userDoc.exists() || !(userDoc.data()?.gold)) {
+      await setDoc(userRef, { gold: 500, dust: 0 }, { merge: true });
+    }
+    return;
+  }
+
+  // Normal path: only seed/repair individual starter decks that drifted.
+  const existing = await loadDecks(uid);
   const needsReseed = STARTER_DECKS.some(starter => {
     const found = existing.find(d => d.id === starter.id);
     if (!found || found.cards.length !== 30) return true;
-    // Reseed if card list doesn't match (e.g. legendary fix)
     const sorted1 = [...found.cards].sort().join(',');
     const sorted2 = [...starter.cards].sort().join(',');
     return sorted1 !== sorted2;
   });
-
-  // No starters exist and user has no decks — first time setup
   const firstTime = existing.length === 0;
-
   if (!firstTime && !needsReseed) return;
 
   const now = Date.now();
@@ -142,10 +175,7 @@ export async function seedStarterDecks(uid: string): Promise<void> {
     });
   }
 
-  // Give new players starting gold (500) on first setup
   if (firstTime) {
-    const userRef = doc(db, 'users', uid);
-    const userDoc = await getDoc(userRef);
     if (!userDoc.exists() || !(userDoc.data()?.gold)) {
       await setDoc(userRef, { gold: 500, dust: 0 }, { merge: true });
     }

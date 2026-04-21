@@ -20,7 +20,8 @@ export type Keyword =
   | 'BOND'
   | 'COLLAR'
   | 'ORRA_CHARGE'
-  | 'LIFESTEAL';
+  | 'LIFESTEAL'
+  | 'SPELL_DAMAGE';
 
 // ─── Secrets ───
 

@@ -779,8 +779,10 @@ function tryTeacherPreHeroPower(game: GameState, playerIndex: 0 | 1): TeacherDec
   const oppIdx = (playerIndex === 0 ? 1 : 0) as 0 | 1;
   const opp = game.players[oppIdx];
 
-  // Derek: draw before playing for more options
-  if (me.heroClass === 'DEREK') {
+  // DES (Warlock — Life Tap): draw before playing when hand has room and
+  // HP buffer is comfortable. Preserves the old "Derek draws early" logic
+  // now that DES inherited Life Tap.
+  if (me.heroClass === 'DES' && me.hand.length < 10 && me.health > 6) {
     useHeroPower(game, me.playerId, null);
     return {
       type: 'hero_power', hero: me.heroClass, oppHero: opp.heroClass,
@@ -788,12 +790,12 @@ function tryTeacherPreHeroPower(game: GameState, playerIndex: 0 | 1): TeacherDec
     };
   }
 
-  // Damage-based hero powers: evaluate if pinging enables better trades
-  if (me.heroClass === 'JIMMY' || me.heroClass === 'DES') {
+  // IZZY (Mage — Fireblast): 1 dmg any target. Use pre-attack if pinging
+  // enables a better board after attacks.
+  if (me.heroClass === 'IZZY') {
     const targetable = opp.board.filter(m => !m.hasStealthUntilAttack);
     if (targetable.length === 0) return null;
 
-    // Use lookahead: try each target and see which gives best board eval
     let bestTarget: string | null = null;
     let bestScore = -Infinity;
 
@@ -803,12 +805,11 @@ function tryTeacherPreHeroPower(game: GameState, playerIndex: 0 | 1): TeacherDec
         if (enemy.hasDivineShield) continue;
         try {
           const sim = cloneGame(game);
-          const hpTarget = me.heroClass === 'JIMMY' ? enemy.instanceId : null;
-          useHeroPower(sim, sim.players[playerIndex].playerId, hpTarget);
+          useHeroPower(sim, sim.players[playerIndex].playerId, enemy.instanceId);
           const score = evaluateBoard(sim, playerIndex);
           if (score > bestScore) {
             bestScore = score;
-            bestTarget = hpTarget;
+            bestTarget = enemy.instanceId;
           }
         } catch { /* skip */ }
       }
@@ -816,33 +817,13 @@ function tryTeacherPreHeroPower(game: GameState, playerIndex: 0 | 1): TeacherDec
       if (AI_CLONE_POOL_ENABLED) gameStatePool.popFrame();
     }
 
-    // Also evaluate not using it pre-attack
     const noUseScore = evaluateBoard(game, playerIndex);
     if (bestTarget !== null && bestScore > noUseScore + 1) {
       useHeroPower(game, me.playerId, bestTarget);
       return {
         type: 'hero_power', hero: me.heroClass, oppHero: opp.heroClass,
-        turn: game.turnNumber, timing: 'pre', hpTarget: bestTarget ?? 'face',
+        turn: game.turnNumber, timing: 'pre', hpTarget: bestTarget,
       };
-    }
-  }
-
-  // Tala: buff if it enables a kill
-  if (me.heroClass === 'TALA' && me.board.length > 0) {
-    const targetable = opp.board.filter(m => !m.hasStealthUntilAttack);
-    for (const friendly of me.board) {
-      if (!friendly.canAttack || friendly.attacksRemaining <= 0 || friendly.isFrozen) continue;
-      const buffedAtk = friendly.currentAttack + 1;
-      for (const enemy of targetable) {
-        if (enemy.hasDivineShield) continue;
-        if (friendly.currentAttack < enemy.currentHealth && buffedAtk >= enemy.currentHealth) {
-          useHeroPower(game, me.playerId, friendly.instanceId);
-          return {
-            type: 'hero_power', hero: me.heroClass, oppHero: opp.heroClass,
-            turn: game.turnNumber, timing: 'pre', hpTarget: friendly.instanceId,
-          };
-        }
-      }
     }
   }
 
@@ -854,11 +835,15 @@ function tryTeacherPostHeroPower(game: GameState, playerIndex: 0 | 1): TeacherDe
   const oppIdx = (playerIndex === 0 ? 1 : 0) as 0 | 1;
   const opp = game.players[oppIdx];
 
-  // v4: lookahead-based targeting — try each valid target and pick best
-  const noTargetClasses: HeroClass[] = ['DEREK', 'DES', 'IZZY', 'LUCAS'];
-  const friendlyTargetClasses: HeroClass[] = ['TALA', 'ASTRID'];
-  const enemyTargetClasses: HeroClass[] = ['JIMMY', 'ANDERS'];
-  const summonClasses: HeroClass[] = ['AVA'];
+  // v4: lookahead-based targeting — new HS-classic mapping:
+  //   JIMMY=Steady Shot (auto face), IZZY=Fireblast (any target),
+  //   ASTRID=Dagger Mastery (no target), TALA=Lesser Heal (any char),
+  //   ANDERS=Armor Up (no target), AVA=Reinforce (summon),
+  //   LUCAS=Totemic Call (summon if slot), DES=Life Tap (no target),
+  //   DEREK=Shapeshift (no target).
+  const noTargetClasses: HeroClass[] = ['JIMMY', 'ASTRID', 'ANDERS', 'DES', 'DEREK'];
+  const anyTargetClasses: HeroClass[] = ['IZZY', 'TALA'];
+  const summonClasses: HeroClass[] = ['AVA', 'LUCAS'];
 
   // Determine valid targets
   let validTargets: (string | null)[] = [];
@@ -866,23 +851,19 @@ function tryTeacherPostHeroPower(game: GameState, playerIndex: 0 | 1): TeacherDe
   if (noTargetClasses.includes(me.heroClass)) {
     validTargets = [null];
   } else if (summonClasses.includes(me.heroClass)) {
-    if (me.board.length < 7) validTargets = [null];
-    else return null;
-  } else if (friendlyTargetClasses.includes(me.heroClass)) {
-    const candidates = me.heroClass === 'ASTRID'
-      ? me.board.filter(m => !m.hasDivineShield)
-      : me.board;
-    if (candidates.length === 0) return null;
-    validTargets = candidates.map(m => m.instanceId);
-  } else if (enemyTargetClasses.includes(me.heroClass)) {
-    const targetable = opp.board.filter(m => !m.hasStealthUntilAttack);
-    if (me.heroClass === 'JIMMY') {
-      // Jimmy can target face too
-      validTargets = [...targetable.map(m => m.instanceId), `hero-${oppIdx}`];
-    } else {
-      if (targetable.length === 0) return null;
-      validTargets = targetable.map(m => m.instanceId);
+    // AVA/LUCAS need a free board slot; LUCAS also needs an orb available
+    if (me.board.length >= 7) return null;
+    if (me.heroClass === 'LUCAS') {
+      const orbCodes = ['LUC_ORB_FIRE', 'LUC_ORB_WATER', 'LUC_ORB_AIR', 'LUC_ORB_HEALING'];
+      const existing = new Set(me.board.map(m => m.cardCode));
+      if (orbCodes.every(c => existing.has(c))) return null;
     }
+    validTargets = [null];
+  } else if (anyTargetClasses.includes(me.heroClass)) {
+    // IZZY + TALA target any character
+    const myMinions = me.board.map(m => m.instanceId);
+    const oppMinions = opp.board.filter(m => !m.hasStealthUntilAttack).map(m => m.instanceId);
+    validTargets = [...myMinions, ...oppMinions, `hero-${playerIndex}`, `hero-${oppIdx}`];
   } else {
     return null;
   }

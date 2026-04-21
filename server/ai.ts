@@ -661,65 +661,37 @@ function tryPreAttackHeroPower(
   const timingPref = getHeroPowerTiming(me.heroClass);
   if (timingPref === 'post') return false;
 
-  // Derek: draw a card BEFORE playing cards (more options)
-  if (me.heroClass === 'DEREK') {
+  // DES (Warlock — Life Tap): draw a card before playing (more options),
+  // but only if hand not full and we can afford the 2-life cost.
+  if (me.heroClass === 'DES' && me.hand.length < 10 && me.health > 6) {
     useHeroPower(game, aiPlayerId, null);
     broadcast();
     return true;
   }
 
-  // Tala: buff before attacks if it enables a kill
-  if (me.heroClass === 'TALA' && me.board.length > 0) {
-    const opp = game.players[oppIdx];
-    const targetable = opp.board.filter(m => !m.hasStealthUntilAttack);
-    // Check if buffing any friendly minion (+1/+1) enables a kill it couldn't make before
-    for (const friendly of me.board) {
-      if (!friendly.canAttack || friendly.attacksRemaining <= 0 || friendly.isFrozen) continue;
-      const buffedAtk = friendly.currentAttack + 1;
-      for (const enemy of targetable) {
-        if (enemy.hasDivineShield) continue;
-        if (friendly.currentAttack < enemy.currentHealth && buffedAtk >= enemy.currentHealth) {
-          // Buff enables a kill — use hero power on this minion now
-          useHeroPower(game, aiPlayerId, friendly.instanceId);
-          broadcast();
-          return true;
-        }
-      }
-    }
-    // No kill enabled — don't use pre-attack, save for post-attack
-  }
-
-  // Only use hero power pre-attack for damage classes that enable better trades
-  if (me.heroClass === 'JIMMY' || me.heroClass === 'DES') {
-    // Check if pinging an enemy minion would let one of our minions make a clean trade
+  // IZZY (Mage — Fireblast): ping an enemy minion pre-attack if it enables
+  // a clean trade or kills outright. Damage is 1 (HS classic).
+  if (me.heroClass === 'IZZY') {
     const targetable = opp.board.filter(m => !m.hasStealthUntilAttack);
     if (targetable.length === 0) return false;
 
-    // Find a minion where dealing 2 damage (Jimmy) or 2 damage (Des, now targeted) sets up a kill
     for (const enemy of targetable) {
       if (enemy.hasDivineShield) continue;
-      const hpAfterPing = enemy.currentHealth - 2;
+      const hpAfterPing = enemy.currentHealth - 1;
       if (hpAfterPing <= 0) {
-        // Ping kills it outright — prefer exact kill over overkill
-        const hpTarget = enemy.instanceId;
-        useHeroPower(game, aiPlayerId, hpTarget);
+        useHeroPower(game, aiPlayerId, enemy.instanceId);
         broadcast();
         return true;
       }
-      // Check if any of our minions can now cleanly trade
       for (const friendly of me.board) {
         if (!friendly.canAttack || friendly.attacksRemaining <= 0 || friendly.isFrozen || friendly.currentAttack <= 0) continue;
         if (friendly.currentAttack === hpAfterPing && enemy.currentAttack < friendly.currentHealth) {
-          // Perfect: ping + trade = clean kill with our minion surviving
-          const hpTarget = enemy.instanceId;
-          useHeroPower(game, aiPlayerId, hpTarget);
+          useHeroPower(game, aiPlayerId, enemy.instanceId);
           broadcast();
           return true;
         }
       }
     }
-
-    // No trade setup benefit; save hero power for after cards
     return false;
   }
 
@@ -1213,25 +1185,36 @@ function usePostAttackHeroPower(
   let shouldUse = true;
 
   switch (me.heroClass) {
-    case 'JIMMY': {
-      // v4: use distilled strategy if available
-      const jimmyTarget = getDistilledHeroPowerTarget(me.heroClass, me, opp, oppIdx);
-      if (jimmyTarget !== undefined) {
-        hpTarget = jimmyTarget;
+    case 'JIMMY':
+      // Hunter — Steady Shot: auto 2 dmg enemy hero.
+      hpTarget = null;
+      break;
+
+    case 'IZZY': {
+      // Mage — Fireblast: 1 dmg any target. Exact kill > chip highest threat > face.
+      const izzyTarget = getDistilledHeroPowerTarget(me.heroClass, me, opp, oppIdx);
+      if (izzyTarget !== undefined) {
+        if (izzyTarget === null) shouldUse = false;
+        else hpTarget = izzyTarget;
       } else {
-        // Orra Arrow: 2 damage targeted — prefer killing a minion exactly, else hit face
-        hpTarget = pickDamageHeroPowerTarget(opp, oppIdx, 2);
+        hpTarget = pickDamageHeroPowerTarget(opp, oppIdx, 1);
       }
       break;
     }
 
-    case 'DES':
-      // Orra Siphon: 2 damage to enemy hero (no targeting needed)
-      hpTarget = null;
+    case 'ASTRID':
+      // Rogue — Dagger Mastery: equip 1/2 Wicked Knife. Skip if already have a
+      // better weapon equipped.
+      if (me.weapon && me.weapon.currentAttack >= 2) {
+        shouldUse = false;
+      } else {
+        hpTarget = null;
+      }
       break;
 
     case 'TALA': {
-      // Healing Touch: Restore 2 Health to any character — prefer own damaged minions, then hero
+      // Priest — Lesser Heal: restore 2 to any character. Prefer most-damaged
+      // friendly minion, then hero if damaged by 4+.
       const damaged = me.board.filter(m => m.currentHealth < m.maxHealth);
       if (damaged.length > 0) {
         hpTarget = damaged.sort((a, b) => threatScore(b) - threatScore(a))[0].instanceId;
@@ -1243,45 +1226,13 @@ function usePostAttackHeroPower(
       break;
     }
 
-    case 'DEREK':
-      // Draw a card — always good
+    case 'ANDERS':
+      // Warrior — Armor Up!: always worth 2 mana for 2 armor.
       hpTarget = null;
       break;
 
-    case 'ANDERS': {
-      // v4: use distilled strategy if available
-      const andersTarget = getDistilledHeroPowerTarget(me.heroClass, me, opp, oppIdx);
-      if (andersTarget !== undefined) {
-        if (andersTarget === null) shouldUse = false;
-        else hpTarget = andersTarget;
-      } else {
-        // Freeze + 1 damage to enemy minion — target highest threat
-        if (opp.board.length > 0) {
-          const targetable = opp.board.filter(m => !m.hasStealthUntilAttack);
-          if (targetable.length > 0) {
-            hpTarget = targetable.sort((a, b) => b.currentAttack - a.currentAttack)[0].instanceId;
-          } else {
-            shouldUse = false;
-          }
-        } else {
-          shouldUse = false;
-        }
-      }
-      break;
-    }
-
-    case 'ASTRID': {
-      // Shield Wall: give +2 Health to biggest friendly minion
-      if (me.board.length > 0) {
-        hpTarget = me.board.slice().sort((a, b) => threatScore(b) - threatScore(a))[0].instanceId;
-      } else {
-        shouldUse = false;
-      }
-      break;
-    }
-
     case 'AVA':
-      // Deploy Drone: summon 1/1 — use if board not full and we're not way ahead
+      // Paladin — Reinforce: summon 1/1 Recruit if board has room.
       if (me.board.length < 7) {
         hpTarget = null;
       } else {
@@ -1289,13 +1240,30 @@ function usePostAttackHeroPower(
       }
       break;
 
-    case 'LUCAS':
-      // Coyote's Veil: +1 Attack and 1 Armor — always worth using
-      hpTarget = null;
+    case 'LUCAS': {
+      // Shaman — Totemic Call: random orb if slot + dupe availability.
+      if (me.board.length >= 7) { shouldUse = false; break; }
+      const orbCodes = ['LUC_ORB_FIRE', 'LUC_ORB_WATER', 'LUC_ORB_AIR', 'LUC_ORB_HEALING'];
+      const existing = new Set(me.board.map(m => m.cardCode));
+      if (orbCodes.every(c => existing.has(c))) {
+        shouldUse = false;
+      } else {
+        hpTarget = null;
+      }
+      break;
+    }
+
+    case 'DES':
+      // Warlock — Life Tap: draw 1, take 2. Skip if hand full or low HP.
+      if (me.hand.length >= 10 || me.health <= 6) {
+        shouldUse = false;
+      } else {
+        hpTarget = null;
+      }
       break;
 
-    case 'IZZY':
-      // Chart Course: gain 2 armor — always worth using
+    case 'DEREK':
+      // Druid — Shapeshift: +1 atk this turn + 1 armor. Always worth it.
       hpTarget = null;
       break;
 
@@ -1305,8 +1273,17 @@ function usePostAttackHeroPower(
 
   if (!shouldUse) return;
 
-  const noTargetNeeded = ['DEREK', 'IZZY', 'DES', 'LUCAS'].includes(me.heroClass) ||
-    (me.heroClass === 'AVA' && me.board.length < 7);
+  // HS-classic mapping: classes that don't require a target picker server-side
+  //   JIMMY  (Steady Shot — auto face)
+  //   ASTRID (Dagger Mastery — equips weapon)
+  //   ANDERS (Armor Up — self)
+  //   DES    (Life Tap — self)
+  //   DEREK  (Shapeshift — self)
+  //   AVA    (Reinforce — summon, needs board slot)
+  //   LUCAS  (Totemic Call — summon, needs slot + non-dup)
+  const noTargetNeeded = ['JIMMY', 'ASTRID', 'ANDERS', 'DES', 'DEREK'].includes(me.heroClass) ||
+    (me.heroClass === 'AVA' && me.board.length < 7) ||
+    (me.heroClass === 'LUCAS' && me.board.length < 7);
 
   if (hpTarget !== null || noTargetNeeded) {
     useHeroPower(game, aiPlayerId, hpTarget);
@@ -1329,16 +1306,14 @@ function getDistilledHeroPowerTarget(
   if (!strategy) return undefined; // no distilled data, use fallback
 
   const targetable = opp.board.filter(m => !m.hasStealthUntilAttack);
-  if (targetable.length === 0) {
-    // Face or no use depending on hero
-    if (heroClass === 'JIMMY') return `hero-${oppIdx}`;
-    return null;
-  }
+  // JIMMY (Hunter — Steady Shot) auto-hits face; no strategy applies.
+  if (heroClass === 'JIMMY') return null;
+  if (targetable.length === 0) return null;
 
   switch (strategy) {
     case 'exact_kill': {
-      // Try to find a minion we can exactly kill
-      const hpDamage = heroClass === 'JIMMY' ? 2 : heroClass === 'ANDERS' ? 1 : 2;
+      // IZZY Fireblast = 1 dmg; all other damaging powers are gone.
+      const hpDamage = 1;
       const exact = targetable
         .filter(m => !m.hasDivineShield && m.currentHealth === hpDamage)
         .sort((a, b) => threatScore(b) - threatScore(a));

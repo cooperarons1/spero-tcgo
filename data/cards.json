@@ -685,10 +685,10 @@
     "rarity": "RARE",
     "attack": 3,
     "health": 2,
-    "text": "Stealth. Bond: If you control Owl Sketch, both get +2/+2.",
-    "flavor": "Jax trusts no one — except the boy who draws owls.",
+    "text": "Windfury. Bond: If you control Owl Sketch, both get +2/+2.",
+    "flavor": "Jax runs with the wind — doubled when paired with his owl.",
     "keywords": [
-      "STEALTH",
+      "WINDFURY",
       "BOND"
     ],
     "minionType": "BEAST",
@@ -825,17 +825,21 @@
     "rarity": "LEGENDARY",
     "attack": 4,
     "health": 4,
-    "text": "Battlecry: Give all friendly minions +1/+2.",
-    "flavor": "When she raises her fist, shields appear. It's not magic. It's will.",
+    "text": "Battlecry: Deal 2 damage. Combo: Destroy a minion instead.",
+    "flavor": "Set up the shot, land the shot. Set it up twice, the whole thing ends.",
     "keywords": [
-      "BATTLECRY"
+      "BATTLECRY",
+      "COMBO"
     ],
     "minionType": "AMETI",
     "battlecryEffect": {
-      "type": "BUFF_ALL_FRIENDLY",
-      "target": "ALL_FRIENDLY_MINIONS",
-      "attackBuff": 1,
-      "healthBuff": 2
+      "type": "DEAL_DAMAGE",
+      "target": "TARGET_ANY",
+      "value": 2
+    },
+    "comboEffect": {
+      "type": "DESTROY_MINION",
+      "target": "TARGET_MINION"
     }
   },
   {
@@ -913,7 +917,7 @@
   },
   {
     "cardCode": "LUC021",
-    "name": "Agile Strength",
+    "name": "Rockbiter Weapon",
     "manaCost": 1,
     "type": "SPELL",
     "heroClass": "LUCAS",
@@ -921,7 +925,7 @@
     "attack": 0,
     "health": 0,
     "text": "Give a friendly minion +2 Attack this turn.",
-    "flavor": "Strength borrowed is strength earned. Sort of.",
+    "flavor": "The stones hunger for a fight.",
     "keywords": [],
     "spellEffect": {
       "type": "BUFF_MINION",
@@ -957,13 +961,20 @@
     "heroClass": "ASTRID",
     "rarity": "COMMON",
     "attack": 3,
-    "health": 4,
-    "text": "Taunt.",
-    "flavor": "She stands where others won't. That's the whole job.",
+    "health": 3,
+    "text": "Stealth. Combo: Gain +1/+1.",
+    "flavor": "She picks her moment — and if she's been setting up, she picks twice.",
     "keywords": [
-      "TAUNT"
+      "STEALTH",
+      "COMBO"
     ],
-    "minionType": "AMETI"
+    "minionType": "AMETI",
+    "comboEffect": {
+      "type": "BUFF_MINION",
+      "target": "SELF",
+      "attackBuff": 1,
+      "healthBuff": 1
+    }
   },
   {
     "cardCode": "DRK017",
@@ -979,7 +990,7 @@
     "keywords": [
       "DEATHRATTLE"
     ],
-    "minionType": "MECH",
+    "minionType": "BEAST",
     "deathrattleEffect": {
       "type": "DEAL_DAMAGE_RANDOM_ENEMY",
       "target": "RANDOM_ENEMY",
@@ -1025,19 +1036,20 @@
   },
   {
     "cardCode": "AST024",
-    "name": "Applied Judgement",
-    "manaCost": 3,
+    "name": "Backstab",
+    "manaCost": 0,
     "type": "SPELL",
     "heroClass": "ASTRID",
     "rarity": "COMMON",
     "attack": 0,
     "health": 0,
-    "text": "Deal damage equal to a friendly minion's Attack to an enemy.",
-    "flavor": "Justice isn't blind. It's taking careful aim.",
+    "text": "Deal 2 damage to an undamaged minion.",
+    "flavor": "One clean strike. No witnesses.",
     "keywords": [],
     "spellEffect": {
-      "type": "DEAL_DAMAGE_BASED_ON_ARMOR",
-      "target": "ALL_ENEMY_MINIONS"
+      "type": "DEAL_DAMAGE",
+      "target": "TARGET_MINION",
+      "value": 2
     }
   },
   {
@@ -1070,7 +1082,7 @@
   },
   {
     "cardCode": "DRK018",
-    "name": "Audit the Inventory",
+    "name": "Ancient Knowledge",
     "manaCost": 2,
     "type": "SPELL",
     "heroClass": "DEREK",
@@ -1078,7 +1090,7 @@
     "attack": 0,
     "health": 0,
     "text": "Draw a card.",
-    "flavor": "Always check the inventory. Always.",
+    "flavor": "The forest remembers. You remember with it.",
     "keywords": [],
     "spellEffect": null,
     "spellEffects": []
@@ -1091,37 +1103,28 @@
     "heroClass": "LUCAS",
     "rarity": "COMMON",
     "attack": 3,
-    "health": 3,
-    "text": "Combo: Gain +1/+1.",
-    "flavor": "Fast hands, faster feet, fastest mouth.",
-    "keywords": [
-      "COMBO"
-    ],
-    "minionType": "HUMAN",
-    "comboEffect": {
-      "type": "BUFF_MINION",
-      "target": "SELF",
-      "attackBuff": 2,
-      "healthBuff": 1
-    }
+    "health": 2,
+    "text": "",
+    "flavor": "Fast hands, faster feet, fastest winds.",
+    "keywords": [],
+    "minionType": "HUMAN"
   },
   {
     "cardCode": "IZZ021",
-    "name": "Balanced Progress",
-    "manaCost": 3,
+    "name": "Arcane Missiles",
+    "manaCost": 1,
     "type": "SPELL",
     "heroClass": "IZZY",
     "rarity": "COMMON",
     "attack": 0,
     "health": 0,
-    "text": "Give a friendly minion +2/+2.",
-    "flavor": "Balance in all things. Especially combat.",
+    "text": "Deal 3 damage randomly split among enemies.",
+    "flavor": "A trio of seeking bolts — they always find a target.",
     "keywords": [],
     "spellEffect": {
-      "type": "BUFF_MINION",
-      "target": "TARGET_FRIENDLY_MINION",
-      "attackBuff": 2,
-      "healthBuff": 2
+      "type": "DEAL_DAMAGE_RANDOM_ENEMY",
+      "target": "NONE",
+      "value": 3
     }
   },
   {
@@ -1136,10 +1139,9 @@
     "text": "Taunt.",
     "flavor": "Slow, steady, and completely unstoppable.",
     "keywords": [
-      "BATTLECRY"
+      "TAUNT"
     ],
-    "minionType": "MECH",
-    "battlecryEffects": []
+    "minionType": "BEAST"
   },
   {
     "cardCode": "JIM018",
@@ -1174,21 +1176,20 @@
   },
   {
     "cardCode": "IZZ022",
-    "name": "Boost the Parade",
+    "name": "Blizzard",
     "manaCost": 4,
     "type": "SPELL",
     "heroClass": "IZZY",
     "rarity": "COMMON",
-    "attack": 5,
+    "attack": 0,
     "health": 0,
-    "text": "Give all friendly minions +1/+1.",
-    "flavor": "More sparkle. More power. More parade.",
+    "text": "Deal 2 damage to all enemy minions.",
+    "flavor": "An icy storm sweeps across the battlefield.",
     "keywords": [],
     "spellEffect": {
-      "type": "BUFF_ALL_FRIENDLY",
-      "target": "ALL_FRIENDLY_MINIONS",
-      "attackBuff": 1,
-      "healthBuff": 1
+      "type": "DEAL_DAMAGE_ALL_ENEMIES",
+      "target": "ALL_ENEMY_MINIONS",
+      "value": 2
     }
   },
   {
@@ -1340,7 +1341,7 @@
     "spellEffect": {
       "type": "SUMMON_MINION",
       "target": "NONE",
-      "summonCardCode": "NEU_TOKEN_01",
+      "summonCardCode": "AST_TOKEN_01",
       "summonCount": 3
     }
   },
@@ -1356,7 +1357,7 @@
     "text": "A reliable mech with solid construction.",
     "flavor": "She'll work for parts. Good parts.",
     "keywords": [],
-    "minionType": "MECH"
+    "minionType": "BEAST"
   },
   {
     "cardCode": "NEU065",
@@ -1380,13 +1381,13 @@
     "rarity": "COMMON",
     "attack": 4,
     "health": 3,
-    "text": "Battlecry: Gain 1 Armor.",
-    "flavor": "She swings first and navigates later.",
+    "text": "Battlecry: Deal 1 damage to a random enemy.",
+    "flavor": "She swings first and asks questions later.",
     "keywords": [
       "BATTLECRY"
     ],
     "battlecryEffect": {
-      "type": "GAIN_ARMOR",
+      "type": "DEAL_DAMAGE_RANDOM_ENEMY",
       "target": "NONE",
       "value": 1
     },
@@ -1420,7 +1421,7 @@
     "keywords": [
       "BATTLECRY"
     ],
-    "minionType": "MECH",
+    "minionType": "BEAST",
     "battlecryEffect": {
       "type": "DRAW_CARDS",
       "target": "NONE",
@@ -1429,21 +1430,19 @@
   },
   {
     "cardCode": "AST026",
-    "name": "Chest of Fortitude",
+    "name": "Sap",
     "manaCost": 2,
     "type": "SPELL",
     "heroClass": "ASTRID",
     "rarity": "COMMON",
     "attack": 0,
     "health": 0,
-    "text": "Give a friendly minion +1/+2.",
-    "flavor": "What's in the chest? Hope. Also a really nice shield.",
+    "text": "Return an enemy minion to its owner's hand.",
+    "flavor": "Now you see it. Now you see it somewhere else.",
     "keywords": [],
     "spellEffect": {
-      "type": "BUFF_MINION",
-      "target": "TARGET_FRIENDLY_MINION",
-      "attackBuff": 1,
-      "healthBuff": 2
+      "type": "RETURN_TO_HAND",
+      "target": "TARGET_ENEMY_MINION"
     }
   },
   {
@@ -1533,15 +1532,14 @@
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "COMMON",
-    "attack": 4,
+    "attack": 3,
     "health": 3,
-    "text": "Stealth. Combo: Draw a card.",
-    "flavor": "The crowd loves him. His targets don't.",
+    "text": "Battlecry: Draw a card.",
+    "flavor": "The crowd loves him. The cards love him more.",
     "keywords": [
-      "STEALTH",
-      "COMBO"
+      "BATTLECRY"
     ],
-    "comboEffect": {
+    "battlecryEffect": {
       "type": "DRAW_CARDS",
       "target": "NONE",
       "value": 1
@@ -1598,7 +1596,7 @@
     "keywords": [
       "BATTLECRY"
     ],
-    "minionType": "MECH",
+    "minionType": "BEAST",
     "battlecryEffect": {
       "type": "DRAW_CARDS",
       "target": "NONE",
@@ -1686,14 +1684,14 @@
     "rarity": "COMMON",
     "attack": 2,
     "health": 4,
-    "text": "Battlecry: Gain 2 Armor.",
+    "text": "Battlecry: Deal 2 damage to a minion.",
     "flavor": "Named after a constellation. Shines like one too.",
     "keywords": [
       "BATTLECRY"
     ],
     "battlecryEffect": {
-      "type": "GAIN_ARMOR",
-      "target": "NONE",
+      "type": "DEAL_DAMAGE",
+      "target": "TARGET_MINION",
       "value": 2
     },
     "minionType": "AMETI"
@@ -1717,15 +1715,15 @@
   },
   {
     "cardCode": "AST027",
-    "name": "Defensive Staff of Strength",
+    "name": "Assassin's Blade",
     "manaCost": 3,
     "type": "WEAPON",
     "heroClass": "ASTRID",
     "rarity": "COMMON",
     "attack": 2,
     "health": 3,
-    "text": "A durable staff built for sustained combat.",
-    "flavor": "Defense is the best offense. This staff is the best defense.",
+    "text": "A reliable sidearm for quiet work.",
+    "flavor": "Long in the grip, sharp at the edge.",
     "keywords": []
   },
   {
@@ -1755,7 +1753,7 @@
   {
     "cardCode": "JIM024",
     "name": "Eddie",
-    "manaCost": 3,
+    "manaCost": 4,
     "type": "MINION",
     "heroClass": "JIMMY",
     "rarity": "COMMON",
@@ -1797,12 +1795,12 @@
     "type": "MINION",
     "heroClass": "ASTRID",
     "rarity": "RARE",
-    "attack": 2,
-    "health": 3,
-    "text": "Divine Shield.",
-    "flavor": "Her shield shimmers before the enemy even swings.",
+    "attack": 3,
+    "health": 2,
+    "text": "Stealth.",
+    "flavor": "You won't see her coming. You won't see her leave.",
     "keywords": [
-      "DIVINE_SHIELD"
+      "STEALTH"
     ],
     "minionType": "AMETI"
   },
@@ -1902,7 +1900,7 @@
   },
   {
     "cardCode": "DRK023",
-    "name": "Equipment Upgrade",
+    "name": "Nature's Edge",
     "manaCost": 2,
     "type": "SPELL",
     "heroClass": "DEREK",
@@ -1910,7 +1908,7 @@
     "attack": 0,
     "health": 0,
     "text": "Give your weapon +1/+1.",
-    "flavor": "Your weapon deserves an upgrade. So do you.",
+    "flavor": "The vines sharpen what the blade cannot.",
     "keywords": [],
     "spellEffect": {
       "type": "BUFF_MINION",
@@ -1981,7 +1979,7 @@
   },
   {
     "cardCode": "LUC024",
-    "name": "Face to Face",
+    "name": "Lava Burst",
     "manaCost": 1,
     "type": "SPELL",
     "heroClass": "LUCAS",
@@ -1989,7 +1987,7 @@
     "attack": 0,
     "health": 0,
     "text": "Deal 4 damage to the enemy hero.",
-    "flavor": "He dances on rooftops and laughs at gravity.",
+    "flavor": "The earth splits. Something burns through.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE",
@@ -2004,26 +2002,26 @@
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "COMMON",
-    "attack": 4,
+    "attack": 3,
     "health": 3,
-    "text": "Stealth.",
+    "text": "Windfury.",
     "flavor": "She rides the wind on wings of gold.",
     "keywords": [
-      "STEALTH"
+      "WINDFURY"
     ],
     "minionType": "HUMAN"
   },
   {
     "cardCode": "LUC026",
-    "name": "Feather Cloak",
+    "name": "Spirit Claws",
     "manaCost": 2,
     "type": "WEAPON",
     "heroClass": "LUCAS",
     "rarity": "COMMON",
     "attack": 2,
     "health": 3,
-    "text": "A lightweight cloak that strikes swiftly.",
-    "flavor": "Light as air. Quiet as shadow.",
+    "text": "A weapon blessed by the elements.",
+    "flavor": "The spirits guide each strike.",
     "keywords": []
   },
   {
@@ -2120,7 +2118,7 @@
   },
   {
     "cardCode": "LUC027",
-    "name": "Focus of Return",
+    "name": "Ancestral Recall",
     "manaCost": 1,
     "type": "SPELL",
     "heroClass": "LUCAS",
@@ -2128,7 +2126,7 @@
     "attack": 0,
     "health": 0,
     "text": "Return a friendly minion to your hand.",
-    "flavor": "One moment you're winning. The next, you're not even playing.",
+    "flavor": "The spirits remember. They bring you back.",
     "keywords": [],
     "spellEffect": {
       "type": "RETURN_TO_HAND",
@@ -2170,7 +2168,7 @@
     "keywords": [
       "BATTLECRY"
     ],
-    "minionType": "MECH",
+    "minionType": "BEAST",
     "battlecryEffect": {
       "type": "DRAW_CARDS",
       "target": "NONE",
@@ -2348,20 +2346,14 @@
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "RARE",
-    "attack": 2,
-    "health": 3,
-    "text": "Combo: Gain +2 Attack.",
-    "flavor": "Lightning in her veins, thunder in her fists.",
+    "attack": 3,
+    "health": 2,
+    "text": "Windfury.",
+    "flavor": "Lightning in her veins — and twice in her fists.",
     "keywords": [
-      "COMBO"
+      "WINDFURY"
     ],
-    "minionType": "AMETI",
-    "comboEffect": {
-      "type": "BUFF_MINION",
-      "target": "SELF",
-      "attackBuff": 2,
-      "healthBuff": 0
-    }
+    "minionType": "ELEMENTAL"
   },
   {
     "cardCode": "TAL022",
@@ -2405,8 +2397,10 @@
     "health": 3,
     "text": "Charge.",
     "flavor": "Fast, cheap, and only occasionally explodes.",
-    "keywords": [],
-    "minionType": "MECH"
+    "keywords": [
+      "CHARGE"
+    ],
+    "minionType": "BEAST"
   },
   {
     "cardCode": "AVA027",
@@ -2434,7 +2428,7 @@
   },
   {
     "cardCode": "LUC029",
-    "name": "Hunting Trophy",
+    "name": "Crushing Wave",
     "manaCost": 2,
     "type": "SPELL",
     "heroClass": "LUCAS",
@@ -2442,7 +2436,7 @@
     "attack": 0,
     "health": 0,
     "text": "Destroy a damaged enemy minion.",
-    "flavor": "The best trophies are the ones that fought back.",
+    "flavor": "What cannot stand the tide cannot stand.",
     "keywords": [],
     "spellEffect": {
       "type": "DESTROY_MINION",
@@ -2458,17 +2452,12 @@
     "rarity": "RARE",
     "attack": 3,
     "health": 4,
-    "text": "Battlecry: Gain 2 Armor.",
-    "flavor": "Sparkle Squad, reporting for duty!",
+    "text": "Spell Damage +1.",
+    "flavor": "Her arcane focus amplifies every incantation.",
     "keywords": [
-      "BATTLECRY"
+      "SPELL_DAMAGE"
     ],
-    "minionType": "AMETI",
-    "battlecryEffect": {
-      "type": "GAIN_ARMOR",
-      "target": "NONE",
-      "value": 2
-    }
+    "minionType": "AMETI"
   },
   {
     "cardCode": "AND025",
@@ -2572,15 +2561,21 @@
     "type": "MINION",
     "heroClass": "ASTRID",
     "rarity": "EPIC",
-    "attack": 3,
-    "health": 5,
-    "text": "Taunt. Divine Shield.",
-    "flavor": "Taunt and divine shield. The enemy's two least favorite words.",
+    "attack": 5,
+    "health": 3,
+    "text": "Stealth. Combo: Gain +2 Attack.",
+    "flavor": "One blade in the dark. Two if you give her a setup.",
     "keywords": [
-      "TAUNT",
-      "DIVINE_SHIELD"
+      "STEALTH",
+      "COMBO"
     ],
-    "minionType": "AMETI"
+    "minionType": "AMETI",
+    "comboEffect": {
+      "type": "BUFF_MINION",
+      "target": "SELF",
+      "attackBuff": 2,
+      "healthBuff": 0
+    }
   },
   {
     "cardCode": "IZZ029",
@@ -2601,27 +2596,22 @@
   {
     "cardCode": "LUC030",
     "name": "Jie",
-    "manaCost": 3,
+    "manaCost": 4,
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "COMMON",
     "attack": 4,
     "health": 4,
-    "text": "Combo: Return an enemy minion to hand. Draw a card.",
-    "flavor": "Quiet as a shadow. Twice as dark.",
+    "text": "Battlecry: Return an enemy minion to hand.",
+    "flavor": "The wind takes them away.",
     "keywords": [
-      "COMBO"
+      "BATTLECRY"
     ],
     "minionType": "HUMAN",
-    "comboEffects": [
+    "battlecryEffects": [
       {
         "type": "RETURN_TO_HAND",
         "target": "TARGET_ENEMY_MINION"
-      },
-      {
-        "type": "DRAW_CARDS",
-        "target": "NONE",
-        "value": 1
       }
     ]
   },
@@ -2674,7 +2664,7 @@
     "keywords": [
       "DEATHRATTLE"
     ],
-    "minionType": "MECH",
+    "minionType": "BEAST",
     "deathrattleEffect": {
       "type": "DRAW_CARDS",
       "target": "NONE",
@@ -2744,15 +2734,15 @@
   },
   {
     "cardCode": "AST030",
-    "name": "Karmonian Badge of Force",
+    "name": "Poisoned Dagger",
     "manaCost": 2,
     "type": "WEAPON",
     "heroClass": "ASTRID",
     "rarity": "COMMON",
     "attack": 1,
     "health": 4,
-    "text": "A durable badge that outlasts most fights.",
-    "flavor": "Small badge. Big force.",
+    "text": "The wound festers long after.",
+    "flavor": "One cut is all it ever takes.",
     "keywords": []
   },
   {
@@ -2762,19 +2752,19 @@
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "EPIC",
-    "attack": 5,
+    "attack": 4,
     "health": 4,
-    "text": "Combo: Deal 2 damage to the enemy hero.",
-    "flavor": "Old man. Young birds. Ancient wisdom.",
+    "text": "Battlecry: Deal 2 damage to the enemy hero.",
+    "flavor": "Old man. Ancient elements. Storm in his bones.",
     "keywords": [
-      "COMBO"
+      "BATTLECRY"
     ],
-    "comboEffect": {
+    "battlecryEffect": {
       "type": "DEAL_DAMAGE",
       "target": "TARGET_ENEMY_HERO",
-      "value": 4
+      "value": 2
     },
-    "minionType": "HUMAN"
+    "minionType": "ELEMENTAL"
   },
   {
     "cardCode": "IZZ030",
@@ -2848,39 +2838,32 @@
     "text": "Taunt. Divine Shield.",
     "flavor": "Half knight, half machine. All paladin.",
     "keywords": [
-      "BATTLECRY"
+      "TAUNT",
+      "DIVINE_SHIELD"
     ],
-    "minionType": "MECH",
-    "battlecryEffects": []
+    "minionType": "BEAST"
   },
   {
     "cardCode": "LUC032",
-    "name": "Hugo, Shadow Blade",
+    "name": "Hugo, Storm Caller",
     "manaCost": 5,
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "LEGENDARY",
     "attack": 5,
     "health": 4,
-    "text": "Stealth. Combo: Deal 5 damage to any target and draw a card.",
-    "flavor": "His cousin's blade. His father's shadow. His own path.",
+    "text": "Windfury. Battlecry: Deal 3 damage to a minion.",
+    "flavor": "He calls the storm down and lets it choose a target.",
     "keywords": [
-      "STEALTH",
-      "COMBO"
+      "WINDFURY",
+      "BATTLECRY"
     ],
     "minionType": "AMETI",
-    "comboEffects": [
-      {
-        "type": "DEAL_DAMAGE",
-        "target": "TARGET_ANY",
-        "value": 5
-      },
-      {
-        "type": "DRAW_CARDS",
-        "target": "NONE",
-        "value": 1
-      }
-    ]
+    "battlecryEffect": {
+      "type": "DEAL_DAMAGE",
+      "target": "TARGET_MINION",
+      "value": 3
+    }
   },
   {
     "cardCode": "AST031",
@@ -2995,17 +2978,12 @@
     "rarity": "COMMON",
     "attack": 1,
     "health": 2,
-    "text": "Battlecry: Gain 1 Armor.",
-    "flavor": "She has the net. You have the problem.",
+    "text": "Spell Damage +1.",
+    "flavor": "A tiny star-shard that sings with arcane resonance.",
     "keywords": [
-      "BATTLECRY"
+      "SPELL_DAMAGE"
     ],
-    "battlecryEffect": {
-      "type": "GAIN_ARMOR",
-      "target": "NONE",
-      "value": 1
-    },
-    "minionType": "BEAST"
+    "minionType": "ELEMENTAL"
   },
   {
     "cardCode": "TAL025",
@@ -3223,7 +3201,7 @@
     "keywords": [
       "BATTLECRY"
     ],
-    "minionType": "MECH",
+    "minionType": "BEAST",
     "battlecryEffect": {
       "type": "DRAW_CARDS",
       "target": "NONE",
@@ -3239,19 +3217,13 @@
     "rarity": "LEGENDARY",
     "attack": 5,
     "health": 5,
-    "text": "Stealth. Combo: Gain +3/+3 and Windfury.",
-    "flavor": "You'll never see him coming. Or going.",
+    "text": "Windfury. Spell Damage +1.",
+    "flavor": "Quick as lightning, sharp as thunder.",
     "keywords": [
-      "STEALTH",
-      "COMBO"
+      "WINDFURY",
+      "SPELL_DAMAGE"
     ],
-    "minionType": "HUMAN",
-    "comboEffect": {
-      "type": "BUFF_MINION",
-      "target": "SELF",
-      "attackBuff": 3,
-      "healthBuff": 3
-    }
+    "minionType": "ELEMENTAL"
   },
   {
     "cardCode": "TAL027",
@@ -3277,15 +3249,15 @@
   },
   {
     "cardCode": "DRK030",
-    "name": "Metal Detector",
+    "name": "Living Branch",
     "manaCost": 2,
     "type": "WEAPON",
     "heroClass": "DEREK",
     "rarity": "COMMON",
     "attack": 2,
     "health": 3,
-    "text": "A precise instrument repurposed for combat.",
-    "flavor": "Finds metal underground. Finds trouble everywhere else.",
+    "text": "A branch that remembers the forest.",
+    "flavor": "Still growing. Still striking.",
     "keywords": []
   },
   {
@@ -3441,21 +3413,27 @@
   },
   {
     "cardCode": "LUC035",
-    "name": "Nothing to See Here",
-    "manaCost": 3,
+    "name": "Frost Shock",
+    "manaCost": 1,
     "type": "SPELL",
     "heroClass": "LUCAS",
     "rarity": "COMMON",
     "attack": 0,
     "health": 0,
-    "text": "Give a friendly minion Stealth.",
-    "flavor": "Not much to see here. Which is exactly the point.",
+    "text": "Deal 1 damage to a character and Freeze it.",
+    "flavor": "A single icy jolt. It stops everything for a moment.",
     "keywords": [],
-    "spellEffect": {
-      "type": "GRANT_KEYWORD",
-      "target": "TARGET_FRIENDLY_MINION",
-      "grantKeyword": "STEALTH"
-    }
+    "spellEffects": [
+      {
+        "type": "DEAL_DAMAGE",
+        "target": "TARGET_ANY",
+        "value": 1
+      },
+      {
+        "type": "FREEZE_TARGET",
+        "target": "TARGET_ANY"
+      }
+    ]
   },
   {
     "cardCode": "JIM032",
@@ -3647,7 +3625,7 @@
     "text": "A basic mech unit ready for deployment.",
     "flavor": "Simple design. Simple function. Simply effective.",
     "keywords": [],
-    "minionType": "MECH"
+    "minionType": "BEAST"
   },
   {
     "cardCode": "NEU085",
@@ -3672,17 +3650,17 @@
     "rarity": "COMMON",
     "attack": 2,
     "health": 1,
-    "text": "Combo: Deal 1 damage to the enemy hero.",
-    "flavor": "Small pinch. Big ouchie.",
+    "text": "Battlecry: Deal 1 damage.",
+    "flavor": "Small pinch. Big spark.",
     "keywords": [
-      "COMBO"
+      "BATTLECRY"
     ],
-    "comboEffect": {
+    "battlecryEffect": {
       "type": "DEAL_DAMAGE",
-      "target": "TARGET_ENEMY_HERO",
-      "value": 2
+      "target": "TARGET_ANY",
+      "value": 1
     },
-    "minionType": "BEAST"
+    "minionType": "ELEMENTAL"
   },
   {
     "cardCode": "TAL030",
@@ -3738,10 +3716,10 @@
     "rarity": "COMMON",
     "attack": 2,
     "health": 1,
-    "text": "Stealth.",
-    "flavor": "Now you see him... no, actually, you don't.",
+    "text": "Spell Damage +1.",
+    "flavor": "A little spark that makes every spell crack harder.",
     "keywords": [
-      "STEALTH"
+      "SPELL_DAMAGE"
     ],
     "minionType": "BEAST"
   },
@@ -3779,7 +3757,7 @@
       "TAUNT",
       "DEATHRATTLE"
     ],
-    "minionType": "MECH",
+    "minionType": "BEAST",
     "deathrattleEffect": {
       "type": "SUMMON_MINION",
       "target": "NONE",
@@ -3828,28 +3806,21 @@
   },
   {
     "cardCode": "DRK033",
-    "name": "Quick Fix",
-    "manaCost": 1,
+    "name": "Innervate",
+    "manaCost": 0,
     "type": "SPELL",
     "heroClass": "DEREK",
     "rarity": "COMMON",
     "attack": 0,
     "health": 0,
-    "text": "Restore a minion to full Health. Gain 2 armor.",
-    "flavor": "Fixed in five minutes or your money back. Probably.",
+    "text": "Gain 2 Mana Crystals this turn only.",
+    "flavor": "The forest's energy flows through you.",
     "keywords": [],
-    "spellEffects": [
-      {
-        "type": "RESTORE_HEALTH",
-        "target": "TARGET_MINION",
-        "value": 99
-      },
-      {
-        "type": "GAIN_ARMOR",
-        "target": "NONE",
-        "value": 2
-      }
-    ]
+    "spellEffect": {
+      "type": "GAIN_TEMPORARY_MANA",
+      "target": "NONE",
+      "value": 2
+    }
   },
   {
     "cardCode": "NEU087",
@@ -3879,18 +3850,18 @@
     "type": "MINION",
     "heroClass": "ASTRID",
     "rarity": "EPIC",
-    "attack": 4,
-    "health": 6,
-    "text": "Taunt. Battlecry: Gain 2 Armor.",
-    "flavor": "He's been guarding this post for twelve years. He's not tired.",
+    "attack": 6,
+    "health": 4,
+    "text": "Stealth. Battlecry: Deal 2 damage.",
+    "flavor": "Twelve years in the shadows. He knows every blind spot.",
     "keywords": [
-      "TAUNT",
+      "STEALTH",
       "BATTLECRY"
     ],
     "minionType": "AMETI",
     "battlecryEffect": {
-      "type": "GAIN_ARMOR",
-      "target": "NONE",
+      "type": "DEAL_DAMAGE",
+      "target": "TARGET_ANY",
       "value": 2
     }
   },
@@ -3903,42 +3874,35 @@
     "rarity": "EPIC",
     "attack": 3,
     "health": 4,
-    "text": "Battlecry: Gain 3 Armor.",
-    "flavor": "The wind carries her. The wind carries everything, eventually.",
+    "text": "Battlecry: Deal 2 damage.",
+    "flavor": "The wind carries her bolts with unerring precision.",
     "keywords": [
       "BATTLECRY"
     ],
     "battlecryEffect": {
-      "type": "GAIN_ARMOR",
-      "target": "NONE",
-      "value": 3
+      "type": "DEAL_DAMAGE",
+      "target": "TARGET_ANY",
+      "value": 2
     },
     "minionType": "AMETI"
   },
   {
     "cardCode": "IZZ035",
-    "name": "Re-Energizer",
-    "manaCost": 2,
+    "name": "Arcane Intellect",
+    "manaCost": 3,
     "type": "SPELL",
     "heroClass": "IZZY",
     "rarity": "COMMON",
     "attack": 0,
     "health": 0,
-    "text": "Gain 2 Armor. Draw a card.",
-    "flavor": "Recharges your armor and your confidence.",
+    "text": "Draw 2 cards.",
+    "flavor": "Knowledge flows through the ley-lines.",
     "keywords": [],
-    "spellEffects": [
-      {
-        "type": "DRAW_CARDS",
-        "target": "NONE",
-        "value": 1
-      },
-      {
-        "type": "GAIN_ARMOR",
-        "target": "NONE",
-        "value": 2
-      }
-    ]
+    "spellEffect": {
+      "type": "DRAW_CARDS",
+      "target": "NONE",
+      "value": 2
+    }
   },
   {
     "cardCode": "DRK034",
@@ -4004,7 +3968,7 @@
     "keywords": [
       "BATTLECRY"
     ],
-    "minionType": "MECH",
+    "minionType": "BEAST",
     "battlecryEffect": {
       "type": "DRAW_CARDS",
       "target": "NONE",
@@ -4097,12 +4061,12 @@
     "type": "MINION",
     "heroClass": "ASTRID",
     "rarity": "COMMON",
-    "attack": 3,
-    "health": 5,
-    "text": "Taunt.",
-    "flavor": "Roderick doesn't move. That's the whole strategy.",
+    "attack": 5,
+    "health": 3,
+    "text": "Stealth.",
+    "flavor": "Roderick doesn't show up. That's the whole strategy.",
     "keywords": [
-      "TAUNT"
+      "STEALTH"
     ],
     "minionType": "AMETI"
   },
@@ -4183,16 +4147,16 @@
     "rarity": "LEGENDARY",
     "attack": 4,
     "health": 3,
-    "text": "Windfury. Battlecry: Gain +2 Attack for each Armor you have.",
-    "flavor": "Windfury and fury. Mostly fury.",
+    "text": "Windfury. Battlecry: Deal 2 damage.",
+    "flavor": "Two strikes of lightning, one graceful rider.",
     "keywords": [
       "WINDFURY",
       "BATTLECRY"
     ],
     "minionType": "BEAST",
     "battlecryEffect": {
-      "type": "GAIN_ARMOR",
-      "target": "NONE",
+      "type": "DEAL_DAMAGE",
+      "target": "TARGET_ANY",
       "value": 2
     }
   },
@@ -4220,15 +4184,15 @@
   },
   {
     "cardCode": "DRK038",
-    "name": "Scrap Scythe",
+    "name": "Thorned Cudgel",
     "manaCost": 3,
     "type": "WEAPON",
     "heroClass": "DEREK",
     "rarity": "COMMON",
     "attack": 4,
     "health": 3,
-    "text": "A brutal weapon of repurposed parts.",
-    "flavor": "Recycled from seventeen different machines. Works like new.",
+    "text": "A druidic focus shaped for combat.",
+    "flavor": "Every swing sprouts new thorns.",
     "keywords": [
       "BATTLECRY"
     ],
@@ -4297,15 +4261,15 @@
   },
   {
     "cardCode": "AST035",
-    "name": "Shield of Fragility",
+    "name": "Shadow Dagger",
     "manaCost": 2,
     "type": "WEAPON",
     "heroClass": "ASTRID",
     "rarity": "COMMON",
     "attack": 1,
     "health": 4,
-    "text": "Surprisingly resilient despite its name.",
-    "flavor": "Fragile name. Unbreakable shield.",
+    "text": "No light catches its edge.",
+    "flavor": "Forged from nothing and darkness.",
     "keywords": []
   },
   {
@@ -4315,18 +4279,13 @@
     "type": "MINION",
     "heroClass": "LUCAS",
     "rarity": "RARE",
-    "attack": 3,
+    "attack": 2,
     "health": 3,
-    "text": "Combo: Draw a card.",
-    "flavor": "Sho shoots. Sho scores. Sho disappears.",
+    "text": "Spell Damage +1.",
+    "flavor": "Sho shoots. Sho scores. Her totem sings.",
     "keywords": [
-      "COMBO"
+      "SPELL_DAMAGE"
     ],
-    "comboEffect": {
-      "type": "DRAW_CARDS",
-      "target": "NONE",
-      "value": 1
-    },
     "minionType": "HUMAN"
   },
   {
@@ -4370,7 +4329,7 @@
     "text": "A brave little scout.",
     "flavor": "He skips the small talk and gets right to the point.",
     "keywords": [],
-    "minionType": "MECH",
+    "minionType": "BEAST",
     "deathrattleEffect": {
       "type": "DRAW_CARDS",
       "target": "NONE",
@@ -4503,28 +4462,21 @@
   },
   {
     "cardCode": "AST036",
-    "name": "Strategic Plans",
-    "manaCost": 3,
+    "name": "Sprint",
+    "manaCost": 7,
     "type": "SPELL",
     "heroClass": "ASTRID",
     "rarity": "COMMON",
     "attack": 0,
     "health": 0,
-    "text": "Draw 2 cards. Gain 2 Armor.",
-    "flavor": "Plans within plans. Shields within shields.",
+    "text": "Draw 4 cards.",
+    "flavor": "Every shadow has a map. She reads them fast.",
     "keywords": [],
-    "spellEffects": [
-      {
-        "type": "DRAW_CARDS",
-        "target": "NONE",
-        "value": 2
-      },
-      {
-        "type": "GAIN_ARMOR",
-        "target": "NONE",
-        "value": 2
-      }
-    ]
+    "spellEffect": {
+      "type": "DRAW_CARDS",
+      "target": "NONE",
+      "value": 4
+    }
   },
   {
     "cardCode": "IZZ037",
@@ -4535,16 +4487,16 @@
     "rarity": "EPIC",
     "attack": 4,
     "health": 5,
-    "text": "Battlecry: Gain 4 Armor.",
-    "flavor": "Five layers of armor and a smile.",
+    "text": "Battlecry: Deal 3 damage to a minion.",
+    "flavor": "Precision over power. Usually.",
     "keywords": [
       "BATTLECRY"
     ],
     "minionType": "AMETI",
     "battlecryEffect": {
-      "type": "GAIN_ARMOR",
-      "target": "NONE",
-      "value": 4
+      "type": "DEAL_DAMAGE",
+      "target": "TARGET_MINION",
+      "value": 3
     }
   },
   {
@@ -4563,7 +4515,7 @@
       "DEATHRATTLE",
       "BATTLECRY"
     ],
-    "minionType": "MECH",
+    "minionType": "BEAST",
     "deathrattleEffect": {
       "type": "SUMMON_MINION",
       "target": "NONE",
@@ -4590,10 +4542,9 @@
     "text": "Taunt.",
     "flavor": "Medium-sized problems require medium-sized solutions.",
     "keywords": [
-      "BATTLECRY"
+      "TAUNT"
     ],
-    "minionType": "MECH",
-    "battlecryEffects": []
+    "minionType": "BEAST"
   },
   {
     "cardCode": "DRK043",
@@ -4609,7 +4560,7 @@
     "keywords": [
       "DEATHRATTLE"
     ],
-    "minionType": "MECH",
+    "minionType": "BEAST",
     "deathrattleEffect": {
       "type": "SUMMON_MINION",
       "target": "NONE",
@@ -4625,13 +4576,19 @@
     "heroClass": "ASTRID",
     "rarity": "RARE",
     "attack": 3,
-    "health": 4,
-    "text": "Divine Shield.",
-    "flavor": "Her armor shimmers with morning light.",
+    "health": 3,
+    "text": "Stealth. Combo: Draw a card.",
+    "flavor": "She moves with morning shadow — and brings back secrets.",
     "keywords": [
-      "DIVINE_SHIELD"
+      "STEALTH",
+      "COMBO"
     ],
-    "minionType": "AMETI"
+    "minionType": "AMETI",
+    "comboEffect": {
+      "type": "DRAW_CARDS",
+      "target": "NONE",
+      "value": 1
+    }
   },
   {
     "cardCode": "LUC040",
@@ -4642,17 +4599,16 @@
     "rarity": "COMMON",
     "attack": 4,
     "health": 4,
-    "text": "Combo: Gain +2/+1.",
-    "flavor": "Together they're unstoppable. Apart they're just... stoppable.",
+    "text": "Battlecry: Summon a 1/1 Spirit Totem.",
+    "flavor": "Two spirits, one body, one storm.",
     "keywords": [
-      "COMBO"
+      "BATTLECRY"
     ],
     "minionType": "HUMAN",
-    "comboEffect": {
-      "type": "BUFF_MINION",
-      "target": "SELF",
-      "attackBuff": 2,
-      "healthBuff": 2
+    "battlecryEffect": {
+      "type": "SUMMON_MINION",
+      "target": "NONE",
+      "summonCardCode": "LUC_ORB_FIRE"
     }
   },
   {
@@ -4750,7 +4706,7 @@
       "type": "RETURN_TO_HAND",
       "target": "TARGET_FRIENDLY_MINION"
     },
-    "minionType": "MECH"
+    "minionType": "BEAST"
   },
   {
     "cardCode": "NEU093",
@@ -4848,7 +4804,7 @@
     "keywords": [
       "DEATHRATTLE"
     ],
-    "minionType": "MECH",
+    "minionType": "BEAST",
     "deathrattleEffect": {
       "type": "SUMMON_MINION",
       "target": "NONE",
@@ -4865,10 +4821,10 @@
     "rarity": "COMMON",
     "attack": 3,
     "health": 2,
-    "text": "Stealth.",
-    "flavor": "A dragon that learned stealth. The world is not ready.",
+    "text": "Windfury.",
+    "flavor": "A dragon that rides storm currents. Fast. Very fast.",
     "keywords": [
-      "STEALTH"
+      "WINDFURY"
     ],
     "minionType": "DRAGON"
   },
@@ -4886,7 +4842,7 @@
     "keywords": [
       "DEATHRATTLE"
     ],
-    "minionType": "MECH",
+    "minionType": "BEAST",
     "deathrattleEffect": {
       "type": "DEAL_DAMAGE_RANDOM_ENEMY",
       "target": "RANDOM_ENEMY",
@@ -4901,14 +4857,21 @@
     "heroClass": "ASTRID",
     "rarity": "EPIC",
     "attack": 4,
-    "health": 5,
-    "text": "Taunt. Divine Shield.",
-    "flavor": "Three aspects. One champion. Zero chance of getting through.",
+    "health": 4,
+    "text": "Stealth. Windfury. Combo: Gain +2/+2.",
+    "flavor": "Three blades. Setup makes all three sing.",
     "keywords": [
-      "TAUNT",
-      "DIVINE_SHIELD"
+      "STEALTH",
+      "WINDFURY",
+      "COMBO"
     ],
-    "minionType": "AMETI"
+    "minionType": "AMETI",
+    "comboEffect": {
+      "type": "BUFF_MINION",
+      "target": "SELF",
+      "attackBuff": 2,
+      "healthBuff": 2
+    }
   },
   {
     "cardCode": "AST039",
@@ -5013,26 +4976,25 @@
   },
   {
     "cardCode": "IZZ038",
-    "name": "Uncover Treasure",
+    "name": "Frostbolt",
     "manaCost": 2,
     "type": "SPELL",
     "heroClass": "IZZY",
     "rarity": "COMMON",
     "attack": 0,
     "health": 0,
-    "text": "Gain 3 Armor. Draw a card.",
-    "flavor": "X marks the spot. The spot marks the gold.",
+    "text": "Deal 3 damage to a character and Freeze it.",
+    "flavor": "Cold. Fast. Unforgiving.",
     "keywords": [],
     "spellEffects": [
       {
-        "type": "DRAW_CARDS",
-        "target": "NONE",
-        "value": 1
+        "type": "DEAL_DAMAGE",
+        "target": "TARGET_ANY",
+        "value": 3
       },
       {
-        "type": "GAIN_ARMOR",
-        "target": "NONE",
-        "value": 3
+        "type": "FREEZE_TARGET",
+        "target": "TARGET_ANY"
       }
     ]
   },
@@ -5192,15 +5154,15 @@
   },
   {
     "cardCode": "LUC042",
-    "name": "Warp Staff",
+    "name": "Stormcaller Staff",
     "manaCost": 3,
     "type": "WEAPON",
     "heroClass": "LUCAS",
     "rarity": "COMMON",
     "attack": 2,
     "health": 3,
-    "text": "Bends reality with every swing.",
-    "flavor": "Bends space. Breaks expectations.",
+    "text": "An elemental focus shaped like a staff.",
+    "flavor": "Lightning coils along the shaft, waiting.",
     "keywords": []
   },
   {
@@ -5212,13 +5174,13 @@
     "rarity": "RARE",
     "attack": 0,
     "health": 3,
-    "text": "Gain 2 Armor.",
+    "text": "Draw a card.",
     "flavor": "The island whispers secrets to those who listen.",
     "keywords": [],
     "locationEffect": {
-      "type": "GAIN_ARMOR",
+      "type": "DRAW_CARDS",
       "target": "NONE",
-      "value": 2
+      "value": 1
     }
   },
   {
@@ -5278,19 +5240,18 @@
     "type": "MINION",
     "heroClass": "ASTRID",
     "rarity": "RARE",
-    "attack": 3,
-    "health": 4,
-    "text": "Battlecry: Give a friendly minion Taunt.",
-    "flavor": "She gives others strength. That's her strength.",
+    "attack": 4,
+    "health": 3,
+    "text": "Battlecry: Give a friendly minion Stealth.",
+    "flavor": "She teaches others to disappear. It's her specialty.",
     "keywords": [
-      "TAUNT",
       "BATTLECRY"
     ],
     "minionType": "AMETI",
     "battlecryEffect": {
       "type": "GRANT_KEYWORD",
       "target": "TARGET_FRIENDLY_MINION",
-      "grantKeyword": "TAUNT"
+      "grantKeyword": "STEALTH"
     }
   },
   {
@@ -5302,16 +5263,16 @@
     "rarity": "LEGENDARY",
     "attack": 5,
     "health": 6,
-    "text": "Battlecry: Gain 5 Armor. Draw 2 cards.",
-    "flavor": "She collects gems the way others collect regrets.",
+    "text": "Battlecry: Draw 2 cards.",
+    "flavor": "She collects knowledge the way others collect gems.",
     "keywords": [
       "BATTLECRY"
     ],
     "minionType": "AMETI",
     "battlecryEffect": {
-      "type": "GAIN_ARMOR",
+      "type": "DRAW_CARDS",
       "target": "NONE",
-      "value": 5
+      "value": 2
     }
   },
   {
@@ -5349,7 +5310,7 @@
     "keywords": [
       "BATTLECRY"
     ],
-    "minionType": "MECH",
+    "minionType": "BEAST",
     "battlecryEffect": {
       "type": "BUFF_MINION",
       "target": "TARGET_FRIENDLY_MINION",
@@ -5532,46 +5493,52 @@
   },
   {
     "cardCode": "AST041",
-    "name": "Guardian of the Academy",
+    "name": "Shadowblade Sensei",
     "manaCost": 7,
     "type": "MINION",
     "heroClass": "ASTRID",
     "rarity": "EPIC",
-    "attack": 4,
-    "health": 7,
-    "text": "Taunt. Battlecry: Give all friendly minions +0/+2.",
-    "flavor": "She holds the line so others can advance.",
+    "attack": 5,
+    "health": 6,
+    "text": "Stealth. Battlecry: Give all friendly minions +2/+0.",
+    "flavor": "One instructor, seven students, zero witnesses.",
     "keywords": [
-      "TAUNT",
+      "STEALTH",
       "BATTLECRY"
     ],
     "minionType": "HUMAN",
     "battlecryEffect": {
       "type": "BUFF_ALL_FRIENDLY",
       "target": "ALL_FRIENDLY_MINIONS",
-      "attackBuff": 0,
-      "healthBuff": 2
+      "attackBuff": 2,
+      "healthBuff": 0
     }
   },
   {
     "cardCode": "AST042",
-    "name": "Mighty's Wrath",
-    "manaCost": 8,
+    "name": "Cold Blood",
+    "manaCost": 2,
     "type": "SPELL",
     "heroClass": "ASTRID",
     "rarity": "RARE",
     "attack": 0,
     "health": 0,
-    "text": "Give all friendly minions +3/+3.",
-    "flavor": "Mighty protects those who protect others.",
+    "text": "Give a minion +2 Attack. Combo: +4 Attack instead.",
+    "flavor": "Strike once. Then strike again.",
     "keywords": [
-      "DIVINE_SHIELD"
+      "COMBO"
     ],
     "spellEffect": {
-      "type": "BUFF_ALL_FRIENDLY_MINIONS",
-      "target": "ALL_FRIENDLY_MINIONS",
-      "attackBuff": 3,
-      "healthBuff": 3
+      "type": "BUFF_MINION",
+      "target": "TARGET_FRIENDLY_MINION",
+      "attackBuff": 2,
+      "healthBuff": 0
+    },
+    "comboEffect": {
+      "type": "BUFF_MINION",
+      "target": "TARGET_FRIENDLY_MINION",
+      "attackBuff": 4,
+      "healthBuff": 0
     }
   },
   {
@@ -5621,10 +5588,10 @@
     "rarity": "EPIC",
     "attack": 7,
     "health": 6,
-    "text": "Stealth. Deathrattle: Return this to your hand.",
-    "flavor": "The pack always comes back.",
+    "text": "Windfury. Deathrattle: Return this to your hand.",
+    "flavor": "The pack always comes back — and strikes twice when it does.",
     "keywords": [
-      "STEALTH",
+      "WINDFURY",
       "DEATHRATTLE"
     ],
     "minionType": "BEAST",
@@ -5661,34 +5628,42 @@
     "rarity": "EPIC",
     "attack": 0,
     "health": 0,
-    "text": "Gain 8 Armor. Draw 3 cards.",
-    "flavor": "Bling found the mother lode!",
+    "text": "Deal 4 damage. Draw 2 cards.",
+    "flavor": "The ley-lines converge and knowledge pours out.",
     "keywords": [],
-    "spellEffect": {
-      "type": "GAIN_ARMOR_AND_DRAW",
-      "armor": 8,
-      "draw": 3
-    }
+    "spellEffects": [
+      {
+        "type": "DEAL_DAMAGE",
+        "target": "TARGET_ANY",
+        "value": 4
+      },
+      {
+        "type": "DRAW_CARDS",
+        "target": "NONE",
+        "value": 2
+      }
+    ]
   },
   {
     "cardCode": "IZZ043",
-    "name": "Navigator's Flagship",
+    "name": "Arcane Leviathan",
     "manaCost": 7,
     "type": "MINION",
     "heroClass": "IZZY",
     "rarity": "RARE",
     "attack": 5,
     "health": 7,
-    "text": "Taunt. Battlecry: Gain Armor equal to this minion's Health.",
-    "flavor": "The flagship never sinks.",
+    "text": "Taunt. Battlecry: Deal 3 damage to all enemy minions.",
+    "flavor": "The deep hums with ancient magic.",
     "keywords": [
       "TAUNT",
       "BATTLECRY"
     ],
-    "minionType": "MECH",
+    "minionType": "ELEMENTAL",
     "battlecryEffect": {
-      "type": "GAIN_ARMOR",
-      "value": 7
+      "type": "DEAL_DAMAGE_ALL_ENEMIES",
+      "target": "ALL_ENEMY_MINIONS",
+      "value": 3
     }
   },
   {
@@ -5811,24 +5786,17 @@
   },
   {
     "cardCode": "LUC045",
-    "name": "Swift Strike",
+    "name": "Lightning Bolt",
     "manaCost": 1,
     "type": "SPELL",
     "heroClass": "LUCAS",
     "rarity": "COMMON",
     "attack": 0,
     "health": 0,
-    "text": "Deal 2 damage. Combo: Deal 3 instead.",
-    "flavor": "The second strike always lands harder.",
-    "keywords": [
-      "COMBO"
-    ],
+    "text": "Deal 3 damage to a character.",
+    "flavor": "Fast, bright, and decisive.",
+    "keywords": [],
     "spellEffect": {
-      "type": "DEAL_DAMAGE",
-      "target": "TARGET_ANY",
-      "value": 2
-    },
-    "comboEffect": {
       "type": "DEAL_DAMAGE",
       "target": "TARGET_ANY",
       "value": 3
@@ -5836,25 +5804,19 @@
   },
   {
     "cardCode": "LUC046",
-    "name": "Pickpocket",
-    "manaCost": 1,
+    "name": "Far Sight",
+    "manaCost": 3,
     "type": "SPELL",
     "heroClass": "LUCAS",
     "rarity": "RARE",
     "attack": 0,
     "health": 0,
-    "text": "Draw a card. Combo: Draw 2 instead.",
-    "flavor": "Light fingers, heavy rewards.",
-    "keywords": [
-      "COMBO"
-    ],
+    "text": "Draw a card.",
+    "flavor": "The spirits show you what's coming.",
+    "keywords": [],
     "spellEffect": {
       "type": "DRAW_CARDS",
       "value": 1
-    },
-    "comboEffect": {
-      "type": "DRAW_CARDS",
-      "value": 2
     }
   },
   {
@@ -5987,24 +5949,17 @@
   },
   {
     "cardCode": "LUC047",
-    "name": "Smoke Bomb",
+    "name": "Lightning Storm",
     "manaCost": 3,
     "type": "SPELL",
     "heroClass": "LUCAS",
     "rarity": "RARE",
     "attack": 0,
     "health": 0,
-    "text": "Deal 1 damage to all enemy minions. Combo: Deal 2 instead.",
-    "flavor": "Now you see them, now you don't.",
-    "keywords": [
-      "COMBO"
-    ],
+    "text": "Deal 2 damage to all enemy minions.",
+    "flavor": "The sky opens. The ground answers.",
+    "keywords": [],
     "spellEffect": {
-      "type": "DEAL_DAMAGE_ALL_ENEMIES",
-      "target": "ALL_ENEMY_MINIONS",
-      "value": 1
-    },
-    "comboEffect": {
       "type": "DEAL_DAMAGE_ALL_ENEMIES",
       "target": "ALL_ENEMY_MINIONS",
       "value": 2
@@ -6012,7 +5967,7 @@
   },
   {
     "cardCode": "LUC048",
-    "name": "Fan of Blades",
+    "name": "Chain Lightning",
     "manaCost": 4,
     "type": "SPELL",
     "heroClass": "LUCAS",
@@ -6020,7 +5975,7 @@
     "attack": 0,
     "health": 0,
     "text": "Deal 2 damage to all enemy minions. Draw a card.",
-    "flavor": "Each blade finds its mark.",
+    "flavor": "One bolt. Every enemy. Total crowd control.",
     "keywords": [],
     "spellEffects": [
       {
@@ -6044,8 +5999,8 @@
     "rarity": "RARE",
     "attack": 0,
     "health": 0,
-    "text": "Deal 2 damage to all enemy minions. Gain 2 Armor.",
-    "flavor": "Brace for impact!",
+    "text": "Deal 2 damage to all enemy minions. Freeze them.",
+    "flavor": "A wave of freezing arcane force.",
     "keywords": [],
     "spellEffects": [
       {
@@ -6054,36 +6009,28 @@
         "value": 2
       },
       {
-        "type": "GAIN_ARMOR",
-        "target": "NONE",
-        "value": 2
+        "type": "FREEZE_TARGET",
+        "target": "ALL_ENEMY_MINIONS"
       }
     ]
   },
   {
     "cardCode": "IZZ042",
-    "name": "Cannon Volley",
-    "manaCost": 6,
+    "name": "Flamestrike",
+    "manaCost": 7,
     "type": "SPELL",
     "heroClass": "IZZY",
     "rarity": "EPIC",
     "attack": 0,
     "health": 0,
-    "text": "Deal 3 damage to all enemy minions. Gain 3 Armor.",
-    "flavor": "All guns, fire at will!",
+    "text": "Deal 4 damage to all enemy minions.",
+    "flavor": "A wall of flame, wall to wall.",
     "keywords": [],
-    "spellEffects": [
-      {
-        "type": "DEAL_DAMAGE_ALL_ENEMIES",
-        "target": "ALL_ENEMY_MINIONS",
-        "value": 3
-      },
-      {
-        "type": "GAIN_ARMOR",
-        "target": "NONE",
-        "value": 3
-      }
-    ]
+    "spellEffect": {
+      "type": "DEAL_DAMAGE_ALL_ENEMIES",
+      "target": "ALL_ENEMY_MINIONS",
+      "value": 4
+    }
   },
   {
     "cardCode": "TAL038",
@@ -6137,7 +6084,7 @@
   },
   {
     "cardCode": "LUC049",
-    "name": "Quick Hands",
+    "name": "Ancestral Knowledge",
     "manaCost": 0,
     "type": "SPELL",
     "heroClass": "LUCAS",
@@ -6145,7 +6092,7 @@
     "attack": 0,
     "health": 0,
     "text": "Your next spell costs (2) less.",
-    "flavor": "Faster than the eye can follow.",
+    "flavor": "The elders whisper the next incantation.",
     "keywords": [],
     "spellEffect": {
       "type": "SPELL_DISCOUNT",
@@ -6173,40 +6120,40 @@
   },
   {
     "cardCode": "DRK051",
-    "name": "Short Circuit",
-    "manaCost": 5,
+    "name": "Swipe",
+    "manaCost": 4,
     "type": "SPELL",
     "heroClass": "DEREK",
-    "rarity": "EPIC",
+    "rarity": "COMMON",
     "attack": 0,
     "health": 0,
-    "text": "Deal 5 damage to all enemy minions. Gain 3 armor.",
-    "flavor": "The whole system goes dark. Only you had a generator.",
+    "text": "Deal 4 damage to an enemy and 1 damage to all other enemies.",
+    "flavor": "One long claw, a whole line of victims.",
     "keywords": [],
     "spellEffects": [
       {
-        "type": "DEAL_DAMAGE_ALL_ENEMIES",
-        "target": "ALL_ENEMY_MINIONS",
+        "type": "DEAL_DAMAGE",
+        "target": "TARGET_ANY",
         "value": 4
       },
       {
-        "type": "GAIN_ARMOR",
-        "target": "NONE",
-        "value": 3
+        "type": "DEAL_DAMAGE_ALL_ENEMIES",
+        "target": "ALL_ENEMY_MINIONS",
+        "value": 1
       }
     ]
   },
   {
     "cardCode": "DRK052",
-    "name": "Demolition",
+    "name": "Nature's Wrath",
     "manaCost": 5,
     "type": "SPELL",
     "heroClass": "DEREK",
     "rarity": "EPIC",
     "attack": 0,
     "health": 0,
-    "text": "Destroy a minion. Gain 2 armor.",
-    "flavor": "We called in the professionals. The professionals brought a wrecking ball.",
+    "text": "Destroy a minion. Gain 2 Armor.",
+    "flavor": "The forest takes back what it was owed.",
     "keywords": [],
     "spellEffects": [
       {
@@ -6223,7 +6170,7 @@
   },
   {
     "cardCode": "DRK053",
-    "name": "Factory Reset",
+    "name": "Naturalize",
     "manaCost": 2,
     "type": "SPELL",
     "heroClass": "DEREK",
@@ -6231,7 +6178,7 @@
     "attack": 0,
     "health": 0,
     "text": "Silence a minion.",
-    "flavor": "Back to factory defaults. Nothing personal.",
+    "flavor": "You were a threat. You are now soil.",
     "keywords": [],
     "spellEffect": {
       "type": "SILENCE_TARGET",
@@ -6282,15 +6229,20 @@
     "spellEffects": [
       {
         "type": "BUFF_MINION",
-        "target": "TARGET_FRIENDLY",
-        "value": 2,
-        "extra": "TAUNT"
+        "target": "TARGET_FRIENDLY_MINION",
+        "attackBuff": 2,
+        "healthBuff": 2
+      },
+      {
+        "type": "GRANT_KEYWORD",
+        "target": "TARGET_FRIENDLY_MINION",
+        "grantKeyword": "TAUNT"
       }
     ]
   },
   {
     "cardCode": "DRK062",
-    "name": "Counter-Measure",
+    "name": "Moonfire",
     "manaCost": 3,
     "type": "SPELL",
     "heroClass": "DEREK",
@@ -6298,7 +6250,7 @@
     "attack": 0,
     "health": 0,
     "text": "Deal 3 damage to a minion.",
-    "flavor": "Hit them before they hit you, and bring a shield just in case.",
+    "flavor": "A single bolt of lunar light, focused and final.",
     "keywords": [],
     "spellEffects": [
       {
@@ -6310,20 +6262,20 @@
   },
   {
     "cardCode": "DRK063",
-    "name": "Fortify",
+    "name": "Wild Growth",
     "manaCost": 2,
     "type": "SPELL",
     "heroClass": "DEREK",
     "rarity": "COMMON",
     "attack": 0,
     "health": 0,
-    "text": "Gain 3 armor.",
-    "flavor": "It was always going to hurt. Now it hurts less.",
+    "text": "Gain a Mana Crystal.",
+    "flavor": "The forest remembers. The forest grows.",
     "keywords": [],
     "spellEffect": {
-      "type": "GAIN_ARMOR",
+      "type": "GAIN_MANA_CRYSTAL",
       "target": "NONE",
-      "value": 2
+      "value": 1
     }
   },
   {
@@ -6335,66 +6287,134 @@
     "rarity": "RARE",
     "attack": 0,
     "health": 0,
-    "text": "Gain 4 armor. Draw 1 card.",
-    "flavor": "Every time we tear it down, it comes back stronger.",
+    "text": "Nourish: Gain 2 Mana Crystals.",
+    "flavor": "The roots run deep. The forest gives freely.",
     "keywords": [],
-    "spellEffects": [
-      {
-        "type": "GAIN_ARMOR",
-        "target": "NONE",
-        "value": 4
-      },
-      {
-        "type": "DRAW_CARDS",
-        "target": "NONE",
-        "value": 1
-      }
-    ]
+    "spellEffect": {
+      "type": "GAIN_MANA_CRYSTAL",
+      "target": "NONE",
+      "value": 2
+    }
   },
   {
     "cardCode": "DRK071",
-    "name": "Reactor Core",
+    "name": "Ironwood Guardian",
     "manaCost": 4,
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "EPIC",
     "attack": 4,
     "health": 5,
-    "text": "Battlecry: Gain 4 armor. Taunt.",
-    "flavor": "It keeps the lights on. And the walls up.",
+    "text": "Taunt.",
+    "flavor": "Oldest tree in the glade. It remembers every storm.",
     "keywords": [
-      "BATTLECRY",
       "TAUNT"
     ],
-    "battlecryEffects": [
-      {
-        "type": "GAIN_ARMOR",
-        "target": "NONE",
-        "value": 4
-      }
-    ]
+    "minionType": "BEAST"
   },
   {
     "cardCode": "DRK072",
-    "name": "Overclock",
-    "manaCost": 5,
+    "name": "Savage Roar",
+    "manaCost": 3,
     "type": "SPELL",
     "heroClass": "DEREK",
     "rarity": "EPIC",
     "attack": 0,
     "health": 0,
-    "text": "Give your minions +1/+1 and Taunt.",
-    "flavor": "Run them hotter. They can handle it. Probably.",
+    "text": "Give your minions +2 Attack this turn.",
+    "flavor": "Wake them. Wind them up. Watch them run.",
     "keywords": [],
-    "spellEffects": [
-      {
-        "type": "BUFF_ALL_FRIENDLY_MINIONS",
-        "target": "ALL_FRIENDLY_MINIONS",
-        "value": 2,
-        "extra": "TAUNT",
-        "attackBuff": 1,
-        "healthBuff": 1
-      }
-    ]
+    "spellEffect": {
+      "type": "BUFF_ALL_FRIENDLY_MINIONS",
+      "target": "ALL_FRIENDLY_MINIONS",
+      "attackBuff": 2,
+      "healthBuff": 0
+    }
+  },
+  {
+    "cardCode": "NEU_TOKEN_RECRUIT",
+    "name": "Silver Hand Recruit",
+    "manaCost": 1,
+    "type": "MINION",
+    "heroClass": "NEUTRAL",
+    "rarity": "COMMON",
+    "attack": 1,
+    "health": 1,
+    "text": "",
+    "flavor": "For honor, for duty, for the light.",
+    "keywords": []
+  },
+  {
+    "cardCode": "LUC_ORB_FIRE",
+    "name": "Orb of Fire",
+    "manaCost": 1,
+    "type": "MINION",
+    "heroClass": "LUCAS",
+    "rarity": "COMMON",
+    "attack": 1,
+    "health": 1,
+    "text": "",
+    "flavor": "A spark, contained — barely.",
+    "keywords": [],
+    "minionType": "ELEMENTAL"
+  },
+  {
+    "cardCode": "LUC_ORB_WATER",
+    "name": "Orb of Water",
+    "manaCost": 1,
+    "type": "MINION",
+    "heroClass": "LUCAS",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 2,
+    "text": "Taunt.",
+    "flavor": "A shimmering wall of living water.",
+    "keywords": [
+      "TAUNT"
+    ],
+    "minionType": "ELEMENTAL"
+  },
+  {
+    "cardCode": "LUC_ORB_AIR",
+    "name": "Orb of Air",
+    "manaCost": 1,
+    "type": "MINION",
+    "heroClass": "LUCAS",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 2,
+    "text": "Spell Damage +1.",
+    "flavor": "Whispers in the wind carry power.",
+    "keywords": [
+      "SPELL_DAMAGE"
+    ],
+    "minionType": "ELEMENTAL"
+  },
+  {
+    "cardCode": "LUC_ORB_HEALING",
+    "name": "Orb of Healing",
+    "manaCost": 1,
+    "type": "MINION",
+    "heroClass": "LUCAS",
+    "rarity": "COMMON",
+    "attack": 0,
+    "health": 2,
+    "text": "At the end of your turn, restore 1 Health to all friendly characters.",
+    "flavor": "A quiet pulse of restoration.",
+    "keywords": [],
+    "minionType": "ELEMENTAL"
+  },
+  {
+    "cardCode": "AST_TOKEN_DAGGER",
+    "name": "Wicked Knife",
+    "manaCost": 1,
+    "type": "WEAPON",
+    "heroClass": "ASTRID",
+    "rarity": "COMMON",
+    "attack": 1,
+    "health": 2,
+    "text": "",
+    "flavor": "Small, sharp, and surprisingly personal.",
+    "keywords": []
   }
 ]

@@ -12,6 +12,19 @@ import { makeInstance } from './deck.js';
 import { addLog } from './log.js';
 import { createBoardMinion } from './combat.js';
 import { checkDeaths } from './combat.js';
+import { minionHasKeyword } from './keywords.js';
+
+/** Spell Damage +1 applies to these damaging effect types. */
+function isDamagingEffect(effect: EffectDef): boolean {
+  const t = effect.type as string;
+  return (
+    t === 'DEAL_DAMAGE' ||
+    t === 'DEAL_DAMAGE_ALL_ENEMIES' ||
+    t === 'DEAL_DAMAGE_ALL_MINIONS' ||
+    t === 'DEAL_DAMAGE_RANDOM_ENEMY' ||
+    t === 'DEAL_DAMAGE_ALL_CHARACTERS'
+  );
+}
 
 /** Resolve valid targets for an effect that requires targeting */
 export function getValidTargets(
@@ -55,10 +68,11 @@ export function executeEffects(
   game: GameState,
   casterIndex: 0 | 1,
   effects: EffectDef[],
-  targetId?: string | null
+  targetId?: string | null,
+  opts?: { fromSpell?: boolean }
 ): void {
   for (const effect of effects) {
-    executeEffect(game, casterIndex, effect, targetId);
+    executeEffect(game, casterIndex, effect, targetId, opts);
   }
 }
 
@@ -85,17 +99,27 @@ export function effectNeedsTarget(effect: EffectDef): boolean {
   ].includes(effect.target);
 }
 
-/** Execute an effect, possibly targeting a specific entity */
+/** Execute an effect, possibly targeting a specific entity.
+ * `opts.fromSpell` is set when the effect originates from a spell cast —
+ * this enables the HS-classic Spell Damage +N bonus on damaging spells. */
 export function executeEffect(
   game: GameState,
   casterIndex: 0 | 1,
   effect: EffectDef,
-  targetId?: string | null
+  targetId?: string | null,
+  opts?: { fromSpell?: boolean }
 ): void {
   const me = game.players[casterIndex];
   const oppIdx = (casterIndex === 0 ? 1 : 0) as 0 | 1;
   const opp = game.players[oppIdx];
-  const value = effect.value ?? 0;
+  const baseValue = effect.value ?? 0;
+  // Spell Damage +1 bonus: applies to damage-dealing spell effects only.
+  // Sums across all friendly minions with the SPELL_DAMAGE keyword (silence
+  // already zeros the keyword via minionHasKeyword).
+  const spellBonus = (opts?.fromSpell && isDamagingEffect(effect))
+    ? me.board.filter(m => !m.isSilenced && minionHasKeyword(m, 'SPELL_DAMAGE')).length
+    : 0;
+  const value = baseValue + spellBonus;
 
   // Auto-resolve TARGET_HERO: damage → opponent hero, healing → own hero
   if (effect.target === 'TARGET_HERO' && !targetId) {

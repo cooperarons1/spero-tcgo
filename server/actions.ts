@@ -194,7 +194,7 @@ export function playCard(
 
     // Execute spell effects unless countered
     if (!spellSecretResult.countered && spEffects.length > 0) {
-      executeEffects(game, pIdx as 0 | 1, spEffects, targetId);
+      executeEffects(game, pIdx as 0 | 1, spEffects, targetId, { fromSpell: true });
     }
 
     // Spell goes to graveyard
@@ -258,7 +258,7 @@ export function playCard(
     const comboEffects = def.comboEffects ?? (def.comboEffect ? [def.comboEffect] : []);
     if (comboEffects.length > 0) {
       addLog(game, pIdx as 0 | 1, `Combo! ${def.name}'s bonus effect triggers!`, 'EFFECT', def.cardCode);
-      executeEffects(game, pIdx as 0 | 1, comboEffects, targetId);
+      executeEffects(game, pIdx as 0 | 1, comboEffects, targetId, { fromSpell: def.type === 'SPELL' });
     }
   }
   game.cardsPlayedThisTurn++;
@@ -293,54 +293,37 @@ export function useHeroPower(
 
   const oppIdx = (pIdx === 0 ? 1 : 0) as 0 | 1;
 
-  // Hero powers are base only (no upgrades)
-  const upgraded = false;
+  // Mapping — HS classic hero powers, reassigned per user:
+  //   JIMMY  = Hunter   : Steady Shot    (2 dmg enemy hero)
+  //   IZZY   = Mage     : Fireblast       (1 dmg any target)
+  //   ASTRID = Rogue    : Dagger Mastery  (equip 1/2 weapon)
+  //   TALA   = Priest   : Lesser Heal     (restore 2 to any character)
+  //   ANDERS = Warrior  : Armor Up!       (+2 armor)
+  //   AVA    = Paladin  : Reinforce       (summon 1/1 Recruit)
+  //   LUCAS  = Shaman   : Totemic Call    (random orb, no dupes)
+  //   DES    = Warlock  : Life Tap        (draw 1, take 2)
+  //   DEREK  = Druid    : Shapeshift      (+1 atk this turn, +1 armor)
+
+  const ORB_CODES = ['LUC_ORB_FIRE', 'LUC_ORB_WATER', 'LUC_ORB_AIR', 'LUC_ORB_HEALING'];
+  const spendMana = () => {
+    player.mana -= HERO_POWER_COST;
+    player.heroPowerUsed = true;
+    game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
+    game.playerStats[pIdx as 0 | 1].heroPowerUses++;
+  };
+
   switch (player.heroClass) {
     case 'JIMMY': {
-      // Orra Arrow: Deal 1 damage to any target (upgraded: 2 dmg + 1 dmg to adjacent).
-      // Was 2 dmg base. At 2m for 2-to-anything the teacher AI used it as
-      // a reliable removal + face clock, which was the engine driving
-      // JIMMY's 66% WR. Drop to 1 base; upgraded still strong at 2+1.
-      const dmg = upgraded ? 2 : 1;
-      if (!targetId) {
-        const targets = [
-          ...game.players[0].board.filter(m => !m.hasStealthUntilAttack).map(m => m.instanceId),
-          ...game.players[1].board.filter(m => !m.hasStealthUntilAttack).map(m => m.instanceId),
-          'hero-0', 'hero-1',
-        ];
-        return { success: false, needsTarget: true, validTargets: targets };
-      }
-      player.mana -= HERO_POWER_COST;
-      player.heroPowerUsed = true;
-      game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
-      game.playerStats[pIdx as 0 | 1].heroPowerUses++;
-      // Collect adjacent minion IDs BEFORE dealing damage (death removes from board)
-      let adjacentIds: string[] = [];
-      if (upgraded) {
-        for (const p of game.players) {
-          const idx = p.board.findIndex(m => m.instanceId === targetId);
-          if (idx >= 0) {
-            if (idx > 0) adjacentIds.push(p.board[idx - 1].instanceId);
-            if (idx < p.board.length - 1) adjacentIds.push(p.board[idx + 1].instanceId);
-            break;
-          }
-        }
-      }
-      executeEffect(game, pIdx as 0 | 1, { type: 'DEAL_DAMAGE', target: 'TARGET_ANY', value: dmg }, targetId);
-      if (upgraded && adjacentIds.length > 0) {
-        for (const adjId of adjacentIds) {
-          // Only damage if still alive on board
-          const stillAlive = game.players.some(p => p.board.some(m => m.instanceId === adjId));
-          if (stillAlive) {
-            executeEffect(game, pIdx as 0 | 1, { type: 'DEAL_DAMAGE', target: 'TARGET_ANY', value: 1 }, adjId);
-          }
-        }
-      }
-      addLog(game, pIdx as 0 | 1, `${player.playerName} uses ${'Orra Arrow'}`, 'PLAY');
+      // Hunter — Steady Shot: 2 dmg to enemy hero (auto, no picker).
+      spendMana();
+      applyDamageToHero(game.players[oppIdx], 2);
+      game.playerStats[pIdx as 0 | 1].damageDealtToHeroes += 2;
+      checkHeroDeath(game);
+      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Precision Shot`, 'PLAY');
       break;
     }
-    case 'TALA': {
-      // Healing Touch: Restore 2 Health to any character
+    case 'IZZY': {
+      // Mage — Fireblast: 1 dmg to any target.
       if (!targetId) {
         const targets = [
           ...game.players[0].board.filter(m => !m.hasStealthUntilAttack).map(m => m.instanceId),
@@ -349,10 +332,38 @@ export function useHeroPower(
         ];
         return { success: false, needsTarget: true, validTargets: targets };
       }
-      player.mana -= HERO_POWER_COST;
-      player.heroPowerUsed = true;
-      game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
-      game.playerStats[pIdx as 0 | 1].heroPowerUses++;
+      spendMana();
+      executeEffect(game, pIdx as 0 | 1, { type: 'DEAL_DAMAGE', target: 'TARGET_ANY', value: 1 }, targetId);
+      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Catalyze`, 'PLAY');
+      break;
+    }
+    case 'ASTRID': {
+      // Rogue — Dagger Mastery: equip a 1/2 Wicked Knife (replaces existing weapon).
+      spendMana();
+      if (player.weapon) {
+        addLog(game, pIdx as 0 | 1, `${player.playerName}'s old weapon is destroyed`, 'PLAY', player.weapon.cardCode);
+      }
+      const daggerDef = getCardDef('AST_TOKEN_DAGGER');
+      player.weapon = {
+        cardCode: 'AST_TOKEN_DAGGER',
+        currentAttack: daggerDef.attack,
+        durability: daggerDef.health,
+      };
+      game.playerStats[pIdx as 0 | 1].weaponsEquipped++;
+      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Concealed Blade`, 'PLAY');
+      break;
+    }
+    case 'TALA': {
+      // Priest — Lesser Heal: restore 2 to any character.
+      if (!targetId) {
+        const targets = [
+          ...game.players[0].board.filter(m => !m.hasStealthUntilAttack).map(m => m.instanceId),
+          ...game.players[1].board.filter(m => !m.hasStealthUntilAttack).map(m => m.instanceId),
+          `hero-${pIdx}`, `hero-${oppIdx}`,
+        ];
+        return { success: false, needsTarget: true, validTargets: targets };
+      }
+      spendMana();
       if (targetId.startsWith('hero-')) {
         const heroIdx = parseInt(targetId.split('-')[1]) as 0 | 1;
         const hero = game.players[heroIdx];
@@ -367,151 +378,51 @@ export function useHeroPower(
           game.playerStats[pIdx as 0 | 1].healingDone += healed;
         }
       }
-      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Healing Touch`, 'PLAY');
-      break;
-    }
-    case 'DEREK': {
-      player.mana -= HERO_POWER_COST;
-      player.heroPowerUsed = true;
-      game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
-      game.playerStats[pIdx as 0 | 1].heroPowerUses++;
-      drawCard(game, pIdx as 0 | 1, true);
-      executeEffect(game, pIdx as 0 | 1, { type: 'DEAL_DAMAGE', target: 'SELF', value: 2 });
-      if (upgraded) {
-        player.mana = Math.min(player.mana + 1, player.maxMana);
-        addLog(game, pIdx as 0 | 1, `${player.playerName} uses Master Tinker — draws a card, takes 2 damage (1 mana refunded)`, 'PLAY');
-      } else {
-        addLog(game, pIdx as 0 | 1, `${player.playerName} uses Tinker — draws a card, takes 2 damage`, 'PLAY');
-      }
+      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Safeguard`, 'PLAY');
       break;
     }
     case 'ANDERS': {
-      // Hockbandy Strike: 1 dmg + freeze (upgraded: 1 dmg + freeze target + 1 adjacent)
-      const allMinions = [
-        ...game.players[0].board.filter(m => !m.hasStealthUntilAttack).map(m => m.instanceId),
-        ...game.players[1].board.filter(m => !m.hasStealthUntilAttack).map(m => m.instanceId),
-      ];
-      if (!targetId) {
-        if (allMinions.length === 0) return { success: false, error: 'No minions to target' };
-        return { success: false, needsTarget: true, validTargets: allMinions };
-      }
-      if (targetId.startsWith('hero-')) return { success: false, error: 'Must target a minion' };
-      player.mana -= HERO_POWER_COST;
-      player.heroPowerUsed = true;
-      game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
-      game.playerStats[pIdx as 0 | 1].heroPowerUses++;
-      executeEffect(game, pIdx as 0 | 1, { type: 'DEAL_DAMAGE', target: 'TARGET_MINION', value: 2 }, targetId);
-      executeEffect(game, pIdx as 0 | 1, { type: 'FREEZE_TARGET', target: 'TARGET_MINION' }, targetId);
-      if (upgraded) {
-        // Freeze 1 adjacent minion (the one to the right, or left if rightmost)
-        for (const p of game.players) {
-          const idx = p.board.findIndex(m => m.instanceId === targetId);
-          if (idx >= 0) {
-            if (idx < p.board.length - 1) p.board[idx + 1].isFrozen = true;
-            else if (idx > 0) p.board[idx - 1].isFrozen = true;
-            break;
-          }
-        }
-      }
-      addLog(game, pIdx as 0 | 1, `${player.playerName} uses ${'Hockbandy Strike'}`, 'PLAY');
-      break;
-    }
-    case 'DES': {
-      // Orra Siphon: 1 dmg to enemy hero (upgraded: 1 dmg + random enemy gets -1 atk)
-      const dmg = 1;
-      player.mana -= HERO_POWER_COST;
-      player.heroPowerUsed = true;
-      game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
-      game.playerStats[pIdx as 0 | 1].heroPowerUses++;
-      applyDamageToHero(game.players[oppIdx], dmg);
-      game.playerStats[pIdx as 0 | 1].damageDealtToHeroes += dmg;
-      if (upgraded && game.players[oppIdx].board.length > 0) {
-        const randomEnemy = game.players[oppIdx].board[Math.floor(Math.random() * game.players[oppIdx].board.length)];
-        randomEnemy.currentAttack = Math.max(0, randomEnemy.currentAttack - 1);
-        randomEnemy.enchantments.push({ source: 'des-upgraded-hp', attackMod: -1, healthMod: 0 });
-      }
-      checkHeroDeath(game);
-      addLog(game, pIdx as 0 | 1, `${player.playerName} uses ${'Orra Siphon'}`, 'PLAY');
-      break;
-    }
-    case 'ASTRID': {
-      // Nature's Touch: Give any character +1/+1 (heroes get +1 Attack this turn + restore 1 Health)
-      if (!targetId) {
-        const targets = [
-          ...game.players[0].board.filter(m => !m.hasStealthUntilAttack).map(m => m.instanceId),
-          ...game.players[1].board.filter(m => !m.hasStealthUntilAttack).map(m => m.instanceId),
-          `hero-${pIdx}`, `hero-${oppIdx}`,
-        ];
-        return { success: false, needsTarget: true, validTargets: targets };
-      }
-      player.mana -= HERO_POWER_COST;
-      player.heroPowerUsed = true;
-      game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
-      game.playerStats[pIdx as 0 | 1].heroPowerUses++;
-      if (targetId.startsWith('hero-')) {
-        // Heroes: +1 attack this turn + restore 1 health
-        const heroIdx = parseInt(targetId.split('-')[1]) as 0 | 1;
-        const hero = game.players[heroIdx];
-        hero.heroAttackThisTurn = (hero.heroAttackThisTurn ?? 0) + 1;
-        const healed = Math.min(1, hero.maxHealth - hero.health);
-        hero.health = Math.min(hero.health + 1, hero.maxHealth);
-        game.playerStats[pIdx as 0 | 1].healingDone += healed;
-      } else {
-        executeEffect(game, pIdx as 0 | 1, { type: 'BUFF_MINION', target: 'TARGET_ANY', attackBuff: 1, healthBuff: 1 }, targetId);
-      }
-      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Nature's Touch`, 'PLAY');
+      // Warrior — Armor Up!: gain 2 armor.
+      spendMana();
+      executeEffect(game, pIdx as 0 | 1, { type: 'GAIN_ARMOR', target: 'NONE', value: 2 });
+      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Brace`, 'PLAY');
       break;
     }
     case 'AVA': {
-      // Deploy Drone: 1/1 (upgraded: 1/1 with Taunt)
+      // Paladin — Reinforce: summon a 1/1 Silver Hand Recruit.
       if (player.board.length >= MAX_BOARD_SIZE) return { success: false, error: 'Board is full' };
-      player.mana -= HERO_POWER_COST;
-      player.heroPowerUsed = true;
-      game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
-      game.playerStats[pIdx as 0 | 1].heroPowerUses++;
-      executeEffect(game, pIdx as 0 | 1, { type: 'SUMMON_MINION', target: 'NONE', summonCardCode: 'AVA_TOKEN_01' });
-      if (upgraded) {
-        // Give the newly summoned token Taunt via enchantment
-        const lastMinion = player.board[player.board.length - 1];
-        if (lastMinion) {
-          lastMinion.enchantments.push({ source: 'ava-upgraded-hp', attackMod: 0, healthMod: 0, addedKeywords: ['TAUNT'] });
-        }
-      }
-      addLog(game, pIdx as 0 | 1, `${player.playerName} uses ${upgraded ? 'Deploy Guardian' : 'Deploy Drone'}`, 'PLAY');
+      spendMana();
+      executeEffect(game, pIdx as 0 | 1, { type: 'SUMMON_MINION', target: 'NONE', summonCardCode: 'NEU_TOKEN_RECRUIT' });
+      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Deploy Sentinel`, 'PLAY');
       break;
     }
     case 'LUCAS': {
-      // Coyote's Trick: Add a random 1-cost card to your hand (combo enabler)
-      player.mana -= HERO_POWER_COST;
-      player.heroPowerUsed = true;
-      game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
-      game.playerStats[pIdx as 0 | 1].heroPowerUses++;
-      // Find all 1-cost cards from Lucas class + neutral
-      const oneCostCards = getAllCardDefs().filter(c =>
-        c.manaCost <= 1 && (c.heroClass === 'LUCAS' || c.heroClass === 'NEUTRAL')
-        && c.cardCode !== 'COIN' && !c.cardCode.includes('TOKEN')
-      );
-      if (oneCostCards.length > 0 && player.hand.length < MAX_HAND_SIZE) {
-        const pick = oneCostCards[Math.floor(Math.random() * oneCostCards.length)];
-        player.hand.push(makeInstance(pick.cardCode));
-        addLog(game, pIdx as 0 | 1, `${player.playerName} uses Coyote's Trick — adds ${pick.name} to hand`, 'PLAY');
-      } else {
-        addLog(game, pIdx as 0 | 1, `${player.playerName} uses Coyote's Trick`, 'PLAY');
-      }
+      // Shaman — Totemic Call: random orb, cannot summon a duplicate.
+      const existing = new Set(player.board.map(m => m.cardCode));
+      const available = ORB_CODES.filter(c => !existing.has(c));
+      if (available.length === 0) return { success: false, error: 'All totems are already summoned' };
+      if (player.board.length >= MAX_BOARD_SIZE) return { success: false, error: 'Board is full' };
+      spendMana();
+      const pick = available[Math.floor(Math.random() * available.length)];
+      executeEffect(game, pIdx as 0 | 1, { type: 'SUMMON_MINION', target: 'NONE', summonCardCode: pick });
+      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Invoke Orb`, 'PLAY');
       break;
     }
-    case 'IZZY': {
-      // Chart Course: 2 armor, draw 1 if 5+ armor (upgraded: 3 armor + draw 1)
-      player.mana -= HERO_POWER_COST;
-      player.heroPowerUsed = true;
-      game.playerStats[pIdx as 0 | 1].manaSpent += HERO_POWER_COST;
-      game.playerStats[pIdx as 0 | 1].heroPowerUses++;
-      const armorGain = upgraded ? 3 : 2;
-      executeEffect(game, pIdx as 0 | 1, { type: 'GAIN_ARMOR', target: 'NONE', value: armorGain });
-      if (upgraded || player.armor >= 5) {
-        drawCard(game, pIdx as 0 | 1, true);
-      }
-      addLog(game, pIdx as 0 | 1, `${player.playerName} uses ${'Chart Course'}`, 'PLAY');
+    case 'DES': {
+      // Warlock — Life Tap: draw 1, take 2 damage.
+      spendMana();
+      drawCard(game, pIdx as 0 | 1, true);
+      applyDamageToHero(player, 2);
+      checkHeroDeath(game);
+      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Blood Pact`, 'PLAY');
+      break;
+    }
+    case 'DEREK': {
+      // Druid — Shapeshift: +1 Attack this turn, gain 1 armor.
+      spendMana();
+      player.heroAttackThisTurn = (player.heroAttackThisTurn ?? 0) + 1;
+      player.armor += 1;
+      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Reforge`, 'PLAY');
       break;
     }
     default:
@@ -650,7 +561,7 @@ export function resolveBattlecry(
     const comboEffects = def.comboEffects ?? (def.comboEffect ? [def.comboEffect] : []);
     if (comboEffects.length > 0) {
       addLog(game, pIdx as 0 | 1, `Combo! ${def.name}'s bonus effect triggers!`, 'EFFECT', def.cardCode);
-      executeEffects(game, pIdx as 0 | 1, comboEffects, targetId);
+      executeEffects(game, pIdx as 0 | 1, comboEffects, targetId, { fromSpell: def.type === 'SPELL' });
     }
   }
   game.cardsPlayedThisTurn++;

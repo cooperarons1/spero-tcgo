@@ -340,6 +340,23 @@ function resolveEndOfTurnEffects(game: GameState, playerIndex: 0 | 1): void {
     addLog(game, minion.collarOwnerIndex ?? oppIdx, `${mDef.name} switches sides (Collar)!`, 'EFFECT');
   }
 
+  // Shaman — Orb of Healing: end-of-turn, restore 1 to all friendly characters
+  // (hero + minions). Stacks per-orb, HS-exact.
+  const healingOrbs = player.board.filter(m => !m.isSilenced && m.cardCode === 'LUC_ORB_HEALING').length;
+  if (healingOrbs > 0) {
+    for (let i = 0; i < healingOrbs; i++) {
+      const heroHealed = Math.min(1, player.maxHealth - player.health);
+      player.health += heroHealed;
+      game.playerStats[playerIndex].healingDone += heroHealed;
+      for (const m of player.board) {
+        const minionHealed = Math.min(1, m.maxHealth - m.currentHealth);
+        m.currentHealth += minionHealed;
+        game.playerStats[playerIndex].healingDone += minionHealed;
+      }
+    }
+    addLog(game, playerIndex, `Orb of Healing restores 1 to all friendly characters`, 'EFFECT');
+  }
+
   for (const minion of [...player.board]) {
     if (game.winner) break;
     if (minion.isSilenced) continue;

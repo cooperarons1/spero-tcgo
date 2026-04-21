@@ -671,12 +671,24 @@ body {
   animation: frost-shimmer 2s ease-in-out infinite;
 }
 
-/* ═══ Divine shield sparkle (infinite golden pulse) ═══ */
+/* ═══ Divine shield sparkle (infinite golden aura — HS-style thick halo) ═══ */
 @keyframes divine-sparkle {
-  0%, 100% { box-shadow: 0 0 8px 2px rgba(253,224,71,0.4); }
-  50% { box-shadow: 0 0 20px 6px rgba(253,224,71,0.8); }
+  0%, 100% {
+    box-shadow:
+      0 0 0 3px rgba(253,224,71,0.95),
+      0 0 16px 4px rgba(251,191,36,0.9),
+      0 0 32px 12px rgba(251,146,60,0.55),
+      0 0 52px 20px rgba(253,224,71,0.25);
+  }
+  50% {
+    box-shadow:
+      0 0 0 4px rgba(255,243,180,1),
+      0 0 24px 8px rgba(251,191,36,1),
+      0 0 48px 18px rgba(251,146,60,0.75),
+      0 0 80px 28px rgba(253,224,71,0.38);
+  }
 }
-.animate-divine-sparkle { animation: divine-sparkle 1.5s ease-in-out infinite; }
+.animate-divine-sparkle { animation: divine-sparkle 1.8s ease-in-out infinite; }
 
 /* ═══ Buff pulse (green glow on receiving buff) — neural params via CSS vars ═══ */
 @keyframes buff-pulse {
@@ -730,7 +742,11 @@ body {
   60% { opacity: 1; transform: translateX(4px) rotate(3deg); }
   100% { opacity: 1; transform: translateX(0) rotate(0); }
 }
-.animate-weapon-slide-in { animation: weapon-slide-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+/* `forwards` (not `both`): if the class is added late or the weapon
+ * renders before the effect fires, the element stays at its static
+ * opacity:1 default instead of being painted invisible. Fixes the
+ * "weapon doesn't appear until I refresh" bug. */
+.animate-weapon-slide-in { animation: weapon-slide-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
 
 /* End turn button urgent (red danger pulse when timer <= 5s on my turn) */
 /* Only fires when the player is about to time out and lose initiative.

@@ -105,6 +105,19 @@ const rarityColor: Record<string, string> = {
   LEGENDARY: '#f59e0b',
 };
 
+/** Visible keyword chips rendered on hand cards. Order matters — they
+ * appear left-to-right in this sequence. BATTLECRY/COMBO/DEATHRATTLE are
+ * omitted because they're already conveyed by the card text. */
+const KEYWORD_CHIPS: Array<{ id: string; label: string; cls: string }> = [
+  { id: 'TAUNT',         label: 'Taunt',         cls: 'bg-stone-800 text-amber-200' },
+  { id: 'DIVINE_SHIELD', label: 'Divine Shield', cls: 'bg-yellow-900 text-yellow-200' },
+  { id: 'CHARGE',        label: 'Charge',        cls: 'bg-red-900 text-red-200' },
+  { id: 'STEALTH',       label: 'Stealth',       cls: 'bg-slate-800 text-slate-200' },
+  { id: 'WINDFURY',      label: 'Windfury',      cls: 'bg-cyan-900 text-cyan-200' },
+  { id: 'LIFESTEAL',     label: 'Lifesteal',     cls: 'bg-rose-900 text-rose-200' },
+  { id: 'SPELL_DAMAGE',  label: 'Spell +1',      cls: 'bg-indigo-900 text-indigo-200' },
+];
+
 // Diamond-faceted mana gem modeled on the Shadow-of-Demise style: blue
 // gem with bronze ring, light-reflected facets. Used for the mana cost
 // badge. `value` is the mana cost rendered centered on the gem.
@@ -419,6 +432,27 @@ export function Card({ cardCode, onClick, selected, greyed, small, className, go
           {def.name}
         </span>
       </div>
+
+      {/* ── Keyword chip strip — stacks visible keyword badges above
+           the text panel so cards with multiple keywords (Taunt +
+           Divine Shield, etc.) show all of them at a glance. ── */}
+      {(() => {
+        const chips = KEYWORD_CHIPS.filter(k => def.keywords?.includes(k.id));
+        if (chips.length === 0 || small) return null;
+        return (
+          <div className="absolute left-1 right-1 top-[100px] z-[4] flex flex-wrap justify-center gap-[2px] pointer-events-none">
+            {chips.map(c => (
+              <span
+                key={c.id}
+                className={`text-[7px] font-bold ${c.cls} rounded-sm px-[3px] py-[1px] shadow-sm border border-black/40`}
+                style={{ textShadow: '0 1px 1px rgba(0,0,0,0.8)' }}
+              >
+                {c.label}
+              </span>
+            ))}
+          </div>
+        );
+      })()}
 
       {/* ── Card text — parchment-tan panel inside a dark stone cutout. ── */}
       {def.text ? (
