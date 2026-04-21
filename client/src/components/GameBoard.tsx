@@ -176,7 +176,7 @@ const HERO_POWER_DESC: Record<HeroClass, string> = {
   TALA:   'Safeguard: Restore 2 Health',
   ANDERS: 'Brace: Gain 2 Armor',
   AVA:    'Deploy Sentinel: Summon a 1/1 Recruit',
-  LUCAS:  'Invoke Orb: Summon a random Orb. No duplicates.',
+  LUCAS:  'Invoke Echo: Summon a random Echo. No duplicates.',
   DES:    'Blood Pact: Draw a card, take 2 damage',
   DEREK:  'Reforge: +1 Attack this turn. +1 Armor.',
   NEUTRAL: 'Hero Power',

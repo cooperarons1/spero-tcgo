@@ -323,6 +323,74 @@ OVERRIDES = {
         "leopard body, no humanoid anatomy, no exposed anatomy, "
         "naturalistic wildlife illustration"
     ),
+    "JIM_BOND_02": (  # Bella, Snow Guardian — should be a snow wolf
+        "A majestic white arctic snow wolf with glowing blue eyes "
+        "standing watchfully in deep snow, heavy winter fur, four legs "
+        "firmly on the ground, pine forest and snowy mountains "
+        "backdrop, naturalistic wildlife illustration, no humanoid "
+        "features, full wolf body"
+    ),
+    "JIM_BOND_01": (  # Otto, Loyal Otter
+        "A fluffy river otter holding a small trinket in its paws, "
+        "playful and alert pose, riverside backdrop with forest, "
+        "naturalistic wildlife illustration, no humanoid features, "
+        "four-limbed otter creature"
+    ),
+    "TAL_BOND_01": (  # Snowball, Arctic Scout
+        "A small white arctic fox with a blue scarf, sitting alert in "
+        "fresh snow, bright intelligent eyes, pine forest backdrop, "
+        "naturalistic wildlife illustration, no humanoid features"
+    ),
+    "AND_BOND_01": (  # Frostfang
+        "A massive ice-scaled serpent with glowing blue fangs coiled on "
+        "frozen ground, frost mist rising off its body, quadrupedal "
+        "head on coils, no humanoid features"
+    ),
+
+    # ─── Orra Echoes — residual imprints of the world's ambient energy.
+    #      cardCodes stay LUC_ORB_* for engine compatibility; display
+    #      names + flavors are Surge / Aegis / Weave / Flow. Prompts
+    #      describe translucent ethereal silhouettes — not solid orbs. ───
+    "LUC_ORB_FIRE": (  # Surge — 1/1 aggressive
+        "A translucent orange-red ethereal silhouette of raw energy "
+        "lunging forward, ember particles trailing behind, shaped like "
+        "a ribbon of flame mid-strike, dark stone backdrop, no humans, "
+        "pure glowing residual imprint, painterly fantasy illustration"
+    ),
+    "LUC_ORB_WATER": (  # Guard — 0/2 Taunt defender
+        "A translucent blue-silver ethereal silhouette of a towering "
+        "barrier of stacked shimmering plates, glowing defensive runes, "
+        "wisps of protective energy curling around it, dark stone "
+        "backdrop, no humans, pure protective imprint, painterly "
+        "fantasy illustration"
+    ),
+    "LUC_ORB_AIR": (  # Weave — 0/2 Spell Damage +1
+        "A translucent white-purple ethereal silhouette of interwoven "
+        "threads of arcane light, braided glowing filaments in a vertical "
+        "column, crackling spellfire at the tips, dark stone backdrop, "
+        "no humans, pure spellpower imprint"
+    ),
+    "LUC_ORB_HEALING": (  # Flow — 0/2 end-of-turn heal
+        "A translucent green-gold ethereal silhouette of flowing life "
+        "energy curling upward like a slow fountain, glowing petals "
+        "drifting around it, mossy stone backdrop, no humans, pure "
+        "restorative imprint, painterly fantasy illustration"
+    ),
+
+    # ─── Name↔type coherence fixes handled in the cards.json pass,
+    #      but the prompts here ensure the art matches the new names. ───
+    "IZZ_BOND_02": (  # Sparkle Compass — was MECH-tribed but name doesn't
+                      # fit mech; retheme art as an arcane navigational
+                      # instrument, retribed to AMETI in cards.json.
+        "An ornate enchanted brass compass floating above an open "
+        "spellbook, glowing blue arcane runes radiating from the needle, "
+        "starlit desk backdrop, no humans, pure arcane object"
+    ),
+    "TAL_BOND_02": (  # Tala's Ice Orb — simplify to just the orb
+        "A single floating sphere of blue-white ice swirling with frost "
+        "mist and snowflakes, suspended above snowy ground, glowing "
+        "cold aura, pine backdrop, no humans, pure magical object"
+    ),
 }
 
 

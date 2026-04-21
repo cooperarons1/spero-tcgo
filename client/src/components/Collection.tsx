@@ -74,11 +74,17 @@ const KEYWORD_DESCRIPTIONS: Record<string, string> = {
   END_OF_TURN: 'Triggers at the end of your turn.',
 };
 
-// Hero portrait images (PNG for heroes that have them, fallback to colored circle)
+// Hero portrait images — all 9 heroes have PNGs now (SDXL-generated).
 const HERO_PORTRAIT_IMGS: Partial<Record<string, string>> = {
-  JIMMY: '/heroes/JIMMY.png',
-  TALA: '/heroes/TALA.png',
-  DEREK: '/heroes/DEREK.png',
+  JIMMY:  '/heroes/JIMMY.png',
+  TALA:   '/heroes/TALA.png',
+  DEREK:  '/heroes/DEREK.png',
+  ANDERS: '/heroes/ANDERS.png',
+  DES:    '/heroes/DES.png',
+  ASTRID: '/heroes/ASTRID.png',
+  AVA:    '/heroes/AVA.png',
+  LUCAS:  '/heroes/LUCAS.png',
+  IZZY:   '/heroes/IZZY.png',
 };
 
 const HERO_ACCENT: Record<string, string> = {

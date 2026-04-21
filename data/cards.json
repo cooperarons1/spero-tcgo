@@ -762,7 +762,7 @@
       "TAUNT",
       "BOND"
     ],
-    "minionType": "MECH",
+    "minionType": "AMETI",
     "bondPartnerCode": "AST_BOND_01",
     "bondEffect": {
       "type": "BUFF_MINION",
@@ -807,7 +807,7 @@
     "keywords": [
       "BOND"
     ],
-    "minionType": "MECH",
+    "minionType": "AMETI",
     "bondPartnerCode": "IZZ_BOND_01",
     "bondEffect": {
       "type": "BUFF_MINION",
@@ -1596,7 +1596,7 @@
     "keywords": [
       "BATTLECRY"
     ],
-    "minionType": "BEAST",
+    "minionType": "MECH",
     "battlecryEffect": {
       "type": "DRAW_CARDS",
       "target": "NONE",
@@ -2168,7 +2168,7 @@
     "keywords": [
       "BATTLECRY"
     ],
-    "minionType": "BEAST",
+    "minionType": "MECH",
     "battlecryEffect": {
       "type": "DRAW_CARDS",
       "target": "NONE",
@@ -2400,7 +2400,7 @@
     "keywords": [
       "CHARGE"
     ],
-    "minionType": "BEAST"
+    "minionType": "MECH"
   },
   {
     "cardCode": "AVA027",
@@ -2841,7 +2841,7 @@
       "TAUNT",
       "DIVINE_SHIELD"
     ],
-    "minionType": "BEAST"
+    "minionType": "MECH"
   },
   {
     "cardCode": "LUC032",
@@ -3201,7 +3201,7 @@
     "keywords": [
       "BATTLECRY"
     ],
-    "minionType": "BEAST",
+    "minionType": "MECH",
     "battlecryEffect": {
       "type": "DRAW_CARDS",
       "target": "NONE",
@@ -3968,7 +3968,7 @@
     "keywords": [
       "BATTLECRY"
     ],
-    "minionType": "BEAST",
+    "minionType": "MECH",
     "battlecryEffect": {
       "type": "DRAW_CARDS",
       "target": "NONE",
@@ -4515,7 +4515,7 @@
       "DEATHRATTLE",
       "BATTLECRY"
     ],
-    "minionType": "BEAST",
+    "minionType": "MECH",
     "deathrattleEffect": {
       "type": "SUMMON_MINION",
       "target": "NONE",
@@ -4544,7 +4544,7 @@
     "keywords": [
       "TAUNT"
     ],
-    "minionType": "BEAST"
+    "minionType": "MECH"
   },
   {
     "cardCode": "DRK043",
@@ -4560,7 +4560,7 @@
     "keywords": [
       "DEATHRATTLE"
     ],
-    "minionType": "BEAST",
+    "minionType": "MECH",
     "deathrattleEffect": {
       "type": "SUMMON_MINION",
       "target": "NONE",
@@ -4706,7 +4706,7 @@
       "type": "RETURN_TO_HAND",
       "target": "TARGET_FRIENDLY_MINION"
     },
-    "minionType": "BEAST"
+    "minionType": "MECH"
   },
   {
     "cardCode": "NEU093",
@@ -4804,7 +4804,7 @@
     "keywords": [
       "DEATHRATTLE"
     ],
-    "minionType": "BEAST",
+    "minionType": "MECH",
     "deathrattleEffect": {
       "type": "SUMMON_MINION",
       "target": "NONE",
@@ -4842,7 +4842,7 @@
     "keywords": [
       "DEATHRATTLE"
     ],
-    "minionType": "BEAST",
+    "minionType": "MECH",
     "deathrattleEffect": {
       "type": "DEAL_DAMAGE_RANDOM_ENEMY",
       "target": "RANDOM_ENEMY",
@@ -6346,7 +6346,7 @@
   },
   {
     "cardCode": "LUC_ORB_FIRE",
-    "name": "Orb of Fire",
+    "name": "Surge",
     "manaCost": 1,
     "type": "MINION",
     "heroClass": "LUCAS",
@@ -6354,13 +6354,13 @@
     "attack": 1,
     "health": 1,
     "text": "",
-    "flavor": "A spark, contained — barely.",
+    "flavor": "A sliver of raw orra snaps back into the world — aggressive, hungry.",
     "keywords": [],
     "minionType": "ELEMENTAL"
   },
   {
     "cardCode": "LUC_ORB_WATER",
-    "name": "Orb of Water",
+    "name": "Guard",
     "manaCost": 1,
     "type": "MINION",
     "heroClass": "LUCAS",
@@ -6368,7 +6368,7 @@
     "attack": 0,
     "health": 2,
     "text": "Taunt.",
-    "flavor": "A shimmering wall of living water.",
+    "flavor": "The orra remembers every blow ever turned aside.",
     "keywords": [
       "TAUNT"
     ],
@@ -6376,7 +6376,7 @@
   },
   {
     "cardCode": "LUC_ORB_AIR",
-    "name": "Orb of Air",
+    "name": "Weave",
     "manaCost": 1,
     "type": "MINION",
     "heroClass": "LUCAS",
@@ -6384,7 +6384,7 @@
     "attack": 0,
     "health": 2,
     "text": "Spell Damage +1.",
-    "flavor": "Whispers in the wind carry power.",
+    "flavor": "An imprint of a thousand castings — threads of orra twining around your hands.",
     "keywords": [
       "SPELL_DAMAGE"
     ],
@@ -6392,7 +6392,7 @@
   },
   {
     "cardCode": "LUC_ORB_HEALING",
-    "name": "Orb of Healing",
+    "name": "Flow",
     "manaCost": 1,
     "type": "MINION",
     "heroClass": "LUCAS",
@@ -6400,7 +6400,7 @@
     "attack": 0,
     "health": 2,
     "text": "At the end of your turn, restore 1 Health to all friendly characters.",
-    "flavor": "A quiet pulse of restoration.",
+    "flavor": "The orra runs downstream, and so does life.",
     "keywords": [],
     "minionType": "ELEMENTAL"
   },

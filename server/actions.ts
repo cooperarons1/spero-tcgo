@@ -405,7 +405,7 @@ export function useHeroPower(
       spendMana();
       const pick = available[Math.floor(Math.random() * available.length)];
       executeEffect(game, pIdx as 0 | 1, { type: 'SUMMON_MINION', target: 'NONE', summonCardCode: pick });
-      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Invoke Orb`, 'PLAY');
+      addLog(game, pIdx as 0 | 1, `${player.playerName} uses Invoke Echo`, 'PLAY');
       break;
     }
     case 'DES': {
