@@ -157,7 +157,7 @@ const HERO_POWER_TARGETING: Partial<Record<HeroClass, string>> = {
 
 // ─── Hero Power Descriptions ───
 const HERO_POWER_DESC: Record<HeroClass, string> = {
-  JIMMY: 'Orra Arrow: Deal 2 damage to any target',
+  JIMMY: 'Orra Arrow: Deal 1 damage to any target',
   TALA: 'Healing Touch: Restore 2 Health to any character',
   DEREK: 'Tinker: Draw a card, take 2 damage',
   ANDERS: 'Hockbandy Strike: Deal 2 damage to a minion and Freeze it',

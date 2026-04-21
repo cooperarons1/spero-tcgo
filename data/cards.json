@@ -1077,14 +1077,11 @@
     "rarity": "COMMON",
     "attack": 0,
     "health": 0,
-    "text": "Draw a card. If you have a weapon, draw 2 instead.",
+    "text": "Draw a card.",
     "flavor": "Always check the inventory. Always.",
     "keywords": [],
-    "spellEffect": {
-      "type": "DRAW_CARDS",
-      "target": "NONE",
-      "value": 1
-    }
+    "spellEffect": null,
+    "spellEffects": []
   },
   {
     "cardCode": "LUC022",
@@ -2166,8 +2163,8 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "EPIC",
-    "attack": 4,
-    "health": 5,
+    "attack": 3,
+    "health": 4,
     "text": "Battlecry: Draw a card for each MECH you control.",
     "flavor": "Processes data faster than you can blink. Much faster.",
     "keywords": [
@@ -2404,7 +2401,7 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 4,
+    "attack": 3,
     "health": 3,
     "text": "Charge.",
     "flavor": "Fast, cheap, and only occasionally explodes.",
@@ -3645,7 +3642,7 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 3,
+    "attack": 2,
     "health": 3,
     "text": "A basic mech unit ready for deployment.",
     "flavor": "Simple design. Simple function. Simply effective.",
@@ -3779,7 +3776,7 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "LEGENDARY",
-    "attack": 6,
+    "attack": 5,
     "health": 7,
     "text": "Taunt. Deathrattle: Summon two 3/3 mechs.",
     "flavor": "The last line of defense. Literally.",
@@ -3977,7 +3974,7 @@
   {
     "cardCode": "DRK035",
     "name": "Recall",
-    "manaCost": 1,
+    "manaCost": 2,
     "type": "SPELL",
     "heroClass": "DEREK",
     "rarity": "COMMON",
@@ -4041,19 +4038,19 @@
   {
     "cardCode": "DRK037",
     "name": "Resourcefulness",
-    "manaCost": 3,
+    "manaCost": 2,
     "type": "SPELL",
     "heroClass": "DEREK",
     "rarity": "RARE",
     "attack": 0,
     "health": 0,
-    "text": "Draw 2 cards.",
+    "text": "Draw a card. Gain 2 armor.",
     "flavor": "A good engineer finds resources. A great one creates them.",
     "keywords": [],
     "spellEffect": {
       "type": "DRAW_CARDS",
       "target": "NONE",
-      "value": 2
+      "value": 1
     }
   },
   {
@@ -4442,7 +4439,7 @@
     "type": "MINION",
     "heroClass": "DEREK",
     "rarity": "COMMON",
-    "attack": 3,
+    "attack": 2,
     "health": 3,
     "text": "Battlecry: Add a spare part to your hand.",
     "flavor": "He puts the 'mad' in 'mad scientist.' The chameleon puts the 'cool.'",
@@ -6164,7 +6161,7 @@
   {
     "cardCode": "DRK050",
     "name": "Precision Strike",
-    "manaCost": 2,
+    "manaCost": 3,
     "type": "SPELL",
     "heroClass": "DEREK",
     "rarity": "RARE",
@@ -6195,7 +6192,7 @@
       {
         "type": "DEAL_DAMAGE_ALL_ENEMIES",
         "target": "ALL_ENEMY_MINIONS",
-        "value": 5
+        "value": 4
       },
       {
         "type": "GAIN_ARMOR",
@@ -6391,7 +6388,7 @@
     "rarity": "EPIC",
     "attack": 0,
     "health": 0,
-    "text": "Give your minions +2/+2 and Taunt.",
+    "text": "Give your minions +1/+1 and Taunt.",
     "flavor": "Run them hotter. They can handle it. Probably.",
     "keywords": [],
     "spellEffects": [
@@ -6399,7 +6396,9 @@
         "type": "BUFF_ALL_FRIENDLY_MINIONS",
         "target": "ALL_FRIENDLY_MINIONS",
         "value": 2,
-        "extra": "TAUNT"
+        "extra": "TAUNT",
+        "attackBuff": 1,
+        "healthBuff": 1
       }
     ]
   }
