@@ -2528,23 +2528,45 @@ export default function GameBoard({
                       </div>
                     )}
                   </div>
-                  {/* Hover tooltip — show the full card when the log
-                       entry has a cardCode (so you can see what actually
-                       happened), fall back to text for COMBAT-only
-                       entries that don't reference a specific card. */}
+                  {/* Hover tooltip — enlarged view for every action.
+                       Card plays get the full card art at 1.5×. Combat/
+                       effect entries with no cardCode get a large info
+                       panel so attacks and hero powers are legible too. */}
                   <div className="absolute left-full ml-2 top-0 hidden group-hover:block z-50 pointer-events-none">
                     {cardCode ? (
                       <div className="flex flex-col gap-1">
                         <div style={{ transform: 'scale(1.5)', transformOrigin: 'top left' }}>
                           <CardComponent cardCode={cardCode} />
                         </div>
-                        <div className="bg-stone-900/95 border border-amber-700/40 rounded px-2 py-1 mt-[88px] shadow-xl max-w-[220px]">
-                          <span className="text-[10px] text-amber-100 leading-tight">{entry.message}</span>
+                        <div className="bg-stone-900/95 border border-amber-700/40 rounded px-3 py-2 mt-[88px] shadow-xl w-[220px]">
+                          <div className="text-[9px] font-bold uppercase tracking-wider text-amber-400/80 mb-0.5">
+                            {entry.category}  ·  Turn {entry.turnNumber}
+                          </div>
+                          <span className="text-[11px] text-amber-100 leading-snug">{entry.message}</span>
                         </div>
                       </div>
                     ) : (
-                      <div className="bg-stone-900/95 border border-stone-600 rounded px-2 py-1 whitespace-nowrap shadow-lg">
-                        <span className="text-[10px] text-gray-300">{entry.message}</span>
+                      <div className="bg-stone-900/95 border border-amber-700/40 rounded-lg px-4 py-3 shadow-xl w-[240px]">
+                        <div className="flex items-center gap-2 mb-1.5">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-2xl font-extrabold ${
+                            entry.category === 'COMBAT'
+                              ? 'bg-red-900/70 text-red-200 border-2 border-red-500/60'
+                              : entry.category === 'EFFECT'
+                                ? 'bg-purple-900/70 text-purple-200 border-2 border-purple-500/60'
+                                : 'bg-amber-900/70 text-amber-200 border-2 border-amber-500/60'
+                          }`}>
+                            {entry.category === 'COMBAT' ? '⚔' : entry.category === 'EFFECT' ? '✦' : '•'}
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-[9px] font-bold uppercase tracking-wider text-amber-400/80">
+                              {entry.category}  ·  Turn {entry.turnNumber}
+                            </span>
+                            <span className="text-[10px] text-stone-400">
+                              {isMe ? 'You' : 'Opponent'}
+                            </span>
+                          </div>
+                        </div>
+                        <span className="text-[12px] text-amber-100 leading-snug font-medium">{entry.message}</span>
                       </div>
                     )}
                   </div>
