@@ -42,3 +42,4 @@ data/animation-checkpoint.json
 __pycache__/
 *.pyc
 
+data/soak/

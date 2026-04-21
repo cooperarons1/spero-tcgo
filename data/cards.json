@@ -956,12 +956,12 @@
   {
     "cardCode": "AST023",
     "name": "Alexis",
-    "manaCost": 3,
+    "manaCost": 2,
     "type": "MINION",
     "heroClass": "ASTRID",
     "rarity": "COMMON",
-    "attack": 3,
-    "health": 3,
+    "attack": 2,
+    "health": 2,
     "text": "Stealth. Combo: Gain +1/+1.",
     "flavor": "She picks her moment — and if she's been setting up, she picks twice.",
     "keywords": [
@@ -1431,7 +1431,7 @@
   {
     "cardCode": "AST026",
     "name": "Sap",
-    "manaCost": 2,
+    "manaCost": 1,
     "type": "SPELL",
     "heroClass": "ASTRID",
     "rarity": "COMMON",
@@ -2557,7 +2557,7 @@
   {
     "cardCode": "AST029",
     "name": "Jasten",
-    "manaCost": 4,
+    "manaCost": 3,
     "type": "MINION",
     "heroClass": "ASTRID",
     "rarity": "EPIC",
@@ -4571,12 +4571,12 @@
   {
     "cardCode": "AST037",
     "name": "Tamara",
-    "manaCost": 3,
+    "manaCost": 2,
     "type": "MINION",
     "heroClass": "ASTRID",
     "rarity": "RARE",
-    "attack": 3,
-    "health": 3,
+    "attack": 2,
+    "health": 2,
     "text": "Stealth. Combo: Draw a card.",
     "flavor": "She moves with morning shadow — and brings back secrets.",
     "keywords": [
@@ -5517,7 +5517,7 @@
   {
     "cardCode": "AST042",
     "name": "Cold Blood",
-    "manaCost": 2,
+    "manaCost": 1,
     "type": "SPELL",
     "heroClass": "ASTRID",
     "rarity": "RARE",
