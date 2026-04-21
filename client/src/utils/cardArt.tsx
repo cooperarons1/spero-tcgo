@@ -4545,7 +4545,7 @@ export function CardArt({
     // loading all visible tiles up-front is cheap after the first page.
     return (
       <img
-        src={`/cards/${cardCode}.png`}
+        src={`/cards/${cardCode}.webp`}
         alt=""
         className={className}
         style={{ width: '100%', height: '100%', objectFit: 'cover' }}

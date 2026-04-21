@@ -40,15 +40,15 @@ const HERO_LABELS: Record<string, string> = {
 };
 
 const HERO_PORTRAIT_IMGS: Partial<Record<string, string>> = {
-  JIMMY:  '/heroes/JIMMY.png',
-  TALA:   '/heroes/TALA.png',
-  DEREK:  '/heroes/DEREK.png',
-  ANDERS: '/heroes/ANDERS.png',
-  DES:    '/heroes/DES.png',
-  ASTRID: '/heroes/ASTRID.png',
-  AVA:    '/heroes/AVA.png',
-  LUCAS:  '/heroes/LUCAS.png',
-  IZZY:   '/heroes/IZZY.png',
+  JIMMY:  '/heroes/JIMMY.webp',
+  TALA:   '/heroes/TALA.webp',
+  DEREK:  '/heroes/DEREK.webp',
+  ANDERS: '/heroes/ANDERS.webp',
+  DES:    '/heroes/DES.webp',
+  ASTRID: '/heroes/ASTRID.webp',
+  AVA:    '/heroes/AVA.webp',
+  LUCAS:  '/heroes/LUCAS.webp',
+  IZZY:   '/heroes/IZZY.webp',
 };
 
 const MANA_BUCKETS = [0, 1, 2, 3, 4, 5, 6, 7] as const;
