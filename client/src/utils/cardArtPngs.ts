@@ -80,6 +80,7 @@ export const CARD_ART_PNGS = new Set([
   "AVA_BOND_02",
   "AVA_TOKEN_01",
   "AVA_TOKEN_02",
+  "COIN",
   "DES021",
   "DES022",
   "DES023",
