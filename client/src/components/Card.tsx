@@ -433,26 +433,10 @@ export function Card({ cardCode, onClick, selected, greyed, small, className, go
         </span>
       </div>
 
-      {/* ── Keyword chip strip — stacks visible keyword badges above
-           the text panel so cards with multiple keywords (Taunt +
-           Divine Shield, etc.) show all of them at a glance. ── */}
-      {(() => {
-        const chips = KEYWORD_CHIPS.filter(k => def.keywords?.includes(k.id));
-        if (chips.length === 0 || small) return null;
-        return (
-          <div className="absolute left-1 right-1 top-[100px] z-[4] flex flex-wrap justify-center gap-[2px] pointer-events-none">
-            {chips.map(c => (
-              <span
-                key={c.id}
-                className={`text-[7px] font-bold ${c.cls} rounded-sm px-[3px] py-[1px] shadow-sm border border-black/40`}
-                style={{ textShadow: '0 1px 1px rgba(0,0,0,0.8)' }}
-              >
-                {c.label}
-              </span>
-            ))}
-          </div>
-        );
-      })()}
+      {/* Keyword chip strip removed — the text box already shows each
+           keyword by name, so the stacked badges above the art were
+           redundant and obscured the portrait (e.g. Windfury chip sat
+           over the character's head on Jax, Desert Coyote). */}
 
       {/* ── Card text — parchment-tan panel inside a dark stone cutout. ── */}
       {def.text ? (
