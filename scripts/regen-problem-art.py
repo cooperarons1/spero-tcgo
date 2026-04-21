@@ -391,6 +391,73 @@ OVERRIDES = {
         "mist and snowflakes, suspended above snowy ground, glowing "
         "cold aura, pine backdrop, no humans, pure magical object"
     ),
+
+    # ─── Secret spells — should show a trap/ward effect, NOT a character ───
+    "AST_S02": (  # Second Chance (resurrect)
+        "A translucent golden-white spirit form rising from a fallen "
+        "broken sword on dark stone, wisps of resurrection light, warm "
+        "holy glow, no humans, no character, pure secret/revival effect"
+    ),
+    "AST_S01": (  # Guardian's Oath
+        "A glowing golden rune circle on dark stone ground, vows of "
+        "protection etched in light, shield-shaped ward, no humans, "
+        "pure secret ward effect"
+    ),
+    "AST_S03": (  # Retribution
+        "A glowing red sword sigil hovering over a battlefield, "
+        "vengeful red-gold light, no humans, pure secret trap effect"
+    ),
+    "JIM_S01": (  # Ember Trap
+        "A circular fire-rune trap on stone ground, ember particles "
+        "rising from the sigil, no humans, pure trap effect"
+    ),
+    "JIM_S02": (  # Blaze Snare
+        "A glowing orange flame-loop snare on the ground, fiery trap "
+        "rune at the center, no humans, pure trap effect"
+    ),
+    "JIM_S03": (  # Searing Arrow
+        "A fiery red-orange arrow hanging in midair, embers trailing, "
+        "trap-rune glow underneath, no humans, pure trap effect"
+    ),
+    "AND_S01": (  # Runic Counter
+        "A glowing blue ice-rune ward floating in the air, arcane "
+        "circle on frozen ground, no humans, pure counter-spell effect"
+    ),
+    "AND_S02": (  # Mirror Reflection
+        "An ornate floating blue crystal mirror on a snowy pedestal, "
+        "reflecting ghostly silhouettes, no humans visible, pure "
+        "magical object"
+    ),
+    "DES_S01": (  # Shadow Ambush
+        "A swirling purple-black shadow portal rune on dark stone, "
+        "tendrils of dark magic, no humans, pure trap effect"
+    ),
+    "DES_S02": (  # Dark Bargain
+        "A glowing purple pact rune on dark stone, shadowy smoke "
+        "rising, no humans, pure secret-effect illustration"
+    ),
+    "DES_S03": (  # Void Trap
+        "A swirling purple-black void portal circle on dark ground, "
+        "ominous red glow at center, no humans, pure trap effect"
+    ),
+
+    # ─── Copyright-flagged: current art resembled Despicable Me Minion ───
+    "NEU111": (  # Quick Zap
+        "A crackling bolt of yellow-white electricity striking downward, "
+        "arcane sparks radiating outward, dark stormy backdrop, pure "
+        "spell effect, no humans, no characters, no yellow humanoid "
+        "figures, no cartoon characters"
+    ),
+    "NEU109": (  # Volcanic Eruption
+        "A massive volcano erupting with columns of orange-red lava and "
+        "black smoke, glowing embers raining down, dramatic fantasy "
+        "landscape, no humans, no characters"
+    ),
+    "NEU110": (  # Orra Bolt
+        "A single purple-white magical bolt streaking across a dark sky "
+        "with orra-crystal sparks trailing, pure spell effect, no "
+        "humans, no characters"
+    ),
 }
 
 

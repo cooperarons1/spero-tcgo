@@ -4539,13 +4539,17 @@ export function CardArt({
   }
 
   if (hasPng) {
+    // Eager + async decode: Collection with 20 tiles/page was visibly
+    // popping in because `loading="lazy"` deferred each request until
+    // viewport intersection. Browsers cache these aggressively so
+    // loading all visible tiles up-front is cheap after the first page.
     return (
       <img
         src={`/cards/${cardCode}.png`}
         alt=""
         className={className}
         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-        loading="lazy"
+        decoding="async"
         onError={() => setPngFailed(true)}
       />
     );
