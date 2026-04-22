@@ -519,13 +519,17 @@ function MulliganScreen({
               </span>
               {/* Text */}
               <span className="text-[8px] md:text-[9px] text-amber-200/50 text-center leading-tight line-clamp-2 px-2 flex-1">{def?.text}</span>
-              {/* Stats */}
-              {def?.type === 'MINION' && (
+              {/* Stats — minions show attack/health, weapons show attack/durability (emerald matches Card.tsx) */}
+              {(def?.type === 'MINION' || def?.type === 'WEAPON') && (
                 <div className="flex w-full justify-between px-2 pb-1">
                   <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-yellow-500 to-yellow-700 border border-yellow-400 text-xs font-extrabold text-white">
                     {def.attack}
                   </span>
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-red-800 border border-red-400 text-xs font-extrabold text-white">
+                  <span className={`flex h-7 w-7 items-center justify-center rounded-full border text-xs font-extrabold text-white ${
+                    def.type === 'WEAPON'
+                      ? 'bg-gradient-to-br from-emerald-500 to-emerald-800 border-emerald-400'
+                      : 'bg-gradient-to-br from-red-500 to-red-800 border-red-400'
+                  }`}>
                     {def.health}
                   </span>
                 </div>
