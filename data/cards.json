@@ -3030,9 +3030,11 @@
     "rarity": "COMMON",
     "attack": 3,
     "health": 3,
-    "text": "",
+    "text": "Lifesteal.",
     "flavor": "Small pain now. Bigger pain later.",
-    "keywords": [],
+    "keywords": [
+      "LIFESTEAL"
+    ],
     "minionType": "DOMINION"
   },
   {
@@ -4869,7 +4871,7 @@
   {
     "cardCode": "IZZ038",
     "name": "Frostbolt",
-    "manaCost": 2,
+    "manaCost": 3,
     "type": "SPELL",
     "heroClass": "IZZY",
     "rarity": "COMMON",
