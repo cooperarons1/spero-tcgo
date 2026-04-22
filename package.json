@@ -12,7 +12,8 @@
     "deploy": "npm run deploy:server && npm run deploy:client",
     "simulate": "npx tsx server/ai-simulate.ts",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "lint:cards": "python3 scripts/card-lint.py"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
