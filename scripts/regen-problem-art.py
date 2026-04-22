@@ -298,10 +298,11 @@ OVERRIDES = {
         "wheat wrapping the shaft, leaning against a barn wall, no "
         "people, no hands, isolated object"
     ),
-    "TAL030": (  # Pineapple Armor
-        "A suit of druidic plate armor made of layered pineapple-shaped "
-        "scales, golden-brown palette, displayed on an armor stand, no "
-        "people, no hands, isolated object"
+    "TAL030": (  # Sanctum Mace (renamed from Pineapple Armor 2026-04-22)
+        "An ornate priest's sanctum mace with a rounded head covered in "
+        "glowing prayer runes, wrapped leather grip, golden filigree along "
+        "the shaft, displayed on a temple altar with soft candlelight, no "
+        "people, no hands, isolated weapon product shot"
     ),
     "AST_TOKEN_DAGGER": (  # Wicked Knife — tighter than original
         "A single wicked rogue's dagger with hooked tip and black blade, "
@@ -627,8 +628,11 @@ _VLM_OVERRIDES = {
                    "pure winter landscape"),
 
     # WEAPONS — equipment only, no wielder
-    "TAL030": ("A suit of layered pineapple-scale druidic plate armor on "
-                "a wooden stand, no humans, no hands, isolated object"),
+    "TAL030": ("An ornate priest's sanctum mace with a rounded head covered "
+                "in glowing prayer runes, wrapped leather grip, golden "
+                "filigree along the shaft, displayed on a temple altar "
+                "with soft candlelight, no people, no hands, isolated "
+                "weapon product shot"),
     "AVA031": ("A bulky sci-fi paladin crossbow launcher displayed on a "
                 "workbench, gold-silver plating, no humans, no hands, "
                 "isolated weapon"),
