@@ -2190,6 +2190,12 @@ export default function GameBoard({
   }, [isMyTurn, isPlaying, isGameOver]);
 
   // Hero pointer down → start attack drag
+  // IMPORTANT: gs.myWeapon / heroAttackThisTurn / heroAttacksRemaining are
+  // read inside the body, so they MUST be in the dependency array. Missing
+  // these was the "weapon equip requires refresh to attack" bug — the
+  // callback was memoized with a stale gs.myWeapon=null closure on the
+  // first render, and never rebuilt when the server pushed the weapon
+  // state update.
   const handleHeroPointerDown = useCallback((e: React.PointerEvent) => {
     if (!isMyTurn || !isPlaying || isGameOver) return;
     // Hero needs a weapon or temporary attack to attack
@@ -2209,7 +2215,7 @@ export default function GameBoard({
       curX: e.clientX, curY: e.clientY,
       activated: false,
     });
-  }, [isMyTurn, isPlaying, isGameOver, gs.myPlayerIndex]);
+  }, [isMyTurn, isPlaying, isGameOver, gs.myPlayerIndex, gs.myWeapon, gs.myHeroAttackThisTurn, gs.myHeroAttacksRemaining]);
 
   // Hero power pointer down → start hero power drag (for targeting hero powers)
   const handleHeroPowerPointerDown = useCallback((e: React.PointerEvent) => {
