@@ -973,7 +973,16 @@ function HeroPortrait({
           changes, so the slide-in animation re-fires. Without the key,
           replacing one weapon with another would just snap the art. */}
       {weapon && (
-        <div className={`relative group/weapon ${weaponEquipFlash ? 'animate-weapon-slide-in' : ''}`} key={weapon.cardCode}>
+        // Explicit opacity:1 so the weapon is always visible even if the
+        // slide-in animation class gets dropped mid-keyframe or if the
+        // @keyframes engine on some browsers leaves the element at a
+        // stale 0% state. Fixes the "weapon equip requires refresh" bug
+        // without changing the animation visuals.
+        <div
+          className={`relative group/weapon ${weaponEquipFlash ? 'animate-weapon-slide-in' : ''}`}
+          key={weapon.cardCode}
+          style={{ opacity: 1 }}
+        >
           <div className={`relative h-16 w-16 md:h-24 md:w-24 rounded-full overflow-hidden border-[3px] bg-stone-900
             ${canHeroAttack ? 'border-green-400 shadow-[0_0_16px_4px_rgba(34,197,94,0.6)]' : 'border-stone-500'}
             ${weaponEquipFlash ? 'animate-weapon-equip' : ''}`}
@@ -2378,35 +2387,24 @@ export default function GameBoard({
     return Object.keys(style).length > 0 ? style : undefined;
   }, [gs.animParams]);
 
-  // ─── Dynamic board gap + per-board scale ───
-  // Old version returned a NEGATIVE gap (-0.5rem) when the board hit 7
-  // minions, which made them overlap and look "crammed" — the user's
-  // word. New version: always positive gap, and a per-board scale
-  // factor that gently shrinks each minion when the board is full so
-  // the row stays inside the available width without overlap.
+  // ─── Board minion layout ───
+  // With 1 minion → center it. With 2+ → justify-between so the row
+  // always spans the full 72rem play area, evenly distributing the
+  // remaining space between minions regardless of count. The previous
+  // implementation computed a single `gap` and used justify-center,
+  // which still clustered minions in the middle when `gap` hit the
+  // clamp floor (1rem).
   //
-  // Dynamic spacing: the board always spans the full available width so
-  // characters spread to fill the play area instead of clustering in the
-  // middle. Empty boards get 0 gap (vacuous); 1 minion centers alone;
-  // 2+ minions space so they evenly distribute across the max-72rem row.
-  //
-  // Math (rem): row width = 72, each minion renders at 9rem × scale.
-  //   gap = (row - count × scaled_width) / (count - 1)
-  // We clamp to a [1, 4]rem range so nothing extreme happens at edges.
-  const getBoardGap = (count: number): string => {
-    if (count <= 1) return '0rem';
-    const rowRem = 72;
-    const minionRem = 9 * getBoardScaleFactor(count);
-    const raw = (rowRem - count * minionRem) / (count - 1);
-    const clamped = Math.max(1, Math.min(4, raw));
-    return `${clamped.toFixed(2)}rem`;
-  };
+  // The per-board scale factor gently shrinks each minion at high
+  // counts so they don't overlap at the 7-minion cap.
+  const getBoardJustify = (count: number) =>
+    count <= 1 ? 'justify-center' : 'justify-between';
   const getBoardScaleFactor = (count: number) =>
     count <= 5 ? 1.0 :
     count <= 6 ? 0.96 :
                  0.92;
-  const myBoardGap = getBoardGap(myBoard.length);
-  const opBoardGap = getBoardGap(opBoard.length);
+  const myBoardJustify = getBoardJustify(myBoard.length);
+  const opBoardJustify = getBoardJustify(opBoard.length);
   const myBoardScale = getBoardScaleFactor(myBoard.length);
   const opBoardScale = getBoardScaleFactor(opBoard.length);
 
@@ -2807,8 +2805,7 @@ export default function GameBoard({
         {/* Opponent board */}
         <div className="flex min-h-[5.5rem] mb-1 items-center justify-center board-field">
           <div
-            className="flex items-center justify-center max-w-[72rem] w-full px-2"
-            style={{ gap: opBoardGap }}
+            className={`flex items-center ${opBoardJustify} max-w-[72rem] w-full px-2 gap-2`}
           >
             {opBoard.map((m, idx) => {
               const count = opBoard.length;
@@ -2974,8 +2971,7 @@ export default function GameBoard({
           className="flex min-h-[5.5rem] mt-1 items-center justify-center rounded-lg board-field border-2 border-transparent"
         >
           <div
-            className="flex items-center justify-center max-w-[72rem] w-full px-2"
-            style={{ gap: myBoardGap }}
+            className={`flex items-center ${myBoardJustify} max-w-[72rem] w-full px-2 gap-2`}
           >
             {(() => {
               const isDraggingMinion = ptrDrag?.info.kind === 'hand-card' && ptrDrag.activated && draggingCardType === 'MINION' && dropZoneActive;
