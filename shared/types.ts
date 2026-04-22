@@ -99,7 +99,9 @@ export type EffectType =
   | 'GAIN_ARMOR_AND_DRAW'
   | 'HEAL_ALL_FRIENDLY_FULL'
   | 'DEAL_DAMAGE_ALL_CHARACTERS'
-  | 'SPELL_DISCOUNT';
+  | 'SPELL_DISCOUNT'
+  | 'STEAL_MINION'
+  | 'DESTROY_FROZEN_MINION';
 
 export type EffectTarget =
   | 'NONE'
@@ -113,7 +115,9 @@ export type EffectTarget =
   | 'ALL_MINIONS'
   | 'SELF'                // the minion itself
   | 'RANDOM_ENEMY'
-  | 'RANDOM_ENEMY_MINION';
+  | 'RANDOM_ENEMY_MINION'
+  | 'RANDOM_FRIENDLY'
+  | 'TARGET_ENEMY_HERO';
 
 export interface EffectDef {
   type: EffectType;

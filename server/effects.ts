@@ -210,6 +210,29 @@ export function executeEffect(
       break;
     }
     case 'DESTROY_MINION': {
+      // DES023 "Destroy Your Surroundings", DES033 The Anarchist, DES038 Vyren
+      // all specify target='RANDOM_ENEMY' to pick a random enemy minion.
+      // Previously silent no-op because the handler required targetId.
+      if (effect.target === 'RANDOM_ENEMY') {
+        const alive = opp.board.filter(m => m.currentHealth > 0);
+        if (alive.length > 0) {
+          const pick = alive[Math.floor(Math.random() * alive.length)];
+          pick.currentHealth = 0;
+          addLog(game, casterIndex, `Destroys ${getCardDef(pick.cardCode).name} (random)`, 'EFFECT');
+          checkDeaths(game);
+        }
+        break;
+      }
+      if (effect.target === 'RANDOM_FRIENDLY') {
+        const alive = me.board.filter(m => m.currentHealth > 0);
+        if (alive.length > 0) {
+          const pick = alive[Math.floor(Math.random() * alive.length)];
+          pick.currentHealth = 0;
+          addLog(game, casterIndex, `Destroys ${getCardDef(pick.cardCode).name} (random friendly)`, 'EFFECT');
+          checkDeaths(game);
+        }
+        break;
+      }
       if (!targetId) break;
       const target = findMinion(game, targetId);
       if (target) {
@@ -559,6 +582,48 @@ export function executeEffect(
       applyDamageToHero(opp, dmg);
       addLog(game, casterIndex, `Deals ${dmg} damage to ALL characters`, 'EFFECT');
       checkDeaths(game);
+      break;
+    }
+    case 'STEAL_MINION': {
+      // DES024 Elixir of Domination: take control of an enemy minion
+      // with 3 or less attack. The card's text encodes the attack cap;
+      // we read effect.maxAttack (defaulting to the single targeted
+      // case if a specific minion was targeted).
+      if (!targetId) break;
+      const maxAttack = effect.maxAttack ?? Infinity;
+      const idx = opp.board.findIndex(m => m.instanceId === targetId);
+      if (idx < 0) break;
+      const minion = opp.board[idx];
+      if (minion.currentAttack > maxAttack) break;
+      if (me.board.length >= MAX_BOARD_SIZE) break;
+      opp.board.splice(idx, 1);
+      // Summoning sickness on change of side
+      minion.canAttack = false;
+      minion.attacksRemaining = 0;
+      me.board.push(minion);
+      addLog(game, casterIndex, `Steals ${getCardDef(minion.cardCode).name}`, 'EFFECT');
+      break;
+    }
+    case 'DESTROY_FROZEN_MINION': {
+      // AND039 Shatter: destroy a Frozen enemy minion (single-target).
+      // If no targetId, fall back to destroying a random frozen enemy
+      // (some UI paths might auto-pick).
+      if (targetId) {
+        const target = findMinion(game, targetId);
+        if (target && target.isFrozen) {
+          target.currentHealth = 0;
+          addLog(game, casterIndex, `Shatters a frozen minion`, 'EFFECT');
+          checkDeaths(game);
+        }
+        break;
+      }
+      const frozen = opp.board.filter(m => m.isFrozen && m.currentHealth > 0);
+      if (frozen.length > 0) {
+        const pick = frozen[Math.floor(Math.random() * frozen.length)];
+        pick.currentHealth = 0;
+        addLog(game, casterIndex, `Shatters ${getCardDef(pick.cardCode).name}`, 'EFFECT');
+        checkDeaths(game);
+      }
       break;
     }
   }

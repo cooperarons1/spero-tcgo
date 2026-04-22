@@ -131,6 +131,27 @@ export function checkSecrets(
       return { triggered: true };
     }
 
+    // AST_S02 Second Chance: "when a friendly minion dies, resummon it
+    // with 1 Health". The generic SUMMON_MINION handler can't construct
+    // a dynamic token from the dying minion's cardCode, so special-case
+    // this secret here using the context's deadMinionCardCode.
+    if (def.cardCode === 'AST_S02' && context.deadMinionCardCode) {
+      if (owner.board.length < MAX_BOARD_SIZE) {
+        const resummoned = createBoardMinion(context.deadMinionCardCode, game.turnNumber);
+        resummoned.currentHealth = 1;
+        resummoned.maxHealth = Math.max(1, resummoned.maxHealth);
+        owner.board.push(resummoned);
+        addLog(
+          game,
+          secretOwnerIndex,
+          `Second Chance: re-summons ${getCardDef(context.deadMinionCardCode).name} with 1 Health`,
+          'EFFECT'
+        );
+      }
+      checkDeaths(game);
+      return { triggered: true, countered };
+    }
+
     // Standard effect resolution — determine target based on trigger type
     const targetId = resolveTargetForTrigger(trigger, context);
     executeEffects(game, secretOwnerIndex, effects, targetId);
