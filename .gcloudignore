@@ -1,22 +1,28 @@
 node_modules
-client/node_modules
+client/
+# ^ entire client is not used by the Cloud Run server build. Dockerfile
+# only copies shared/, data/, and server/. Previously uploaded the full
+# client/public/cards/ art dir (~326MB, 750+ files) on every deploy.
 server/node_modules
-client/dist
 .firebase
 .git
 *.md
+.old.png
+*.old.png
 
 # Exclude only the giant training/audit files — keep the data/ directory
 # itself and its runtime files (cards.json, *-weights.json, etc.) so the
 # Dockerfile's `COPY data/` step works.
 data/balance-audit-*
 data/balance-*.jsonl
-data/sim-history-*
+data/sim-history*
 data/animation-training.jsonl*
 data/animation-preview/
 data/animation-checkpoint.json
 data/teacher-*
 data/llama-*
+data/soak/
+data/soak
 data/neural-eval-weights.runC*.json
 data/neural-eval-weights.runC*.bak
 data/neural-eval-weights.runD*.json
