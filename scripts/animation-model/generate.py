@@ -203,13 +203,9 @@ def load_checkpoint() -> dict | None:
 # ── CLI ──────────────────────────────────────────────────────────────
 
 async def run(args):
-    # Check VLM availability
-    print("Checking Gemma 4 VLM server...")
-    if not await probe_server():
-        print("ERROR: Gemma 4 VLM not available at", f"{args.host or 'localhost:8080'}")
-        print("Start it with: mlx_lm.server --model mlx-community/gemma-4-e4b-it-8bit")
-        sys.exit(1)
-    print("VLM server OK")
+    # VLM now runs in-process via mlx-vlm (mlx_lm.server doesn't support vision).
+    # Skip the server probe; label.score_montage will load the model on first call.
+    print("Using in-process mlx-vlm (no server probe).")
 
     # Load cards
     cards = load_cards()

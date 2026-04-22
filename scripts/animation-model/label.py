@@ -32,6 +32,52 @@ from PIL import Image
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "llm"))
 from local_client import LLM_HOST, TEACHER_MODEL, LocalLLMUnavailable, _check_model_allowed
 
+# ── mlx-vlm in-process (mlx_lm.server does NOT support vision) ──
+_VLM_MODEL_ID = os.environ.get("ANIM_VLM_MODEL", "mlx-community/gemma-3-4b-it-8bit")
+_vlm_state: dict = {}  # lazy: {"model": ..., "processor": ..., "config": ...}
+
+
+def _load_vlm():
+    if _vlm_state:
+        return _vlm_state
+    from mlx_vlm import load as vlm_load
+    print(f"[label] loading VLM {_VLM_MODEL_ID}...", flush=True)
+    model, processor = vlm_load(_VLM_MODEL_ID)
+    _vlm_state["model"] = model
+    _vlm_state["processor"] = processor
+    _vlm_state["config"] = model.config
+    print(f"[label] VLM ready", flush=True)
+    return _vlm_state
+
+
+def _score_montage_sync(montage_b64: str, card_info: str) -> dict[str, float]:
+    """Synchronous mlx-vlm call. Writes base64 to a temp file for mlx-vlm."""
+    import tempfile
+    from mlx_vlm import generate as vlm_generate
+    from mlx_vlm.prompt_utils import apply_chat_template
+
+    s = _load_vlm()
+    prompt_text = SYSTEM_PROMPT + "\n\nCard: " + (card_info or "") + "\n\nScore this animation sequence."
+
+    # Decode base64 → temp jpeg path (mlx-vlm generate expects file path)
+    img_bytes = base64.b64decode(montage_b64)
+    with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as tf:
+        tf.write(img_bytes)
+        img_path = tf.name
+    try:
+        chat = apply_chat_template(s["processor"], s["config"], prompt_text, num_images=1)
+        reply = vlm_generate(
+            s["model"], s["processor"], chat, image=[img_path],
+            verbose=False, max_tokens=120, temperature=0.0,
+        )
+        text = getattr(reply, "text", str(reply))
+    finally:
+        try:
+            os.unlink(img_path)
+        except Exception:
+            pass
+    return parse_scores(text)
+
 # ── Constants ────────────────────────────────────────────────────────
 
 SCORE_DIMENSIONS = [
@@ -129,28 +175,9 @@ async def score_montage(
 
     async with sem:
         try:
-            async with httpx.AsyncClient(timeout=timeout) as http:
-                resp = await http.post(
-                    f"{LLM_HOST}/v1/chat/completions",
-                    json=payload,
-                )
-                if resp.status_code != 200:
-                    raise LocalLLMUnavailable(
-                        f"VLM returned {resp.status_code}: {resp.text[:200]}"
-                    )
-                data = resp.json()
-        except httpx.TimeoutException as e:
-            raise LocalLLMUnavailable(f"VLM timeout after {timeout}s") from e
-        except httpx.RequestError as e:
-            raise LocalLLMUnavailable(f"VLM unreachable: {e}") from e
-
-    # Parse response
-    choices = data.get("choices", [])
-    text = choices[0]["message"].get("content", "") if choices else ""
-    if not text:
-        raise LocalLLMUnavailable("VLM returned empty content")
-
-    return parse_scores(text)
+            return await asyncio.to_thread(_score_montage_sync, montage_b64, card_info or "")
+        except Exception as e:
+            raise LocalLLMUnavailable(f"VLM error: {e}") from e
 
 
 def parse_scores(text: str) -> dict[str, float]:
