@@ -885,6 +885,7 @@ function HeroPortrait({
   onHeroPowerPointerDown,
   weaponEquipFlash,
   goldenHero,
+  heroAttackThisTurn,
 }: {
   heroClass: HeroClass;
   health: number;
@@ -898,6 +899,7 @@ function HeroPortrait({
   maxMana: number;
   canUseHeroPower: boolean;
   canHeroAttack?: boolean;
+  heroAttackThisTurn?: number;
   isValidTarget: boolean;
   onHeroPowerClick: () => void;
   onHeroClick: (e?: React.MouseEvent) => void;
@@ -1046,6 +1048,15 @@ function HeroPortrait({
         {armor > 0 && (
           <div className="absolute -right-1 -top-1 flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-gray-300 to-gray-500 border-2 border-gray-200 text-xs font-extrabold text-gray-800 z-20 shadow-md pointer-events-none">
             {armor}
+          </div>
+        )}
+        {/* Hero attack badge — only shown when the hero can attack but
+            has no weapon (e.g. DEREK's Reforge +1 atk, or any other
+            temporary heroAttackThisTurn buff). The weapon circle already
+            renders its own attack number, so we avoid a duplicate badge. */}
+        {!weapon && (heroAttackThisTurn ?? 0) > 0 && (
+          <div className="absolute -left-1 -top-1 flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-amber-700 border-2 border-amber-300 text-xs font-extrabold text-white z-20 shadow-md pointer-events-none">
+            {heroAttackThisTurn}
           </div>
         )}
       </div>
@@ -3046,6 +3057,7 @@ export default function GameBoard({
             maxMana={gs.myMaxMana}
             canUseHeroPower={isMyTurn && !gs.myHeroPowerUsed && gs.myMana >= HERO_POWER_COST}
             canHeroAttack={isMyTurn && isPlaying && (gs.myHeroAttacksRemaining ?? 1) > 0 && ((!!gs.myWeapon && gs.myWeapon.currentAttack > 0) || (gs.myHeroAttackThisTurn ?? 0) > 0)}
+            heroAttackThisTurn={gs.myHeroAttackThisTurn}
             isValidTarget={validTargetIds.has(`hero-${gs.myPlayerIndex}`)}
             onHeroPowerClick={handleHeroPower}
             onHeroClick={(e?: React.MouseEvent) => {
