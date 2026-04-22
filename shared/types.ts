@@ -17,9 +17,6 @@ export type Keyword =
   | 'SECRET'
   | 'END_OF_TURN'
   | 'COMBO'
-  | 'BOND'
-  | 'COLLAR'
-  | 'ORRA_CHARGE'
   | 'LIFESTEAL'
   | 'SPELL_DAMAGE';
 
@@ -64,12 +61,6 @@ export interface CardDef {
   minionType?: MinionType;
   locationEffect?: EffectDef;
   locationEffects?: EffectDef[];
-  // Bond: named partner pairing
-  bondPartnerCode?: string;       // cardCode of the bond partner
-  bondEffect?: EffectDef;         // effect applied to BOTH when bond triggers
-  // Orra Charge: ticking time-bomb minions
-  orraChargeMax?: number;         // charges needed to fire
-  orraChargeEffect?: EffectDef;   // effect that fires at max charge
 }
 
 // ─── Effect System ───
@@ -187,14 +178,6 @@ export interface BoardMinion {
   // ai-state-pool rehydration paths) don't need to fill it in; the
   // combat.ts gate falls back to canAttack when unset.
   summonedTurn?: number;
-  // Optional transfer timestamp — set when a minion changes sides (Collar).
-  // Summoning sickness resets on transfer.
-  transferredTurn?: number;
-  // Orra Charge state
-  currentOrraCharge?: number;
-  // Collar state
-  isCollared?: boolean;
-  collarOwnerIndex?: 0 | 1; // which player will gain this minion
 }
 
 // ─── Board Location ───

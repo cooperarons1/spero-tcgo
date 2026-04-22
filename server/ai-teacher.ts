@@ -157,27 +157,10 @@ function totalAvailableDamage(player: PlayerState): number {
 
 /**
  * Evaluate synergy bonuses for a player's board.
- * Bond pairs, Orra charge progress, tribal density.
+ * Tribal density.
  */
 function synergyValue(player: PlayerState): number {
   let score = 0;
-
-  // Bond pairs: +3 per active pair on board
-  const boardCodes = new Set(player.board.map(m => m.cardCode));
-  for (const m of player.board) {
-    const def = getCardDef(m.cardCode);
-    if (def.bondPartnerCode && boardCodes.has(def.bondPartnerCode)) {
-      score += 1.5; // Each partner contributes 1.5, so a pair = 3
-    }
-  }
-
-  // Orra Charge progress: reward minions building toward their charge effect
-  for (const m of player.board) {
-    const def = getCardDef(m.cardCode);
-    if (def.orraChargeMax && m.currentOrraCharge !== undefined) {
-      score += (m.currentOrraCharge / def.orraChargeMax) * 4;
-    }
-  }
 
   // Tribal density: bonus for having 2+ minions of the same type
   const typeCounts = new Map<string, number>();
@@ -206,7 +189,6 @@ function cloneMinion(m: BoardMinion): BoardMinion {
     hasDivineShield: m.hasDivineShield, isFrozen: m.isFrozen, isSilenced: m.isSilenced,
     hasStealthUntilAttack: m.hasStealthUntilAttack,
     enchantments: m.enchantments.map(e => ({ ...e, addedKeywords: e.addedKeywords ? [...e.addedKeywords] : undefined })),
-    currentOrraCharge: m.currentOrraCharge, isCollared: m.isCollared, collarOwnerIndex: m.collarOwnerIndex,
   };
 }
 

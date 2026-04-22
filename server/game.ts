@@ -228,30 +228,9 @@ export function startTurn(game: GameState): void {
     if (loc.cooldownRemaining > 0) loc.cooldownRemaining--;
   }
 
-  // Orra Charge: increment charge on all minions with the keyword
-  for (const minion of [...player.board]) {
-    if (game.winner) break;
-    if (minion.isSilenced) continue;
-    const mDef = getCardDef(minion.cardCode);
-    if (mDef.keywords.includes('ORRA_CHARGE') && mDef.orraChargeMax && mDef.orraChargeEffect) {
-      minion.currentOrraCharge = (minion.currentOrraCharge ?? 0) + 1;
-      if (minion.currentOrraCharge >= mDef.orraChargeMax) {
-        addLog(game, pIdx, `${mDef.name}'s Orra Charge fires!`, 'EFFECT');
-        executeEffect(game, pIdx, mDef.orraChargeEffect);
-        minion.currentOrraCharge = 0;
-        checkDeaths(game);
-        // C6: Orra Charge can damage either hero. checkDeaths only handles
-        // minions; without checkHeroDeath the game can keep ticking with a
-        // dead hero for one extra turn, mislabeling the active player on
-        // any snapshots taken in that window.
-        checkHeroDeath(game);
-      }
-    }
-  }
-
   // Unfreeze minions that were frozen last turn, enable attacks.
-  // Iterate a SNAPSHOT of player.board so side-effects from Orra Charge
-  // earlier in startTurn don't skip minions. Gate sickness on summonedTurn
+  // Iterate a SNAPSHOT of player.board to stay safe against mutations.
+  // Gate sickness on summonedTurn
   // as the authoritative source — canAttack is refreshed each turn,
   // summonedTurn doesn't change after creation.
   const boardSnapshot = [...player.board];
@@ -259,10 +238,9 @@ export function startTurn(game: GameState): void {
     // If the minion has been removed mid-loop, skip.
     if (!player.board.includes(minion)) continue;
 
-    // Sick only if summoned (or transferred) on the CURRENT turn.
+    // Sick only if summoned on the CURRENT turn.
     const sickFromSummon = minion.summonedTurn !== undefined
-      && minion.summonedTurn >= game.turnNumber
-      && !(minion.transferredTurn !== undefined && minion.transferredTurn < game.turnNumber);
+      && minion.summonedTurn >= game.turnNumber;
 
     if (minion.isFrozen) {
       minion.canAttack = false;
@@ -322,23 +300,6 @@ function resolveEndOfTurnEffects(game: GameState, playerIndex: 0 | 1): void {
   if (game.winner) return;
   const player = game.players[playerIndex];
   const oppIdx = (playerIndex === 0 ? 1 : 0) as 0 | 1;
-
-  // Collar: transfer collared minions to the collar owner at end of their owner's turn
-  const collaredMinions = player.board.filter(m => m.isCollared && m.collarOwnerIndex !== undefined && m.collarOwnerIndex !== playerIndex);
-  for (const minion of collaredMinions) {
-    const newOwner = game.players[minion.collarOwnerIndex!];
-    if (newOwner.board.length >= 7) continue; // board full, can't transfer
-    const idx = player.board.indexOf(minion);
-    if (idx < 0) continue;
-    player.board.splice(idx, 1);
-    minion.isCollared = false;
-    minion.collarOwnerIndex = undefined;
-    minion.canAttack = false; // summoning sickness on new side
-    minion.transferredTurn = game.turnNumber;
-    newOwner.board.push(minion);
-    const mDef = getCardDef(minion.cardCode);
-    addLog(game, minion.collarOwnerIndex ?? oppIdx, `${mDef.name} switches sides (Collar)!`, 'EFFECT');
-  }
 
   // Shaman — Orb of Healing: end-of-turn, restore 1 to all friendly characters
   // (hero + minions). Stacks per-orb, HS-exact.

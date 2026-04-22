@@ -69,8 +69,7 @@ const KEYWORD_DESCRIPTIONS: Record<string, string> = {
   STEALTH: 'Cannot be targeted until it attacks.',
   SECRET: 'Hidden until a specific action triggers it.',
   COMBO: 'A bonus if you already played a card this turn.',
-  BOND: 'Gets a bonus when its partner is on the board.',
-  ORRA_CHARGE: 'Gains a charge each turn. Triggers at max charges.',
+  LIFESTEAL: 'Damage dealt by this minion also heals your hero.',
   END_OF_TURN: 'Triggers at the end of your turn.',
 };
 
@@ -957,7 +956,6 @@ export function Collection({ uid, onBack }: CollectionProps) {
                     <span className="text-amber-300 font-bold text-[10px]">
                       {kw === 'DIVINE_SHIELD' ? 'Divine Shield' :
                        kw === 'END_OF_TURN' ? 'End of Turn' :
-                       kw === 'ORRA_CHARGE' ? 'Orra Charge' :
                        kw.charAt(0) + kw.slice(1).toLowerCase()}
                     </span>
                     <span className="text-gray-400 text-[9px] ml-1">

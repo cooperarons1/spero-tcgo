@@ -719,30 +719,6 @@ function BoardMinionCard({
         </div>
       )}
 
-      {/* Orra Charge counter — blue crystal, top-left */}
-      {!isSilenced && def?.keywords.includes('ORRA_CHARGE') && def.orraChargeMax != null && (
-        <div className="absolute top-0 left-0 z-20 flex items-center gap-0.5 pointer-events-none">
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 border-2 border-cyan-300 text-[10px] font-extrabold text-white shadow-lg animate-pulse">
-            {minion.currentOrraCharge ?? 0}/{def.orraChargeMax}
-          </div>
-        </div>
-      )}
-
-      {/* Collar indicator — purple chain icon, top-right */}
-      {minion.isCollared && (
-        <div className="absolute top-0 right-0 z-20 group/collar">
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-purple-800 border-2 border-purple-300 shadow-lg animate-pulse cursor-help">
-            <svg viewBox="0 0 16 16" className="w-4 h-4 text-white" fill="currentColor">
-              <circle cx="8" cy="8" r="5" fill="none" stroke="currentColor" strokeWidth="2"/>
-              <circle cx="8" cy="8" r="2" fill="currentColor"/>
-            </svg>
-          </div>
-          <div className="absolute top-full mt-1 right-0 hidden group-hover/collar:block bg-stone-900 text-purple-200 text-[10px] px-2 py-1 rounded-lg whitespace-nowrap z-50 border border-purple-500/40 shadow-lg pointer-events-none">
-            Collared: Switches sides if it survives combat
-          </div>
-        </div>
-      )}
-
       {/* Attack circle — bottom-left, inside frame */}
       <div className="absolute bottom-1 left-1 flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-yellow-700 border-2 border-yellow-300 text-sm font-extrabold text-white shadow-lg z-20 drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]">
         {minion.currentAttack}
@@ -3314,8 +3290,7 @@ export default function GameBoard({
                 STEALTH: 'Cannot be targeted until it attacks.',
                 SECRET: 'Hidden until a specific action triggers it.',
                 COMBO: 'A bonus if you already played a card this turn.',
-                BOND: 'Gets a bonus when its partner is on the board.',
-                ORRA_CHARGE: 'Gains a charge each turn. Triggers at max charges.',
+                LIFESTEAL: 'Damage dealt by this minion also heals your hero.',
                 END_OF_TURN: 'Triggers at the end of your turn.',
               };
               const kws = def.keywords.filter((k: string) => KW_DESC[k]);
@@ -3327,7 +3302,6 @@ export default function GameBoard({
                       <span className="text-amber-300 font-bold text-[10px]">
                         {kw === 'DIVINE_SHIELD' ? 'Divine Shield' :
                          kw === 'END_OF_TURN' ? 'End of Turn' :
-                         kw === 'ORRA_CHARGE' ? 'Orra Charge' :
                          kw.charAt(0) + kw.slice(1).toLowerCase()}
                       </span>
                       <span className="text-gray-400 text-[9px] ml-1">

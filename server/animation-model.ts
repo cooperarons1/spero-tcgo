@@ -29,6 +29,8 @@ const HERO_CLASSES: HeroClass[] = [
 const HERO_CLASSES_WITH_NEUTRAL = [...HERO_CLASSES, 'NEUTRAL'] as const;
 const KEYWORDS = [
   'TAUNT', 'CHARGE', 'DIVINE_SHIELD', 'BATTLECRY', 'DEATHRATTLE',
+  // NOTE: 'BOND' and 'COLLAR' retained in vocab for weights-file compatibility
+  // even though both keywords have been shelved. They encode as always-0.
   'FREEZE', 'WINDFURY', 'STEALTH', 'SECRET', 'COMBO', 'BOND', 'COLLAR',
 ] as const;
 const EFFECT_TYPES = [

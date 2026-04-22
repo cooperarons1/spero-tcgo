@@ -3,8 +3,10 @@
 Living doc for picking up where a prior session left off. Update this
 whenever a multi-session workstream changes state.
 
-Last session: 2026-04-19 (15-round balance overhaul, 12+ commits, teacher
-retrain, animation v3 data gen started).
+Last session: 2026-04-22 — shelved BOND/COLLAR/ORRA_CHARGE keywords,
+wired LIFESTEAL into combat, ran a 17-round balance-patch loop +
+teacher retrain. See `docs/balance-patch-2026-04-22.md` for the full
+card-by-card list.
 
 ## Current state
 
@@ -12,25 +14,33 @@ retrain, animation v3 data gen started).
 labels, weight 0.3, acc=0.6992 on 1M held-out). Undefeated against all
 2026-04-19 experiments (E2-E6 Gemma-e4b sweep, Run F Gemma-31B).
 
-**Balance — 15 rounds shipped 2026-04-19 (post-patch audit):**
-- DEREK 44.6% (was 7.8% at session start, +36.8pp)
-- JIMMY 47.0% (was 70.3%, -23.3pp) — IN the balanced band
-- Spread 44.6%-54.1% (was 7.8%-70.3%)
-- Worst mirror JIMMY vs DEREK 74.1% (was 99.5% — unwinnable before)
-- Worst remaining: IZZY vs DEREK 74.5% (rush vs control; acceptable)
+**Balance — 30k audit 2026-04-22 (post-patch, post-retrain):**
+- Spread 39.6% (DES) – 61.8% (DEREK) = 22.2pp wide
+- Improvement vs pre-shelf 500k (34.8–68.3, 33.5pp): ~11pp tighter
+- Worst mirrors still hot: IZZY vs ASTRID 72%, DEREK vs ASTRID 68%,
+  DES vs IZZY 32%, DES vs JIMMY 31%
+- Next frontier: class-vs-class gap for DES (39.6%), ANDERS/ASTRID (~41%)
 
-**What landed the fix (after stat-only nerfs plateaued in rounds 1-8):**
-1. Round 10 — DEREK hero power "Tinker" rewritten from "draw 1" to
-   "gain 2 armor + draw 1" (round 15 bumped to 3 armor). +8.9pp DEREK.
-   Stat buffs couldn't close the gap; DEREK had no persistent tempo tool.
-2. Round 9 — `classBonus` in buildRandomDeck (server/ai-simulate.ts)
-   raised 1.5 → 3.0. Random decks now heavily favor class cards, so
-   DEREK's 6 rounds of class buffs actually get represented. +2.8pp.
-3. Round 11 — JIMMY hero power "Orra Arrow" 2→1 base damage (upgraded
-   still 2+1 adjacent). -15.3pp JIMMY in one round. The 2-dmg-to-anything
-   was the engine behind JIMMY's 66% WR floor.
-4. Round 12-13 — DEREK starts with 10 armor (effective 40hp vs aggro).
-5. Teacher AI retrain on current pool — fixed the JIMMY mirror.
+**Big moves this session:**
+1. Shelved BOND + COLLAR keywords (16 + 2 cards re-themed; engine
+   handlers deleted; state fields removed; UI indicators gone).
+2. Shelved ORRA_CHARGE keyword (unused on cards; full infra removal).
+3. **Wired LIFESTEAL** into combat.ts (was dormant; now real). Applied
+   to 8 DES threats — the critical sustain layer that lifted DES from
+   23% to 39% WR over the session.
+4. 17 stat/cost/effect patches across DEREK (nerfs) / IZZY (nerfs) /
+   AVA (summon-count nerfs) / ASTRID (combo + Sprint cost buffs) /
+   DES (self-damage reductions + asymmetric AOE + sustain).
+5. Teacher retrain (6 cycles × 2000 games) after round 10 — stabilized
+   weights against the new pool.
+
+**Hero power note:** memory claimed DEREK hero power was "Tinker: gain
+3 armor + draw 1" — that's stale. Current code is **Reforge: +1 atk +
+1 armor** (Hearthstone Druid Shapeshift). Memory has been updated.
+
+**Animation model:** v3 shipped 2026-04-22 (commit `ad31c95`) at MSE
+val 0.0828 on 13.5k samples. The rank-loss trainer v2 (val 0.012-0.019)
+is the production model; MSE weights are reference-only.
 
 **Animation model:** v2 shipped 2026-04-19 (val loss 0.083, still predicts
 mean). Animation v3 data gen running (~2500/20000 samples as of session
@@ -38,17 +48,30 @@ end) — when done, train v3 and see if denser bins break the plateau.
 
 ## Immediate next actions (prioritized)
 
-### 1. Balance — DONE this session (15 rounds, +36.8pp DEREK, −23.3pp JIMMY)
+### 1. Commit 2026-04-22 session (NOT DONE)
 
-Commits: `019a4b6` (rounds 7-10), `c77cf77` (rounds 11-15), plus
-`f703390`/`bfe2624`/`9a2e157`/`cbfd69d` from earlier in session.
+Everything from today is uncommitted at session end. `data/cards.json`
++ engine surgery across:
+- `shared/types.ts` — dropped BOND/COLLAR/ORRA_CHARGE from Keyword
+  union; removed bondPartnerCode/bondEffect from CardDef and related
+  MinionState fields
+- `server/combat.ts` — wired LIFESTEAL; removed COLLAR-on-attack +
+  DES_COLLAR_02 deathrattle special
+- `server/actions.ts` — removed BOND handler (two places) +
+  DES_COLLAR_03 battlecry special (two places)
+- `server/game.ts` — removed end-of-turn COLLAR transfer + Orra Charge
+  tick-up
+- `server/effects.ts` — removed Collar/OrraCharge state cleanup
+- `server/ai-state-pool.ts`, `server/ai-teacher.ts`,
+  `server/animation-model.ts`, `server/packs.ts` — stale refs removed
+- `client/src/components/GameBoard.tsx`,
+  `client/src/components/Collection.tsx` — UI tooltips + Collar
+  indicator + Orra Charge counter removed, LIFESTEAL tooltip added
+- `client/public/cards/IZZ021.{png,webp}` — Arcane Missiles art
+  regenerated as a single unified bolt (was a 2x2 grid). Backup at
+  `IZZ021.grid-backup.png`.
 
-Balance converged on:
-- DEREK 44.6% (entry to band), JIMMY 47.0%, spread 44.6-54.1%
-- No mirror >74.5%; worst remaining IZZY→DEREK 74.5% (aggro vs control)
-
-**Only remaining balance task:** IZZY-vs-DEREK 74.5% if you want it
-tighter, but cost would be nerfing IZZY which is otherwise fine.
+Tests 210/210 passing.
 
 ### 1b. Final teacher retrain on post-round-15 pool (in progress)
 

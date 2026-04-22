@@ -644,10 +644,6 @@ export function silenceMinion(minion: BoardMinion): void {
   minion.currentHealth = Math.min(minion.currentHealth, def.health);
   minion.enchantments = [];
   minion.attacksRemaining = 1;
-  // Clear Orra Charge and Collar
-  minion.currentOrraCharge = 0;
-  minion.isCollared = false;
-  minion.collarOwnerIndex = undefined;
 }
 
 export function drawCard(game: GameState, playerIndex: 0 | 1, fromEffect = false): void {

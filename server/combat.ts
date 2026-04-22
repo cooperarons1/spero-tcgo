@@ -68,12 +68,11 @@ export function attack(
     // Summoning sickness: use summonedTurn as the authoritative gate.
     // canAttack is a convenience flag but gets stuck false if startTurn
     // misses a minion (e.g. board mutation during Orra Charge). A minion
-    // is sick only on the same turn it was summoned (or transferred).
+    // is sick only on the same turn it was summoned.
     // CHARGE minions bypass this via canAttack=true from applySummonRules.
     const sickFromSummon = !attackerMinion.canAttack
       && attackerMinion.summonedTurn !== undefined
-      && attackerMinion.summonedTurn >= game.turnNumber
-      && !(attackerMinion.transferredTurn !== undefined && attackerMinion.transferredTurn < game.turnNumber);
+      && attackerMinion.summonedTurn >= game.turnNumber;
     if (sickFromSummon) return { success: false, error: 'This minion has summoning sickness' };
     // Self-heal: if canAttack got stuck false but the minion is no longer
     // sick by turn count, flip it now so future gates behave correctly.
@@ -169,10 +168,18 @@ export function attack(
       attackerMinion!.hasStealthUntilAttack = false;
     }
 
+    const atkDef = getCardDef(attackerMinion!.cardCode);
+    const hasLifesteal = !attackerMinion!.isSilenced && atkDef.keywords.includes('LIFESTEAL');
+
     if (isTargetHero) {
       applyDamageToHero(opp, attackerMinion!.currentAttack);
       game.playerStats[myIdx as 0 | 1].damageDealtToHeroes += attackerMinion!.currentAttack;
       addLog(game, myIdx as 0 | 1, `${attackerName} attacks ${opp.playerName} for ${attackerMinion!.currentAttack}`, 'COMBAT', attackerMinion!.cardCode);
+      if (hasLifesteal) {
+        const healed = Math.min(attackerMinion!.currentAttack, me.maxHealth - me.health);
+        me.health += healed;
+        if (healed > 0) addLog(game, myIdx as 0 | 1, `${attackerName} Lifesteal: ${me.playerName} heals ${healed}`, 'EFFECT', attackerMinion!.cardCode);
+      }
     } else {
       // Minion vs Minion — both take damage
       const atkDmg = attackerMinion!.currentAttack;
@@ -186,15 +193,10 @@ export function attack(
 
       const targetName = getCardDef(targetMinion!.cardCode).name;
       addLog(game, myIdx as 0 | 1, `${attackerName} attacks ${targetName}`, 'COMBAT', attackerMinion!.cardCode);
-
-      // Collar: if attacker has Collar keyword and target survived, apply Collar debuff
-      if (!attackerMinion!.isSilenced && targetMinion!.currentHealth > 0) {
-        const atkDef = getCardDef(attackerMinion!.cardCode);
-        if (atkDef.keywords.includes('COLLAR') && !targetMinion!.isCollared) {
-          targetMinion!.isCollared = true;
-          targetMinion!.collarOwnerIndex = myIdx as 0 | 1;
-          addLog(game, myIdx as 0 | 1, `${targetName} has been Collared!`, 'EFFECT', attackerMinion!.cardCode);
-        }
+      if (hasLifesteal) {
+        const healed = Math.min(atkDmg, me.maxHealth - me.health);
+        me.health += healed;
+        if (healed > 0) addLog(game, myIdx as 0 | 1, `${attackerName} Lifesteal: ${me.playerName} heals ${healed}`, 'EFFECT', attackerMinion!.cardCode);
       }
     }
 
@@ -250,20 +252,7 @@ export function checkDeaths(game: GameState): void {
 
         if (!minion.isSilenced && def.keywords.includes('DEATHRATTLE') && def.deathrattleEffect) {
           addLog(game, ownerIdx, `${def.name}'s Deathrattle triggers!`, 'EFFECT', minion.cardCode);
-          // Special: Collar Drone — collar a random enemy minion
-          if (def.cardCode === 'DES_COLLAR_02') {
-            const enemyIdx = (ownerIdx === 0 ? 1 : 0) as 0 | 1;
-            const uncollared = game.players[enemyIdx].board.filter(m => !m.isCollared);
-            if (uncollared.length > 0) {
-              const target = uncollared[Math.floor(Math.random() * uncollared.length)];
-              target.isCollared = true;
-              target.collarOwnerIndex = ownerIdx;
-              const targetDef = getCardDef(target.cardCode);
-              addLog(game, ownerIdx, `${targetDef.name} has been Collared!`, 'EFFECT', minion.cardCode);
-            }
-          } else {
-            executeEffect(game, ownerIdx, def.deathrattleEffect);
-          }
+          executeEffect(game, ownerIdx, def.deathrattleEffect);
         }
 
         // Check WHEN_FRIENDLY_MINION_DIES secrets

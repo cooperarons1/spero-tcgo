@@ -22,7 +22,7 @@ const allCards: CardDef[] = JSON.parse(readFileSync(path.join(__dirname, '..', '
 const packCards = allCards.filter(c => {
   if (c.cardCode === 'COIN') return false;
   if (c.cardCode.includes('_TOKEN_')) return false;
-  // Secrets, bonds, collars are collectible — keep them
+  // Secrets are collectible — keep them
   return true;
 });
 

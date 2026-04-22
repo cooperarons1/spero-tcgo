@@ -201,9 +201,6 @@ function copyMinionArrayInto(src: BoardMinion[], dst: BoardMinion[]): void {
         ...e,
         addedKeywords: e.addedKeywords ? [...e.addedKeywords] : undefined,
       })),
-      currentOrraCharge: m.currentOrraCharge,
-      isCollared: m.isCollared,
-      collarOwnerIndex: m.collarOwnerIndex,
     });
   }
 }

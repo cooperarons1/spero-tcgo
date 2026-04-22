@@ -97,16 +97,6 @@ export function playCard(
       // No valid targets — battlecry fizzles, minion stays on board
     }
 
-    // Bond: check if partner is already on board
-    if (def.keywords.includes('BOND') && def.bondPartnerCode && def.bondEffect) {
-      const partner = player.board.find(m => m.cardCode === def.bondPartnerCode && m.instanceId !== minion.instanceId);
-      if (partner) {
-        addLog(game, pIdx as 0 | 1, `Bond activates! ${def.name} and ${getCardDef(def.bondPartnerCode).name}!`, 'EFFECT', def.cardCode);
-        executeEffect(game, pIdx as 0 | 1, { ...def.bondEffect, target: 'SELF' }, minion.instanceId);
-        executeEffect(game, pIdx as 0 | 1, { ...def.bondEffect, target: 'SELF' }, partner.instanceId);
-      }
-    }
-
     // Trigger Battlecry (plural effects take priority)
     if (def.keywords.includes('BATTLECRY') && bcEffects.length > 0 && !bcNeedsTarget) {
       // Non-targeted battlecries (like "deal damage to all enemies")
@@ -116,20 +106,6 @@ export function playCard(
       // Targeted battlecry with target provided upfront
       addLog(game, pIdx as 0 | 1, `${def.name}'s Battlecry!`, 'EFFECT', def.cardCode);
       executeEffects(game, pIdx as 0 | 1, bcEffects, targetId);
-    }
-
-    // Special: Des Aster Puppetmaster — Collar ALL enemy minions on battlecry
-    if (def.cardCode === 'DES_COLLAR_03' && def.keywords.includes('BATTLECRY')) {
-      const opp = game.players[(pIdx === 0 ? 1 : 0) as 0 | 1];
-      for (const m of opp.board) {
-        if (!m.isCollared) {
-          m.isCollared = true;
-          m.collarOwnerIndex = pIdx as 0 | 1;
-        }
-      }
-      if (opp.board.length > 0) {
-        addLog(game, pIdx as 0 | 1, `All enemy minions are Collared!`, 'EFFECT', def.cardCode);
-      }
     }
 
     // Check opponent's WHEN_MINION_PLAYED secrets
@@ -521,34 +497,11 @@ export function resolveBattlecry(
   // Clear pending before executing (effects might trigger deaths etc.)
   game.pendingBattlecry = null;
 
-  // Bond: check if partner is already on board
   const player = game.players[pIdx] as PlayerState;
-  if (def.keywords.includes('BOND') && def.bondPartnerCode && def.bondEffect) {
-    const partner = player.board.find(m => m.cardCode === def.bondPartnerCode && m.instanceId !== pb.minionInstanceId);
-    if (partner) {
-      addLog(game, pIdx as 0 | 1, `Bond activates! ${def.name} and ${getCardDef(def.bondPartnerCode).name}!`, 'EFFECT', def.cardCode);
-      executeEffect(game, pIdx as 0 | 1, { ...def.bondEffect, target: 'SELF' }, pb.minionInstanceId);
-      executeEffect(game, pIdx as 0 | 1, { ...def.bondEffect, target: 'SELF' }, partner.instanceId);
-    }
-  }
 
   // Execute battlecry effects
   addLog(game, pIdx as 0 | 1, `${def.name}'s Battlecry!`, 'EFFECT', def.cardCode);
   executeEffects(game, pIdx as 0 | 1, bcEffects, targetId);
-
-  // Special: Des Aster Puppetmaster
-  if (def.cardCode === 'DES_COLLAR_03') {
-    const opp = game.players[(pIdx === 0 ? 1 : 0) as 0 | 1];
-    for (const m of opp.board) {
-      if (!m.isCollared) {
-        m.isCollared = true;
-        m.collarOwnerIndex = pIdx as 0 | 1;
-      }
-    }
-    if (opp.board.length > 0) {
-      addLog(game, pIdx as 0 | 1, `All enemy minions are Collared!`, 'EFFECT', def.cardCode);
-    }
-  }
 
   // Check opponent's WHEN_MINION_PLAYED secrets
   checkSecrets(game, 'WHEN_MINION_PLAYED', {
