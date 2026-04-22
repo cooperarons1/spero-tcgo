@@ -157,11 +157,13 @@ function locationNeedsTarget(def: CardDef): { needsTarget: boolean; targetType: 
 }
 
 // ─── Hero powers that need targeting ───
+// ASTRID's Concealed Blade equips a weapon on the hero — no target needed,
+// click-to-cast. Previously had 'TARGET_FRIENDLY_MINION' which forced a
+// drag/target interaction and was unusable.
 const HERO_POWER_TARGETING: Partial<Record<HeroClass, string>> = {
   JIMMY: 'TARGET_ANY',
   TALA: 'TARGET_FRIENDLY_MINION',
   ANDERS: 'TARGET_MINION',
-  ASTRID: 'TARGET_FRIENDLY_MINION',
 };
 
 // ─── Hero Power Descriptions ───
@@ -966,10 +968,18 @@ function HeroPortrait({
                     </div>
                   </div>
                 ) : (
-                  /* Opponent secret — mystery "?" */
-                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-b from-amber-400 to-amber-600 border-2 border-amber-300 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-amber-500/30 animate-pulse">
-                    ?
-                  </div>
+                  /* Opponent secret — mystery "?" with hover tooltip */
+                  <>
+                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-b from-amber-400 to-amber-600 border-2 border-amber-300 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-amber-500/30 animate-pulse cursor-help">
+                      ?
+                    </div>
+                    <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 hidden group-hover:block z-50 pointer-events-none">
+                      <div className="bg-stone-900/95 border border-amber-600/50 rounded-lg px-3 py-2 shadow-2xl whitespace-nowrap">
+                        <div className="text-amber-200 font-bold text-xs">Enemy Secret</div>
+                        <div className="text-[10px] text-gray-300 mt-0.5">Triggers on your next move.</div>
+                      </div>
+                    </div>
+                  </>
                 )}
               </div>
             );
