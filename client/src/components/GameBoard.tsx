@@ -1034,7 +1034,14 @@ function HeroPortrait({
                sibling pointer-events-none div. */}
           <div className="absolute inset-0 rounded-full overflow-hidden">
             {HERO_PORTRAIT_PNGS[heroClass] ? (
-              <img src={HERO_PORTRAIT_PNGS[heroClass]} alt="" className="w-full h-full object-cover" />
+              <img
+                src={HERO_PORTRAIT_PNGS[heroClass]}
+                alt=""
+                className="w-full h-full object-cover"
+                draggable={false}
+                onDragStart={(e) => e.preventDefault()}
+                style={{ userSelect: 'none' } as React.CSSProperties}
+              />
             ) : (
               <div className="w-full h-full opacity-80">{HERO_PORTRAIT_SVG[heroClass]}</div>
             )}
@@ -1215,7 +1222,7 @@ function OpponentHand({ count, cardBackId }: { count: number; cardBackId?: strin
       {Array.from({ length: count }).map((_, i) => (
         cb?.type === 'image' ? (
           <div key={i} className="h-14 w-10 md:h-24 md:w-16 rounded-lg border-2 border-amber-700 overflow-hidden relative shadow-md transition-transform duration-200 hover:scale-110 hover:-translate-y-2">
-            <img src={cb.value} alt="" className="absolute inset-0 w-full h-full object-cover" />
+            <img src={cb.value} alt="" className="absolute inset-0 w-full h-full object-cover" draggable={false} onDragStart={(e) => e.preventDefault()} />
           </div>
         ) : (
           <div

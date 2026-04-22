@@ -16,11 +16,10 @@ data/teacher-decisions.jsonl
 # Balance audit raw JSONLs (huge — 80k games ≈ 1.7 GB). Keep only the
 # aggregated markdown in docs/ under git; regenerate the JSONL via
 # scripts/parallel-simulate.ts --teacher-vs-teacher.
-data/balance-audit-*.jsonl
-data/balance-round*.jsonl
-data/balance-50k*.jsonl
-data/balance-30k*.jsonl
-data/balance-postshelf*.jsonl
+# Balance sim JSONLs — any balance-*.jsonl is local-only sim output,
+# sometimes multi-GB. The earlier narrow patterns missed balance-200k
+# and let a 4.3GB file slip in via `git add -A`.
+data/balance-*.jsonl
 # Alternate teacher label files (e4b / 31b / future teachers) — kept as
 # local backups; the canonical teacher-labels.jsonl is also gitignored.
 data/teacher-labels.e4b.bak.jsonl.*

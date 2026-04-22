@@ -3,154 +3,173 @@
 Living doc for picking up where a prior session left off. Update this
 whenever a multi-session workstream changes state.
 
-Last session: 2026-04-22 — shelved BOND/COLLAR/ORRA_CHARGE keywords,
-wired LIFESTEAL into combat, ran a 17-round balance-patch loop +
-teacher retrain. See `docs/balance-patch-2026-04-22.md` for the full
-card-by-card list.
+Last session: **2026-04-22 evening** — landed v4 animation model,
+card-lint engine audit (9 bugs plugged), weapon-equip stale-closure
+fix, board spacing fix, hero-attack badge, mulligan weapon display,
+full deploy pipeline cleaned.
+
+Main: `main` at commit **a1d0b2d or later** (see `git log --oneline -5`).
+Server: Cloud Run revision **spero-tcgo-server-00022-9mh** serving 100%.
+Client: https://miro-tcgo.web.app (redeployed with latest UI fixes).
 
 ## Current state
 
-**Prod neural eval:** `data/neural-eval-weights.json` = **Run E** (Llama-70B
-labels, weight 0.3, acc=0.6992 on 1M held-out). Undefeated against all
-2026-04-19 experiments (E2-E6 Gemma-e4b sweep, Run F Gemma-31B).
+**Prod neural eval:** `data/neural-eval-weights.json` = Run E (Llama-70B
+labels, weight 0.3, acc=0.6992 on 1M held-out). Untouched this session.
 
-**Balance — 30k audit 2026-04-22 (post-patch, post-retrain):**
-- Spread 39.6% (DES) – 61.8% (DEREK) = 22.2pp wide
-- Improvement vs pre-shelf 500k (34.8–68.3, 33.5pp): ~11pp tighter
-- Worst mirrors still hot: IZZY vs ASTRID 72%, DEREK vs ASTRID 68%,
-  DES vs IZZY 32%, DES vs JIMMY 31%
-- Next frontier: class-vs-class gap for DES (39.6%), ANDERS/ASTRID (~41%)
+**Balance — 200k authoritative audit 2026-04-22:**
+- Spread 42.0% (ASTRID) – 62.4% (DEREK) = **20.4pp**
+- Pre-shelf (500k, 2026-04-21): 33.5pp
+- Tightened ~13pp over the session
+- Worst matchups still hot but none exceed 70%: DEREK vs ANDERS 69%,
+  IZZY vs ASTRID ~72% on smaller samples
+- DES/ASTRID/ANDERS cluster at 42-43%, AVA/LUCAS 47-48%, DEREK/IZZY
+  59-62% — the remaining spread is structural (card-pool shape, not
+  single-card outliers)
 
-**Big moves this session:**
-1. Shelved BOND + COLLAR keywords (16 + 2 cards re-themed; engine
-   handlers deleted; state fields removed; UI indicators gone).
-2. Shelved ORRA_CHARGE keyword (unused on cards; full infra removal).
-3. **Wired LIFESTEAL** into combat.ts (was dormant; now real). Applied
-   to 8 DES threats — the critical sustain layer that lifted DES from
-   23% to 39% WR over the session.
-4. 17 stat/cost/effect patches across DEREK (nerfs) / IZZY (nerfs) /
-   AVA (summon-count nerfs) / ASTRID (combo + Sprint cost buffs) /
-   DES (self-damage reductions + asymmetric AOE + sustain).
-5. Teacher retrain (6 cycles × 2000 games) after round 10 — stabilized
-   weights against the new pool.
+**Animation model — v4 shipped (2026-04-22 commit `07d36f3`):**
+- File: `data/animation-weights-v4.json`, 190→512→256→128→38, ~287K params
+- Val rank-loss **0.0111** (vs v2's 0.012-0.019)
+- Improvement from: wider MLP, residual skip (folded at export),
+  blended rank+MSE loss, gradient clipping, AdamW weight_decay 1e-4
+- Training in 3.2s on M5 MPS
+- Server loads v4 → v2 → v1 → mse in priority
 
-**Hero power note:** memory claimed DEREK hero power was "Tinker: gain
-3 armor + draw 1" — that's stale. Current code is **Reforge: +1 atk +
-1 armor** (Hearthstone Druid Shapeshift). Memory has been updated.
+## Engine + data fixes landed this session
 
-**Animation model:** v3 shipped 2026-04-22 (commit `ad31c95`) at MSE
-val 0.0828 on 13.5k samples. The rank-loss trainer v2 (val 0.012-0.019)
-is the production model; MSE weights are reference-only.
+**Keyword shelf** (commit `e5e6b92`):
+- BOND removed (16 pair cards stripped to vanilla)
+- COLLAR removed (2 DES cards re-themed: Collar Drone → DR: 1 dmg
+  random; Dominion Puppetmaster → BC: 4 dmg to all enemy minions)
+- ORRA_CHARGE removed (was unused)
+- UI tooltips/indicators removed; type union purged;
+  `bondPartnerCode`/`bondEffect`/`isCollared`/`collarOwnerIndex`
+  /`currentOrraCharge`/`transferredTurn` all deleted
 
-**Animation model:** v2 shipped 2026-04-19 (val loss 0.083, still predicts
-mean). Animation v3 data gen running (~2500/20000 samples as of session
-end) — when done, train v3 and see if denser bins break the plateau.
+**Wired previously-dormant keyword**:
+- **LIFESTEAL** now fires on minion attack (combat.ts)
+- Applied to 11 DES cards: Romulus, Ulan, Selena, Vrasp, Ezra,
+  Kabistan, The Anarchist, Vyren, DES_COLLAR_03, Maso, Shazarda
+- Tooltip + blood-drop badge on cards
+
+**Effect engine bugs (via scripts/card-lint.py)**:
+- DESTROY_MINION target=RANDOM_ENEMY branch (DES023/033/038)
+- SILENCE_TARGET target=ALL_ENEMY_MINIONS (AVA029 Nullification Field)
+- STEAL_MINION handler (DES024 Elixir of Domination)
+- DESTROY_FROZEN_MINION handler (AND039 Shatter)
+- AST_S02 Second Chance special-case in secrets.ts (re-summon
+  `deadMinionCardCode` with 1 HP)
+- DES040 Dominion Control Rod on-hero-attack AOE wired in combat.ts
+- AND040 Anders Frost Prodigy compound battlecry (Freeze-all + 2-dmg)
+- JIM032 Nova Ramiro text/value mismatch
+- DES021 Crimson Cells missing DEAL_DAMAGE effect
+
+**UI bugs fixed**:
+- Weapon equip didn't let hero attack until browser refresh —
+  `handleHeroPointerDown` useCallback had stale `gs.myWeapon` closure
+- DEREK Reforge +1 atk wasn't visible — hero-attack amber badge added
+  when `heroAttackThisTurn > 0` and no weapon
+- Mulligan screen didn't show weapon attack/durability badges
+- Hand card hover rendered TWO previews (fixed — in-hand card now
+  scales 1.45× in place; unplayable cards still hover)
+- COIN card art reverted to SVG (PNG was off-theme)
+- LIFESTEAL blood-drop badge on cards with the keyword
+- Card art `draggable={false}` so the browser drag-ghost no longer
+  appears when you click and hold
+- Hero portrait + card-back images also `draggable={false}`
+- Board minion layout switched from `justify-center`+computed-gap to
+  `justify-between` so minions span the full 72rem row at every count
+- Weapon slot pinned to `opacity: 1` as defense against any
+  mid-keyframe animation state
+
+**Art regens** (via Gemma-3-27B VLM audit + SDXL regen):
+- 65 name/art mismatches flagged initially
+- Round 1-4: 65/65 fixed after iterated prompts. Highlights:
+  Cardboard Pickaxe actually a pickaxe (was a dagger); Xiao
+  frost-themed (was fire); Rosie a bottlenose dolphin; Bling a puffin;
+  DEREK BEAST minions actual animals (were leftover mechs/humans).
+- All 3 Despicable Me Minion lookalikes replaced with non-character art.
+- `.old.png` backups preserved for every regen'd card.
+
+## Tooling added
+
+- `scripts/card-lint.py` — walks cards.json + checks every
+  `(effect.type, effect.target)` combo against the engine's switch
+  cases. Also verifies summonCardCode→real card, text/value
+  consistency, and keyword-type sanity. Zero issues across 339 cards
+  post-fix. Run via `npm run lint:cards`.
+- `scripts/animation-model/train_rank_v4.py` — drop-in replacement
+  for train_rank_v2.py with the wider/residual/blended-loss model.
+- `scripts/regen-art-mismatches.py`, `regen-art-round2.py`,
+  `regen-art-round3.py`, `regen-art-round4.py` — the iterated art
+  regens, all with prompts checked in for future reference.
+
+## Tests
+
+**240/240 passing**, 18 test files. New files this session:
+- `server/__tests__/effect-engine-fixes.test.ts` (8 tests)
+- `server/__tests__/lifesteal-dominion.test.ts` (6 tests)
+- `server/__tests__/integration-scenarios.test.ts` (11 tests)
+- `server/__tests__/weapon-card-data.test.ts` (5 tests)
+
+## Known issues remaining
+
+- **DES/ASTRID/ANDERS at 42-43% WR** — ~8pp below the ideal 50%.
+  Levers I haven't pulled: (a) buff their hero powers (user rule says
+  no), (b) add more LIFESTEAL/sustain cards beyond the current set,
+  (c) 2-3 more new class cards each. Next session candidate.
+- **Weapon-equip stale closure** is *probably* fixed — dep array
+  updated on `handleHeroPointerDown`, audited 16 other useCallbacks
+  (all clean). User hasn't confirmed the live fix works yet.
+- **`client/public/cards/*.old.png` backups** take ~300 MB. If the
+  regens stick, these can be deleted in a cleanup pass. Excluded from
+  `.gcloudignore` so they don't inflate server deploys.
 
 ## Immediate next actions (prioritized)
 
-### 1. Commit 2026-04-22 session (NOT DONE)
+### 1. User playtest on `miro-tcgo.web.app`
 
-Everything from today is uncommitted at session end. `data/cards.json`
-+ engine surgery across:
-- `shared/types.ts` — dropped BOND/COLLAR/ORRA_CHARGE from Keyword
-  union; removed bondPartnerCode/bondEffect from CardDef and related
-  MinionState fields
-- `server/combat.ts` — wired LIFESTEAL; removed COLLAR-on-attack +
-  DES_COLLAR_02 deathrattle special
-- `server/actions.ts` — removed BOND handler (two places) +
-  DES_COLLAR_03 battlecry special (two places)
-- `server/game.ts` — removed end-of-turn COLLAR transfer + Orra Charge
-  tick-up
-- `server/effects.ts` — removed Collar/OrraCharge state cleanup
-- `server/ai-state-pool.ts`, `server/ai-teacher.ts`,
-  `server/animation-model.ts`, `server/packs.ts` — stale refs removed
-- `client/src/components/GameBoard.tsx`,
-  `client/src/components/Collection.tsx` — UI tooltips + Collar
-  indicator + Orra Charge counter removed, LIFESTEAL tooltip added
-- `client/public/cards/IZZ021.{png,webp}` — Arcane Missiles art
-  regenerated as a single unified bolt (was a 2x2 grid). Backup at
-  `IZZ021.grid-backup.png`.
+Confirm the weapon-equip-attack fix actually resolves. Sanity-check
+LIFESTEAL healing, silence-all, DES040 AOE on hero swing, DEREK
+Reforge attack badge.
 
-Tests 210/210 passing.
+### 2. Balance: close the 42% gap for the bottom three classes
 
-### 1b. Final teacher retrain on post-round-15 pool (in progress)
+Options:
+- Add 2-3 new class cards to DES/ASTRID/ANDERS that tilt toward their
+  identity (silent backstab for ASTRID, shadow pressure for DES, frost
+  combo for ANDERS)
+- Buff existing class weapons / mid-cost drops
+- Accept the 20pp spread and move on
 
-`npx tsx server/ai-simulate.ts --learn --games 5000 --cycles 5
---teacher-vs-teacher` kicked off after the rounds 11-15 commit, so the
-teacher is learning on the new card pool + new hero powers + 10-armor
-DEREK. Takes ~70 min.
+### 3. 26B-A4B labeler retry for animation v5
 
-After it completes:
-1. Run 80k-game audit one more time — teacher may further tighten balance
-2. Commit ai-weights.json if audit looks clean
+Memory: `feedback_mlx_26b_a4b_concurrency.md` — 26B-A4B at concurrency=1
+is a stronger teacher but ~30h for the full queue. Would give v5 a
+cleaner label distribution and likely tighten val rank-loss below
+0.010.
 
-### 2. 26B-A4B labeler retry (optional, ~30h overnight)
+### 4. Human-preference animation labels
 
-Memory: `feedback_mlx_26b_a4b_concurrency.md` — 26B-A4B via mlx_lm.server
-fails at concurrency > 1 (empty-content races). At concurrency=1 it would
-take ~30h for 9,999 labels; too slow to ship in a session but fine as
-background overnight.
-
-Script already exists at `scripts/runF-26b-switch.sh`. Would need the
-`--concurrency 1` flag passed through to `gemma_label_positions.py`.
-
-Likely outcome: marginally better labels than e4b, maybe beats Run E
-but user decided not worth the wait (see earlier session notes).
-
-### 3. Animation model v3 — regenerate training data
-
-**v2 shipped 2026-04-19** (commit `6d8ddc5`): added target_quality
-feature (62-dim) + cubic score weighting. Infrastructure works, but val
-loss only moved 0.0836 → 0.0832. The real bottleneck is the training
-DATA, not the OBJECTIVE: ~2 samples per (card, context) bin means the
-"best" sample per bin is the lucky winner of random-sampling noise, not
-a systematic "good params" target.
-
-**v3 plan:** regenerate `data/animation-training.jsonl` with ~10-20
-samples per bin (at ~319 cards × 8 contexts that's 25-50k samples vs
-today's 5k). After 10 samples per bin the top-quality one is an
-informative target. Cost: 25-50 min of Gemma-4-e4b VLM labeling per
-5000 samples.
-
-Run: `python3 scripts/animation-model/generate.py --samples 40000`
-Then: `python3 scripts/animation-model/train.py`
-Expect: val loss should break below 0.07 once the signal-to-noise
-improves. If not, the objective needs deeper work (rank learning on
-paired samples).
-
-### 4. Ship observability on the game
-
-If the game is live anywhere, instrument per-card and per-hero winrate
-telemetry server-side so we don't rely on offline sim for balance. The
-simulator is a fine proxy but real-player data would catch humans
-exploiting things the AI doesn't see.
+Replace the VLM judge with a tiny "pick between A and B" UI. Yields
+ground-truth labels the VLM can't match, but requires building the
+UI + labeling 2-3k pairs by hand.
 
 ## Data / artifacts reference
 
-- `data/neural-eval-weights.runE*.json` (6 weight files from the 2026-04-19 sweep, local-only)
-- `data/teacher-labels.e4b.bak.jsonl` — 9,764 Gemma-e4b labels (archived, local)
-- `data/teacher-labels.31b.jsonl` — 1,351 Gemma-31B labels (Run F, local)
-- `data/teacher-labels.llama-contaminated.bak.jsonl` — 8,452 original Llama-70B labels (archived, local)
-- `data/teacher-queue.jsonl` — 9,999 disagreement positions, renamed from `llama-queue.jsonl`
-- `scripts/gemma_label_positions.py` — labeler (was `llama_label_positions.py`)
-- `scripts/aggregate_balance.py` — class + matchup + per-card winrate from sim JSONL
-- `scripts/card_strength.py` — AI-score proxy from `teacher-decisions.jsonl`
-- `docs/balance-audit-2026-04-19.md`, `docs/balance-patch-proposal-2026-04-19.md`
+- `data/balance-audit-*.jsonl`, `data/balance-round*.jsonl`,
+  `data/balance-200k.jsonl` — local-only (gitignored + gcloudignored)
+- `docs/balance-patch-2026-04-22.md` — full card-by-card changelog
+- `docs/audits/balance-200k-2026-04-22.txt` — authoritative WR table
+- `data/animation-training.jsonl` — 13,500 samples, gitignored
+- `data/animation-art-embeddings.json` — 240 ResNet18 card-art
+  embeddings, kept in git (small)
 
-## Git state (as of 2026-04-19 session end)
+## Git state
 
-- `main` synced with origin, no uncommitted changes.
-- 10 commits this session; key ones:
-  - `00c64a1` Rename llama → teacher/gemma
-  - `70b9309` Balance audit 2026-04-19
-  - `99a79c2` Per-card winrate in SimRecord
-  - `1ebae28` Run F evaluated, not promoted
-  - `ded0830` ai-weights snapshot
-
-## If this doc is stale
-
-Check `git log --since='2026-04-20' --oneline` — anything after the last
-committed ai-weights snapshot may have evolved the state. The audit docs
-in `docs/` are the most reliable snapshot; memory at
-`~/.claude/projects/-Users-cooperarons/memory/project_spero_neural_eval.md`
-tracks changes session-to-session.
+`git log --oneline -5` at session end:
+- v4 animation model
+- integration tests
+- card-lint + engine fixes
+- deploy pipeline `.gcloudignore` cleanup
+- balance UI fixes
