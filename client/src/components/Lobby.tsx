@@ -281,13 +281,22 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
                   Join Room
                 </button>
               </div>
-              <button
-                onClick={onFriends}
-                className="w-full text-stone-300 font-semibold py-2.5 px-6 rounded-xl text-sm hover:brightness-125 active:scale-95 transition-all cursor-pointer"
-                style={{ background: 'rgba(45,22,78,0.5)' }}
-              >
-                Friends
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={onCollection}
+                  className="flex-1 text-amber-100 font-bold py-2.5 px-6 rounded-xl text-sm hover:brightness-125 active:scale-95 transition-all cursor-pointer border border-amber-500/40"
+                  style={{ background: 'linear-gradient(135deg, rgba(120,72,20,0.75) 0%, rgba(80,45,12,0.8) 100%)' }}
+                >
+                  My Collection
+                </button>
+                <button
+                  onClick={onFriends}
+                  className="flex-1 text-stone-300 font-semibold py-2.5 px-6 rounded-xl text-sm hover:brightness-125 active:scale-95 transition-all cursor-pointer"
+                  style={{ background: 'rgba(45,22,78,0.5)' }}
+                >
+                  Friends
+                </button>
+              </div>
             </div>
 
             {/* Daily Quests — bumped padding + text size for readability */}
