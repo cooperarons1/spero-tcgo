@@ -254,11 +254,31 @@ export function executeEffect(
       break;
     }
     case 'SILENCE_TARGET': {
-      if (!targetId) break;
-      const target = findMinion(game, targetId);
-      if (target) {
-        silenceMinion(target);
-        addLog(game, casterIndex, `Silences a minion`, 'EFFECT');
+      // AVA029 Nullification Field and any other "silence all enemy
+      // minions" spell passes target='ALL_ENEMY_MINIONS'; the single-
+      // target path (findMinion(targetId)) silently no-ops on those
+      // because there's no per-minion targetId. Branch on the target.
+      if (effect.target === 'ALL_ENEMY_MINIONS') {
+        const opp = game.players[(casterIndex === 0 ? 1 : 0) as 0 | 1];
+        let count = 0;
+        for (const m of opp.board) {
+          if (!m.isSilenced) { silenceMinion(m); count++; }
+        }
+        if (count > 0) addLog(game, casterIndex, `Silences ${count} enemy minion${count === 1 ? '' : 's'}`, 'EFFECT');
+      } else if (effect.target === 'ALL_FRIENDLY_MINIONS') {
+        const me = game.players[casterIndex];
+        let count = 0;
+        for (const m of me.board) {
+          if (!m.isSilenced) { silenceMinion(m); count++; }
+        }
+        if (count > 0) addLog(game, casterIndex, `Silences ${count} friendly minion${count === 1 ? '' : 's'}`, 'EFFECT');
+      } else {
+        if (!targetId) break;
+        const target = findMinion(game, targetId);
+        if (target) {
+          silenceMinion(target);
+          addLog(game, casterIndex, `Silences a minion`, 'EFFECT');
+        }
       }
       break;
     }
