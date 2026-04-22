@@ -150,6 +150,18 @@ export function attack(
       addLog(game, myIdx as 0 | 1, `${me.playerName} attacks ${targetDef.name} for ${totalHeroAtk}`, 'COMBAT', me.weapon?.cardCode);
     }
 
+    // Dominion Control Rod: after your hero attacks, deal 1 damage to all enemy minions.
+    if (me.weapon?.cardCode === 'DES040') {
+      const enemyBoard = opp.board.slice();
+      for (const m of enemyBoard) {
+        applyDamageToMinion(m, 1);
+      }
+      if (enemyBoard.length > 0) {
+        game.playerStats[myIdx as 0 | 1].damageDealtToMinions += enemyBoard.length;
+        addLog(game, myIdx as 0 | 1, `Dominion Control Rod zaps all enemy minions for 1`, 'EFFECT', me.weapon.cardCode);
+      }
+    }
+
     // Consume weapon durability
     if (me.weapon) {
       me.weapon.durability--;
