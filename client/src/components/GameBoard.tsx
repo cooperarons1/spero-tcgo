@@ -1135,7 +1135,6 @@ function HandCard({
   const handAnimParams = animParams;
   const def = getCard(card.cardCode);
   const isComboCard = !!def && comboActive && def.keywords.includes('COMBO') && canPlay;
-  const [isHovered, setIsHovered] = useState(false);
 
   // One-shot pop-in for the combo ring: fires only on the leading edge
   // of isComboCard (i.e. the moment combo becomes active for this card,
@@ -1161,19 +1160,19 @@ function HandCard({
     <button
       onClick={onClick}
       onPointerDown={onPointerDown}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onDragStart={(e) => e.preventDefault()}
       className={`relative flex flex-shrink-0 rounded-xl transition-all duration-300 ease-out touch-none
         ${isComboCard ? 'ring-2 ring-yellow-400/80 shadow-[0_0_16px_4px_rgba(234,179,8,0.5)]' : ''}
         ${comboPopping ? 'animate-combo-ring-pop' : ''}
         ${isSelected
           ? '-translate-y-6 scale-110 z-20 ring-[3px] ring-green-400 shadow-[0_0_20px_4px_rgba(34,197,94,0.5)]'
           : canPlay
-            ? 'hover:-translate-y-4 hover:scale-105 hover:z-10 cursor-pointer ring-2 ring-green-400/60 shadow-[0_0_8px_rgba(34,197,94,0.4)]'
-            : 'opacity-60 cursor-not-allowed'}
+            ? 'hover:-translate-y-12 hover:scale-[1.45] hover:z-[60] cursor-pointer ring-2 ring-green-400/60 shadow-[0_0_8px_rgba(34,197,94,0.4)]'
+            : 'hover:-translate-y-10 hover:scale-[1.35] hover:z-[50] cursor-help opacity-80'}
         ${isDragging ? 'dragging-card' : ''}
         ${isNew ? 'animate-card-draw-in' : ''}
       `}
+      style={{ transformOrigin: 'bottom center' }}
     >
       <CardComponent cardCode={card.cardCode!} small golden={card.isGolden && FEATURE_FLAGS.GOLDEN_CARDS} />
       {card.isGolden && FEATURE_FLAGS.GOLDEN_CARDS && (
@@ -1183,19 +1182,6 @@ function HandCard({
           params={handAnimParams}
           enabled
         />
-      )}
-      {/* Hover-zoom preview — appears above the hand so the player can
-           read the full card text + all keyword chips. Pointer-events
-           disabled so it doesn't steal clicks from the underlying card. */}
-      {isHovered && !isDragging && !isSelected && (
-        <div
-          className="absolute left-1/2 -top-2 -translate-x-1/2 -translate-y-full z-[100] pointer-events-none"
-          style={{ transform: 'translate(-50%, -100%) scale(1.8)', transformOrigin: 'bottom center' }}
-        >
-          <div className="drop-shadow-[0_8px_16px_rgba(0,0,0,0.8)]">
-            <CardComponent cardCode={card.cardCode!} golden={card.isGolden && FEATURE_FLAGS.GOLDEN_CARDS} />
-          </div>
-        </div>
       )}
     </button>
   );

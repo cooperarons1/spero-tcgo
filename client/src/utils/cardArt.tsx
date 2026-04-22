@@ -4548,8 +4548,10 @@ export function CardArt({
         src={`/cards/${cardCode}.webp`}
         alt=""
         className={className}
-        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        style={{ width: '100%', height: '100%', objectFit: 'cover', userSelect: 'none' } as React.CSSProperties}
         decoding="async"
+        draggable={false}
+        onDragStart={(e) => e.preventDefault()}
         onError={() => setPngFailed(true)}
       />
     );

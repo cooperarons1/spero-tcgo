@@ -436,7 +436,29 @@ export function Card({ cardCode, onClick, selected, greyed, small, className, go
       {/* Keyword chip strip removed — the text box already shows each
            keyword by name, so the stacked badges above the art were
            redundant and obscured the portrait (e.g. Windfury chip sat
-           over the character's head on Jax, Desert Coyote). */}
+           over the character's head on Jax, Desert Coyote).
+           Exception: LIFESTEAL — hard to read in the 5.5px text box on
+           small hand cards, so show a tiny blood-drop badge in the top
+           right corner. Sits above the art circle; never on the face. */}
+      {def.keywords.includes('LIFESTEAL') && (
+        <div
+          className={`absolute ${small ? 'top-[18px] right-[2px]' : 'top-[22px] right-[3px]'} z-[25] pointer-events-none`}
+          aria-label="Lifesteal"
+          title="Lifesteal: damage dealt also heals your hero"
+        >
+          <svg viewBox="0 0 16 20" className={small ? 'w-3 h-3.5' : 'w-4 h-5'} style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.8))' }}>
+            <defs>
+              <linearGradient id="ls-drop" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#fb7185" />
+                <stop offset="60%" stopColor="#be123c" />
+                <stop offset="100%" stopColor="#6d0b22" />
+              </linearGradient>
+            </defs>
+            <path d="M8 0 C 4 8 0 11 0 14 a 8 6 0 0 0 16 0 c 0 -3 -4 -6 -8 -14 z" fill="url(#ls-drop)" stroke="#fecdd3" strokeWidth="0.5"/>
+            <ellipse cx="5.5" cy="13" rx="2" ry="2.5" fill="#fecaca" opacity="0.45"/>
+          </svg>
+        </div>
+      )}
 
       {/* ── Card text — parchment-tan panel inside a dark stone cutout. ── */}
       {def.text ? (

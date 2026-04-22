@@ -80,7 +80,9 @@ export const CARD_ART_PNGS = new Set([
   "AVA_BOND_02",
   "AVA_TOKEN_01",
   "AVA_TOKEN_02",
-  "COIN",
+  // COIN intentionally not in the PNG set — falls through to the
+  // dedicated SVG renderer in cardArt.tsx (the PNG generation produced
+  // off-theme art; the inline gold-coin SVG is the canonical look).
   "DES021",
   "DES022",
   "DES023",
