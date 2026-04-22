@@ -134,13 +134,22 @@ interface LoadedAnimWeights {
 }
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// v4 (animation-weights-v4.json): same 190-dim feature space as v2 but
+// wider (512/256/128 hidden, ~287K params) + a residual skip folded into
+// the first hidden + a blended rank/MSE loss so the output pulls toward
+// the actual high-scoring param vector instead of the per-context mean.
+// Val rank-loss 0.0111 vs v2's 0.012-0.019.
+//
 // v2 (animation-weights-v2.json) appends a 128-dim ResNet18 art embedding
 // to the 62-dim card-metadata features, so the model can distinguish cards
-// with identical metadata by what their art actually depicts. v2 val loss
-// is 0.012 vs v1's 0.083.
+// with identical metadata by what their art actually depicts.
+//
 // v1 rank weights (animation-weights-rank.json) trains on metadata only.
 // Earlier MSE weights (animation-weights.json) collapsed to the mean.
-// Load in priority order: v2 → rank → mse.
+//
+// Load in priority order: v4 → v2 → rank → mse. All v2+v4 share the same
+// 190-dim feature layout, so the art-embedding append path is identical.
+const V4_WEIGHTS_PATH = path.join(__dirname, '..', 'data', 'animation-weights-v4.json');
 const V2_WEIGHTS_PATH = path.join(__dirname, '..', 'data', 'animation-weights-v2.json');
 const RANK_WEIGHTS_PATH = path.join(__dirname, '..', 'data', 'animation-weights-rank.json');
 const MSE_WEIGHTS_PATH = path.join(__dirname, '..', 'data', 'animation-weights.json');
@@ -149,10 +158,15 @@ const ART_EMBEDS_PATH = path.join(__dirname, '..', 'data', 'animation-art-embedd
 const ART_EMBED_DIM = 128;
 const FEATURE_DIM_V2 = FEATURE_DIM + ART_EMBED_DIM;
 
-let useV2 = false;
-const WEIGHTS_PATH = fs.existsSync(V2_WEIGHTS_PATH)
-  ? (useV2 = true, V2_WEIGHTS_PATH)
-  : fs.existsSync(RANK_WEIGHTS_PATH) ? RANK_WEIGHTS_PATH : MSE_WEIGHTS_PATH;
+let useV2 = false;    // v2 or v4 — both share the 190-dim feature path
+let loadedVersion: 'v4' | 'v2' | 'v1' | 'mse' = 'mse';
+const WEIGHTS_PATH = fs.existsSync(V4_WEIGHTS_PATH)
+  ? (useV2 = true, loadedVersion = 'v4', V4_WEIGHTS_PATH)
+  : fs.existsSync(V2_WEIGHTS_PATH)
+    ? (useV2 = true, loadedVersion = 'v2', V2_WEIGHTS_PATH)
+    : fs.existsSync(RANK_WEIGHTS_PATH)
+      ? (loadedVersion = 'v1', RANK_WEIGHTS_PATH)
+      : MSE_WEIGHTS_PATH;
 
 let animWeights: LoadedAnimWeights | null = null;
 let artEmbeds: Record<string, number[]> | null = null;
@@ -186,7 +200,7 @@ function loadAnimWeights(): LoadedAnimWeights | null {
   }
 
   console.log(
-    `[ANIM-MODEL] Loaded animation weights (${useV2 ? 'v2' : 'v1'}): ${raw.W.length} layers, ` +
+    `[ANIM-MODEL] Loaded animation weights (${loadedVersion}): ${raw.W.length} layers, ` +
     `${inputDim}→${raw.W[raw.W.length - 1].length} dims`
   );
 
