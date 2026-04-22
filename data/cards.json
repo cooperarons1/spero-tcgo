@@ -911,13 +911,13 @@
     "rarity": "COMMON",
     "attack": 0,
     "health": 0,
-    "text": "Deal 2 damage to an undamaged minion.",
+    "text": "Deal 3 damage to an undamaged minion.",
     "flavor": "One clean strike. No witnesses.",
     "keywords": [],
     "spellEffect": {
       "type": "DEAL_DAMAGE",
       "target": "TARGET_MINION",
-      "value": 2
+      "value": 3
     }
   },
   {
@@ -1603,7 +1603,7 @@
     "type": "WEAPON",
     "heroClass": "ASTRID",
     "rarity": "COMMON",
-    "attack": 2,
+    "attack": 3,
     "health": 3,
     "text": "",
     "flavor": "Long in the grip, sharp at the edge.",
@@ -2394,13 +2394,13 @@
     "rarity": "RARE",
     "attack": 0,
     "health": 2,
-    "text": "Deal 2 damage to a minion.",
+    "text": "Deal 3 damage to a minion.",
     "flavor": "Two enter. Eventually, one leaves.",
     "keywords": [],
     "locationEffect": {
       "type": "DEAL_DAMAGE",
       "target": "TARGET_MINION",
-      "value": 2
+      "value": 3
     }
   },
   {
@@ -4151,8 +4151,8 @@
     "type": "WEAPON",
     "heroClass": "ASTRID",
     "rarity": "COMMON",
-    "attack": 1,
-    "health": 4,
+    "attack": 2,
+    "health": 3,
     "text": "",
     "flavor": "Forged from nothing and darkness.",
     "keywords": []
@@ -4330,7 +4330,7 @@
   {
     "cardCode": "DES032",
     "name": "Stolen Identity",
-    "manaCost": 3,
+    "manaCost": 2,
     "type": "SPELL",
     "heroClass": "DES",
     "rarity": "EPIC",
@@ -4938,7 +4938,7 @@
     "rarity": "COMMON",
     "attack": 4,
     "health": 4,
-    "text": "Deathrattle: Deal 2 damage to the enemy hero.",
+    "text": "Deathrattle: Deal 4 damage to the enemy hero.",
     "flavor": "Deals with the dead. Deals for the dead. Deals IN dead.",
     "keywords": [
       "DEATHRATTLE"
@@ -4946,8 +4946,8 @@
     "minionType": "DOMINION",
     "deathrattleEffect": {
       "type": "DEAL_DAMAGE",
-      "target": "TARGET_ENEMY_HERO",
-      "value": 2
+      "target": "TARGET_HERO",
+      "value": 4
     }
   },
   {
@@ -5138,17 +5138,25 @@
     "rarity": "RARE",
     "attack": 4,
     "health": 3,
-    "text": "Battlecry: Give a friendly minion Stealth.",
+    "text": "Battlecry: Give a friendly minion +1/+1 and Stealth.",
     "flavor": "She teaches others to disappear. It's her specialty.",
     "keywords": [
       "BATTLECRY"
     ],
     "minionType": "AMETI",
-    "battlecryEffect": {
-      "type": "GRANT_KEYWORD",
-      "target": "TARGET_FRIENDLY_MINION",
-      "grantKeyword": "STEALTH"
-    }
+    "battlecryEffects": [
+      {
+        "type": "BUFF_MINION",
+        "target": "TARGET_FRIENDLY_MINION",
+        "attackBuff": 1,
+        "healthBuff": 1
+      },
+      {
+        "type": "GRANT_KEYWORD",
+        "target": "TARGET_FRIENDLY_MINION",
+        "grantKeyword": "STEALTH"
+      }
+    ]
   },
   {
     "cardCode": "IZZ039",
@@ -5369,7 +5377,7 @@
   {
     "cardCode": "AND033",
     "name": "Blizzard of Aster Peak",
-    "manaCost": 5,
+    "manaCost": 4,
     "type": "SPELL",
     "heroClass": "ANDERS",
     "rarity": "RARE",
@@ -5721,7 +5729,7 @@
   {
     "cardCode": "AND034",
     "name": "Rune Scholar",
-    "manaCost": 2,
+    "manaCost": 1,
     "type": "MINION",
     "heroClass": "ANDERS",
     "rarity": "COMMON",
