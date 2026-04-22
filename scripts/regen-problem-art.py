@@ -516,5 +516,146 @@ def main():
     print(f"[regen] done. wall time {time.time() - start:.0f}s", flush=True)
 
 
+# ═══════════════════════════════════════════════════════════════════
+# VLM-audit-driven overrides (added 2026-04-21). Gemma-3-27B scored
+# every card; cards below were flagged as mismatch or copyright.
+# ═══════════════════════════════════════════════════════════════════
+_VLM_OVERRIDES = {
+    # COPYRIGHT — Despicable Me Minion lookalike, hard replace
+    "DRK061": (
+        "A heavy oak-and-iron reinforced wall being strengthened by glowing "
+        "green druidic runes, vines wrapping the timbers, sturdy barricade "
+        "effect, no humans, no yellow creatures, no cartoon characters, "
+        "pure fortification spell"
+    ),
+
+    # SPELLS — pure effect, no character
+    "JIM_S03": ("A flaming arrow suspended mid-air with a rune-trap "
+                "circle glowing beneath it, ember particles rising, "
+                "no humans, pure secret trap effect"),
+    "DRK016": ("The terrain reshaping itself with rising earth, green "
+                "vines and moss covering stone, druidic transformation "
+                "scene, no humans, pure spell effect"),
+    "AND016": ("A glass bottle of frost water bursting open in mid-air, "
+                "icy shards radiating outward with a freezing spell glow, "
+                "no humans, pure ice spell effect"),
+    "AST026": ("A glowing purple bounce-spell portal where a minion "
+                "silhouette is being pulled backward into a shimmering "
+                "void, no humans visible, pure rogue spell effect"),
+    "DES021": ("Crimson blood-magic cells pulsating in midair, dark red "
+                "aura and shadow smoke, ritual circle glowing below, "
+                "no humans, pure warlock spell effect"),
+    "DRK023": ("A glowing weapon silhouette wrapped in green nature-runes "
+                "and growing vines, buffing aura, druidic power, no humans, "
+                "pure enchant effect"),
+    "LUC027": ("A glowing shaman totem pole with spiraling ancestral "
+                "spirit energy rising from it, ethereal blue glow, no "
+                "humans in foreground, pure spell effect"),
+    "AND024": ("A violent hailstorm of massive ice chunks crashing down "
+                "on an empty battlefield, dark snow clouds above, blue "
+                "palette, no humans, pure weather storm effect"),
+    "AVA027": ("A large mech being disassembled by arcane recycling "
+                "energy, parts floating apart, blue-white deconstruction "
+                "glow, no humans, pure paladin recycle spell"),
+    "TAL028": ("A burst of decaying dark-green nature energy, withering "
+                "vines and crumbling leaves, priestly shadow-nature "
+                "spell, no humans, pure magical effect"),
+    "IZZ033": ("A piercing gust of blue-white wind shearing across the "
+                "frame, elemental streaks visible, no humans, pure wind "
+                "spell effect"),
+    "AST032": ("A glowing silver defensive ward shimmering over a rogue "
+                "dagger, preventing destruction, protective blue runes, "
+                "no humans, pure secret spell effect"),
+    "DRK034": ("A glowing minion silhouette being reassigned by nature "
+                "energy, roots and taunt-vine wrapping it, no humans, "
+                "pure druid spell effect"),
+    "DRK035": ("A bright green recall-portal swallowing a small minion "
+                "silhouette, swirling nature energy, no humans visible, "
+                "pure druid spell effect"),
+    "DRK037": ("A glowing druidic tome surrounded by floating spellpages "
+                "and swirling green mana, resourceful spell aesthetic, "
+                "no humans, pure spell effect"),
+    "LUC039": ("A swirling purple-gray stealth cloud with a dagger "
+                "silhouette inside fading away, sneaky effect, no "
+                "humans visible, pure rogue spell"),
+    "AST036": ("A trail of rogue footprints in a rush of motion lines, "
+                "sprinting energy, no humans or characters, pure rogue "
+                "movement spell"),
+    "NEU093": ("A stack of adventurer supplies teleporting into existence "
+                "with a glowing golden mana swirl, pouches and scrolls "
+                "floating, no humans, pure spell effect"),
+    "TAL035": ("A massive green trampling hoof-print of nature energy "
+                "crushing down on an empty ground, green-gold druidic "
+                "impact, no humans, pure spell effect"),
+    "AST039": ("A triumphant radiant golden sword silhouette raised in "
+                "victory amid a burst of light, pure rogue buff-spell "
+                "effect, no humans visible"),
+    "JIM038": ("A flaming arrow streaking through a dark sky straight "
+                "toward the viewer, ember trail, no humans, pure hunter "
+                "spell effect"),
+    "AST042": ("A glowing red-purple blade charged with cold blood magic, "
+                "dark rogue aura, droplets of blood floating, no humans, "
+                "pure spell effect"),
+    "AND037": ("Glowing blue arcane books floating in mid-air with "
+                "swirling spell-runes, knowledge-draw aesthetic, no "
+                "humans, pure mage spell"),
+    "IZZ041": ("A tidal wall of icy blue water crashing across all "
+                "enemies on an empty battlefield, massive wave effect, "
+                "no humans, pure mage spell"),
+    "DRK050": ("A single green nature-energy strike piercing through "
+                "empty air, laser-thin streak, no humans, pure druid "
+                "spell effect"),
+    "DRK051": ("Three glowing green claw-slash marks cutting across the "
+                "frame, feral druidic swipe effect, no humans, no "
+                "animals, pure spell impact"),
+    "DRK052": ("A massive green burst of nature magic obliterating a "
+                "target minion silhouette, nature's wrath effect, no "
+                "humans, pure druid spell"),
+    "DRK062": ("A single bolt of silver lunar fire streaking downward, "
+                "moonlit glow impact on dark stone, no humans, pure "
+                "druid moonfire effect"),
+
+    # LOCATIONS — fantasy landscape, no characters
+    "NEU_LOC06": ("A serene waterfall cascading down moss-covered cliffs "
+                   "with rainbow light in the mist, lush green fantasy "
+                   "landscape, no humans, no characters"),
+    "DES_LOC03": ("A haunted purple-black ruined cathedral at night, "
+                   "dark sinister location, ominous shadows, no humans, "
+                   "pure architecture scene"),
+    "AND_LOC02": ("A frozen mountain peak covered in deep snow with "
+                   "howling wind, silence and isolation, no humans, "
+                   "pure winter landscape"),
+
+    # WEAPONS — equipment only, no wielder
+    "TAL030": ("A suit of layered pineapple-scale druidic plate armor on "
+                "a wooden stand, no humans, no hands, isolated object"),
+    "AVA031": ("A bulky sci-fi paladin crossbow launcher displayed on a "
+                "workbench, gold-silver plating, no humans, no hands, "
+                "isolated weapon"),
+
+    # MINIONS with OBJECT names — must show the object, not a person
+    "DES_COLLAR_02": ("A floating purple-black shadow collar with glowing "
+                       "chains, ominous dominion artifact, no humans, "
+                       "pure object"),
+    "AVA_BOND_02": ("A small hovering silver-gold lunar device with "
+                    "glowing blue eye-sensor, ornate paladin artifact, "
+                    "no humans, pure object"),
+    "AST_BOND_02": ("A tall silver kite-shield with rogue-engraved "
+                    "filigree leaning against dark stone, defensive "
+                    "equipment, no humans, no hands, isolated shield"),
+    "IZZ043": ("A massive ethereal blue-purple arcane leviathan creature "
+               "breaching from swirling spell water, translucent energy "
+               "body, no humanoid features, pure mage elemental"),
+
+    # Named MINION flagged — keep character, just need to be more "rogue" looking
+    "AST034": ("A cloaked rogue in indigo leather armor crouched on a "
+                "rooftop, dagger in hand, stealthy night pose, moonlight "
+                "silhouette, single character, naturalistic fantasy art"),
+}
+
+# Merge into main OVERRIDES dict at runtime
+OVERRIDES.update(_VLM_OVERRIDES)
+
+
 if __name__ == "__main__":
     main()
