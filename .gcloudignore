@@ -10,10 +10,7 @@ client/dist
 # itself and its runtime files (cards.json, *-weights.json, etc.) so the
 # Dockerfile's `COPY data/` step works.
 data/balance-audit-*
-data/balance-round*.jsonl
-data/balance-50k*.jsonl
-data/balance-30k*.jsonl
-data/balance-postshelf*.jsonl
+data/balance-*.jsonl
 data/sim-history-*
 data/animation-training.jsonl*
 data/animation-preview/
