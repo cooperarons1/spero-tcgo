@@ -2952,8 +2952,22 @@ export default function GameBoard({
       {/* MY AREA (entire bottom half is drop zone) */}
       {/* ═══════════════════════════════════════════ */}
       <div
-        className={`flex flex-1 min-h-0 flex-col items-center px-2 md:px-4 pt-0 pb-1 transition-all ${dropZoneActive ? 'animate-drop-zone-pulse ring-2 ring-inset ring-green-400/40' : ''}`}
+        className={`relative flex flex-1 min-h-0 flex-col items-center px-2 md:px-4 pt-0 pb-1 transition-all ${
+          dropZoneActive
+            ? (myBoard.length >= MAX_BOARD_SIZE
+                ? 'animate-drop-zone-pulse ring-2 ring-inset ring-red-500/60'
+                : 'animate-drop-zone-pulse ring-2 ring-inset ring-green-400/40')
+            : ''
+        }`}
       >
+        {/* Board-full red banner — only shown while dragging a minion
+             over a full 7-minion board so the player gets explicit
+             feedback that release will fail. */}
+        {dropZoneActive && myBoard.length >= MAX_BOARD_SIZE && draggingCardType === 'MINION' && (
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 z-40 px-4 py-1.5 rounded-full bg-red-900/90 border-2 border-red-400 text-red-100 text-sm font-extrabold tracking-wider shadow-lg animate-pulse pointer-events-none">
+            BOARD FULL
+          </div>
+        )}
         {/* My locations */}
         {gs.myLocations && gs.myLocations.length > 0 && (
           <div className="flex items-center justify-center gap-3 mt-0.5">
@@ -2987,14 +3001,59 @@ export default function GameBoard({
             className={`flex items-center ${myBoardJustify} max-w-[72rem] w-full px-2 gap-2`}
           >
             {(() => {
-              const isDraggingMinion = ptrDrag?.info.kind === 'hand-card' && ptrDrag.activated && draggingCardType === 'MINION' && dropZoneActive;
-              const insertAt = isDraggingMinion && dropIndex != null ? dropIndex : -1;
+              const isDraggingMinionToBoard = ptrDrag?.info.kind === 'hand-card' && ptrDrag.activated && draggingCardType === 'MINION' && dropZoneActive;
+              const boardFull = myBoard.length >= MAX_BOARD_SIZE;
+              const insertAt = isDraggingMinionToBoard && dropIndex != null && !boardFull ? dropIndex : -1;
+              // Card code being dragged — used to render a translucent
+              // preview of the card inside the drop slot so you see what
+              // will land where before you release.
+              const dragCardCode = isDraggingMinionToBoard && draggingCardId
+                ? gs.myHand.find(c => c.instanceId === draggingCardId)?.cardCode
+                : null;
               const items: React.ReactNode[] = [];
               const count = myBoard.length;
               for (let i = 0; i <= count; i++) {
                 if (i === insertAt) {
                   items.push(
-                    <div key="drop-spacer" className="w-[4rem] h-[10.5rem] transition-all duration-200" />
+                    <div
+                      key="drop-spacer"
+                      className="relative flex items-center justify-center transition-all duration-200 ease-out"
+                      style={{
+                        width: '9rem',
+                        height: '10.5rem',
+                        flex: '0 0 auto',
+                      }}
+                    >
+                      {/* Outer drop-OK ring: dashed green rounded rectangle
+                          with an inner glow, pulsing so the eye can't
+                          miss the insertion point. */}
+                      <div
+                        className="absolute inset-1 rounded-xl border-2 border-dashed border-green-400/90 animate-pulse pointer-events-none"
+                        style={{
+                          boxShadow:
+                            '0 0 24px 4px rgba(74,222,128,0.45), ' +
+                            'inset 0 0 18px rgba(74,222,128,0.3)',
+                          background:
+                            'radial-gradient(ellipse at center, rgba(74,222,128,0.18) 0%, rgba(74,222,128,0.05) 60%, transparent 100%)',
+                        }}
+                      />
+                      {/* Translucent preview of the dragged card sitting
+                          in the drop slot. Pointer-events none so it
+                          doesn't interfere with the board-full check or
+                          the drag itself. */}
+                      {dragCardCode && (
+                        <div
+                          className="absolute inset-2 rounded-lg overflow-hidden pointer-events-none"
+                          style={{ opacity: 0.55 }}
+                        >
+                          <CardArt cardCode={dragCardCode} className="w-full h-full" square />
+                        </div>
+                      )}
+                      {/* "DROP HERE" label floating above the slot */}
+                      <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-[11px] font-extrabold text-green-300 tracking-wider drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)] pointer-events-none">
+                        DROP HERE
+                      </div>
+                    </div>
                   );
                 }
                 if (i < count) {
