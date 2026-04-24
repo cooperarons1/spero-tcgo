@@ -4,6 +4,7 @@ import { DECK_SIZE, MAX_COPIES_PER_CARD, MAX_COPIES_LEGENDARY } from '../../../s
 import { validateDeck } from '../../../shared/deckRules';
 import { loadDecks, saveDeck, deleteDeck, generateId, type DeckList } from '../utils/deckStorage';
 import { Card } from './Card';
+import { HERO_ARCHETYPE } from './GameBoard';
 import { socket } from '../socket';
 import type { HeroClass, CardDef } from '../../../shared/types';
 import { CARD_BACKS } from '../../../shared/seasons';
@@ -513,29 +514,44 @@ export function Collection({ uid, onBack }: CollectionProps) {
                         onClick={() => editingDeck ? undefined : startEditing(deck)}
                         className={`w-full text-left rounded-lg text-xs cursor-pointer transition-all overflow-hidden
                           ${isEditing
-                            ? 'border-2 border-white/40 shadow-lg'
-                            : 'border border-gray-700/50 hover:brightness-125'
+                            ? 'border-2 border-white/60 shadow-lg'
+                            : 'border-2 hover:brightness-110'
                           }
                         `}
+                        style={{ borderColor: isEditing ? '#ffffff66' : HERO_ACCENT[deck.heroClass] + '88' }}
                       >
-                        {/* Hero portrait background with deck name overlay */}
-                        <div className="relative h-12 flex items-end" style={{ backgroundColor: HERO_ACCENT[deck.heroClass] + '33' }}>
-                          {HERO_PORTRAIT_IMGS[deck.heroClass] && (
+                        {/* Hearthstone-style deck tile: hero portrait fills
+                             the tile horizontally, deck name + class +
+                             count overlaid on a dark gradient so they
+                             stay readable. */}
+                        <div className="relative h-16 w-full">
+                          {HERO_PORTRAIT_IMGS[deck.heroClass] ? (
                             <img
                               src={HERO_PORTRAIT_IMGS[deck.heroClass]}
                               alt=""
-                              className="absolute right-0 top-0 h-full w-12 object-cover opacity-60"
+                              className="absolute inset-0 w-full h-full object-cover object-center"
+                              draggable={false}
                             />
+                          ) : (
+                            <div className="absolute inset-0" style={{ backgroundColor: HERO_ACCENT[deck.heroClass] ?? '#444' }} />
                           )}
-                          <div className="absolute inset-0 bg-gradient-to-r from-stone-900/90 via-stone-900/60 to-transparent" />
-                          <div className="relative px-2 pb-1 w-full">
+                          {/* Left-to-right gradient so text on the left
+                               is readable while the portrait stays visible
+                               on the right half of the tile. */}
+                          <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-black/10" />
+                          <div className="relative h-full w-full px-2.5 py-1.5 flex flex-col justify-between">
                             <div className="flex items-center gap-1">
-                              {deck.isStarterDeck && <span className="text-yellow-400 text-[10px]">&#9733;</span>}
-                              <span className="text-white font-bold text-[11px] truncate">{deck.name}</span>
+                              {deck.isStarterDeck && <span className="text-yellow-400 text-[11px]">&#9733;</span>}
+                              <span className="text-white font-bold text-xs truncate drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">{deck.name}</span>
                             </div>
                             <div className="flex items-center justify-between">
-                              <span className="text-gray-400 text-[9px]">{HERO_CLASSES.find(h => h.id === deck.heroClass)?.label}</span>
-                              <span className={`text-[9px] font-bold ${isComplete ? 'text-green-400' : 'text-yellow-400'}`}>
+                              <span
+                                className="text-[10px] font-bold uppercase tracking-wider drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]"
+                                style={{ color: HERO_ACCENT[deck.heroClass] ?? '#ccc' }}
+                              >
+                                {HERO_ARCHETYPE[deck.heroClass] ?? HERO_CLASSES.find(h => h.id === deck.heroClass)?.label}
+                              </span>
+                              <span className={`text-[10px] font-bold drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)] ${isComplete ? 'text-green-300' : 'text-yellow-300'}`}>
                                 {deck.cards.length}/{DECK_SIZE}
                               </span>
                             </div>
@@ -1149,32 +1165,65 @@ export function Collection({ uid, onBack }: CollectionProps) {
         );
       })()}
 
-      {/* Hero Class Picker Modal */}
+      {/* Hero Class Picker Modal — hero portrait tiles in a 3x3 grid.
+           Each tile shows the class portrait art with a colored ring +
+           class name, so you pick by recognizing the hero rather than
+           reading a color-coded button. */}
       {showHeroPicker && (
         <div
-          className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center"
+          className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4"
           onClick={() => setShowHeroPicker(false)}
         >
           <div
-            className="bg-slate-800 rounded-2xl p-6 border border-slate-700 max-w-md w-full mx-4"
+            className="bg-slate-900 rounded-2xl p-6 border border-slate-700 max-w-3xl w-full"
             onClick={e => e.stopPropagation()}
           >
-            <h2 className="text-white font-bold text-lg text-center mb-1">Choose a Hero</h2>
-            <p className="text-gray-500 text-xs text-center mb-5">Select a class for your new deck</p>
-            <div className="grid grid-cols-2 gap-3">
-              {HERO_CLASSES.map(h => (
-                <button
-                  key={h.id}
-                  onClick={() => startNewDeck(h.id)}
-                  className={`${h.color} text-white font-bold py-4 px-6 rounded-xl text-lg hover:brightness-110 active:scale-95 transition-all cursor-pointer shadow-lg`}
-                >
-                  {h.label}
-                </button>
-              ))}
+            <h2 className="text-white font-bold text-xl text-center mb-1">Choose a Hero</h2>
+            <p className="text-gray-400 text-xs text-center mb-5">Pick a class for your new deck</p>
+            <div className="grid grid-cols-3 gap-3">
+              {HERO_CLASSES.map(h => {
+                const portrait = HERO_PORTRAIT_IMGS[h.id];
+                const accent = HERO_ACCENT[h.id] ?? '#888';
+                return (
+                  <button
+                    key={h.id}
+                    onClick={() => startNewDeck(h.id)}
+                    className="group relative aspect-[3/4] rounded-xl overflow-hidden border-2 hover:scale-105 active:scale-95 transition-transform cursor-pointer shadow-lg"
+                    style={{ borderColor: accent }}
+                  >
+                    {portrait ? (
+                      <img
+                        src={portrait}
+                        alt={h.label}
+                        className="absolute inset-0 w-full h-full object-cover"
+                        draggable={false}
+                      />
+                    ) : (
+                      <div className={`absolute inset-0 ${h.color}`} />
+                    )}
+                    {/* Dark gradient so the name is readable over the portrait */}
+                    <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/90 to-transparent pointer-events-none" />
+                    {/* Hover glow */}
+                    <div
+                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                      style={{ boxShadow: `inset 0 0 24px ${accent}` }}
+                    />
+                    <div className="absolute bottom-1.5 left-0 right-0 text-center drop-shadow-lg">
+                      <div className="text-white font-bold text-sm tracking-wide">{h.label}</div>
+                      <div
+                        className="text-[10px] font-bold uppercase tracking-wider"
+                        style={{ color: accent }}
+                      >
+                        {HERO_ARCHETYPE[h.id] ?? ''}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
             <button
               onClick={() => setShowHeroPicker(false)}
-              className="w-full mt-4 text-gray-500 text-sm cursor-pointer hover:text-gray-300"
+              className="w-full mt-5 text-gray-500 text-sm cursor-pointer hover:text-gray-300"
             >
               Cancel
             </button>
