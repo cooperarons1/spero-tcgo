@@ -22,10 +22,17 @@ export const FEATURE_FLAGS = {
    * golden render + WebM testing can stay available via GOLDEN_CARDS,
    * but the Collection grid doesn't need to double the tile count. */
   COLLECTION_GOLDEN_TILES: false,
-  /** Show dust currency + craft/disenchant UI. */
-  DUST: true,
+  /** Show dust currency + craft/disenchant UI. Shelved 2026-04-24 along
+   * with SHOP_AND_PACKS — everyone gets the full collection on signup,
+   * so crafting is moot. Handlers stay intact. */
+  DUST: false,
   /** Show battle pass button + reward panel rows. */
   BATTLEPASS: false,
+  /** Show Shop + Open Packs buttons. Shelved 2026-04-24 — every user
+   * gets the full collection on signup (see buildFullCollection in
+   * server/cards.ts), so the economy loop is off for now. Handlers +
+   * backend routes intact; flip to true to reintroduce the economy. */
+  SHOP_AND_PACKS: false,
   /** Mouse-parallax tilt on layered card art — shelved; kept as a flag
    * so the tilt math + handlers stay in tree and can be toggled back
    * on without a refactor. */

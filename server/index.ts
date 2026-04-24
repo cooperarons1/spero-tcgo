@@ -24,6 +24,7 @@ import { registerShopHandlers } from './handlers/shop.js';
 import { registerSocialHandlers } from './handlers/social.js';
 import { registerProfileHandlers } from './handlers/profile.js';
 import { registerMatchmakingHandlers } from './handlers/matchmaking.js';
+import { buildFullCollection } from './cards.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -170,11 +171,16 @@ io.on('connection', (socket) => {
 
   adminDb.collection('users').doc(uid).get().then(doc => {
     const data = doc.data() ?? {};
-    const updates: Record<string, string | number | string[]> = { displayName, displayNameLower: displayName.toLowerCase(), lastSeen: Date.now() };
+    const updates: Record<string, string | number | string[] | Record<string, number>> = { displayName, displayNameLower: displayName.toLowerCase(), lastSeen: Date.now() };
     // Initialize gold/dust for new users
     if (data.gold === undefined) updates.gold = 500;
     if (data.dust === undefined) updates.dust = 0;
     if (data.cardBacks === undefined) updates.cardBacks = ['default'];
+    // Shop + pack opening are shelved — every user (new OR existing with
+    // an empty collection) gets the full card pool so they can
+    // deckbuild and play immediately.
+    const owned = data.ownedCards ?? {};
+    if (Object.keys(owned).length === 0) updates.ownedCards = buildFullCollection();
     adminDb.collection('users').doc(uid).set(updates, { merge: true });
   }).catch((err) => { console.warn('Failed to init user profile for', uid, err); });
 

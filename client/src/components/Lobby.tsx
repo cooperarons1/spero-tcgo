@@ -297,33 +297,32 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
                   Friends
                 </button>
               </div>
-              {/* Shop + Open Packs — primary economy entry points so the
-                  gold loop and pack system are visible on the home
-                  screen, not buried in the bottom nav bar. */}
-              <div className="flex gap-3">
-                <button
-                  onClick={onShop}
-                  className="flex-1 text-yellow-100 font-bold py-3 px-6 rounded-xl text-base hover:brightness-110 active:scale-95 transition-all cursor-pointer border border-amber-400/50 flex items-center justify-center gap-2"
-                  style={{
-                    background: 'linear-gradient(135deg, #8b5a16 0%, #c6862a 50%, #78500e 100%)',
-                    boxShadow: '0 6px 16px rgba(197,134,42,0.35), inset 0 1px 0 rgba(255,230,150,0.3)',
-                  }}
-                >
-                  <span className="text-xl leading-none">🪙</span>
-                  <span>Shop</span>
-                </button>
-                <button
-                  onClick={onPacks}
-                  className="flex-1 text-purple-100 font-bold py-3 px-6 rounded-xl text-base hover:brightness-110 active:scale-95 transition-all cursor-pointer border border-purple-400/50 flex items-center justify-center gap-2"
-                  style={{
-                    background: 'linear-gradient(135deg, #4a1d72 0%, #7c3aed 50%, #3b1459 100%)',
-                    boxShadow: '0 6px 16px rgba(124,58,237,0.35), inset 0 1px 0 rgba(220,200,255,0.3)',
-                  }}
-                >
-                  <span className="text-xl leading-none">✨</span>
-                  <span>Open Packs</span>
-                </button>
-              </div>
+              {FEATURE_FLAGS.SHOP_AND_PACKS && (
+                <div className="flex gap-3">
+                  <button
+                    onClick={onShop}
+                    className="flex-1 text-yellow-100 font-bold py-3 px-6 rounded-xl text-base hover:brightness-110 active:scale-95 transition-all cursor-pointer border border-amber-400/50 flex items-center justify-center gap-2"
+                    style={{
+                      background: 'linear-gradient(135deg, #8b5a16 0%, #c6862a 50%, #78500e 100%)',
+                      boxShadow: '0 6px 16px rgba(197,134,42,0.35), inset 0 1px 0 rgba(255,230,150,0.3)',
+                    }}
+                  >
+                    <span className="text-xl leading-none">🪙</span>
+                    <span>Shop</span>
+                  </button>
+                  <button
+                    onClick={onPacks}
+                    className="flex-1 text-purple-100 font-bold py-3 px-6 rounded-xl text-base hover:brightness-110 active:scale-95 transition-all cursor-pointer border border-purple-400/50 flex items-center justify-center gap-2"
+                    style={{
+                      background: 'linear-gradient(135deg, #4a1d72 0%, #7c3aed 50%, #3b1459 100%)',
+                      boxShadow: '0 6px 16px rgba(124,58,237,0.35), inset 0 1px 0 rgba(220,200,255,0.3)',
+                    }}
+                  >
+                    <span className="text-xl leading-none">✨</span>
+                    <span>Open Packs</span>
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Daily Quests — bumped padding + text size for readability */}
@@ -407,18 +406,22 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
           <div className="flex-1 min-w-0" />
 
           {/* Nav buttons */}
-          <button
-            onClick={onShop}
-            className="bg-amber-800/50 border border-amber-700/40 text-amber-200 font-bold py-2 px-3.5 rounded-lg text-xs hover:bg-amber-700/60 active:scale-95 transition-all cursor-pointer shrink-0"
-          >
-            Shop
-          </button>
-          <button
-            onClick={onPacks}
-            className="bg-stone-800 border border-amber-700/30 text-amber-300 font-bold py-2 px-3.5 rounded-lg text-xs hover:bg-stone-700 active:scale-95 transition-all cursor-pointer shrink-0"
-          >
-            Packs
-          </button>
+          {FEATURE_FLAGS.SHOP_AND_PACKS && (
+            <>
+              <button
+                onClick={onShop}
+                className="bg-amber-800/50 border border-amber-700/40 text-amber-200 font-bold py-2 px-3.5 rounded-lg text-xs hover:bg-amber-700/60 active:scale-95 transition-all cursor-pointer shrink-0"
+              >
+                Shop
+              </button>
+              <button
+                onClick={onPacks}
+                className="bg-stone-800 border border-amber-700/30 text-amber-300 font-bold py-2 px-3.5 rounded-lg text-xs hover:bg-stone-700 active:scale-95 transition-all cursor-pointer shrink-0"
+              >
+                Packs
+              </button>
+            </>
+          )}
           {FEATURE_FLAGS.BATTLEPASS && (
             <button
               onClick={onBattlePass}
