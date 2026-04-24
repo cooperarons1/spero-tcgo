@@ -11,12 +11,12 @@
 
 export const FEATURE_FLAGS = {
   /** Render golden card variants (gold frame, shimmer, overlay effects).
-   * Re-enabled 2026-04-24 for per-card testing — 5 WebM loops exist
-   * (AST021, AVA021, DRK032, JIM022, NEU_LOC03); every other card
-   * falls through to the static shimmer sweep in Card.tsx. */
-  GOLDEN_CARDS: true,
-  /** Render golden hero portraits + hero-power animations. */
-  GOLDEN_HEROES: true,
+   * Off 2026-04-24 — golden rendering shelved alongside the shop/packs
+   * loop; 5 WebM loops stay in tree for future re-enable. */
+  GOLDEN_CARDS: false,
+  /** Render golden hero portraits + hero-power animations. Off with
+   * GOLDEN_CARDS. */
+  GOLDEN_HEROES: false,
   /** Show golden tiles in the Collection grid (x2 per card pair).
    * Off again 2026-04-24 — pause golden work for now; the in-game
    * golden render + WebM testing can stay available via GOLDEN_CARDS,
