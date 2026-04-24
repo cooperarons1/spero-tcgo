@@ -239,3 +239,77 @@ export function openPackBundle(input: OpenBundleInput): OpenBundleResult {
     newPacksOpened: input.packsOpened + count,
   };
 }
+
+// ─── Craft + Disenchant ─────────────────────────────────────────────
+
+export interface CraftInput {
+  cardCode: string;
+  rarity: string;
+  currentDust: number;
+  ownedCards: Record<string, number>;
+}
+
+export interface CraftSuccess {
+  ok: true;
+  newDust: number;
+  newCount: number;
+  newOwnedCards: Record<string, number>;
+  cost: number;
+}
+
+export interface CraftFailure { ok: false; error: string; }
+
+/** Pure crafting logic — shared by the shop.ts socket handler and tests. */
+export function craftCard(input: CraftInput): CraftSuccess | CraftFailure {
+  const cost = CRAFT_COSTS[input.rarity] ?? 40;
+  const max = input.rarity === 'LEGENDARY' ? 1 : 2;
+
+  if (input.currentDust < cost) return { ok: false, error: 'Not enough dust' };
+
+  const ownedCards = { ...input.ownedCards };
+  const current = ownedCards[input.cardCode] ?? 0;
+  if (current >= max) return { ok: false, error: 'Already own max copies' };
+
+  ownedCards[input.cardCode] = current + 1;
+  return {
+    ok: true,
+    newDust: input.currentDust - cost,
+    newCount: current + 1,
+    newOwnedCards: ownedCards,
+    cost,
+  };
+}
+
+export interface DisenchantInput {
+  cardCode: string;
+  rarity: string;
+  currentDust: number;
+  ownedCards: Record<string, number>;
+}
+
+export interface DisenchantSuccess {
+  ok: true;
+  newDust: number;
+  newCount: number;
+  dustGained: number;
+  newOwnedCards: Record<string, number>;
+}
+
+export interface DisenchantFailure { ok: false; error: string; }
+
+/** Pure disenchanting logic — shared by the shop.ts socket handler and tests. */
+export function disenchantCard(input: DisenchantInput): DisenchantSuccess | DisenchantFailure {
+  const dustValue = DUST_VALUES[input.rarity] ?? 5;
+  const ownedCards = { ...input.ownedCards };
+  const current = ownedCards[input.cardCode] ?? 0;
+  if (current <= 0) return { ok: false, error: "You don't own this card" };
+
+  ownedCards[input.cardCode] = current - 1;
+  return {
+    ok: true,
+    newDust: input.currentDust + dustValue,
+    newCount: current - 1,
+    dustGained: dustValue,
+    newOwnedCards: ownedCards,
+  };
+}

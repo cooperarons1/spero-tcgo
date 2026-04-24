@@ -129,23 +129,20 @@ export function registerShopHandlers(
       }
 
       const userRef = adminDb.collection('users').doc(uid);
+      const { craftCard } = await import('../packs.js');
 
       const result = await adminDb.runTransaction(async (tx) => {
         const snap = await tx.get(userRef);
         const d = snap.data() ?? {};
-        const dust = d.dust ?? 0;
-
-        if (dust < cost) return { ok: false as const, error: 'Not enough dust' };
-
-        const ownedCards: Record<string, number> = { ...(d.ownedCards ?? {}) };
-        const current = ownedCards[data.cardCode] ?? 0;
-        if (current >= max) return { ok: false as const, error: 'Already own max copies' };
-
-        ownedCards[data.cardCode] = current + 1;
-        const newDust = dust - cost;
-
-        tx.update(userRef, { dust: newDust, ownedCards });
-        return { ok: true as const, newDust, newCount: current + 1 };
+        const outcome = craftCard({
+          cardCode: data.cardCode,
+          rarity: def.rarity,
+          currentDust: d.dust ?? 0,
+          ownedCards: (d.ownedCards ?? {}) as Record<string, number>,
+        });
+        if (!outcome.ok) return outcome;
+        tx.update(userRef, { dust: outcome.newDust, ownedCards: outcome.newOwnedCards });
+        return outcome;
       });
 
       if (!result.ok) {
@@ -173,26 +170,27 @@ export function registerShopHandlers(
       }
 
       const userRef = adminDb.collection('users').doc(uid);
+      const { disenchantCard } = await import('../packs.js');
 
       const result = await adminDb.runTransaction(async (tx) => {
         const snap = await tx.get(userRef);
         const d = snap.data() ?? {};
-        const ownedCards: Record<string, number> = { ...(d.ownedCards ?? {}) };
-        const current = ownedCards[data.cardCode] ?? 0;
-        if (current <= 0) return { ok: false as const, error: "You don't own this card" };
-
-        ownedCards[data.cardCode] = current - 1;
-        const newDust = (d.dust ?? 0) + dustValue;
-
-        tx.update(userRef, { dust: newDust, ownedCards });
-        return { ok: true as const, newDust, newCount: current - 1 };
+        const outcome = disenchantCard({
+          cardCode: data.cardCode,
+          rarity: def.rarity,
+          currentDust: d.dust ?? 0,
+          ownedCards: (d.ownedCards ?? {}) as Record<string, number>,
+        });
+        if (!outcome.ok) return outcome;
+        tx.update(userRef, { dust: outcome.newDust, ownedCards: outcome.newOwnedCards });
+        return outcome;
       });
 
       if (!result.ok) {
         socket.emit('disenchant-error', result.error);
         return;
       }
-      socket.emit('disenchant-success', { cardCode: data.cardCode, newDust: result.newDust, dustGained: dustValue, newCount: result.newCount });
+      socket.emit('disenchant-success', { cardCode: data.cardCode, newDust: result.newDust, dustGained: result.dustGained, newCount: result.newCount });
     } catch (err) {
       console.error('disenchant-card error:', err);
       socket.emit('disenchant-error', 'Failed to disenchant');
