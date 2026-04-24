@@ -176,6 +176,34 @@ def check_text_vs_effect(card, field, effect):
     return issues
 
 
+def check_spell_has_effect(card):
+    """A SPELL (non-secret) with non-empty text must have at least one
+    effect wired. DRK018 Ancient Knowledge shipped with text='Draw a card.'
+    but spellEffect: null — it visibly did nothing when cast. LUC049
+    Ancestral Knowledge had the opposite (effect but no text). Both
+    are covered here."""
+    issues = []
+    if card.get('type') != 'SPELL':
+        return issues
+    if card.get('secretTrigger'):
+        return issues  # secrets use secretEffect
+    text = (card.get('text') or '').strip()
+    has_effect = False
+    for f in ('spellEffect', 'spellEffects', 'comboEffect', 'comboEffects'):
+        v = card.get(f)
+        if isinstance(v, dict) and v.get('type'):
+            has_effect = True
+            break
+        if isinstance(v, list) and len(v) > 0 and any(e.get('type') for e in v if isinstance(e, dict)):
+            has_effect = True
+            break
+    if text and not has_effect:
+        issues.append("SPELL has non-empty text but no spellEffect wired — runtime no-op")
+    if (not text) and has_effect:
+        issues.append("SPELL has an effect but empty text — player has no card-face description")
+    return issues
+
+
 def check_keyword_sanity(card):
     issues = []
     kws = set(card.get("keywords") or [])
@@ -201,6 +229,7 @@ def main():
             issues.extend(check_effect(cards_by_code, c, field, effect))
             issues.extend(check_text_vs_effect(c, field, effect))
         issues.extend(check_keyword_sanity(c))
+        issues.extend(check_spell_has_effect(c))
 
         if issues:
             cards_with_issues += 1
