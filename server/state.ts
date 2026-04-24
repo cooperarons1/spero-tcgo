@@ -257,9 +257,16 @@ async function finalizeGame(io: Server, room: Room) {
   // Placement K-factor scales the first PLACEMENT_MATCHES games, and
   // the per-player peakRankTier is used to clamp losses above the
   // floor of the best tier the player has reached this season.
+  //
+  // Season soft-reset: if a player's seasonData.seasonId is older
+  // than the current season, their ELO is compressed toward 1500 the
+  // first time they play ranked in the new season (see softResetElo).
+  // peakRankTier defaults back to BRONZE so they have to climb again.
   const elos: number[] = [1000, 1000];
   const rankedGamesPlayed: number[] = [0, 0];
   const peakRankTiers: string[] = ['BRONZE', 'BRONZE'];
+  const seasonResetApplied: boolean[] = [false, false];
+  const currentSeasonId = getSeasonForDate().id;
   for (let i = 0; i < 2; i++) {
     if (isAIPlayer(uids[i])) continue;
     try {
@@ -267,12 +274,14 @@ async function finalizeGame(io: Server, room: Room) {
       const d = doc.data() ?? {};
       if (d.elo) elos[i] = d.elo;
       rankedGamesPlayed[i] = d.rankedGamesPlayed ?? 0;
-      // If seasonData.seasonId matches current season, use that peak;
-      // else reset floor to BRONZE (new season = new climb).
-      const currentSeasonId = getSeasonForDate().id;
       const sd = d.seasonData;
       if (sd && sd.seasonId === currentSeasonId) {
         peakRankTiers[i] = sd.peakRankTier ?? 'BRONZE';
+      } else if (sd && sd.seasonId !== currentSeasonId) {
+        // Player hasn't played ranked this season yet — mark for
+        // soft reset; actual compression happens below if the
+        // match itself is ranked.
+        seasonResetApplied[i] = true;
       }
     } catch (err) { console.warn('Failed to load ranked state for', uids[i], err); }
   }
@@ -282,7 +291,14 @@ async function finalizeGame(io: Server, room: Room) {
   const isRanked = isPvP && room?.mode === 'ranked';
   let newElos = elos;
   if (isRanked) {
-    const { kFactorFor, applyRankFloor } = await import('./matchmaking.js');
+    const { kFactorFor, applyRankFloor, softResetElo } = await import('./matchmaking.js');
+    // Apply the soft reset to each player's pre-match ELO if this is
+    // their first ranked game of the new season. Their peak tier is
+    // already BRONZE in peakRankTiers[] so the floor won't block the
+    // reset. The compressed ELO is what calculateElo sees.
+    for (let i = 0; i < 2; i++) {
+      if (seasonResetApplied[i]) elos[i] = softResetElo(elos[i]);
+    }
     const result = calculateElo(elos[winnerIdx], elos[loserIdx], {
       winnerK: kFactorFor(rankedGamesPlayed[winnerIdx]),
       loserK: kFactorFor(rankedGamesPlayed[loserIdx]),

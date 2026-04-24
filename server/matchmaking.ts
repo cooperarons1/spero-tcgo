@@ -114,6 +114,25 @@ export function applyRankFloor(newElo: number, peakRankTier: string): number {
   return Math.max(newElo, floor);
 }
 
+/** Season-boundary soft reset — compress ELO toward 1500 (the midpoint
+ * between Silver and Gold) at 0.5× so Legend players start the new
+ * season near Diamond and have to climb again, while Bronze players
+ * get a small bump back up toward the pack. Standard TCG ladder shape.
+ *
+ *   2500 → 2000  (Legend → Diamond)
+ *   2100 → 1800  (Legend → Diamond floor)
+ *   1800 → 1650  (Diamond → Gold)
+ *   1500 → 1500  (stays — the axis of the reset)
+ *   1000 → 1250  (Bronze bumped toward Silver)
+ *    500 → 1000  (deep Bronze up to baseline)
+ *
+ * Triggered the first time a player plays a ranked game after their
+ * stored seasonData.seasonId is no longer the current season.
+ */
+export function softResetElo(oldElo: number): number {
+  return Math.round(1500 + (oldElo - 1500) * 0.5);
+}
+
 /** Calculate new ELO ratings after a game. K defaults to 32 per side
  * unless a placement K is passed in via opts (used when a player has
  * fewer than PLACEMENT_MATCHES ranked games). */

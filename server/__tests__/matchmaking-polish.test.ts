@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  calculateElo, kFactorFor, applyRankFloor,
+  calculateElo, kFactorFor, applyRankFloor, softResetElo,
   K_NORMAL, K_PLACEMENT, PLACEMENT_MATCHES,
 } from '../matchmaking.js';
 
@@ -101,6 +101,53 @@ describe('applyRankFloor', () => {
     // A DIAMOND-peaked player at 2000 ELO (inside Diamond range) is
     // unchanged — the floor is 1800 and they're well above it.
     expect(applyRankFloor(2000, 'DIAMOND')).toBe(2000);
+  });
+});
+
+describe('softResetElo (season boundary)', () => {
+  it('compresses Legend (2500) down to 2000', () => {
+    expect(softResetElo(2500)).toBe(2000);
+  });
+
+  it('compresses Legend floor (2100) down to 1800', () => {
+    expect(softResetElo(2100)).toBe(1800);
+  });
+
+  it('compresses Diamond (1800) down to 1650', () => {
+    expect(softResetElo(1800)).toBe(1650);
+  });
+
+  it('leaves 1500 unchanged (axis of reset)', () => {
+    expect(softResetElo(1500)).toBe(1500);
+  });
+
+  it('bumps Bronze (1000) up to 1250', () => {
+    expect(softResetElo(1000)).toBe(1250);
+  });
+
+  it('bumps very-low ELO (500) up to 1000', () => {
+    expect(softResetElo(500)).toBe(1000);
+  });
+
+  it('is idempotent-ish: reset-then-reset lands below original', () => {
+    // A player reset twice (hypothetical) shouldn't crash out —
+    // the result just compresses further toward 1500.
+    expect(softResetElo(softResetElo(2500))).toBe(1750);
+  });
+
+  it('new top-of-season Legend can re-reach Legend with reasonable games', () => {
+    // Starting from 2000 (post-reset), climbing back to 2100 against
+    // same-ELO opponents. Each win gives ~16 ELO at even, less as the
+    // player climbs above the fixed 2000 opponent. Healthy pace = <12
+    // wins to re-hit Legend.
+    let elo = softResetElo(2500); // 2000
+    let wins = 0;
+    while (elo < 2100 && wins < 20) {
+      elo = calculateElo(elo, 2000).newWinnerElo;
+      wins++;
+    }
+    expect(elo).toBeGreaterThanOrEqual(2100);
+    expect(wins).toBeLessThan(12);
   });
 });
 
