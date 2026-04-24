@@ -253,14 +253,28 @@ async function finalizeGame(io: Server, room: Room) {
   const winnerIdx = game.players.findIndex(p => p.playerId === game.winner);
   const loserIdx = winnerIdx === 0 ? 1 : 0;
 
-  // Load ELO for both players (skip AI)
+  // Load ELO + placement/season context for both players (skip AI).
+  // Placement K-factor scales the first PLACEMENT_MATCHES games, and
+  // the per-player peakRankTier is used to clamp losses above the
+  // floor of the best tier the player has reached this season.
   const elos: number[] = [1000, 1000];
+  const rankedGamesPlayed: number[] = [0, 0];
+  const peakRankTiers: string[] = ['BRONZE', 'BRONZE'];
   for (let i = 0; i < 2; i++) {
     if (isAIPlayer(uids[i])) continue;
     try {
       const doc = await adminDb.collection('users').doc(uids[i]).get();
-      if (doc.exists && doc.data()?.elo) elos[i] = doc.data()!.elo;
-    } catch (err) { console.warn('Failed to load ELO for', uids[i], err); }
+      const d = doc.data() ?? {};
+      if (d.elo) elos[i] = d.elo;
+      rankedGamesPlayed[i] = d.rankedGamesPlayed ?? 0;
+      // If seasonData.seasonId matches current season, use that peak;
+      // else reset floor to BRONZE (new season = new climb).
+      const currentSeasonId = getSeasonForDate().id;
+      const sd = d.seasonData;
+      if (sd && sd.seasonId === currentSeasonId) {
+        peakRankTiers[i] = sd.peakRankTier ?? 'BRONZE';
+      }
+    } catch (err) { console.warn('Failed to load ranked state for', uids[i], err); }
   }
 
   // Calculate new ELO (only for ranked PvP games)
@@ -268,10 +282,14 @@ async function finalizeGame(io: Server, room: Room) {
   const isRanked = isPvP && room?.mode === 'ranked';
   let newElos = elos;
   if (isRanked) {
-    const result = calculateElo(elos[winnerIdx], elos[loserIdx]);
+    const { kFactorFor, applyRankFloor } = await import('./matchmaking.js');
+    const result = calculateElo(elos[winnerIdx], elos[loserIdx], {
+      winnerK: kFactorFor(rankedGamesPlayed[winnerIdx]),
+      loserK: kFactorFor(rankedGamesPlayed[loserIdx]),
+    });
     newElos = [...elos];
-    newElos[winnerIdx] = result.newWinnerElo;
-    newElos[loserIdx] = result.newLoserElo;
+    newElos[winnerIdx] = applyRankFloor(result.newWinnerElo, peakRankTiers[winnerIdx]);
+    newElos[loserIdx] = applyRankFloor(result.newLoserElo, peakRankTiers[loserIdx]);
   }
 
   for (let i = 0; i < 2; i++) {
@@ -387,6 +405,11 @@ async function finalizeGame(io: Server, room: Room) {
           gamesWon: (data.gamesWon ?? 0) + (isWin ? 1 : 0),
           elo: newElo,
           rankTier: getRankTier(newElo),
+          // Increment rankedGamesPlayed only for ranked PvP games so
+          // the placement-K window (first PLACEMENT_MATCHES ranked
+          // games) counts down correctly. Casual games don't consume
+          // placement credits.
+          rankedGamesPlayed: (data.rankedGamesPlayed ?? 0) + (isRanked ? 1 : 0),
           xp: newXp,
           level: newLevel,
           gold: (data.gold ?? 0) + totalGoldEarned + achievementGold,

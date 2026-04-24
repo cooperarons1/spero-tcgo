@@ -82,13 +82,52 @@ export function processQueue(): { matched: [QueueEntry, QueueEntry] | null; time
   return { matched: null, timedOut };
 }
 
-/** Calculate new ELO ratings after a game. K-factor = 32. */
-export function calculateElo(winnerElo: number, loserElo: number): { newWinnerElo: number; newLoserElo: number } {
-  const K = 32;
+/** Placement-match count — K-factor is scaled during a player's first
+ * few ranked games so they settle near their true rank faster.
+ * Matches typical ladder design (chess USCF K=40 for provisional). */
+export const PLACEMENT_MATCHES = 5;
+export const K_PLACEMENT = 48;   // 1.5× normal
+export const K_NORMAL = 32;
+
+/** K-factor for a player based on their ranked-games-played. First
+ * PLACEMENT_MATCHES games use the higher K so provisional players
+ * hit their true rank in ~5 games instead of 20+. */
+export function kFactorFor(rankedGamesPlayed: number): number {
+  return rankedGamesPlayed < PLACEMENT_MATCHES ? K_PLACEMENT : K_NORMAL;
+}
+
+/** Rank-tier floors — once a player reaches a tier this season, ELO
+ * can't drop below that tier's threshold for the rest of the season.
+ * Prevents a tilted loss streak from dropping you from Gold all the
+ * way to Bronze overnight. Mirrors getRankTier thresholds. */
+const TIER_FLOORS: Record<string, number> = {
+  BRONZE: 0,
+  SILVER: 1200,
+  GOLD: 1500,
+  DIAMOND: 1800,
+  LEGEND: 2100,
+};
+
+/** Clamp ELO to the floor of the peak tier reached this season. */
+export function applyRankFloor(newElo: number, peakRankTier: string): number {
+  const floor = TIER_FLOORS[peakRankTier] ?? 0;
+  return Math.max(newElo, floor);
+}
+
+/** Calculate new ELO ratings after a game. K defaults to 32 per side
+ * unless a placement K is passed in via opts (used when a player has
+ * fewer than PLACEMENT_MATCHES ranked games). */
+export function calculateElo(
+  winnerElo: number,
+  loserElo: number,
+  opts?: { winnerK?: number; loserK?: number },
+): { newWinnerElo: number; newLoserElo: number } {
+  const winnerK = opts?.winnerK ?? K_NORMAL;
+  const loserK = opts?.loserK ?? K_NORMAL;
   const expectedWinner = 1 / (1 + Math.pow(10, (loserElo - winnerElo) / 400));
   const expectedLoser = 1 / (1 + Math.pow(10, (winnerElo - loserElo) / 400));
   return {
-    newWinnerElo: Math.round(winnerElo + K * (1 - expectedWinner)),
-    newLoserElo: Math.round(loserElo + K * (0 - expectedLoser)),
+    newWinnerElo: Math.round(winnerElo + winnerK * (1 - expectedWinner)),
+    newLoserElo: Math.round(loserElo + loserK * (0 - expectedLoser)),
   };
 }
