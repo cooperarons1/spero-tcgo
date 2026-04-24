@@ -134,7 +134,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
   const [page, setPage] = useState(0);
   const [pageDir, setPageDir] = useState<'left' | 'right' | null>(null);
   const [animating, setAnimating] = useState(false);
-  const CARDS_PER_PAGE = 20; // 5 cols × 4 rows
+  const CARDS_PER_PAGE = 15; // 5 cols × 3 rows — leaves room for pagination arrows below the grid on laptop viewports
 
   // Crafting state
   const [craftingCard, setCraftingCard] = useState<string | null>(null);
@@ -742,8 +742,8 @@ export function Collection({ uid, onBack }: CollectionProps) {
           </div>
 
           {/* Card grid — paginated with slide animation */}
-          <div className="flex-1 flex flex-col bg-slate-900/80 overflow-hidden">
-            <div className="flex-1 flex items-start justify-center p-3 pt-4 relative">
+          <div className="flex-1 flex flex-col bg-slate-900/80 overflow-hidden min-h-0">
+            <div className="flex-1 flex items-start justify-center p-3 pt-4 relative overflow-y-auto min-h-0">
               <div
                 key={`page-${page}`}
                 className={`grid grid-cols-5 gap-2 w-full max-w-5xl ${
