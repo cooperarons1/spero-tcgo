@@ -17,8 +17,11 @@ export const FEATURE_FLAGS = {
   GOLDEN_CARDS: true,
   /** Render golden hero portraits + hero-power animations. */
   GOLDEN_HEROES: true,
-  /** Show golden tiles in the Collection grid (x2 per card pair). */
-  COLLECTION_GOLDEN_TILES: true,
+  /** Show golden tiles in the Collection grid (x2 per card pair).
+   * Off again 2026-04-24 — pause golden work for now; the in-game
+   * golden render + WebM testing can stay available via GOLDEN_CARDS,
+   * but the Collection grid doesn't need to double the tile count. */
+  COLLECTION_GOLDEN_TILES: false,
   /** Show dust currency + craft/disenchant UI. */
   DUST: true,
   /** Show battle pass button + reward panel rows. */
