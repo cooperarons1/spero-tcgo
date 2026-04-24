@@ -36,25 +36,10 @@ export function registerShopHandlers(
 ) {
   // ── Pack Opening ──
 
-  // Bundle pricing for multi-pack purchases. The single-pack handler
-  // below normalizes payload?.count to one of these tiers and applies
-  // the corresponding total cost. Keeping the table server-side prevents
-  // a malicious client from sending count=10, cost=100.
-  const PACK_BUNDLE_COSTS: Record<number, number> = {
-    1: 100,
-    5: 450,   // 10% off
-    10: 800,  // 20% off
-  };
-
   socket.on('open-pack', async (payload?: { count?: number }) => {
     try {
-      const { openPack, DUST_VALUES } = await import('../packs.js');
-      // Validate the requested count against the bundle table — anything
-      // not in the table falls back to a single pack so we never accept
-      // a hand-crafted "count: 1000" from a client.
+      const { openPack, openPackBundle, PACK_BUNDLE_COSTS } = await import('../packs.js');
       const requestedCount = payload?.count ?? 1;
-      const count = (requestedCount in PACK_BUNDLE_COSTS) ? requestedCount : 1;
-      const totalCost = PACK_BUNDLE_COSTS[count];
 
       const userRef = adminDb.collection('users').doc(uid);
       const admin = isAdminUid(uid);
@@ -64,6 +49,7 @@ export function registerShopHandlers(
       // 999k gold/dust). Just roll packs and return the cards so the
       // opening flow can be exercised for testing.
       if (admin) {
+        const count = (requestedCount in PACK_BUNDLE_COSTS) ? requestedCount : 1;
         const allCards: { cardCode: string; rarity: string; isNew: boolean }[] = [];
         for (let i = 0; i < count; i++) {
           const r = openPack({}, 0, 0);
@@ -79,51 +65,35 @@ export function registerShopHandlers(
       }
 
       // ── Atomic transaction ──
+      // The bundle logic is a pure function in packs.ts; we only use
+      // the tx to read the user's current state and write the result
+      // atomically so two simultaneous open-pack calls can't double-spend.
       const result = await adminDb.runTransaction(async (tx) => {
         const snap = await tx.get(userRef);
         const data = snap.data() ?? {};
-        const gold = data.gold ?? 0;
 
-        if (gold < totalCost) {
-          return { ok: false as const, error: 'Not enough gold' };
-        }
-
-        const ownedCards: Record<string, number> = { ...(data.ownedCards ?? {}) };
-        let packsSinceLegendary = data.packsSinceLegendary ?? 0;
-        let packsSinceEpic = data.packsSinceEpic ?? 0;
-        let dustGained = 0;
-        const allCards: { cardCode: string; rarity: string; isNew: boolean }[] = [];
-
-        for (let i = 0; i < count; i++) {
-          const r = openPack(ownedCards, packsSinceLegendary, packsSinceEpic);
-          for (const card of r.cards) {
-            const current = ownedCards[card.cardCode] ?? 0;
-            const max = card.rarity === 'LEGENDARY' ? 1 : 2;
-            if (current < max) {
-              ownedCards[card.cardCode] = current + 1;
-            } else {
-              // Extra card — auto-disenchant to dust
-              dustGained += DUST_VALUES[card.rarity] ?? 5;
-            }
-            allCards.push(card);
-          }
-          packsSinceLegendary = r.packsSinceLegendary;
-          packsSinceEpic = r.packsSinceEpic;
-        }
-
-        const newGold = gold - totalCost;
-        const newDust = (data.dust ?? 0) + dustGained;
-
-        tx.update(userRef, {
-          gold: newGold,
-          dust: newDust,
-          ownedCards,
-          packsOpened: (data.packsOpened ?? 0) + count,
-          packsSinceLegendary,
-          packsSinceEpic,
+        const outcome = openPackBundle({
+          requestedCount,
+          currentGold: data.gold ?? 0,
+          currentDust: data.dust ?? 0,
+          ownedCards: (data.ownedCards ?? {}) as Record<string, number>,
+          packsSinceLegendary: data.packsSinceLegendary ?? 0,
+          packsSinceEpic: data.packsSinceEpic ?? 0,
+          packsOpened: data.packsOpened ?? 0,
         });
 
-        return { ok: true as const, allCards, dustGained, newGold, newDust };
+        if (!outcome.ok) return outcome;
+
+        tx.update(userRef, {
+          gold: outcome.newGold,
+          dust: outcome.newDust,
+          ownedCards: outcome.newOwnedCards,
+          packsOpened: outcome.newPacksOpened,
+          packsSinceLegendary: outcome.newPacksSinceLegendary,
+          packsSinceEpic: outcome.newPacksSinceEpic,
+        });
+
+        return outcome;
       });
 
       if (!result.ok) {
@@ -132,7 +102,7 @@ export function registerShopHandlers(
       }
 
       socket.emit('pack-opened', {
-        cards: result.allCards,
+        cards: result.cards,
         dustGained: result.dustGained,
         newGold: result.newGold,
         newDust: result.newDust,

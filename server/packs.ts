@@ -138,3 +138,104 @@ export const CRAFT_COSTS: Record<string, number> = {
   EPIC: 400,
   LEGENDARY: 1600,
 };
+
+// Bundle pricing — single source of truth consumed by shop.ts handler
+// and mirrored in the client UI for disabled states. Any count not in
+// this table is a client-crafted payload and must fall back to a
+// single pack so the server never accepts a discounted fake bundle.
+export const PACK_BUNDLE_COSTS: Record<number, number> = {
+  1: 100,
+  5: 450,   // 10% off
+  10: 800,  // 20% off
+};
+
+export interface OpenBundleInput {
+  requestedCount: number;
+  currentGold: number;
+  currentDust: number;
+  ownedCards: Record<string, number>;
+  packsSinceLegendary: number;
+  packsSinceEpic: number;
+  packsOpened: number;
+}
+
+export interface OpenBundleSuccess {
+  ok: true;
+  count: number;          // normalized — 1/5/10
+  totalCost: number;
+  cards: PackResult['cards'];
+  dustGained: number;
+  newGold: number;
+  newDust: number;
+  newOwnedCards: Record<string, number>;
+  newPacksSinceLegendary: number;
+  newPacksSinceEpic: number;
+  newPacksOpened: number;
+}
+
+export interface OpenBundleFailure {
+  ok: false;
+  error: string;
+}
+
+export type OpenBundleResult = OpenBundleSuccess | OpenBundleFailure;
+
+/**
+ * Pure bundle-opening logic. Pulled out of the shop.ts socket handler
+ * so it can be unit-tested without a Firestore mock. The handler just
+ * wraps this in the `adminDb.runTransaction` so the writes are atomic.
+ *
+ * - Unknown `requestedCount` values silently normalize to 1 pack so a
+ *   malicious client can't fabricate a discount.
+ * - Insufficient gold rejects before opening any packs.
+ * - Each pack's cards are inserted into `newOwnedCards` up to the
+ *   per-rarity cap (COMMON/RARE/EPIC=2, LEGENDARY=1); anything over
+ *   the cap is auto-disenchanted to dust.
+ * - `packsSinceLegendary`/`packsSinceEpic` carry over between packs
+ *   inside the bundle so a 10-pack can still hit a pity legendary.
+ */
+export function openPackBundle(input: OpenBundleInput): OpenBundleResult {
+  const requested = input.requestedCount;
+  const count = (requested in PACK_BUNDLE_COSTS) ? requested : 1;
+  const totalCost = PACK_BUNDLE_COSTS[count];
+
+  if (input.currentGold < totalCost) {
+    return { ok: false, error: 'Not enough gold' };
+  }
+
+  const newOwnedCards: Record<string, number> = { ...input.ownedCards };
+  let packsSinceLegendary = input.packsSinceLegendary;
+  let packsSinceEpic = input.packsSinceEpic;
+  let dustGained = 0;
+  const allCards: PackResult['cards'] = [];
+
+  for (let i = 0; i < count; i++) {
+    const r = openPack(newOwnedCards, packsSinceLegendary, packsSinceEpic);
+    for (const card of r.cards) {
+      const current = newOwnedCards[card.cardCode] ?? 0;
+      const max = card.rarity === 'LEGENDARY' ? 1 : 2;
+      if (current < max) {
+        newOwnedCards[card.cardCode] = current + 1;
+      } else {
+        dustGained += DUST_VALUES[card.rarity] ?? 5;
+      }
+      allCards.push(card);
+    }
+    packsSinceLegendary = r.packsSinceLegendary;
+    packsSinceEpic = r.packsSinceEpic;
+  }
+
+  return {
+    ok: true,
+    count,
+    totalCost,
+    cards: allCards,
+    dustGained,
+    newGold: input.currentGold - totalCost,
+    newDust: input.currentDust + dustGained,
+    newOwnedCards,
+    newPacksSinceLegendary: packsSinceLegendary,
+    newPacksSinceEpic: packsSinceEpic,
+    newPacksOpened: input.packsOpened + count,
+  };
+}
