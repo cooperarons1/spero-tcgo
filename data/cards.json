@@ -6372,5 +6372,188 @@
     "flavor": "Salvage with character.",
     "keywords": [],
     "minionType": "MECH"
+  },
+  {
+    "cardCode": "DES050",
+    "name": "Blood Pact Ritual",
+    "manaCost": 3,
+    "type": "SPELL",
+    "heroClass": "DES",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Draw 2 cards. Deal 2 damage to your hero.",
+    "flavor": "Every answer costs blood. Fair.",
+    "keywords": [],
+    "spellEffects": [
+      {
+        "type": "DRAW_CARDS",
+        "target": "NONE",
+        "value": 2
+      },
+      {
+        "type": "DEAL_DAMAGE",
+        "target": "SELF",
+        "value": 2
+      }
+    ]
+  },
+  {
+    "cardCode": "DES051",
+    "name": "Midnight Raider",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "DES",
+    "rarity": "COMMON",
+    "attack": 2,
+    "health": 3,
+    "text": "Lifesteal.",
+    "flavor": "Bled the garrison dry before dawn.",
+    "keywords": [
+      "LIFESTEAL"
+    ],
+    "minionType": "UNDEAD"
+  },
+  {
+    "cardCode": "DES052",
+    "name": "Soul Siphon",
+    "manaCost": 4,
+    "type": "SPELL",
+    "heroClass": "DES",
+    "rarity": "EPIC",
+    "attack": 0,
+    "health": 0,
+    "text": "Deal 3 damage. Restore 3 Health to your hero.",
+    "flavor": "Take what's theirs. Give yourself what's yours.",
+    "keywords": [],
+    "spellEffects": [
+      {
+        "type": "DEAL_DAMAGE",
+        "target": "TARGET_ANY",
+        "value": 3
+      },
+      {
+        "type": "RESTORE_HEALTH",
+        "target": "TARGET_HERO",
+        "value": 3
+      }
+    ]
+  },
+  {
+    "cardCode": "AST050",
+    "name": "Shadow Step",
+    "manaCost": 1,
+    "type": "SPELL",
+    "heroClass": "ASTRID",
+    "rarity": "RARE",
+    "attack": 0,
+    "health": 0,
+    "text": "Return a friendly minion to your hand.",
+    "flavor": "Gone before the torch swung back.",
+    "keywords": [],
+    "spellEffect": {
+      "type": "RETURN_TO_HAND",
+      "target": "TARGET_FRIENDLY_MINION"
+    }
+  },
+  {
+    "cardCode": "AST051",
+    "name": "Crimson Dagger",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "ASTRID",
+    "rarity": "COMMON",
+    "attack": 1,
+    "health": 2,
+    "text": "Stealth. Battlecry: Deal 2 damage to an enemy minion.",
+    "flavor": "One slash you never see coming.",
+    "keywords": [
+      "STEALTH",
+      "BATTLECRY"
+    ],
+    "minionType": null,
+    "battlecryEffect": {
+      "type": "DEAL_DAMAGE",
+      "target": "TARGET_ENEMY_MINION",
+      "value": 2
+    }
+  },
+  {
+    "cardCode": "AST052",
+    "name": "Ambush",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "ASTRID",
+    "rarity": "RARE",
+    "attack": 3,
+    "health": 3,
+    "text": "Stealth. Battlecry: Deal 2 damage to an enemy minion.",
+    "flavor": "The strike that clears the room.",
+    "keywords": [
+      "STEALTH",
+      "BATTLECRY"
+    ],
+    "minionType": null,
+    "battlecryEffect": {
+      "type": "DEAL_DAMAGE",
+      "target": "TARGET_ENEMY_MINION",
+      "value": 2
+    }
+  },
+  {
+    "cardCode": "AND050",
+    "name": "Ice Elemental",
+    "manaCost": 3,
+    "type": "MINION",
+    "heroClass": "ANDERS",
+    "rarity": "COMMON",
+    "attack": 3,
+    "health": 4,
+    "text": "Freeze any character damaged by this minion.",
+    "flavor": "Cold enough that rivers stopped where he stood.",
+    "keywords": [
+      "FREEZE"
+    ],
+    "minionType": "ELEMENTAL"
+  },
+  {
+    "cardCode": "AND051",
+    "name": "Frozen Heart",
+    "manaCost": 5,
+    "type": "SPELL",
+    "heroClass": "ANDERS",
+    "rarity": "EPIC",
+    "attack": 0,
+    "health": 0,
+    "text": "Freeze all enemies. Gain 5 armor.",
+    "flavor": "They stopped before they could reach you.",
+    "keywords": [],
+    "spellEffects": [
+      {
+        "type": "FREEZE_ALL_ENEMIES",
+        "target": "NONE"
+      },
+      {
+        "type": "GAIN_ARMOR",
+        "target": "NONE",
+        "value": 5
+      }
+    ]
+  },
+  {
+    "cardCode": "AND052",
+    "name": "Arctic Apprentice",
+    "manaCost": 2,
+    "type": "MINION",
+    "heroClass": "ANDERS",
+    "rarity": "COMMON",
+    "attack": 1,
+    "health": 3,
+    "text": "Spell Damage +1.",
+    "flavor": "Her first spell cracked the training pool in half.",
+    "keywords": [
+      "SPELL_DAMAGE"
+    ],
+    "minionType": null
   }
 ]
