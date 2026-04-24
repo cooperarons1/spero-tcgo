@@ -4,6 +4,14 @@ import { CARD_ART_ANIMS } from './cardArtAnims';
 import { hasLayers } from './cardArtLayers';
 import { FEATURE_FLAGS } from './featureFlags';
 
+// Per-card cache-bust version. Bump the number (or add an entry) when
+// regenerating art for a card that has already shipped — Firebase
+// Hosting serves /cards/*.webp with max-age=3600, so returning users
+// would otherwise see the stale image for up to an hour.
+const CARD_ART_VERSIONS: Record<string, number> = {
+  IZZ021: 2, // Arcane Missiles regen 2026-04-24 — was dragon-shaped
+};
+
 // Shared gradient definitions by theme
 const jimmyGradients = (
   <>
@@ -4543,9 +4551,13 @@ export function CardArt({
     // popping in because `loading="lazy"` deferred each request until
     // viewport intersection. Browsers cache these aggressively so
     // loading all visible tiles up-front is cheap after the first page.
+    // Per-card cache-bust ?v= for arts that were re-generated post-launch
+    // so the 3600s Firebase cache doesn't serve a stale image.
+    const version = CARD_ART_VERSIONS[cardCode];
+    const src = version ? `/cards/${cardCode}.webp?v=${version}` : `/cards/${cardCode}.webp`;
     return (
       <img
-        src={`/cards/${cardCode}.webp`}
+        src={src}
         alt=""
         className={className}
         style={{ width: '100%', height: '100%', objectFit: 'cover', userSelect: 'none' } as React.CSSProperties}
