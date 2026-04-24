@@ -28,6 +28,10 @@ interface CardProps {
   /** Golden/foil variant: adds a shimmer animation + warm gold tint
    * over the art region while keeping the frame and HUD unchanged. */
   golden?: boolean;
+  /** Per-instance mana cost override, e.g. Veil Slip's discounted
+   * returned minion. When provided, ManaGem shows this number tinted
+   * green instead of the def's base cost. */
+  costOverride?: number;
 }
 
 // ── Hero class frame colors ──
@@ -121,7 +125,7 @@ const KEYWORD_CHIPS: Array<{ id: string; label: string; cls: string }> = [
 // Diamond-faceted mana gem modeled on the Shadow-of-Demise style: blue
 // gem with bronze ring, light-reflected facets. Used for the mana cost
 // badge. `value` is the mana cost rendered centered on the gem.
-export function ManaGem({ value, size = 28 }: { value: number; size?: number }) {
+export function ManaGem({ value, size = 28, discounted = false }: { value: number; size?: number; discounted?: boolean }) {
   // Hearthstone-reference mana gem: big multi-faceted blue crystal, no
   // bronze ring, sits as a standalone shape you can drop over a card
   // frame. Each facet is a distinct polygon with its own shade so the
@@ -169,12 +173,12 @@ export function ManaGem({ value, size = 28 }: { value: number; size?: number }) 
       <polygon points="9,7 16,4 19,9 13,14" fill="#ffffff" opacity="0.6" />
       <polygon points="20,11 24,9 28,13 22,15" fill="#ffffff" opacity="0.3" />
 
-      {/* Mana number — big, white with thick black stroke */}
+      {/* Mana number — big, white (green when discounted below base) with thick black stroke */}
       <text
         x="20" y="30"
         textAnchor="middle"
         fontSize="20" fontWeight="900"
-        fill="#ffffff"
+        fill={discounted ? '#86efac' : '#ffffff'}
         stroke="#000000" strokeWidth="2.2"
         paintOrder="stroke"
         style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
@@ -220,7 +224,7 @@ for (const c of cardsData as CardDef[]) {
   cardsByCode[c.cardCode] = c;
 }
 
-export function Card({ cardCode, onClick, selected, greyed, small, className, golden }: CardProps) {
+export function Card({ cardCode, onClick, selected, greyed, small, className, golden, costOverride }: CardProps) {
   // Card back
   if (!cardCode) {
     return (
@@ -350,7 +354,11 @@ export function Card({ cardCode, onClick, selected, greyed, small, className, go
       {/* ── Mana gem — diamond-faceted blue gem in a bronze ring,
            modeled on Hearthstone/Shadow-of-Demise visuals. ── */}
       <div className={`absolute ${small ? 'top-0.5 left-0.5' : 'top-1 left-1'} z-20`}>
-        <ManaGem value={def.manaCost} size={small ? 18 : 26} />
+        <ManaGem
+          value={costOverride ?? def.manaCost}
+          size={small ? 18 : 26}
+          discounted={costOverride != null && costOverride < def.manaCost}
+        />
       </div>
 
       {/* ── Secret badge — top-right, inside card ── */}

@@ -41,6 +41,7 @@ export function getClientState(game: GameState, playerId: string): ClientGameSta
     instanceId: c.instanceId,
     cardCode: c.cardCode,
     ...(c.isGolden ? { isGolden: true } : {}),
+    ...(c.costReduction ? { costReduction: c.costReduction } : {}),
   }));
 
   const opponent: ClientPlayerInfo = {

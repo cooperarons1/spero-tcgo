@@ -6372,7 +6372,7 @@
   },
   {
     "cardCode": "DES050",
-    "name": "Blood Pact Ritual",
+    "name": "Crimson Covenant",
     "manaCost": 3,
     "type": "SPELL",
     "heroClass": "DES",
@@ -6397,7 +6397,7 @@
   },
   {
     "cardCode": "DES051",
-    "name": "Midnight Raider",
+    "name": "Dusk Reaver",
     "manaCost": 2,
     "type": "MINION",
     "heroClass": "DES",
@@ -6413,7 +6413,7 @@
   },
   {
     "cardCode": "DES052",
-    "name": "Soul Siphon",
+    "name": "Spectral Drain",
     "manaCost": 4,
     "type": "SPELL",
     "heroClass": "DES",
@@ -6438,24 +6438,25 @@
   },
   {
     "cardCode": "AST050",
-    "name": "Shadow Step",
-    "manaCost": 1,
+    "name": "Veil Slip",
+    "manaCost": 0,
     "type": "SPELL",
     "heroClass": "ASTRID",
     "rarity": "RARE",
     "attack": 0,
     "health": 0,
-    "text": "Return a friendly minion to your hand.",
+    "text": "Return a friendly minion to your hand. It costs (2) less.",
     "flavor": "Gone before the torch swung back.",
     "keywords": [],
     "spellEffect": {
       "type": "RETURN_TO_HAND",
-      "target": "TARGET_FRIENDLY_MINION"
+      "target": "TARGET_FRIENDLY_MINION",
+      "value": 2
     }
   },
   {
     "cardCode": "AST051",
-    "name": "Crimson Dagger",
+    "name": "Venom Fang",
     "manaCost": 2,
     "type": "MINION",
     "heroClass": "ASTRID",
@@ -6477,7 +6478,7 @@
   },
   {
     "cardCode": "AST052",
-    "name": "Ambush",
+    "name": "Nightfall Strike",
     "manaCost": 3,
     "type": "MINION",
     "heroClass": "ASTRID",
@@ -6499,7 +6500,7 @@
   },
   {
     "cardCode": "AND050",
-    "name": "Ice Elemental",
+    "name": "Frost Warden",
     "manaCost": 3,
     "type": "MINION",
     "heroClass": "ANDERS",
@@ -6515,7 +6516,7 @@
   },
   {
     "cardCode": "AND051",
-    "name": "Frozen Heart",
+    "name": "Permafrost Vow",
     "manaCost": 5,
     "type": "SPELL",
     "heroClass": "ANDERS",
@@ -6539,7 +6540,7 @@
   },
   {
     "cardCode": "AND052",
-    "name": "Arctic Apprentice",
+    "name": "Frostborn Acolyte",
     "manaCost": 2,
     "type": "MINION",
     "heroClass": "ANDERS",

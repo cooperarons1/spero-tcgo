@@ -43,10 +43,11 @@ export function playCard(
   const cardInst = player.hand[cardIdx];
   const def = getCardDef(cardInst.cardCode);
 
-  // Check mana (apply spell discount for spells)
-  const effectiveCost = def.type === 'SPELL' && player.spellDiscount > 0
-    ? Math.max(0, def.manaCost - player.spellDiscount)
-    : def.manaCost;
+  // Check mana (apply spell discount for spells + per-instance cost
+  // reduction from effects like Veil Slip's return-with-discount).
+  const spellDiscount = def.type === 'SPELL' ? player.spellDiscount : 0;
+  const instanceDiscount = cardInst.costReduction ?? 0;
+  const effectiveCost = Math.max(0, def.manaCost - spellDiscount - instanceDiscount);
   if (effectiveCost > player.mana) return { success: false, error: 'Not enough mana' };
 
   // Type-specific logic
@@ -58,8 +59,8 @@ export function playCard(
     const bcNeedsTarget = def.keywords.includes('BATTLECRY') && bcEffects.length > 0 && effectsNeedTarget(bcEffects);
 
     // Deduct mana, remove from hand, place minion (shared for all minion paths)
-    player.mana -= def.manaCost;
-    game.playerStats[pIdx as 0 | 1].manaSpent += def.manaCost;
+    player.mana -= effectiveCost;
+    game.playerStats[pIdx as 0 | 1].manaSpent += effectiveCost;
     player.hand.splice(cardIdx, 1);
 
     const minion = createBoardMinion(cardInst.cardCode, game.turnNumber, !!cardInst.isGolden);
@@ -178,8 +179,8 @@ export function playCard(
 
   } else if (def.type === 'WEAPON') {
     // Deduct mana
-    player.mana -= def.manaCost;
-    game.playerStats[pIdx as 0 | 1].manaSpent += def.manaCost;
+    player.mana -= effectiveCost;
+    game.playerStats[pIdx as 0 | 1].manaSpent += effectiveCost;
 
     // Remove from hand
     player.hand.splice(cardIdx, 1);
@@ -206,8 +207,8 @@ export function playCard(
     }
 
     // Deduct mana
-    player.mana -= def.manaCost;
-    game.playerStats[pIdx as 0 | 1].manaSpent += def.manaCost;
+    player.mana -= effectiveCost;
+    game.playerStats[pIdx as 0 | 1].manaSpent += effectiveCost;
 
     // Remove from hand
     player.hand.splice(cardIdx, 1);

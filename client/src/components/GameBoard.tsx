@@ -1223,7 +1223,12 @@ function HandCard({
       `}
       style={{ transformOrigin: 'bottom center' }}
     >
-      <CardComponent cardCode={card.cardCode!} small golden={card.isGolden && FEATURE_FLAGS.GOLDEN_CARDS} />
+      <CardComponent
+        cardCode={card.cardCode!}
+        small
+        golden={card.isGolden && FEATURE_FLAGS.GOLDEN_CARDS}
+        costOverride={card.costReduction ? Math.max(0, (def?.manaCost ?? 0) - card.costReduction) : undefined}
+      />
       {card.isGolden && FEATURE_FLAGS.GOLDEN_CARDS && (
         <GoldenEffectsOverlay
           cardCode={card.cardCode!}
@@ -3244,7 +3249,8 @@ export default function GameBoard({
           {gs.myHand.map((card, i) => {
             const def = getCard(card.cardCode);
             const boardFull = myBoard.length + (gs.myLocations?.length ?? 0) >= MAX_BOARD_SIZE;
-            const canPlay = isMyTurn && isPlaying && !isGameOver && (def?.manaCost ?? 99) <= gs.myMana
+            const effectiveCost = Math.max(0, (def?.manaCost ?? 99) - (card.costReduction ?? 0));
+            const canPlay = isMyTurn && isPlaying && !isGameOver && effectiveCost <= gs.myMana
               && (def?.type !== 'MINION' || !boardFull) && (def?.type !== 'LOCATION' || !boardFull);
             const handSize = gs.myHand.length;
             const maxAngle = Math.min(handSize * (isMobile ? 2 : 3), isMobile ? 15 : 20);

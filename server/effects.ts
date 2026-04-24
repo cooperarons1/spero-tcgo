@@ -361,7 +361,15 @@ export function executeEffect(
           // Track for Lucas upgrade: returning enemy minions
           if (pi !== casterIndex && me.heroClass === 'LUCAS') me.upgradeProgress++;
           if (p.hand.length < MAX_HAND_SIZE) {
-            p.hand.push({ instanceId: minion.instanceId, cardCode: minion.cardCode });
+            // `value` on the effect = cost reduction applied to the
+            // returned card (Veil Slip = -2). Own minions only — bounce
+            // on enemy minions shouldn't discount the opponent's hand.
+            const costReduction = (pi === casterIndex && value > 0) ? value : undefined;
+            p.hand.push({
+              instanceId: minion.instanceId,
+              cardCode: minion.cardCode,
+              ...(costReduction ? { costReduction } : {}),
+            });
             addLog(game, casterIndex, `Returns a minion to hand`, 'EFFECT');
           } else {
             const def = getCardDef(minion.cardCode);

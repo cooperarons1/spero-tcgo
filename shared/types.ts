@@ -155,6 +155,10 @@ export interface CardInstance {
   /** Set when the drawn copy is the golden/foil variant. Drives
    * gold-frame + shimmer + looping art animation in the renderer. */
   isGolden?: boolean;
+  /** Cost discount applied to this specific instance (not the def).
+   * Used by Veil Slip returning a minion with -2 cost, future
+   * discount spells, etc. Floor is 0 — never negative effective cost. */
+  costReduction?: number;
 }
 
 // ─── Board Minion (in-play instance) ───
@@ -329,6 +333,7 @@ export interface ClientCardInstance {
   instanceId: string;
   cardCode: string | null; // null if in opponent's hand
   isGolden?: boolean;
+  costReduction?: number;
 }
 
 export interface ClientPlayerInfo {
