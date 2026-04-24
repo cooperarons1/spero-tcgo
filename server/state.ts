@@ -152,6 +152,11 @@ export function createBroadcastGameState(io: Server) {
       state.opponentCardBack = room.cardBacks?.get(oppUid ?? '') ?? 'default';
       state.myCardBack = room.cardBacks?.get(uid) ?? 'default';
       state.gameMode = room.mode ?? (room.isAIGame ? 'ai' : 'casual');
+      // Attach both players' rank tiers so the in-game HUD can show
+      // them on the hero row during ranked matches. Raw ELO is
+      // intentionally not forwarded — players only see the tier label.
+      (state as any).myRankTier = room.rankTiers?.get(uid) ?? 'BRONZE';
+      (state as any).opponentRankTier = room.rankTiers?.get(oppUid ?? '') ?? 'BRONZE';
 
       // Attach neural animation params if model is loaded. We collect
       // every cardCode the client might render an animation for — board

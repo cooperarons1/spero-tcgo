@@ -135,6 +135,28 @@ const RARITY_COLORS: Record<CardRarity, string> = {
   LEGENDARY: '#f59e0b',
 };
 
+// ─── Rank badge (in-game HUD, ranked matches only) ───
+// Shows the player's tier label with a tier-colored chip. Raw ELO is
+// intentionally never forwarded from the server — players only see
+// the tier so they focus on progression rather than a point score.
+const RANK_BADGE_STYLE: Record<string, { text: string; chip: string; icon: string }> = {
+  BRONZE:  { text: 'text-amber-300',   chip: 'bg-amber-900/70 border-amber-700',   icon: '🥉' },
+  SILVER:  { text: 'text-gray-200',    chip: 'bg-slate-700/70 border-slate-500',   icon: '🥈' },
+  GOLD:    { text: 'text-yellow-300',  chip: 'bg-yellow-900/70 border-yellow-700', icon: '🏅' },
+  DIAMOND: { text: 'text-cyan-300',    chip: 'bg-cyan-900/70 border-cyan-700',     icon: '💎' },
+  LEGEND:  { text: 'text-purple-300',  chip: 'bg-purple-900/70 border-purple-500 animate-pulse', icon: '👑' },
+};
+function RankBadge({ tier }: { tier?: string }) {
+  const t = tier ?? 'BRONZE';
+  const s = RANK_BADGE_STYLE[t] ?? RANK_BADGE_STYLE.BRONZE;
+  return (
+    <span className={`inline-flex items-center gap-1 text-[9px] font-bold rounded px-1.5 py-0.5 border ${s.chip} ${s.text}`}>
+      <span>{s.icon}</span>
+      <span>{t}</span>
+    </span>
+  );
+}
+
 // ─── Card targeting helper ───
 function cardNeedsTarget(def: CardDef): { needsTarget: boolean; targetType: string | null } {
   const TARGETING_TYPES = ['TARGET_MINION','TARGET_ANY','TARGET_FRIENDLY_MINION','TARGET_ENEMY_MINION'];
@@ -2751,7 +2773,7 @@ export default function GameBoard({
             </span>
             <span className="text-sm text-gray-200 font-bold drop-shadow-md bg-black/40 rounded px-2 py-0.5">{gs.opponent.playerName}</span>
             {(gs as any).gameMode === 'ranked' && (
-              <span className="text-[9px] text-purple-300 font-bold bg-black/30 rounded px-1.5 py-0.5">RANKED</span>
+              <RankBadge tier={(gs as any).opponentRankTier} />
             )}
           </div>
           <HeroPortrait
@@ -3109,7 +3131,7 @@ export default function GameBoard({
             </span>
             <span className="text-sm text-amber-100 font-bold drop-shadow-md bg-black/40 rounded px-2 py-0.5">{gs.myPlayerName}</span>
             {(gs as any).gameMode === 'ranked' && (
-              <span className="text-[9px] text-purple-300 font-bold bg-black/30 rounded px-1.5 py-0.5">RANKED</span>
+              <RankBadge tier={(gs as any).myRankTier} />
             )}
           </div>
           <HeroPortrait

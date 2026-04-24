@@ -147,7 +147,6 @@ export function Profile({ uid, displayName, onBack }: ProfileProps) {
           <h3 className="text-2xl font-bold text-white mb-1 animate-bounce-in">{displayName}</h3>
           <div className="flex items-center justify-center gap-2">
             <span className={`text-lg font-bold ${RANK_COLORS[tier]}`}>{tier}</span>
-            <span className="text-gray-400 text-sm">({elo} ELO)</span>
           </div>
           {quests && <span className="text-xs text-gray-500">Level {quests.level}</span>}
         </div>
@@ -159,7 +158,7 @@ export function Profile({ uid, displayName, onBack }: ProfileProps) {
             <div className="flex items-center justify-center gap-4 text-[11px]">
               <span className="text-gray-400">{rank.season.daysLeft} days left</span>
               <span className={`font-bold ${RANK_COLORS[rank.season.peakRankTier] ?? 'text-gray-400'}`}>
-                Peak: {rank.season.peakRankTier} ({rank.season.peakElo})
+                Peak: {rank.season.peakRankTier}
               </span>
             </div>
           </div>
@@ -191,7 +190,6 @@ export function Profile({ uid, displayName, onBack }: ProfileProps) {
             <div className={`rounded-xl p-3 border mb-4 ${RANK_BG[tier]}`}>
               <div className="flex items-center justify-between text-xs text-gray-400 mb-1">
                 <span>{tier}</span>
-                <span>{elo}/{threshold.max}</span>
               </div>
               <div className="bg-slate-900 rounded-full h-2 overflow-hidden">
                 <div

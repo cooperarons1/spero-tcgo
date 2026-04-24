@@ -398,7 +398,7 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
             <div className="text-left">
               <div className="text-xs text-white font-semibold leading-tight">{displayName}</div>
               <div className={`text-[10px] font-bold leading-tight ${RANK_COLORS[tier]}`}>
-                {RANK_ICONS[tier]} {tier} <span className="text-gray-500 font-normal">{rank?.elo ?? 1000}</span>
+                {RANK_ICONS[tier]} {tier}
               </div>
             </div>
           </button>

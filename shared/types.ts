@@ -452,6 +452,7 @@ export interface Room {
   isAIGame?: boolean;
   aiPlayerId?: string;
   cardBacks?: Map<string, string>; // uid -> selected card back id
+  rankTiers?: Map<string, RankTier>; // uid -> rank tier (for in-game HUD; raw ELO deliberately not forwarded)
   mode?: 'casual' | 'ranked'; // PvP game mode
 }
 

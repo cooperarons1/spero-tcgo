@@ -1269,7 +1269,7 @@
     "heroClass": "ANDERS",
     "rarity": "RARE",
     "attack": 4,
-    "health": 5,
+    "health": 6,
     "text": "Freeze any character damaged by this minion.",
     "flavor": "The ice bends around him like it's alive.",
     "keywords": [],
@@ -1574,7 +1574,7 @@
   {
     "cardCode": "DES022",
     "name": "Death's Descent",
-    "manaCost": 6,
+    "manaCost": 5,
     "type": "SPELL",
     "heroClass": "DES",
     "rarity": "EPIC",
@@ -1824,20 +1824,14 @@
     "type": "MINION",
     "heroClass": "DES",
     "rarity": "COMMON",
-    "attack": 4,
+    "attack": 3,
     "health": 4,
-    "text": "Lifesteal. Battlecry: Deal 1 damage to your hero.",
+    "text": "Lifesteal.",
     "flavor": "Pain is just weakness leaving the body. He has a lot of weakness.",
     "keywords": [
-      "BATTLECRY",
       "LIFESTEAL"
     ],
-    "minionType": "DOMINION",
-    "battlecryEffect": {
-      "type": "DEAL_DAMAGE",
-      "target": "TARGET_HERO",
-      "value": 1
-    }
+    "minionType": "DOMINION"
   },
   {
     "cardCode": "AVA025",
@@ -2142,7 +2136,7 @@
     "heroClass": "ANDERS",
     "rarity": "LEGENDARY",
     "attack": 5,
-    "health": 6,
+    "health": 7,
     "text": "Freeze any character damaged by this minion. Battlecry: Freeze three random enemies.",
     "flavor": "The ground cracks beneath his hooves. The air freezes above.",
     "keywords": [

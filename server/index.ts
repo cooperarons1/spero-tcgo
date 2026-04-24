@@ -101,13 +101,24 @@ setInterval(() => {
       room.selectedDecks.set(p1.uid, { heroClass: p1.heroClass, cards: p1.deckCards });
       room.selectedDecks.set(p2.uid, { heroClass: p2.heroClass, cards: p2.deckCards });
 
-      // Load card backs for both players
+      // Load card backs + rank tiers for both players
       room.cardBacks = new Map();
+      room.rankTiers = new Map();
+      const { getRankTier } = await import('../shared/types.js');
       for (const pUid of [p1.uid, p2.uid]) {
         try {
           const doc = await adminDb.collection('users').doc(pUid).get();
-          room.cardBacks.set(pUid, doc.data()?.selectedCardBack ?? 'default');
-        } catch (err) { console.warn('Failed to load card back for', pUid, err); room.cardBacks.set(pUid, 'default'); }
+          const d = doc.data() ?? {};
+          room.cardBacks.set(pUid, d.selectedCardBack ?? 'default');
+          // Rank tier derives from current ELO — sent to the client so
+          // the in-game HUD can display a tier badge during ranked
+          // matches without leaking raw ELO.
+          room.rankTiers.set(pUid, getRankTier(d.elo ?? 1000));
+        } catch (err) {
+          console.warn('Failed to load profile for', pUid, err);
+          room.cardBacks.set(pUid, 'default');
+          room.rankTiers.set(pUid, 'BRONZE');
+        }
       }
 
       s1.join(room.code);

@@ -108,13 +108,16 @@ function RewardsPanel({ rewards, isMe }: { rewards: PostGameRewards; isMe: boole
             )}
           </div>
           <div className="flex items-center gap-2">
+            {/* Show the ranked signal as an arrow + intensity rather than
+                a numeric delta — raw ELO is deliberately hidden from
+                players so they focus on the tier progression rather
+                than a point score. */}
             <span className={`text-xl font-bold ${eloPositive ? 'text-green-400' : 'text-red-400'}`}>
-              {eloPositive ? '+' : ''}{rewards.eloChange}
+              {eloPositive ? '▲' : '▼'}
             </span>
-            <span className="text-xs text-gray-500">{rewards.newElo} ELO</span>
           </div>
         </div>
-        {/* Rank progress bar */}
+        {/* Rank progress bar (visual only — no numeric readout) */}
         <div className="mt-2 bg-slate-900 rounded-full h-1.5 overflow-hidden">
           <div
             className={`h-full rounded-full transition-all duration-1000 ${
@@ -126,9 +129,6 @@ function RewardsPanel({ rewards, isMe }: { rewards: PostGameRewards; isMe: boole
             }`}
             style={{ width: `${Math.min(100, (eloInTier / tierRange) * 100)}%` }}
           />
-        </div>
-        <div className="text-right text-[10px] text-gray-600 mt-0.5">
-          {rewards.newElo}/{threshold.max}
         </div>
       </div>
 
