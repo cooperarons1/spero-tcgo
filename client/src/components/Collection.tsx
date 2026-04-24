@@ -134,7 +134,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
   const [page, setPage] = useState(0);
   const [pageDir, setPageDir] = useState<'left' | 'right' | null>(null);
   const [animating, setAnimating] = useState(false);
-  const CARDS_PER_PAGE = 40; // up to 8 cols × 5 rows on wide viewports; grid is responsive so narrower screens still paginate at 5-6 cols
+  const CARDS_PER_PAGE = 20; // 5 cols × 4 rows
 
   // Crafting state
   const [craftingCard, setCraftingCard] = useState<string | null>(null);
@@ -746,7 +746,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
             <div className="flex-1 flex items-start justify-center p-3 pt-4 relative">
               <div
                 key={`page-${page}`}
-                className={`grid grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-2.5 w-full ${
+                className={`grid grid-cols-5 gap-2 w-full max-w-5xl ${
                   pageDir === 'left' ? 'animate-page-slide-in-left' : 'animate-page-slide-in-right'
                 }`}
               >
@@ -781,7 +781,6 @@ export function Collection({ uid, onBack }: CollectionProps) {
                       <Card
                         cardCode={c.cardCode}
                         greyed={greyed}
-                        small
                         golden={entry.golden}
                       />
                       {/* The gold tint + shimmer on the card itself
