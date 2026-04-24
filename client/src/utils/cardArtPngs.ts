@@ -24,6 +24,9 @@ export const CARD_ART_PNGS = new Set([
   "AND038",
   "AND039",
   "AND040",
+  "AND050",
+  "AND051",
+  "AND052",
   "AND_BOND_01",
   "AND_BOND_02",
   "AND_LOC02",
@@ -52,6 +55,9 @@ export const CARD_ART_PNGS = new Set([
   "AST040",
   "AST041",
   "AST042",
+  "AST050",
+  "AST051",
+  "AST052",
   "AST_BOND_01",
   "AST_BOND_02",
   "AST_S01",
@@ -80,9 +86,7 @@ export const CARD_ART_PNGS = new Set([
   "AVA_BOND_02",
   "AVA_TOKEN_01",
   "AVA_TOKEN_02",
-  // COIN intentionally not in the PNG set — falls through to the
-  // dedicated SVG renderer in cardArt.tsx (the PNG generation produced
-  // off-theme art; the inline gold-coin SVG is the canonical look).
+  "COIN",
   "DES021",
   "DES022",
   "DES023",
@@ -104,6 +108,9 @@ export const CARD_ART_PNGS = new Set([
   "DES039",
   "DES040",
   "DES041",
+  "DES050",
+  "DES051",
+  "DES052",
   "DES_COLLAR_02",
   "DES_COLLAR_03",
   "DES_LOC02",
@@ -337,4 +344,5 @@ export const CARD_ART_PNGS = new Set([
   "TAL_LOC02",
   "TAL_LOC03",
   "TAL_LOC04",
+  "card-back",
 ]);
