@@ -141,7 +141,14 @@ export function registerShopHandlers(
           ownedCards: (d.ownedCards ?? {}) as Record<string, number>,
         });
         if (!outcome.ok) return outcome;
-        tx.update(userRef, { dust: outcome.newDust, ownedCards: outcome.newOwnedCards });
+        // cardsCrafted counter powers the CARDS_CRAFTED achievement
+        // family (previously never incremented, so craft-card
+        // achievement was unreachable).
+        tx.update(userRef, {
+          dust: outcome.newDust,
+          ownedCards: outcome.newOwnedCards,
+          cardsCrafted: (d.cardsCrafted ?? 0) + 1,
+        });
         return outcome;
       });
 

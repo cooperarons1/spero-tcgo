@@ -11,7 +11,8 @@ import { getClientState, getSpectatorState } from './clientState.js';
 import { addLog } from './log.js';
 import { isAIPlayer, scheduleAITurn, getAIMulliganReplacements } from './ai.js';
 import { calculateElo } from './matchmaking.js';
-import { calculateXP, getLevel, calculateHeroXP, getHeroLevel, generateDailyQuests, shouldRefreshQuests, updateQuestProgress } from './quests.js';
+// Quest + level helpers are used by match-rewards.ts now; state.ts
+// only orchestrates the txn.
 import { validateDeck } from '../shared/deckRules.js';
 import { isAnimModelAvailable, getCardAnimParams } from './animation-model.js';
 import { getCardDef } from './cards.js';
@@ -335,144 +336,45 @@ async function finalizeGame(io: Server, room: Room) {
       });
 
       // ─── Atomic match-end txn ───
+      // All the reward math lives in match-rewards.ts as a pure
+      // function — the txn only reads the current user doc, asks the
+      // helper to compute the next state, then writes it.
       const userRef = adminDb.collection('users').doc(uid);
       const { checkAchievements } = await import('../shared/achievements.js');
-
-      const xpGain = calculateXP(isWin);
-      const heroXPGain = calculateHeroXP(isWin);
+      const { computeMatchEnd } = await import('./match-rewards.js');
       const newElo = newElos[i];
-      const baseQuests = generateDailyQuests();
+      const currentSeason = getSeasonForDate();
 
       const result = await adminDb.runTransaction(async (tx) => {
         const snap = await tx.get(userRef);
         const data = snap.data() ?? {};
-
-        const newXp = (data.xp ?? 0) + xpGain;
-        const newLevel = getLevel(newXp);
-
-        // Hero-specific XP and level
-        const heroLevels = { ...(data.heroLevels ?? {}) };
-        const oldHeroXP = heroLevels[heroClass]?.xp ?? 0;
-        const oldHeroWins = heroLevels[heroClass]?.wins ?? 0;
-        const newHeroXP = oldHeroXP + heroXPGain;
-        const oldRankedWins = heroLevels[heroClass]?.rankedWins ?? 0;
-        // Golden-hero threshold: 500 ranked wins unlocks a golden-
-        // animated hero portrait + hero power + frame.
-        const newRankedWins = oldRankedWins + (isRanked && isWin ? 1 : 0);
-        heroLevels[heroClass] = {
-          xp: newHeroXP,
-          level: getHeroLevel(newHeroXP),
-          wins: oldHeroWins + (isWin ? 1 : 0),
-          rankedWins: newRankedWins,
-        };
-
-        // Battle pass XP (same as game XP)
-        const bp = data.battlePass ?? { seasonId: 'season-1', xp: 0, isPremium: false, claimedFree: [], claimedPremium: [] };
-        bp.xp = (bp.xp ?? 0) + xpGain;
-
-        // Quest progress
-        let quests = data.quests ?? [];
-        if (shouldRefreshQuests(data.questsRefreshedAt)) {
-          quests = baseQuests;
-        }
-        const questResult = updateQuestProgress(quests, isWin, heroClass, myStats);
-        quests = questResult.quests;
-        const questGold = questResult.goldEarned;
-
-        // Base gold reward: 10 gold per win, bonus 10 every 3 wins
-        let baseGold = 0;
-        if (isWin) {
-          baseGold = 10;
-          const totalWins = (data.gamesWon ?? 0) + 1;
-          if (totalWins % 3 === 0) baseGold += 10;
-        }
-        const totalGoldEarned = questGold + baseGold;
-
-        // Track peak rank for current season
-        const currentSeason = getSeasonForDate();
-        const existingSeasonData: UserSeasonData = data.seasonData ?? { seasonId: currentSeason.id, peakElo: 0, peakRankTier: 'BRONZE', rewardsClaimed: false };
-        let seasonData = existingSeasonData;
-        if (existingSeasonData.seasonId !== currentSeason.id) {
-          seasonData = { seasonId: currentSeason.id, peakElo: newElo, peakRankTier: getRankTier(newElo), rewardsClaimed: false };
-        } else if (newElo > existingSeasonData.peakElo) {
-          seasonData = { ...existingSeasonData, peakElo: newElo, peakRankTier: getRankTier(newElo) };
-        }
-
-        // Award card backs for reaching Diamond or Legend
-        const cardBacks: string[] = [...(data.cardBacks ?? ['default'])];
-        if (getRankTier(newElo) === 'DIAMOND' && !cardBacks.includes('diamond-frost')) {
-          cardBacks.push('diamond-frost');
-        }
-        if (getRankTier(newElo) === 'LEGEND' && !cardBacks.includes('legend')) {
-          cardBacks.push('legend');
-        }
-
-        // Compute achievements inside the txn so the gold/dust gets
-        // included in the SAME write — no second-write race.
-        const achResult = checkAchievements(
-          { ...data, gamesPlayed: (data.gamesPlayed ?? 0) + 1, gamesWon: (data.gamesWon ?? 0) + (isWin ? 1 : 0), elo: newElo },
-          heroLevels,
-          data.achievements ?? [],
-        );
-        let achievementGold = 0;
-        let achievementDust = 0;
-        for (const ach of achResult.newlyUnlocked) {
-          if (ach.reward.type === 'GOLD') achievementGold += ach.reward.amount;
-          if (ach.reward.type === 'DUST') achievementDust += ach.reward.amount;
-        }
-
-        tx.update(userRef, {
-          gamesPlayed: (data.gamesPlayed ?? 0) + 1,
-          gamesWon: (data.gamesWon ?? 0) + (isWin ? 1 : 0),
-          elo: newElo,
-          rankTier: getRankTier(newElo),
-          // Increment rankedGamesPlayed only for ranked PvP games so
-          // the placement-K window (first PLACEMENT_MATCHES ranked
-          // games) counts down correctly. Casual games don't consume
-          // placement credits.
-          rankedGamesPlayed: (data.rankedGamesPlayed ?? 0) + (isRanked ? 1 : 0),
-          xp: newXp,
-          level: newLevel,
-          gold: (data.gold ?? 0) + totalGoldEarned + achievementGold,
-          dust: (data.dust ?? 0) + achievementDust,
-          heroLevels,
-          battlePass: bp,
-          quests,
-          questsRefreshedAt: shouldRefreshQuests(data.questsRefreshedAt) ? Date.now() : (data.questsRefreshedAt ?? Date.now()),
-          seasonData,
-          cardBacks,
-          achievements: achResult.allUnlocked,
+        const out = computeMatchEnd({
+          userData: data,
+          matchStats: myStats,
+          isWin,
+          isRanked,
+          heroClass,
+          newElo,
+          oldElo: elos[i],
+          currentSeasonId: currentSeason.id,
+          achievementsCheck: (d, hl, a) => checkAchievements(d, hl, a),
         });
-
-        return {
-          newXp,
-          newLevel,
-          totalGoldEarned,
-          questResult,
-          newHeroLevel: heroLevels[heroClass].level,
-          heroWinsAfter: heroLevels[heroClass].wins,
-          achievementsUnlocked: achResult.newlyUnlocked,
-        };
+        tx.update(userRef, out.updates);
+        return out;
       });
-
-      const { newXp, newLevel, totalGoldEarned, questResult, newHeroLevel, heroWinsAfter, achievementsUnlocked } = result;
 
       // Notify client of quest/XP updates
       const sid = room.sockets.get(uid);
       if (sid && sid !== '__ai__') {
         io.to(sid).emit('post-game-rewards', {
-          xpGain,
-          newXp,
-          newLevel,
-          eloChange: newElo - elos[i],
-          newElo,
-          rankTier: getRankTier(newElo),
-          questsCompleted: questResult.quests.filter(q => q.completed).map(q => ({ description: q.description, reward: q.reward })),
-          goldEarned: totalGoldEarned,
-          heroXPGain,
-          heroLevel: newHeroLevel,
-          heroWins: heroWinsAfter,
-          achievementsUnlocked: achievementsUnlocked.map(a => ({ name: a.name, description: a.description, reward: `${a.reward.amount} ${a.reward.type}` })),
+          ...result.rewards,
+          achievementsUnlocked: result.rewards.achievementsUnlocked.map(
+            (a: any) => ({
+              name: a.name,
+              description: a.description,
+              reward: `${a.reward.amount} ${a.reward.type}`,
+            }),
+          ),
         });
       }
     } catch (err) {
