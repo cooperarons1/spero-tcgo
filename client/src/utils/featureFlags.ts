@@ -10,12 +10,15 @@
  */
 
 export const FEATURE_FLAGS = {
-  /** Render golden card variants (gold frame, shimmer, overlay effects). */
-  GOLDEN_CARDS: false,
+  /** Render golden card variants (gold frame, shimmer, overlay effects).
+   * Re-enabled 2026-04-24 for per-card testing — 5 WebM loops exist
+   * (AST021, AVA021, DRK032, JIM022, NEU_LOC03); every other card
+   * falls through to the static shimmer sweep in Card.tsx. */
+  GOLDEN_CARDS: true,
   /** Render golden hero portraits + hero-power animations. */
-  GOLDEN_HEROES: false,
+  GOLDEN_HEROES: true,
   /** Show golden tiles in the Collection grid (x2 per card pair). */
-  COLLECTION_GOLDEN_TILES: false,
+  COLLECTION_GOLDEN_TILES: true,
   /** Show dust currency + craft/disenchant UI. */
   DUST: true,
   /** Show battle pass button + reward panel rows. */
