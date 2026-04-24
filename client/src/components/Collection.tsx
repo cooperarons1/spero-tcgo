@@ -134,7 +134,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
   const [page, setPage] = useState(0);
   const [pageDir, setPageDir] = useState<'left' | 'right' | null>(null);
   const [animating, setAnimating] = useState(false);
-  const CARDS_PER_PAGE = 20; // 5 cols × 4 rows — fills the viewport better than 15
+  const CARDS_PER_PAGE = 40; // up to 8 cols × 5 rows on wide viewports; grid is responsive so narrower screens still paginate at 5-6 cols
 
   // Crafting state
   const [craftingCard, setCraftingCard] = useState<string | null>(null);
@@ -746,7 +746,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
             <div className="flex-1 flex items-start justify-center p-3 pt-4 relative">
               <div
                 key={`page-${page}`}
-                className={`grid grid-cols-5 gap-2.5 w-full max-w-4xl ${
+                className={`grid grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-2.5 w-full ${
                   pageDir === 'left' ? 'animate-page-slide-in-left' : 'animate-page-slide-in-right'
                 }`}
               >
@@ -1167,66 +1167,77 @@ export function Collection({ uid, onBack }: CollectionProps) {
 
       {/* Hero Class Picker Modal — hero portrait tiles in a 3x3 grid.
            Each tile shows the class portrait art with a colored ring +
-           class name, so you pick by recognizing the hero rather than
-           reading a color-coded button. */}
+           hero name + archetype. Modal caps at 90vh with internal
+           scroll so the header + close button always stay visible
+           even on short viewports. */}
       {showHeroPicker && (
         <div
           className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4"
           onClick={() => setShowHeroPicker(false)}
         >
           <div
-            className="bg-slate-900 rounded-2xl p-6 border border-slate-700 max-w-3xl w-full"
+            className="bg-slate-900 rounded-2xl border border-slate-700 max-w-2xl w-full max-h-[90vh] flex flex-col"
             onClick={e => e.stopPropagation()}
           >
-            <h2 className="text-white font-bold text-xl text-center mb-1">Choose a Hero</h2>
-            <p className="text-gray-400 text-xs text-center mb-5">Pick a class for your new deck</p>
-            <div className="grid grid-cols-3 gap-3">
-              {HERO_CLASSES.map(h => {
-                const portrait = HERO_PORTRAIT_IMGS[h.id];
-                const accent = HERO_ACCENT[h.id] ?? '#888';
-                return (
-                  <button
-                    key={h.id}
-                    onClick={() => startNewDeck(h.id)}
-                    className="group relative aspect-[3/4] rounded-xl overflow-hidden border-2 hover:scale-105 active:scale-95 transition-transform cursor-pointer shadow-lg"
-                    style={{ borderColor: accent }}
-                  >
-                    {portrait ? (
-                      <img
-                        src={portrait}
-                        alt={h.label}
-                        className="absolute inset-0 w-full h-full object-cover"
-                        draggable={false}
-                      />
-                    ) : (
-                      <div className={`absolute inset-0 ${h.color}`} />
-                    )}
-                    {/* Dark gradient so the name is readable over the portrait */}
-                    <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/90 to-transparent pointer-events-none" />
-                    {/* Hover glow */}
-                    <div
-                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
-                      style={{ boxShadow: `inset 0 0 24px ${accent}` }}
-                    />
-                    <div className="absolute bottom-1.5 left-0 right-0 text-center drop-shadow-lg">
-                      <div className="text-white font-bold text-sm tracking-wide">{h.label}</div>
-                      <div
-                        className="text-[10px] font-bold uppercase tracking-wider"
-                        style={{ color: accent }}
-                      >
-                        {HERO_ARCHETYPE[h.id] ?? ''}
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
+            {/* Header: title left, close × button right. Sticky-ish
+                 inside the flex column so the grid scrolls beneath it. */}
+            <div className="flex items-center justify-between px-5 py-3 border-b border-slate-700/50 shrink-0">
+              <div>
+                <h2 className="text-white font-bold text-lg leading-tight">Choose a Hero</h2>
+                <p className="text-gray-400 text-[11px] leading-tight">Pick a class for your new deck</p>
+              </div>
+              <button
+                onClick={() => setShowHeroPicker(false)}
+                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-gray-400 hover:text-white flex items-center justify-center cursor-pointer transition-colors text-lg leading-none"
+                aria-label="Close"
+              >
+                ✕
+              </button>
             </div>
-            <button
-              onClick={() => setShowHeroPicker(false)}
-              className="w-full mt-5 text-gray-500 text-sm cursor-pointer hover:text-gray-300"
-            >
-              Cancel
-            </button>
+            {/* Scrollable grid body. Tiles sized so 3x3 fits within
+                 ~70vh on typical desktop, falls back to internal scroll
+                 on short viewports (laptops w/ lots of browser chrome). */}
+            <div className="overflow-y-auto p-4">
+              <div className="grid grid-cols-3 gap-3">
+                {HERO_CLASSES.map(h => {
+                  const portrait = HERO_PORTRAIT_IMGS[h.id];
+                  const accent = HERO_ACCENT[h.id] ?? '#888';
+                  return (
+                    <button
+                      key={h.id}
+                      onClick={() => startNewDeck(h.id)}
+                      className="group relative aspect-[4/5] rounded-xl overflow-hidden border-2 hover:scale-[1.03] active:scale-95 transition-transform cursor-pointer shadow-lg"
+                      style={{ borderColor: accent }}
+                    >
+                      {portrait ? (
+                        <img
+                          src={portrait}
+                          alt={h.label}
+                          className="absolute inset-0 w-full h-full object-cover"
+                          draggable={false}
+                        />
+                      ) : (
+                        <div className={`absolute inset-0 ${h.color}`} />
+                      )}
+                      <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/90 to-transparent pointer-events-none" />
+                      <div
+                        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+                        style={{ boxShadow: `inset 0 0 24px ${accent}` }}
+                      />
+                      <div className="absolute bottom-1 left-0 right-0 text-center drop-shadow-lg">
+                        <div className="text-white font-bold text-xs tracking-wide">{h.label}</div>
+                        <div
+                          className="text-[9px] font-bold uppercase tracking-wider"
+                          style={{ color: accent }}
+                        >
+                          {HERO_ARCHETYPE[h.id] ?? ''}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
       )}
