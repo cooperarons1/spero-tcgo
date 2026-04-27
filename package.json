@@ -89,9 +89,11 @@
     }
   },
   "dependencies": {
+    "@capacitor-firebase/authentication": "^6.3.1",
     "@capacitor/core": "^6.2.1",
     "@capacitor/ios": "^6.2.1",
     "@capacitor/splash-screen": "^6.0.4",
-    "@capacitor/status-bar": "^6.0.3"
+    "@capacitor/status-bar": "^6.0.3",
+    "firebase": "^11.10.0"
   }
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 interface AuthScreenProps {
   onSignIn: (email: string, password: string) => Promise<void>;
@@ -12,34 +12,6 @@ export function AuthScreen({ onSignIn, onSignUp }: AuthScreenProps) {
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  // Diagnostic: probe whether the WKWebView can actually reach Firebase
-  // Auth's REST endpoint. The Firebase JS SDK was timing out on iOS even
-  // though `curl` from the host Mac worked, so this isolates whether the
-  // problem is "WKWebView can't reach googleapis.com" vs "Firebase SDK
-  // is stuck on init." Status is shown in the UI for quick triage.
-  const [reachStatus, setReachStatus] = useState<'checking' | 'ok' | 'fail'>('checking');
-  useEffect(() => {
-    const ctl = new AbortController();
-    const t = setTimeout(() => ctl.abort(), 5000);
-    fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyC_3fqVMEcwWAP29KOI90SCdvFOoUVozhA', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: 'probe@example.invalid', password: 'x', returnSecureToken: true }),
-      signal: ctl.signal,
-    })
-      .then((r) => {
-        // 400 with INVALID_LOGIN_CREDENTIALS is the expected, healthy response.
-        // Anything that returns at all proves the network path works.
-        setReachStatus(r.status > 0 ? 'ok' : 'fail');
-        console.log('[auth-probe] status', r.status);
-      })
-      .catch((err) => {
-        setReachStatus('fail');
-        console.error('[auth-probe] failed', err);
-      })
-      .finally(() => clearTimeout(t));
-    return () => { clearTimeout(t); ctl.abort(); };
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -137,12 +109,6 @@ export function AuthScreen({ onSignIn, onSignUp }: AuthScreenProps) {
           {error && (
             <p className="text-red-400 text-sm text-center">{error}</p>
           )}
-          {/* One-shot diagnostic — visible right above the submit button. */}
-          <p className={`text-xs text-center ${reachStatus === 'ok' ? 'text-emerald-400' : reachStatus === 'fail' ? 'text-red-400' : 'text-gray-500'}`}>
-            {reachStatus === 'checking' && '· checking auth server reachability…'}
-            {reachStatus === 'ok' && '✓ auth server reachable'}
-            {reachStatus === 'fail' && '✗ auth server unreachable from this device — sign-in will time out'}
-          </p>
 
           <button
             type="submit"

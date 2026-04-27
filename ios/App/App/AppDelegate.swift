@@ -1,5 +1,6 @@
 import UIKit
 import Capacitor
+import FirebaseCore
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -7,7 +8,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        // Initialize the native Firebase iOS SDK so the
+        // @capacitor-firebase/authentication plugin can sign users in via
+        // the native bridge (the JS SDK hangs in WKWebView). Requires
+        // GoogleService-Info.plist to be present in the App target.
+        FirebaseApp.configure()
         return true
     }
 

@@ -3,18 +3,6 @@ import { useEffect, useState } from 'react';
 import { auth } from './firebase';
 import { PLATFORM, SERVER_URL } from './config';
 
-// On iOS we use direct REST auth (Firebase JS SDK hangs in WKWebView), so
-// the websocket can't ask `auth.currentUser.getIdToken()` — there's no
-// Firebase user. Read the token persisted by useAuth instead.
-function readIosIdToken(): string | null {
-  try {
-    const raw = localStorage.getItem('spero.tcg.restToken.v1');
-    if (!raw) return null;
-    const t = JSON.parse(raw);
-    return typeof t?.idToken === 'string' ? t.idToken : null;
-  } catch { return null; }
-}
-
 export const socket = io(SERVER_URL, {
   autoConnect: false,
   reconnection: true,
@@ -24,14 +12,22 @@ export const socket = io(SERVER_URL, {
   timeout: 45000,                   // 45s connection timeout
   transports: ['websocket', 'polling'],
   auth: async (cb) => {
+    // On iOS the @capacitor-firebase/authentication plugin syncs back into
+    // the JS SDK, so auth.currentUser populates the same way it does on
+    // web/Electron.
     if (PLATFORM === 'ios') {
-      const tok = readIosIdToken();
-      cb(tok ? { token: tok } : {});
-      return;
+      try {
+        const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication');
+        const { token } = await FirebaseAuthentication.getIdToken({ forceRefresh: true });
+        cb(token ? { token } : {});
+        return;
+      } catch {
+        // fall through to JS SDK if the plugin isn't ready yet
+      }
     }
     const user = auth.currentUser;
     if (user) {
-      cb({ token: await user.getIdToken(true) }); // force refresh token on reconnect
+      cb({ token: await user.getIdToken(true) });
     } else {
       cb({});
     }

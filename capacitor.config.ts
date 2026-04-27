@@ -34,6 +34,16 @@ const config: CapacitorConfig = {
     iosScheme: 'https',
     androidScheme: 'https',
   },
+  plugins: {
+    // Native iOS Firebase Auth so Firestore queries pass auth — the JS SDK
+    // hangs in WKWebView during signin. skipNativeAuth: false (default)
+    // ensures the plugin signs into BOTH the native iOS SDK and the JS
+    // SDK so auth.currentUser is populated for Firestore.
+    FirebaseAuthentication: {
+      skipNativeAuth: false,
+      providers: ['password'],
+    },
+  },
 };
 
 export default config;

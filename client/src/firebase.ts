@@ -1,7 +1,6 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, setPersistence, inMemoryPersistence } from 'firebase/auth';
+import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-import { PLATFORM } from './config';
 
 // Firebase Web API keys are not secrets — they identify the project,
 // and API abuse is gated by Firebase Security Rules + App Check. This
@@ -20,14 +19,9 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// On iOS Capacitor, Firebase Auth's default persistence (IndexedDB) hangs
-// silently inside WKWebView — `signInWithEmailAndPassword` never resolves
-// even though the underlying identitytoolkit POST is reachable (proven by
-// the AuthScreen reachability probe). Switching to in-memory persistence
-// bypasses that init step entirely. We then re-establish "stay logged in"
-// by stashing the user's credentials in localStorage at signin time and
-// auto-signing back in on app launch in useAuth — same effective UX as
-// browserLocalPersistence (one signin per device) without the deadlock.
-if (PLATFORM === 'ios') {
-  void setPersistence(auth, inMemoryPersistence).catch(() => {});
-}
+// iOS uses the @capacitor-firebase/authentication plugin (native iOS SDK)
+// which syncs credentials back into the JS SDK via Firebase's native
+// bridge — `auth.currentUser` populates normally and Firestore queries
+// authenticate as expected. Default persistence (browserLocalPersistence)
+// works fine in that path; the WKWebView IndexedDB hang only affected the
+// JS SDK's signin flow, not the post-auth state.
