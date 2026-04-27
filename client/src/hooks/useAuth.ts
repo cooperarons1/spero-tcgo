@@ -15,15 +15,30 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cleared = false;
+    const clear = () => {
+      if (cleared) return;
+      cleared = true;
+      setLoading(false);
+    };
     const unsub = onAuthStateChanged(auth, async (u) => {
       setUser(u);
-      setLoading(false);
+      clear();
       if (u) {
         await migrateLocalStorageDecks(u.uid);
         await seedStarterDecks(u.uid);
       }
     });
-    return unsub;
+    // Safety net: the first onAuthStateChanged fire requires a token-
+    // refresh round-trip to securetoken.googleapis.com when a session is
+    // cached. On bad cellular that can stretch past 5s and the loading
+    // spinner sits there with no feedback. After 3s, drop the spinner;
+    // the listener still reconciles user state when it eventually fires.
+    const t = setTimeout(clear, 3000);
+    return () => {
+      clearTimeout(t);
+      unsub();
+    };
   }, []);
 
   const signUp = async (email: string, password: string, displayName: string) => {
