@@ -17,9 +17,7 @@ export function AuthScreen({ onSignIn, onSignUp }: AuthScreenProps) {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    // Race the auth call against a 15s timeout so a hung Firebase request
-    // (network drop, CSP block, API-key restriction) surfaces an error
-    // instead of leaving the button stuck on "Loading..." forever.
+    setError('· submit pressed, calling auth…');
     const TIMEOUT_MS = 15000;
     const timeout = new Promise<never>((_, rej) =>
       setTimeout(() => rej(new Error('Network timeout — check your connection and try again.')), TIMEOUT_MS)
@@ -32,8 +30,10 @@ export function AuthScreen({ onSignIn, onSignUp }: AuthScreenProps) {
           return;
         }
         await Promise.race([onSignUp(email, password, displayName.trim()), timeout]);
+        setError('✓ signup returned, waiting for app…');
       } else {
         await Promise.race([onSignIn(email, password), timeout]);
+        setError('✓ signin returned, waiting for app…');
       }
     } catch (err: any) {
       const code = err?.code || '';
@@ -46,9 +46,6 @@ export function AuthScreen({ onSignIn, onSignUp }: AuthScreenProps) {
       else if (code === 'auth/network-request-failed') setError('Network request failed — check connectivity.');
       else if (code === 'auth/too-many-requests') setError('Too many attempts — wait a minute and try again.');
       else setError(err?.message || `Something went wrong${code ? ` (${code})` : ''}`);
-      // Surface in the WKWebView console so the issue can be diagnosed via
-      // Safari Web Inspector even when no email-readable error message
-      // makes it onto the screen.
       console.error('[auth] sign-in failed', { code, err });
     } finally {
       setLoading(false);
@@ -56,8 +53,22 @@ export function AuthScreen({ onSignIn, onSignUp }: AuthScreenProps) {
   };
 
   return (
-    <div className="fixed inset-0 flex items-start justify-center overflow-hidden pt-6 px-3 bg-gradient-to-b from-[#0b0613] via-[#150821] to-[#07030d]">
-      <div className="bg-slate-800/95 backdrop-blur rounded-2xl p-5 shadow-xl max-w-md w-full border border-slate-700 animate-slide-up">
+    <div
+      className="bg-gradient-to-b from-[#0b0613] via-[#150821] to-[#07030d]"
+      style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, overflow: 'hidden' }}
+    >
+      <div
+        className="bg-slate-800/95 backdrop-blur rounded-2xl p-5 shadow-xl border border-slate-700 animate-slide-up"
+        style={{
+          position: 'absolute',
+          top: '1.5rem',
+          left: 0,
+          right: 0,
+          marginLeft: 'auto',
+          marginRight: 'auto',
+          width: 'min(28rem, calc(100vw - 1.5rem))',
+        }}
+      >
         <h1 className="text-3xl font-extrabold text-white text-center animate-bounce-in">MIRO</h1>
         <p className="text-spero-yellow font-bold text-sm mb-4 text-center animate-fade-in" style={{ animationDelay: '200ms', animationFillMode: 'both' }}>TCG Online</p>
 
