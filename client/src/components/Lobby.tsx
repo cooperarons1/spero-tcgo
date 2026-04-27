@@ -209,21 +209,21 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
         </div>
       )}
 
-      {/* ── Main content ── */}
-      <div className="flex-1 flex flex-col items-center justify-center px-4 pb-2 relative min-h-0 z-10">
-        {/* Logo — official MIRO art (transparent WebP). Drop shadow gives
-             it lift against the dark background; subtle scale-in on mount. */}
-        <div className="mb-4 animate-bounce-in">
+      {/* ── Main content ── vertical stack: logo on top, buttons below.
+           Button panel widens in landscape so it actually fills the
+           viewport instead of being a tiny card in the middle. */}
+      <div className="flex-1 flex flex-col items-center justify-center gap-2 px-4 pb-1 pt-1 relative min-h-0 z-10 overflow-y-auto">
+        <div className="mb-1 animate-bounce-in shrink-0">
           <img
             src={assetUrl("/logo-miro.webp")}
             alt="Miro Trading Card Game"
-            className="w-[min(520px,80vw)] h-auto drop-shadow-[0_6px_24px_rgba(139,92,246,0.45)]"
+            className="h-[14vh] max-h-[110px] w-auto drop-shadow-[0_6px_24px_rgba(139,92,246,0.45)]"
           />
         </div>
 
         {/* Season + Rank bar */}
         {season && (
-          <div className="flex items-center gap-4 mb-5 bg-stone-800/50 border border-stone-700/50 rounded-full px-5 py-2 animate-fade-in" style={{ animationDelay: '180ms', animationFillMode: 'both' }}>
+          <div className="flex items-center gap-3 bg-stone-800/50 border border-stone-700/50 rounded-full px-4 py-1 animate-fade-in shrink-0" style={{ animationDelay: '180ms', animationFillMode: 'both' }}>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
               <span className="text-xs text-amber-200/90 font-semibold">{season.name}</span>
@@ -241,17 +241,17 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
         )}
 
         {mode === 'menu' && (
-          <div className="w-full max-w-md space-y-5 animate-slide-up" style={{ animationDelay: '250ms', animationFillMode: 'both' }}>
+          <div className="w-full max-w-md landscape:max-w-2xl space-y-2 animate-slide-up" style={{ animationDelay: '250ms', animationFillMode: 'both' }}>
             {/* Play buttons — panel reskin: deep purple-black glass with
                  a thin gold-purple dual border that echoes the logo gem. */}
-            <div className="rounded-2xl p-6 shadow-2xl shadow-black/60 space-y-4 relative"
+            <div className="rounded-2xl p-3 shadow-2xl shadow-black/60 space-y-2 relative"
                  style={{
                    background: 'linear-gradient(180deg, rgba(30,16,52,0.82) 0%, rgba(16,8,28,0.88) 100%)',
                    boxShadow: '0 0 0 1px rgba(139,92,246,0.35), 0 0 0 2px rgba(217,169,56,0.12), 0 24px 48px rgba(0,0,0,0.5)',
                  }}>
               <button
                 onClick={onPlayAI}
-                className="w-full text-white font-bold py-4 px-6 rounded-xl text-lg hover:brightness-110 active:scale-[0.97] transition-all cursor-pointer border border-amber-400/50"
+                className="w-full text-white font-bold py-2.5 px-6 rounded-xl text-base hover:brightness-110 active:scale-[0.97] transition-all cursor-pointer border border-amber-400/50"
                 style={{
                   background: 'linear-gradient(135deg, #b8842e 0%, #d9a938 45%, #a06a1c 100%)',
                   boxShadow: '0 6px 20px rgba(217,169,56,0.3), inset 0 1px 0 rgba(255,230,150,0.35)',
@@ -259,10 +259,10 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
               >
                 Play vs AI
               </button>
-              <div className="flex gap-3">
+              <div className="flex gap-2">
                 <button
                   onClick={onPlayCasual}
-                  className="flex-1 text-white font-bold py-4 px-4 rounded-xl text-base hover:brightness-110 active:scale-[0.97] transition-all cursor-pointer border border-indigo-400/50"
+                  className="flex-1 text-white font-bold py-2 px-4 rounded-xl text-sm hover:brightness-110 active:scale-[0.97] transition-all cursor-pointer border border-indigo-400/50"
                   style={{
                     background: 'linear-gradient(135deg, #4338ca 0%, #6366f1 50%, #3730a3 100%)',
                     boxShadow: '0 6px 16px rgba(99,102,241,0.3), inset 0 1px 0 rgba(200,210,255,0.3)',
@@ -272,7 +272,7 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
                 </button>
                 <button
                   onClick={onPlayRanked}
-                  className="flex-1 text-white font-bold py-4 px-4 rounded-xl text-base hover:brightness-110 active:scale-[0.97] transition-all cursor-pointer border border-purple-400/60"
+                  className="flex-1 text-white font-bold py-2 px-4 rounded-xl text-sm hover:brightness-110 active:scale-[0.97] transition-all cursor-pointer border border-purple-400/60"
                   style={{
                     background: 'linear-gradient(135deg, #6b21a8 0%, #9333ea 50%, #581c87 100%)',
                     boxShadow: '0 6px 16px rgba(147,51,234,0.4), inset 0 1px 0 rgba(220,200,255,0.3)',
@@ -281,33 +281,33 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
                   Ranked
                 </button>
               </div>
-              <div className="flex gap-3 pt-1">
+              <div className="flex gap-2">
                 <button
                   onClick={handleCreate}
-                  className="flex-1 text-stone-200 font-semibold py-3 px-4 rounded-xl text-sm hover:brightness-125 active:scale-95 transition-all cursor-pointer border border-purple-400/25"
+                  className="flex-1 text-stone-200 font-semibold py-1.5 px-4 rounded-xl text-xs hover:brightness-125 active:scale-95 transition-all cursor-pointer border border-purple-400/25"
                   style={{ background: 'linear-gradient(180deg, rgba(55,30,90,0.75) 0%, rgba(32,16,56,0.75) 100%)' }}
                 >
                   Create Room
                 </button>
                 <button
                   onClick={() => setMode('join')}
-                  className="flex-1 text-stone-200 font-semibold py-3 px-4 rounded-xl text-sm hover:brightness-125 active:scale-95 transition-all cursor-pointer border border-purple-400/25"
+                  className="flex-1 text-stone-200 font-semibold py-1.5 px-4 rounded-xl text-xs hover:brightness-125 active:scale-95 transition-all cursor-pointer border border-purple-400/25"
                   style={{ background: 'linear-gradient(180deg, rgba(55,30,90,0.75) 0%, rgba(32,16,56,0.75) 100%)' }}
                 >
                   Join Room
                 </button>
               </div>
-              <div className="flex gap-3">
+              <div className="flex gap-2">
                 <button
                   onClick={onCollection}
-                  className="flex-1 text-amber-100 font-bold py-2.5 px-6 rounded-xl text-sm hover:brightness-125 active:scale-95 transition-all cursor-pointer border border-amber-500/40"
+                  className="flex-1 text-amber-100 font-bold py-1.5 px-6 rounded-xl text-xs hover:brightness-125 active:scale-95 transition-all cursor-pointer border border-amber-500/40"
                   style={{ background: 'linear-gradient(135deg, rgba(120,72,20,0.75) 0%, rgba(80,45,12,0.8) 100%)' }}
                 >
                   My Collection
                 </button>
                 <button
                   onClick={onFriends}
-                  className="flex-1 text-stone-300 font-semibold py-2.5 px-6 rounded-xl text-sm hover:brightness-125 active:scale-95 transition-all cursor-pointer"
+                  className="flex-1 text-stone-300 font-semibold py-1.5 px-6 rounded-xl text-xs hover:brightness-125 active:scale-95 transition-all cursor-pointer"
                   style={{ background: 'rgba(45,22,78,0.5)' }}
                 >
                   Friends

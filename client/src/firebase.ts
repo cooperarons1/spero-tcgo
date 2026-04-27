@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { getAuth, setPersistence, inMemoryPersistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import { PLATFORM } from './config';
 
 // Firebase Web API keys are not secrets — they identify the project,
 // and API abuse is gated by Firebase Security Rules + App Check. This
@@ -19,9 +20,11 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// iOS uses the @capacitor-firebase/authentication plugin (native iOS SDK)
-// which syncs credentials back into the JS SDK via Firebase's native
-// bridge — `auth.currentUser` populates normally and Firestore queries
-// authenticate as expected. Default persistence (browserLocalPersistence)
-// works fine in that path; the WKWebView IndexedDB hang only affected the
-// JS SDK's signin flow, not the post-auth state.
+// iOS WKWebView's IndexedDB implementation hangs the Firebase JS SDK on
+// auth state writes (the default browserLocalPersistence). Switching to
+// in-memory persistence on iOS avoids the hang — the cost is the user
+// re-authenticates on every cold start, but on iOS the native plugin
+// preserves the credential anyway and we re-sync after launch.
+if (PLATFORM === 'ios') {
+  setPersistence(auth, inMemoryPersistence).catch(() => {});
+}

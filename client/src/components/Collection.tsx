@@ -104,14 +104,33 @@ const MANA_FILTERS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
 // so a "page" is always exactly 3 rows. Keep these breakpoints in sync with
 // the grid-cols utilities at the card grid below and with useCardScale in
 // GameBoard so card sizing across the app stays coherent.
+function useIsShortViewport(): boolean {
+  const compute = () => typeof window !== 'undefined' && window.innerHeight < 600;
+  const [isShort, setIsShort] = useState(compute);
+  useEffect(() => {
+    const update = () => setIsShort(compute());
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+  return isShort;
+}
+
 function useCardsPerPage(): number {
   const compute = () => {
-    if (typeof window === 'undefined') return 15;
+    if (typeof window === 'undefined') return 18;
     const w = window.innerWidth;
-    if (w >= 1024) return 15; // lg: 5 cols × 3
-    if (w >= 768) return 12;  // md: 4 cols × 3
-    if (w >= 640) return 9;   // sm: 3 cols × 3
-    return 6;                 // base (mobile): 2 cols × 3
+    const h = window.innerHeight;
+    const isShortViewport = h < 600;
+    if (isShortViewport) {
+      if (w >= 1024) return 16; // 8 cols × 2
+      if (w >= 768) return 14;  // 7 cols × 2
+      if (w >= 640) return 12;  // 6 cols × 2
+      return 10;                // 5 cols × 2
+    }
+    if (w >= 1024) return 15;
+    if (w >= 768) return 12;
+    if (w >= 640) return 9;
+    return 6;
   };
   const [n, setN] = useState(compute);
   useEffect(() => {
@@ -160,6 +179,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
   const [pageDir, setPageDir] = useState<'left' | 'right' | null>(null);
   const [animating, setAnimating] = useState(false);
   const CARDS_PER_PAGE = useCardsPerPage();
+  const isShortViewport = useIsShortViewport();
   useEffect(() => { setPage(0); setPageDir(null); }, [CARDS_PER_PAGE]);
 
   // Crafting state
@@ -506,7 +526,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
             an iPhone viewport). Slides in slightly after the main card
             grid so the two sides of the screen feel choreographed
             instead of dual-snap-arriving. */}
-        <div className="w-full md:w-[240px] flex flex-col border-t md:border-t-0 md:border-l border-amber-800/20 bg-stone-900/50 shrink-0 order-2 max-h-48 md:max-h-none animate-slide-up" style={{ animationDelay: '150ms', animationFillMode: 'both' }}>
+        <div className="w-full md:w-[180px] lg:w-[240px] flex flex-col border-t md:border-t-0 md:border-l border-amber-800/20 bg-stone-900/50 shrink-0 order-2 max-h-48 md:max-h-none animate-slide-up" style={{ animationDelay: '150ms', animationFillMode: 'both' }}>
           <div className="p-3 border-b border-amber-800/30 bg-stone-900/50">
             <h2 className="text-sm uppercase tracking-wider text-amber-200/80 font-bold text-center">My Decks</h2>
             <p className="text-[9px] text-gray-500 text-center mt-0.5">{decks.length}/27</p>
@@ -774,7 +794,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
             <div className="flex-1 flex items-start justify-center p-3 pt-4 relative overflow-y-auto min-h-0">
               <div
                 key={`page-${page}`}
-                className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 w-full max-w-5xl ${
+                className={`grid grid-cols-3 landscape:grid-cols-5 sm:grid-cols-5 landscape:sm:grid-cols-6 md:grid-cols-6 landscape:md:grid-cols-7 lg:grid-cols-7 landscape:lg:grid-cols-8 gap-1.5 w-full max-w-6xl ${
                   pageDir === 'left' ? 'animate-page-slide-in-left' : 'animate-page-slide-in-right'
                 }`}
               >
@@ -810,6 +830,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
                         cardCode={c.cardCode}
                         greyed={greyed}
                         golden={entry.golden}
+                        small={isShortViewport}
                       />
                       {/* The gold tint + shimmer on the card itself
                            already communicates 'this is the golden

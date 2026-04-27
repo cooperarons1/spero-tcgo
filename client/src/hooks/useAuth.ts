@@ -4,7 +4,6 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
-  signInWithCustomToken,
   updateProfile,
   type User,
 } from 'firebase/auth';
@@ -68,6 +67,37 @@ export function useAuth() {
         await seedStarterDecks(u.uid);
       }
     });
+
+    // On iOS, also restore the native plugin's session at app launch so the
+    // user doesn't have to log back in after every cold start. The JS SDK
+    // listener above won't fire on iOS (we use REST for Firestore), so we
+    // mirror the native user into React state here.
+    if (PLATFORM === 'ios') {
+      (async () => {
+        try {
+          const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication');
+          const { user: native } = await FirebaseAuthentication.getCurrentUser();
+          if (native) {
+            setUser({ uid: native.uid, email: native.email, displayName: native.displayName } as unknown as User);
+            // Seed starter decks in the background — this hits the REST
+            // adapter on iOS so it doesn't depend on the JS SDK auth.
+            (async () => {
+              try {
+                await migrateLocalStorageDecks(native.uid);
+                await seedStarterDecks(native.uid);
+              } catch (e) {
+                console.error('[auth] iOS deck seeding failed', e);
+              }
+            })();
+          }
+          clear();
+        } catch (e) {
+          console.warn('[auth] iOS native getCurrentUser failed', e);
+          clear();
+        }
+      })();
+    }
+
     // Safety net: drop the spinner after 3s even if Firebase init hangs.
     const t = setTimeout(clear, 3000);
     return () => {
@@ -81,10 +111,12 @@ export function useAuth() {
       const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication');
       await FirebaseAuthentication.createUserWithEmailAndPassword({ email, password });
       await FirebaseAuthentication.updateProfile({ displayName });
-      // Plugin syncs to JS SDK; fall back to manual setUser if the listener
-      // is slow so the AuthScreen handler doesn't appear hung.
       const { user: native } = await FirebaseAuthentication.getCurrentUser();
-      if (native) setUser({ uid: native.uid, email: native.email, displayName: native.displayName ?? displayName } as unknown as User);
+      if (native) {
+        setUser({ uid: native.uid, email: native.email, displayName: native.displayName ?? displayName } as unknown as User);
+        // Seed via REST adapter (uses native idToken — no JS SDK dependency).
+        try { await seedStarterDecks(native.uid); } catch (e) { console.error('[auth] seedStarterDecks failed', e); }
+      }
       return;
     }
     const cred = await createUserWithEmailAndPassword(auth, email, password);
@@ -97,12 +129,16 @@ export function useAuth() {
     if (PLATFORM === 'ios') {
       const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication');
       await FirebaseAuthentication.signInWithEmailAndPassword({ email, password });
-      // Plugin SHOULD sync to JS SDK and trigger onAuthStateChanged, but in
-      // practice that listener can be slow or skip a fire on the first
-      // signin. Pull the current user from the plugin and push it into
-      // local state so the App switches to Lobby immediately.
       const { user: native } = await FirebaseAuthentication.getCurrentUser();
-      if (native) setUser({ uid: native.uid, email: native.email, displayName: native.displayName } as unknown as User);
+      if (native) {
+        setUser({ uid: native.uid, email: native.email, displayName: native.displayName } as unknown as User);
+        try {
+          await migrateLocalStorageDecks(native.uid);
+          await seedStarterDecks(native.uid);
+        } catch (e) {
+          console.error('[auth] iOS deck seeding failed', e);
+        }
+      }
       return;
     }
     await signInWithEmailAndPassword(auth, email, password);

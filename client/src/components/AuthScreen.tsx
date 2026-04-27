@@ -17,7 +17,6 @@ export function AuthScreen({ onSignIn, onSignUp }: AuthScreenProps) {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    setError('· submit pressed, calling auth…');
     const TIMEOUT_MS = 15000;
     const timeout = new Promise<never>((_, rej) =>
       setTimeout(() => rej(new Error('Network timeout — check your connection and try again.')), TIMEOUT_MS)
@@ -30,10 +29,8 @@ export function AuthScreen({ onSignIn, onSignUp }: AuthScreenProps) {
           return;
         }
         await Promise.race([onSignUp(email, password, displayName.trim()), timeout]);
-        setError('✓ signup returned, waiting for app…');
       } else {
         await Promise.race([onSignIn(email, password), timeout]);
-        setError('✓ signin returned, waiting for app…');
       }
     } catch (err: any) {
       const code = err?.code || '';
@@ -67,18 +64,18 @@ export function AuthScreen({ onSignIn, onSignUp }: AuthScreenProps) {
           left: 'env(safe-area-inset-left, 0px)',
           right: 'env(safe-area-inset-right, 0px)',
           bottom: 'env(safe-area-inset-bottom, 0px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '0.75rem',
         }}
       >
         <div
           className="bg-slate-800/95 backdrop-blur rounded-2xl p-5 shadow-xl border border-slate-700 animate-slide-up"
           style={{
-            position: 'absolute',
-            top: '1.5rem',
-            left: 0,
-            right: 0,
-            marginLeft: 'auto',
-            marginRight: 'auto',
-            width: 'min(28rem, calc(100% - 1.5rem))',
+            width: 'min(28rem, 100%)',
+            maxHeight: '100%',
+            overflowY: 'auto',
           }}
         >
         <h1 className="text-3xl font-extrabold text-white text-center animate-bounce-in">MIRO</h1>
