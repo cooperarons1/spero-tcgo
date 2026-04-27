@@ -308,9 +308,21 @@ function App() {
     : '';
 
   if (loading) {
+    // Branded loading screen — same purple-black gradient as the lobby so
+    // the splash → auth-init → lobby transition is one continuous surface.
+    // Previously this was bare gray text on the default body background, so
+    // notched iPhones in landscape showed dark stripes around it (read as
+    // "white space") and there was no visual signal that the app was
+    // actively bootstrapping versus stuck.
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-gray-400 text-lg">Loading...</div>
+      <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0b0613] via-[#150821] to-[#07030d]" />
+        <div className="absolute inset-0 opacity-60 pointer-events-none"
+             style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 50%, rgba(139, 92, 246, 0.22) 0%, transparent 60%)' }} />
+        <div className="relative z-10 flex flex-col items-center gap-4">
+          <div className="w-12 h-12 rounded-full border-4 border-amber-400/30 border-t-amber-400 animate-spin" />
+          <div className="text-amber-200/90 text-sm font-semibold tracking-wider uppercase">Loading Miro TCG</div>
+        </div>
       </div>
     );
   }
