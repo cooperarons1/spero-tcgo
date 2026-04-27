@@ -116,7 +116,7 @@ export function AuthScreen({ onSignIn, onSignUp }: AuthScreenProps) {
               onChange={(e) => setDisplayName(e.target.value)}
               placeholder="Display name"
               maxLength={15}
-              className="w-full bg-slate-700 border border-gray-600 rounded-lg py-2 px-3 text-sm text-white placeholder-gray-500 focus:border-spero-yellow focus:outline-none"
+              className="w-full bg-slate-700 border border-gray-600 rounded-lg py-2 px-3 text-base text-white placeholder-gray-500 focus:border-spero-yellow focus:outline-none"
             />
           )}
           <input
@@ -124,14 +124,14 @@ export function AuthScreen({ onSignIn, onSignUp }: AuthScreenProps) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
-            className="w-full bg-slate-700 border border-gray-600 rounded-lg py-2 px-3 text-sm text-white placeholder-gray-500 focus:border-spero-yellow focus:outline-none"
+            className="w-full bg-slate-700 border border-gray-600 rounded-lg py-2 px-3 text-base text-white placeholder-gray-500 focus:border-spero-yellow focus:outline-none"
           />
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
-            className="w-full bg-slate-700 border border-gray-600 rounded-lg py-2 px-3 text-sm text-white placeholder-gray-500 focus:border-spero-yellow focus:outline-none"
+            className="w-full bg-slate-700 border border-gray-600 rounded-lg py-2 px-3 text-base text-white placeholder-gray-500 focus:border-spero-yellow focus:outline-none"
           />
 
           {error && (
