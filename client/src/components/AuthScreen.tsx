@@ -84,7 +84,7 @@ export function AuthScreen({ onSignIn, onSignUp }: AuthScreenProps) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen w-screen overflow-hidden p-3 bg-gradient-to-b from-[#0b0613] via-[#150821] to-[#07030d]">
+    <div className="flex flex-col items-center justify-center h-screen w-screen overflow-x-auto overflow-y-hidden p-3 bg-gradient-to-b from-[#0b0613] via-[#150821] to-[#07030d]">
       <div className="bg-slate-800/95 backdrop-blur rounded-2xl p-5 shadow-xl max-w-sm w-full border border-slate-700 animate-slide-up">
         <h1 className="text-3xl font-extrabold text-white text-center animate-bounce-in">MIRO</h1>
         <p className="text-spero-yellow font-bold text-sm mb-4 text-center animate-fade-in" style={{ animationDelay: '200ms', animationFillMode: 'both' }}>TCG Online</p>
