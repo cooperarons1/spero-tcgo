@@ -40,17 +40,20 @@ export const SERVER_URL: string = import.meta.env.DEV
   : (import.meta.env.VITE_SERVER_URL ||
      'https://spero-tcgo-server-798283664658.us-west1.run.app');
 
-// Asset CDN base. Web build serves assets from the same origin (empty base ⇒
-// browser resolves /cards/X.webp against the host). Native wrappers don't
-// have a useful "same origin" so they point at Firebase Hosting (or the
-// future custom domain) for the ~700 MB card art library.
-const DEFAULT_ASSET_BASE_NATIVE = 'https://miro-tcgo.web.app';
-
+// Asset base. Cards + heroes + frames are bundled into the app for both web
+// (Firebase Hosting same-origin) and native builds (Capacitor sync copies
+// client/dist into ios/App/App/public/, Electron loads via file://). Empty
+// base ⇒ the WebView/WKWebView resolves /cards/X.webp against the current
+// origin (https://localhost on iOS Capacitor, file:// on Electron prod).
+//
+// Earlier this was a CDN URL on iOS, which made every card image a network
+// fetch — first launch had to download ~314 MB before any card could render
+// and the app felt "stuck loading." Bundled-everywhere is faster and works
+// offline. VITE_ASSET_BASE_URL still overrides for ad-hoc CDN tests.
 export const ASSET_BASE_URL: string = (() => {
   const override = import.meta.env.VITE_ASSET_BASE_URL;
   if (override) return override;
-  if (PLATFORM === 'ios' || PLATFORM === 'steam') return DEFAULT_ASSET_BASE_NATIVE;
-  return ''; // web: relative to current host
+  return '';
 })();
 
 /**
