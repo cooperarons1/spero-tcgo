@@ -5,6 +5,7 @@ import { DECK_SIZE } from '../../../shared/deckRules';
 import { socket } from '../socket';
 import type { CardDef, HeroClass } from '../../../shared/types';
 import cardData from '../../../data/cards.json';
+import { assetUrl } from '../config';
 
 interface DeckPickerProps {
   mode: 'online' | 'ai';
@@ -243,12 +244,12 @@ export function DeckPicker({ mode, queueMode = 'casual', uid, onBack }: DeckPick
         </div>
       )}
 
-      <div className="flex-1 flex min-h-0">
+      <div className="flex-1 flex flex-col md:flex-row min-h-0">
         {/* ═══ Left: Deck Grid ═══ */}
         {/* Slides up on mount; the right hero panel slides up with a small
             delay so the two halves of the screen feel intentionally
             choreographed instead of both pop-arriving at the same instant. */}
-        <div className="flex-1 flex flex-col min-w-0 animate-slide-up">
+        <div className="flex-1 flex flex-col min-w-0 min-h-0 animate-slide-up">
           {/* Header bar */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-amber-900/20 shrink-0">
             <button onClick={onBack} className="text-gray-400 hover:text-white text-sm cursor-pointer transition-colors">
@@ -273,7 +274,7 @@ export function DeckPicker({ mode, queueMode = 'casual', uid, onBack }: DeckPick
                 <p className="text-gray-500">No decks yet. Visit Collection to create one!</p>
               </div>
             ) : (
-              <div className="grid grid-cols-3 gap-4 w-full">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 w-full">
                 {sortedDecks.map(deck => {
                   const isValid = deck.cards.length === DECK_SIZE;
                   const isSelected = selectedId === deck.id;
@@ -297,10 +298,15 @@ export function DeckPicker({ mode, queueMode = 'casual', uid, onBack }: DeckPick
                         boxShadow: isSelected ? `0 0 20px ${accent}55` : '0 2px 6px rgba(0,0,0,0.4)',
                       }}
                     >
-                      {/* Hero portrait fills entire tile background */}
-                      <div className="relative w-full aspect-[2.2/1]">
+                      {/* Hero portrait fills entire tile background.
+                           Mobile gets a taller aspect (1.4:1) so the
+                           single-column tile shows a sizeable portrait
+                           instead of a wide+short letterbox. Tablet+
+                           keeps the original 2.2:1 banner shape that
+                           reads well in a 3-up grid. */}
+                      <div className="relative w-full aspect-[1.4/1] sm:aspect-[2/1] md:aspect-[2.2/1]">
                         {portrait ? (
-                          <img src={portrait} alt="" className="absolute inset-0 h-full w-full object-cover opacity-50 group-hover:opacity-70 transition-opacity" />
+                          <img src={assetUrl(portrait)} alt="" className="absolute inset-0 h-full w-full object-cover opacity-50 group-hover:opacity-70 transition-opacity" />
                         ) : (
                           <div className="absolute inset-0 flex items-center justify-center" style={{ backgroundColor: accent + '20' }}>
                             <span className="text-4xl font-extrabold" style={{ color: accent + '60' }}>{HERO_LABELS[deck.heroClass]?.[0]}</span>
@@ -336,8 +342,10 @@ export function DeckPicker({ mode, queueMode = 'casual', uid, onBack }: DeckPick
           </div>
         </div>
 
-        {/* ═══ Right: Hero Preview Panel — Hearthstone style ═══ */}
-        <div className="w-[280px] md:w-[320px] flex flex-col border-l border-amber-900/20 bg-stone-900/50 shrink-0 animate-slide-up" style={{ animationDelay: '150ms', animationFillMode: 'both' }}>
+        {/* ═══ Right: Hero Preview Panel — Hearthstone style on tablet+;
+             stacks below the deck grid on phone with a max-h cap so it
+             doesn't push the grid offscreen. ═══ */}
+        <div className="w-full md:w-[320px] flex flex-col border-t md:border-t-0 md:border-l border-amber-900/20 bg-stone-900/50 shrink-0 max-h-72 md:max-h-none overflow-y-auto md:overflow-visible animate-slide-up" style={{ animationDelay: '150ms', animationFillMode: 'both' }}>
           {selectedDeck ? (() => {
             const hl = heroLevels[selectedDeck.heroClass as HeroClass];
             const heroLevel = hl?.level ?? 1;
@@ -365,7 +373,7 @@ export function DeckPicker({ mode, queueMode = 'casual', uid, onBack }: DeckPick
                   <div className={`w-40 h-48 rounded-t-full rounded-b-lg border-4 overflow-hidden shadow-2xl ${isGolden ? 'shadow-yellow-400/40' : ''}`}
                     style={{ borderColor: isGolden ? '#fbbf24' : accent }}>
                     {heroPortrait ? (
-                      <img src={heroPortrait} alt="" className={`w-full h-full object-cover ${isGolden ? 'saturate-125 brightness-110' : ''}`} />
+                      <img src={assetUrl(heroPortrait)} alt="" className={`w-full h-full object-cover ${isGolden ? 'saturate-125 brightness-110' : ''}`} />
                     ) : (
                       <div className="w-full h-full bg-stone-800 flex items-center justify-center">
                         <span className="text-5xl font-extrabold" style={{ color: accent + '50' }}>

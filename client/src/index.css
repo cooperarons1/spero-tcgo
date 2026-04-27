@@ -13,12 +13,38 @@
   --color-board-accent: #55401e;
 }
 
+/* Safe-area insets for notch / home-indicator on iOS (Capacitor) and any
+   future Android display cutouts. On non-notched devices these resolve to
+   0 so they're harmless. Use via `padding-top: var(--safe-top)` etc., or
+   the .safe-* utility classes below. */
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+
+.pt-safe { padding-top: var(--safe-top); }
+.pb-safe { padding-bottom: var(--safe-bottom); }
+.pl-safe { padding-left: var(--safe-left); }
+.pr-safe { padding-right: var(--safe-right); }
+.px-safe { padding-left: var(--safe-left); padding-right: var(--safe-right); }
+.py-safe { padding-top: var(--safe-top); padding-bottom: var(--safe-bottom); }
+
 body {
   margin: 0;
   background: #0f1218;
   color: white;
   font-family: var(--font-sans);
   min-height: 100vh;
+  /* Account for iPhone notch/home-bar at the document level so any full-bleed
+     overlays (auth screen, lobby gradient, etc.) don't paint behind hardware
+     UI on Capacitor builds. Components that explicitly need full-bleed can
+     opt back in with `body, .full-bleed { padding: 0 }`. */
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bottom);
+  padding-left: var(--safe-left);
+  padding-right: var(--safe-right);
 }
 
 @keyframes slide-up {

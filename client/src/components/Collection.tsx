@@ -10,6 +10,7 @@ import type { HeroClass, CardDef } from '../../../shared/types';
 import { CARD_BACKS } from '../../../shared/seasons';
 import { COINS } from '../../../shared/cosmetics';
 import { FEATURE_FLAGS } from '../utils/featureFlags';
+import { assetUrl } from '../config';
 
 const CRAFT_COSTS: Record<string, number> = { COMMON: 40, RARE: 100, EPIC: 400, LEGENDARY: 1600 };
 const DUST_VALUES: Record<string, number> = { COMMON: 5, RARE: 20, EPIC: 100, LEGENDARY: 400 };
@@ -99,6 +100,28 @@ function getCardDef(code: string): CardDef | undefined {
 
 const MANA_FILTERS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
 
+// Page-size matches the responsive grid columns (2/3/4/5 at base/sm/md/lg)
+// so a "page" is always exactly 3 rows. Keep these breakpoints in sync with
+// the grid-cols utilities at the card grid below and with useCardScale in
+// GameBoard so card sizing across the app stays coherent.
+function useCardsPerPage(): number {
+  const compute = () => {
+    if (typeof window === 'undefined') return 15;
+    const w = window.innerWidth;
+    if (w >= 1024) return 15; // lg: 5 cols × 3
+    if (w >= 768) return 12;  // md: 4 cols × 3
+    if (w >= 640) return 9;   // sm: 3 cols × 3
+    return 6;                 // base (mobile): 2 cols × 3
+  };
+  const [n, setN] = useState(compute);
+  useEffect(() => {
+    const update = () => setN(compute());
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+  return n;
+}
+
 export function Collection({ uid, onBack }: CollectionProps) {
   const [decks, setDecks] = useState<DeckList[]>([]);
   // Long-press / hover preview of a deck (shows card list + mana curve).
@@ -130,11 +153,14 @@ export function Collection({ uid, onBack }: CollectionProps) {
   // Card hover preview
   const [hoveredCard, setHoveredCard] = useState<{ code: string; x: number; y: number } | null>(null);
 
-  // Pagination
+  // Pagination — page size adapts to viewport so each page = 3 rows
+  // (6 mobile / 9 sm / 12 md / 15 lg). Resets to page 0 on viewport flips
+  // so we never index past the last page after a resize.
   const [page, setPage] = useState(0);
   const [pageDir, setPageDir] = useState<'left' | 'right' | null>(null);
   const [animating, setAnimating] = useState(false);
-  const CARDS_PER_PAGE = 15; // 5 cols × 3 rows — leaves room for pagination arrows below the grid on laptop viewports
+  const CARDS_PER_PAGE = useCardsPerPage();
+  useEffect(() => { setPage(0); setPageDir(null); }, [CARDS_PER_PAGE]);
 
   // Crafting state
   const [craftingCard, setCraftingCard] = useState<string | null>(null);
@@ -474,11 +500,13 @@ export function Collection({ uid, onBack }: CollectionProps) {
         </div>
       </div>
 
-      <div className="flex-1 flex min-h-0">
-        {/* My Decks sidebar — RIGHT side. Slides in slightly after the
-            main card grid so the two sides of the screen feel
-            choreographed instead of dual-snap-arriving. */}
-        <div className="w-56 md:w-[240px] flex flex-col border-l border-amber-800/20 bg-stone-900/50 shrink-0 order-2 animate-slide-up" style={{ animationDelay: '150ms', animationFillMode: 'both' }}>
+      <div className="flex-1 flex flex-col md:flex-row min-h-0">
+        {/* My Decks sidebar — RIGHT side on tablet+, BELOW the card grid
+            on mobile (stacked because a 240px sidebar would steal 60% of
+            an iPhone viewport). Slides in slightly after the main card
+            grid so the two sides of the screen feel choreographed
+            instead of dual-snap-arriving. */}
+        <div className="w-full md:w-[240px] flex flex-col border-t md:border-t-0 md:border-l border-amber-800/20 bg-stone-900/50 shrink-0 order-2 max-h-48 md:max-h-none animate-slide-up" style={{ animationDelay: '150ms', animationFillMode: 'both' }}>
           <div className="p-3 border-b border-amber-800/30 bg-stone-900/50">
             <h2 className="text-sm uppercase tracking-wider text-amber-200/80 font-bold text-center">My Decks</h2>
             <p className="text-[9px] text-gray-500 text-center mt-0.5">{decks.length}/27</p>
@@ -527,7 +555,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
                         <div className="relative h-16 w-full">
                           {HERO_PORTRAIT_IMGS[deck.heroClass] ? (
                             <img
-                              src={HERO_PORTRAIT_IMGS[deck.heroClass]}
+                              src={assetUrl(HERO_PORTRAIT_IMGS[deck.heroClass]!)}
                               alt=""
                               className="absolute inset-0 w-full h-full object-cover object-center"
                               draggable={false}
@@ -746,7 +774,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
             <div className="flex-1 flex items-start justify-center p-3 pt-4 relative overflow-y-auto min-h-0">
               <div
                 key={`page-${page}`}
-                className={`grid grid-cols-5 gap-2 w-full max-w-5xl ${
+                className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 w-full max-w-5xl ${
                   pageDir === 'left' ? 'animate-page-slide-in-left' : 'animate-page-slide-in-right'
                 }`}
               >
@@ -1020,7 +1048,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
                 const selected = selectedCardBack === cb.id;
                 const style = (cb as any).style;
                 const bg = style?.type === 'image' && style?.value
-                  ? { backgroundImage: `url('${style.value}')`, backgroundSize: 'cover', backgroundPosition: 'center' }
+                  ? { backgroundImage: `url('${assetUrl(style.value)}')`, backgroundSize: 'cover', backgroundPosition: 'center' }
                   : style?.type === 'gradient' && style?.value
                   ? { background: style.value as string }
                   : { background: '#1f2937' };
@@ -1210,7 +1238,7 @@ export function Collection({ uid, onBack }: CollectionProps) {
                     >
                       {portrait ? (
                         <img
-                          src={portrait}
+                          src={assetUrl(portrait)}
                           alt={h.label}
                           className="absolute inset-0 w-full h-full object-cover"
                           draggable={false}

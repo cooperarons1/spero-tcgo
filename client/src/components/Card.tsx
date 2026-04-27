@@ -48,6 +48,27 @@ const classBorder: Record<string, string> = {
   NEUTRAL: 'border-stone-500',
 };
 
+// Ring variant of classBorder. We use `ring` (which is a box-shadow under
+// the hood) instead of `border` for the card's outer class-color frame so
+// children — specifically the name banner — can fill the full card width.
+// `border-2` plus `overflow-hidden` was clipping all child layout to the
+// 136px padding box, leaving the banner permanently inset 2px on each
+// side and unable to fill 140px. `ring` doesn't take layout space, so the
+// banner can fill 140px while the class-color frame still renders around
+// the card edge as a 2px box-shadow.
+const classRing: Record<string, string> = {
+  JIMMY: 'ring-red-600',
+  TALA: 'ring-green-600',
+  DEREK: 'ring-yellow-500',
+  ANDERS: 'ring-blue-500',
+  DES: 'ring-purple-600',
+  ASTRID: 'ring-amber-400',
+  AVA: 'ring-pink-500',
+  LUCAS: 'ring-teal-500',
+  IZZY: 'ring-orange-500',
+  NEUTRAL: 'ring-stone-500',
+};
+
 const classFrameBg: Record<string, string> = {
   JIMMY: 'bg-gradient-to-b from-red-950 via-red-900/80 to-red-950',
   TALA: 'bg-gradient-to-b from-green-950 via-green-900/80 to-green-950',
@@ -269,7 +290,9 @@ export function Card({ cardCode, onClick, selected, greyed, small, className, go
   // stays plumbed in the type system; visuals go dormant until the
   // animation approach ships.
   const showGold = golden && FEATURE_FLAGS.GOLDEN_CARDS;
-  const border = showGold ? 'border-amber-300' : (classBorder[def.heroClass] || classBorder.NEUTRAL);
+  // `ring` instead of `border` so the class-color frame doesn't take 2px
+  // of layout on each side — was forcing the banner to be inset 2px.
+  const ring = showGold ? 'ring-amber-300' : (classRing[def.heroClass] || classRing.NEUTRAL);
   const frameBg = showGold
     ? 'bg-gradient-to-b from-amber-700 via-amber-800 to-amber-950'
     : (classFrameBg[def.heroClass] || classFrameBg.NEUTRAL);
@@ -279,11 +302,11 @@ export function Card({ cardCode, onClick, selected, greyed, small, className, go
       onClick={onClick}
       className={`
         ${small ? 'w-[100px] h-[143px]' : 'w-[140px] h-[200px]'}
-        rounded-lg border-2 ${border} flex-shrink-0
+        rounded-lg ring-2 ${ring} flex-shrink-0
         ${frameBg} relative overflow-hidden
         flex flex-col transition-all duration-200
         ${onClick ? 'cursor-pointer hover:-translate-y-1 hover:shadow-lg active:scale-95' : ''}
-        ${selected ? 'ring-2 ring-white ring-offset-1 ring-offset-black shadow-lg shadow-white/20' : ''}
+        ${selected ? 'ring-white ring-offset-1 ring-offset-black shadow-lg shadow-white/20' : ''}
         ${greyed ? 'opacity-40 grayscale' : ''}
         ${className ?? ''}
       `}

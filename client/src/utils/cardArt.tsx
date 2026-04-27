@@ -3,6 +3,7 @@ import { CARD_ART_PNGS } from './cardArtPngs';
 import { CARD_ART_ANIMS } from './cardArtAnims';
 import { hasLayers } from './cardArtLayers';
 import { FEATURE_FLAGS } from './featureFlags';
+import { assetUrl } from '../config';
 
 // Per-card cache-bust version. Bump the number (or add an entry) when
 // regenerating art for a card that has already shipped — Firebase
@@ -4447,7 +4448,7 @@ function LayeredArt({
         style={tiltOn ? { transform: `rotateX(${tilt.rx * 0.4}deg) rotateY(${tilt.ry * 0.4}deg)`, transition: 'transform 120ms ease-out' } : undefined}
       >
         <img
-          src={`/cards/layers/${cardCode}-bg.png`}
+          src={assetUrl(`/cards/layers/${cardCode}-bg.png`)}
           alt=""
           className="layer-bg absolute inset-0 w-full h-full object-cover"
           loading="lazy"
@@ -4459,7 +4460,7 @@ function LayeredArt({
         style={tiltOn ? { transform: `rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`, transition: 'transform 120ms ease-out' } : undefined}
       >
         <img
-          src={`/cards/layers/${cardCode}-fg.png`}
+          src={assetUrl(`/cards/layers/${cardCode}-fg.png`)}
           alt=""
           className="layer-fg absolute inset-0 w-full h-full object-cover"
           loading="lazy"
@@ -4503,7 +4504,7 @@ export function CardArt({
   if (hasAnim) {
     return (
       <video
-        src={`/cards/anims/${cardCode}.webm`}
+        src={assetUrl(`/cards/anims/${cardCode}.webm`)}
         className={className}
         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         autoPlay
@@ -4554,7 +4555,7 @@ export function CardArt({
     // Per-card cache-bust ?v= for arts that were re-generated post-launch
     // so the 3600s Firebase cache doesn't serve a stale image.
     const version = CARD_ART_VERSIONS[cardCode];
-    const src = version ? `/cards/${cardCode}.webp?v=${version}` : `/cards/${cardCode}.webp`;
+    const src = assetUrl(version ? `/cards/${cardCode}.webp?v=${version}` : `/cards/${cardCode}.webp`);
     return (
       <img
         src={src}

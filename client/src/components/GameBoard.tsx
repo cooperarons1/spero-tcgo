@@ -30,6 +30,7 @@ import { GameOver } from './GameOver';
 import { TurnBanner } from './TurnBanner';
 import cardsJson from '../../../data/cards.json';
 import { CARD_BACKS } from '../../../shared/seasons';
+import { assetUrl } from '../config';
 
 // ─── Card back style lookup ───
 const CARD_BACK_STYLES: Record<string, { type: 'gradient' | 'image'; value: string; borderColor: string }> = {};
@@ -510,7 +511,7 @@ function MulliganScreen({
           {secondsLeft}s
         </div>
       )}
-      <div className="flex gap-3 md:gap-5 px-2">
+      <div className="flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-5 px-2 max-w-md md:max-w-none">
         {hand.map((c, i) => {
           const def = getCard(c.cardCode);
           const isReplacing = replacing[i];
@@ -522,7 +523,7 @@ function MulliganScreen({
             <button
               key={c.instanceId}
               onClick={() => toggle(i)}
-              className={`relative flex h-48 w-32 md:h-64 md:w-44 flex-col items-center rounded-xl border-3 overflow-hidden transition-all duration-300 animate-card-deal
+              className={`relative flex h-44 w-28 sm:h-48 sm:w-32 md:h-64 md:w-44 flex-col items-center rounded-xl border-3 overflow-hidden transition-all duration-300 animate-card-deal
                 ${isReplacing
                   ? 'border-gray-500/60 scale-95'
                   : 'border-green-400 shadow-[0_0_15px_rgba(74,222,128,0.5)] hover:shadow-[0_0_25px_rgba(74,222,128,0.7)] hover:scale-105'}
@@ -634,8 +635,17 @@ function BoardMinionCard({
       onPointerDown={onPointerDown}
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
-      style={animStyle as React.CSSProperties}
-      className={`relative w-[9rem] h-[10.5rem] select-none touch-none transition-all
+      style={{
+        // Inline style instead of Tailwind arbitrary values — Tailwind 4's
+        // JIT compiler refuses to emit width/height for `w-[calc(9rem*var(--x))]`
+        // because the unspaced `*` confuses its arbitrary-value parser. Inline
+        // CSS sidesteps the parse step. The `--card-scale` variable comes from
+        // the GameBoard root and adapts to viewport (0.6 phone / 0.75 tablet / 1.0 desktop).
+        width: 'calc(9rem * var(--card-scale, 1))',
+        height: 'calc(10.5rem * var(--card-scale, 1))',
+        ...(animStyle as React.CSSProperties),
+      }}
+      className={`relative select-none touch-none transition-all
         minion-oval
         ${hasTaunt ? 'minion-taunt-wrapper' : ''}
         ${isFrozen ? 'brightness-75 saturate-50' : ''}
@@ -831,12 +841,18 @@ function BoardLocationCard({
   return (
     <button
       onClick={onClick}
-      className={`relative w-[7rem] h-[8rem] select-none transition-all rounded-xl border-2 overflow-hidden
+      style={{
+        // Inline width/height — same Tailwind 4 calc() parsing limitation
+        // as BoardMinionCard above.
+        width: 'calc(7rem * var(--card-scale, 1))',
+        height: 'calc(8rem * var(--card-scale, 1))',
+        background: 'linear-gradient(to bottom, #2a3a2a, #1a2a1a)',
+      }}
+      className={`relative select-none transition-all rounded-xl border-2 overflow-hidden
         ${canActivate ? 'shadow-[0_0_16px_4px_rgba(59,130,246,0.6)] cursor-pointer hover:scale-110 ring-[2px] ring-blue-400/80 border-blue-500' : ''}
         ${onCooldown || activated ? 'opacity-50 border-stone-600' : !canActivate ? 'border-amber-700' : ''}
         ${isSelected ? 'ring-[3px] ring-green-400 shadow-[0_0_24px_8px_rgba(34,197,94,0.6)] -translate-y-2 scale-110 z-30' : ''}
       `}
-      style={{ background: 'linear-gradient(to bottom, #2a3a2a, #1a2a1a)' }}
     >
       {/* Art */}
       <div className="absolute inset-0 overflow-hidden rounded-xl opacity-60">
@@ -1057,7 +1073,7 @@ function HeroPortrait({
           <div className="absolute inset-0 rounded-full overflow-hidden">
             {HERO_PORTRAIT_PNGS[heroClass] ? (
               <img
-                src={HERO_PORTRAIT_PNGS[heroClass]}
+                src={assetUrl(HERO_PORTRAIT_PNGS[heroClass]!)}
                 alt=""
                 className="w-full h-full object-cover"
                 draggable={false}
@@ -1124,7 +1140,7 @@ function HeroPortrait({
                usable so it matches the SVG greyed-out behavior. */}
           {HERO_POWER_PNGS[heroClass] ? (
             <img
-              src={HERO_POWER_PNGS[heroClass]}
+              src={assetUrl(HERO_POWER_PNGS[heroClass]!)}
               alt=""
               className={`pointer-events-none absolute inset-0 w-full h-full object-cover rounded-full ${canUseHeroPower ? '' : 'grayscale opacity-60'}`}
             />
@@ -1249,7 +1265,7 @@ function OpponentHand({ count, cardBackId }: { count: number; cardBackId?: strin
       {Array.from({ length: count }).map((_, i) => (
         cb?.type === 'image' ? (
           <div key={i} className="h-14 w-10 md:h-24 md:w-16 rounded-lg border-2 border-amber-700 overflow-hidden relative shadow-md transition-transform duration-200 hover:scale-110 hover:-translate-y-2">
-            <img src={cb.value} alt="" className="absolute inset-0 w-full h-full object-cover" draggable={false} onDragStart={(e) => e.preventDefault()} />
+            <img src={assetUrl(cb.value)} alt="" className="absolute inset-0 w-full h-full object-cover" draggable={false} onDragStart={(e) => e.preventDefault()} />
           </div>
         ) : (
           <div
@@ -1362,7 +1378,7 @@ function DeckPile({
         title={`${count} cards remaining`}
       >
         {cb?.type === 'image' && (
-          <img src={cb.value} alt="" className="absolute inset-0 w-full h-full object-cover" />
+          <img src={assetUrl(cb.value)} alt="" className="absolute inset-0 w-full h-full object-cover" />
         )}
         {/* Stacked side offset hints */}
         {count > 0 && (
@@ -2520,7 +2536,10 @@ export default function GameBoard({
     <div
       ref={boardRef}
       className="relative flex h-dvh w-screen flex-col overflow-hidden select-none"
-      style={{ background: 'linear-gradient(to bottom, #1a0f05, #2d1e0e 6%, #4a3520 15%, #5c4528 30%, #6b5232 45%, #725838 50%, #6b5232 55%, #5c4528 70%, #4a3520 85%, #2d1e0e 94%, #1a0f05)' }}
+      style={{
+        background: 'linear-gradient(to bottom, #1a0f05, #2d1e0e 6%, #4a3520 15%, #5c4528 30%, #6b5232 45%, #725838 50%, #6b5232 55%, #5c4528 70%, #4a3520 85%, #2d1e0e 94%, #1a0f05)',
+        ['--card-scale' as any]: cardScale,
+      } as React.CSSProperties}
     >
       {GameOverOverlay}
       {isPlaying && !isGameOver && <TurnBanner key={turnBannerKey} isMyTurn={isMyTurn} />}
@@ -2624,9 +2643,9 @@ export default function GameBoard({
             key={opponentCardShowcase.key}
             className="pointer-events-none fixed top-1/2 left-1/2 z-[60] animate-card-showcase"
           >
-            <div className="w-56 h-72 rounded-2xl border-4 border-amber-300 shadow-[0_0_60px_16px_rgba(245,158,11,0.7)] bg-gradient-to-b from-stone-800 via-stone-900 to-black overflow-hidden flex flex-col">
+            <div className="w-40 h-52 md:w-56 md:h-72 rounded-2xl border-4 border-amber-300 shadow-[0_0_60px_16px_rgba(245,158,11,0.7)] bg-gradient-to-b from-stone-800 via-stone-900 to-black overflow-hidden flex flex-col">
               <div className="absolute top-2 left-2 z-10"><ManaGem value={def.manaCost} size={40} /></div>
-              <div className="w-full h-44 mt-3 mx-auto rounded overflow-hidden bg-stone-700">
+              <div className="w-full h-32 md:h-44 mt-3 mx-auto rounded overflow-hidden bg-stone-700">
                 <CardArt cardCode={opponentCardShowcase.cardCode} className="w-full h-full" />
               </div>
               <div className="px-3 pt-2 text-center">
@@ -2857,7 +2876,7 @@ export default function GameBoard({
               <div
                 key={m.instanceId}
                 data-entity-id={m.instanceId}
-                style={{ flex: '0 1 9rem', transform: `scale(${cardScale * opBoardScale}) rotate(${arcAngle}deg) translateY(${arcY}px)`, transformOrigin: 'center center', zIndex: zIdx }}
+                style={{ flex: `0 1 calc(9rem * var(--card-scale, 1))`, transform: `scale(${opBoardScale}) rotate(${arcAngle}deg) translateY(${arcY}px)`, transformOrigin: 'center center', zIndex: zIdx }}
                 onMouseEnter={(e) => setHoveredCard({ cardCode: m.cardCode, x: e.clientX, y: e.clientY })}
                 onMouseLeave={() => setHoveredCard(null)}
               >
@@ -3046,8 +3065,8 @@ export default function GameBoard({
                       key="drop-spacer"
                       className="relative flex items-center justify-center transition-all duration-200 ease-out"
                       style={{
-                        width: '9rem',
-                        height: '10.5rem',
+                        width: 'calc(9rem * var(--card-scale, 1))',
+                        height: 'calc(10.5rem * var(--card-scale, 1))',
                         flex: '0 0 auto',
                       }}
                     >
@@ -3093,7 +3112,7 @@ export default function GameBoard({
                       key={m.instanceId}
                       data-minion-index={i}
                       data-entity-id={m.instanceId}
-                      style={{ flex: '0 1 9rem', transform: `scale(${cardScale * myBoardScale}) rotate(${arcAngle}deg) translateY(${arcY}px)`, transformOrigin: 'bottom center', transition: 'all 0.2s ease' }}
+                      style={{ flex: `0 1 calc(9rem * var(--card-scale, 1))`, transform: `scale(${myBoardScale}) rotate(${arcAngle}deg) translateY(${arcY}px)`, transformOrigin: 'bottom center', transition: 'all 0.2s ease' }}
                       onMouseEnter={(e) => setHoveredCard({ cardCode: m.cardCode, x: e.clientX, y: e.clientY })}
                       onMouseLeave={() => setHoveredCard(null)}
                     >

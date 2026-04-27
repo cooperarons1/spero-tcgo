@@ -4,6 +4,7 @@ import { getHistory, type MatchRecord } from '../utils/matchHistory';
 import { loadHeroLevels, type HeroLevelsMap } from '../utils/heroLevels';
 import type { RankTier } from '../../../shared/types';
 import { CARD_BACKS, type CardBackDef } from '../../../shared/seasons';
+import { assetUrl } from '../config';
 
 interface ProfileProps {
   uid: string;
@@ -326,7 +327,7 @@ function CardBackTile({ cardBack, owned, active, onSelect }: { cardBack: CardBac
     >
       <div className="w-full aspect-[7/10] relative">
         {cardBack.style.type === 'image' ? (
-          <img src={cardBack.style.value} alt={cardBack.name} className="absolute inset-0 w-full h-full object-cover" />
+          <img src={assetUrl(cardBack.style.value)} alt={cardBack.name} className="absolute inset-0 w-full h-full object-cover" />
         ) : (
           <div
             className="absolute inset-0 w-full h-full"

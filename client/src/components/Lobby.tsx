@@ -3,6 +3,7 @@ import type { LobbyState } from '../../../shared/types';
 import type { User } from 'firebase/auth';
 import { socket } from '../socket';
 import { FEATURE_FLAGS } from '../utils/featureFlags';
+import { assetUrl } from '../config';
 
 interface LobbyProps {
   lobby: LobbyState | null;
@@ -199,7 +200,7 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
              it lift against the dark background; subtle scale-in on mount. */}
         <div className="mb-4 animate-bounce-in">
           <img
-            src="/logo-miro.webp"
+            src={assetUrl("/logo-miro.webp")}
             alt="Miro Trading Card Game"
             className="w-[min(520px,80vw)] h-auto drop-shadow-[0_6px_24px_rgba(139,92,246,0.45)]"
           />

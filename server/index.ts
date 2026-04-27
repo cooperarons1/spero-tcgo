@@ -29,6 +29,16 @@ import { buildFullCollection } from './cards.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // ── CORS whitelist ──
+//
+// Native wrappers (Capacitor iOS, Electron Steam) connect from non-https
+// origins that don't appear on the web. WKWebView reports `capacitor://localhost`
+// (or `https://localhost` if `iosScheme: 'https'`); Electron's packaged build
+// loads files from `file://`. Allow both unconditionally so future native
+// builds connect without server changes.
+//
+// CORS_ORIGINS env var (comma-separated) appends extra origins at runtime —
+// used for custom domains (e.g. https://mirotcg.com) and beta builds without
+// rebuilding/redeploying the server.
 
 const PROD_ORIGINS = [
   'https://spero-tcgo.web.app',
@@ -40,9 +50,24 @@ const DEV_ORIGINS = [
   'http://localhost:3002',
 ];
 
-const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? PROD_ORIGINS
-  : [...PROD_ORIGINS, ...DEV_ORIGINS];
+const NATIVE_ORIGINS = [
+  'capacitor://localhost',
+  'https://localhost',
+  'file://',
+];
+
+const EXTRA_ORIGINS = (process.env.CORS_ORIGINS ?? '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+const allowedOrigins = [
+  ...(process.env.NODE_ENV === 'production'
+    ? PROD_ORIGINS
+    : [...PROD_ORIGINS, ...DEV_ORIGINS]),
+  ...NATIVE_ORIGINS,
+  ...EXTRA_ORIGINS,
+];
 
 const app = express();
 app.use(helmet());

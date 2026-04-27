@@ -1,9 +1,6 @@
 import { io } from 'socket.io-client';
 import { auth } from './firebase';
-
-const SERVER_URL = import.meta.env.DEV
-  ? 'http://localhost:3002'
-  : (import.meta.env.VITE_SERVER_URL || 'https://spero-tcgo-server-798283664658.us-west1.run.app');
+import { SERVER_URL } from './config';
 
 export const socket = io(SERVER_URL, {
   autoConnect: false,
