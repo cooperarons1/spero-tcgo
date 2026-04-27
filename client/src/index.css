@@ -31,28 +31,28 @@
 .px-safe { padding-left: var(--safe-left); padding-right: var(--safe-right); }
 .py-safe { padding-top: var(--safe-top); padding-bottom: var(--safe-bottom); }
 
-body {
+html, body {
   margin: 0;
   padding: 0;
-  background: #0f1218;
+  /* Match the in-app purple gradient root color so any sliver that escapes
+     the React bg (under the home indicator, beside the notch in landscape,
+     or briefly during keyboard transitions) reads as the same surface. */
+  background: #0b0613;
   color: white;
   font-family: var(--font-sans);
-  /* `100dvh` honors the iOS dynamic viewport (URL bar shrink, landscape
-     keyboard) so full-bleed gradients reach the actual screen edge on
-     newer iPhones. `100vh` previously left a dark stripe under the home
-     indicator in landscape. */
-  min-height: 100dvh;
-  /* Body no longer pads for the notch — the previous safe-area padding
-     created visible dark bars outside any full-bleed gradient (the Lobby
-     bg only ran inside the padded box, with #0f1218 body showing through
-     above and below). Components that need to keep their UI clear of the
-     notch/home-bar use the .pt-safe / .pb-safe utilities INSIDE their
-     own full-bleed background. */
   overscroll-behavior: none;
+  /* Lock scroll at the document level. iOS WKWebView otherwise rubber-bands
+     and the keyboard auto-scroll in landscape can leave the page offset.
+     The app uses h-screen / h-dvh containers internally — those still
+     scroll their own children that need it. */
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  overflow: hidden;
 }
 
-html, body, #root { height: 100%; }
-#root { min-height: 100dvh; }
+#root { width: 100vw; height: 100dvh; overflow: hidden; }
 
 /* iOS / mobile UX: prevent text selection on long-press, kill the blue
    selection highlight, and suppress the WKWebView grey/blue tap flash on

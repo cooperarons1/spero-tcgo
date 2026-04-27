@@ -26,6 +26,10 @@ const config: CapacitorConfig = {
   ios: {
     contentInset: 'always',
     scheme: 'https',
+    // Match the in-app gradient so the native WKWebView backdrop doesn't
+    // show as a white stripe under the home indicator or as a dark void
+    // beside the safe-area inset on landscape iPhones with Dynamic Island.
+    backgroundColor: '#0b0613',
   },
   // No `server.url` — bundled mode. Pointing this at a remote URL would let
   // the app live-reload from a dev server, but it would ALSO change the

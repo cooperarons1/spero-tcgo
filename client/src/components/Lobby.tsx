@@ -181,7 +181,7 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
   const tier = rank?.rankTier ?? 'BRONZE';
 
   return (
-    <div className="flex flex-col h-screen relative overflow-x-auto overflow-y-hidden">
+    <div className="flex flex-col h-screen w-screen relative overflow-hidden">
       {/* ── Background: deep purple-black gradient with a subtle radial
            orra-gem glow anchored behind the logo. Matches the logo's
            purple accent and gives the home screen real atmosphere. ── */}
