@@ -57,18 +57,30 @@ export function AuthScreen({ onSignIn, onSignUp }: AuthScreenProps) {
       className="bg-gradient-to-b from-[#0b0613] via-[#150821] to-[#07030d]"
       style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, overflow: 'hidden' }}
     >
+      {/* Inner safe-area frame: respects iOS notch / Dynamic Island so the
+          card centers on the VISIBLE viewport, not the layout viewport
+          (which extends under the notch and shifts math-center right). */}
       <div
-        className="bg-slate-800/95 backdrop-blur rounded-2xl p-5 shadow-xl border border-slate-700 animate-slide-up"
         style={{
           position: 'absolute',
-          top: '1.5rem',
-          left: 0,
-          right: 0,
-          marginLeft: 'auto',
-          marginRight: 'auto',
-          width: 'min(28rem, calc(100vw - 1.5rem))',
+          top: 'env(safe-area-inset-top, 0px)',
+          left: 'env(safe-area-inset-left, 0px)',
+          right: 'env(safe-area-inset-right, 0px)',
+          bottom: 'env(safe-area-inset-bottom, 0px)',
         }}
       >
+        <div
+          className="bg-slate-800/95 backdrop-blur rounded-2xl p-5 shadow-xl border border-slate-700 animate-slide-up"
+          style={{
+            position: 'absolute',
+            top: '1.5rem',
+            left: 0,
+            right: 0,
+            marginLeft: 'auto',
+            marginRight: 'auto',
+            width: 'min(28rem, calc(100% - 1.5rem))',
+          }}
+        >
         <h1 className="text-3xl font-extrabold text-white text-center animate-bounce-in">MIRO</h1>
         <p className="text-spero-yellow font-bold text-sm mb-4 text-center animate-fade-in" style={{ animationDelay: '200ms', animationFillMode: 'both' }}>TCG Online</p>
 
@@ -129,6 +141,7 @@ export function AuthScreen({ onSignIn, onSignUp }: AuthScreenProps) {
             {loading ? 'Loading...' : tab === 'signin' ? 'Sign In' : 'Create Account'}
           </button>
         </form>
+        </div>
       </div>
     </div>
   );
