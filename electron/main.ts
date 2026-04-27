@@ -72,7 +72,12 @@ async function createWindow(): Promise<void> {
       // The renderer talks to Cloud Run over wss; webSecurity must stay on.
       webSecurity: true,
     },
-    show: false,
+    // Show the window immediately. The previous `show: false` + ready-to-show
+    // pattern leaves the user staring at the dock with no feedback if the
+    // renderer errors before first paint — and made the window appear "missing"
+    // when DevTools opened detached. The 1a0f05 backgroundColor masks the
+    // pre-paint flash.
+    show: true,
   });
 
   // External links (e.g. a future "Open Discord" button) open in the user's
@@ -82,8 +87,6 @@ async function createWindow(): Promise<void> {
     void shell.openExternal(url);
     return { action: 'deny' };
   });
-
-  win.once('ready-to-show', () => win.show());
 
   if (isDev) {
     await win.loadURL('http://localhost:5173');

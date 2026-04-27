@@ -433,8 +433,12 @@ export function Card({ cardCode, onClick, selected, greyed, small, className, go
 
       {/* ── Card name banner — gold scroll with tapered ends, Hearthstone
            reference. Implemented with overlaid CSS shapes: center
-           rectangle plus two angled end-caps. ── */}
-      <div className={`relative ${small ? 'mx-0 -mt-0.5 mb-0.5 h-3' : 'mx-0 -mt-1 mb-1 h-5'} z-10 shrink-0 flex items-center justify-center`}>
+           rectangle plus two angled end-caps. `w-full` is explicit because
+           in Electron's Chromium build the flex-col stretch default was
+           collapsing the wrapper to text width — the absolute scroll caps
+           ride on the wrapper's width, so a collapsed wrapper produced a
+           shrink-to-fit banner instead of one that spans the whole card. ── */}
+      <div className={`relative w-full ${small ? '-mt-0.5 mb-0.5 h-3' : '-mt-1 mb-1 h-5'} z-10 shrink-0 flex items-center justify-center`}>
         {(() => {
           const cls = def.heroClass || 'NEUTRAL';
           const cap = classBannerCap[cls] ?? classBannerCap.NEUTRAL;
@@ -491,13 +495,16 @@ export function Card({ cardCode, onClick, selected, greyed, small, className, go
         </div>
       )}
 
-      {/* ── Card text — parchment-tan panel inside a dark stone cutout. ── */}
+      {/* ── Card text — parchment-tan panel inside a dark stone cutout.
+           Full card width — the gold ring lives outside layout (ring-2),
+           so the text panel can sit flush to the card edge without
+           clipping the frame. Bottom padding clears the absolute stat
+           badges. ── */}
       {def.text ? (
         <div className={`
-          flex-1 ${small ? 'mx-0.5 px-0.5 py-px pb-4' : 'mx-1.5 px-1.5 py-1 pb-5'}
-          rounded-sm
+          flex-1 w-full ${small ? 'px-1 py-px pb-4' : 'px-1.5 py-1 pb-5'}
           flex items-start justify-center overflow-hidden min-h-0
-          border border-amber-900/40 shadow-inner
+          border-y border-amber-900/40 shadow-inner
         `}
           style={{ background: 'linear-gradient(to bottom, #d9c7a0 0%, #c5ad85 50%, #b79a6d 100%)' }}
         >
