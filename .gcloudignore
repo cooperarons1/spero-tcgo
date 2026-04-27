@@ -10,6 +10,14 @@ server/node_modules
 .old.png
 *.old.png
 
+# iOS Capacitor wrapper (461 MB — bundled card art + Pods) and Electron
+# desktop wrapper are not used by the Cloud Run server build. Excluding
+# them keeps the source-upload tarball under ~30 MB so the build's source-
+# fetch container stops timing out / failing.
+ios/
+electron/
+scripts/
+
 # Exclude only the giant training/audit files — keep the data/ directory
 # itself and its runtime files (cards.json, *-weights.json, etc.) so the
 # Dockerfile's `COPY data/` step works.
