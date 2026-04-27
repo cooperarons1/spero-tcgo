@@ -181,7 +181,7 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
   const tier = rank?.rankTier ?? 'BRONZE';
 
   return (
-    <div className="flex flex-col h-screen relative overflow-hidden">
+    <div className="flex flex-col h-[100dvh] relative overflow-hidden">
       {/* ── Background: deep purple-black gradient with a subtle radial
            orra-gem glow anchored behind the logo. Matches the logo's
            purple accent and gives the home screen real atmosphere. ── */}
@@ -197,10 +197,13 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
 
       {/* Connection-state pill — surfaces websocket handshake delay so the
           user knows the wait is the server cold-starting, not the app
-          hanging. Only renders when not connected. Top-center, above the
-          logo, non-blocking. */}
+          hanging. Only renders when not connected. Top-center, clear of
+          the notch via the safe-top inset, non-blocking. */}
       {!socketConnected && (
-        <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 rounded-full bg-amber-900/70 border border-amber-500/50 px-3 py-1 text-amber-100 text-xs shadow-lg backdrop-blur">
+        <div
+          className="absolute left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 rounded-full bg-amber-900/70 border border-amber-500/50 px-3 py-1 text-amber-100 text-xs shadow-lg backdrop-blur"
+          style={{ top: 'calc(var(--safe-top, 0px) + 0.5rem)' }}
+        >
           <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
           Connecting to server…
         </div>
@@ -397,7 +400,10 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
       </div>
 
       {/* ── Bottom bar ── */}
-      <div className="shrink-0 bg-stone-900/90 border-t border-amber-900/30 px-3 py-2.5">
+      <div
+        className="shrink-0 bg-stone-900/90 border-t border-amber-900/30 px-3 py-2.5"
+        style={{ paddingBottom: 'calc(0.625rem + var(--safe-bottom, 0px))' }}
+      >
         <div className="max-w-3xl mx-auto flex items-center gap-2 overflow-x-auto">
           {/* Profile chip */}
           <button

@@ -33,19 +33,26 @@
 
 body {
   margin: 0;
+  padding: 0;
   background: #0f1218;
   color: white;
   font-family: var(--font-sans);
-  min-height: 100vh;
-  /* Account for iPhone notch/home-bar at the document level so any full-bleed
-     overlays (auth screen, lobby gradient, etc.) don't paint behind hardware
-     UI on Capacitor builds. Components that explicitly need full-bleed can
-     opt back in with `body, .full-bleed { padding: 0 }`. */
-  padding-top: var(--safe-top);
-  padding-bottom: var(--safe-bottom);
-  padding-left: var(--safe-left);
-  padding-right: var(--safe-right);
+  /* `100dvh` honors the iOS dynamic viewport (URL bar shrink, landscape
+     keyboard) so full-bleed gradients reach the actual screen edge on
+     newer iPhones. `100vh` previously left a dark stripe under the home
+     indicator in landscape. */
+  min-height: 100dvh;
+  /* Body no longer pads for the notch — the previous safe-area padding
+     created visible dark bars outside any full-bleed gradient (the Lobby
+     bg only ran inside the padded box, with #0f1218 body showing through
+     above and below). Components that need to keep their UI clear of the
+     notch/home-bar use the .pt-safe / .pb-safe utilities INSIDE their
+     own full-bleed background. */
+  overscroll-behavior: none;
 }
+
+html, body, #root { height: 100%; }
+#root { min-height: 100dvh; }
 
 @keyframes slide-up {
   from { opacity: 0; transform: translateY(20px); }
