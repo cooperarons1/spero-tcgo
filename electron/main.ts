@@ -10,8 +10,9 @@
 // to at build time). Asset URLs route through `assetUrl()` in client/src/config.ts
 // which prefixes them with the Firebase Hosting CDN when running here.
 
-import { app, BrowserWindow, session, shell } from 'electron';
+import { app, BrowserWindow, net, protocol, session, shell } from 'electron';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const isDev = process.env.ELECTRON_DEV === '1';
 
@@ -92,7 +93,13 @@ async function createWindow(): Promise<void> {
     await win.loadURL('http://localhost:5173');
     win.webContents.openDevTools({ mode: 'detach' });
   } else {
-    await win.loadFile(path.join(__dirname, '..', '..', 'client', 'dist', 'index.html'));
+    // Load via the custom `app://` protocol registered below instead of
+    // loadFile()/file://. With file:// loading, absolute paths in React
+    // (`<img src="/cards/X.webp">`, `/heroes/X.webp`, etc.) resolve to
+    // the OS filesystem root and 404. With app://localhost as the origin,
+    // those same absolute paths route into the bundled client/dist
+    // through our protocol handler — no per-component path rewrites.
+    await win.loadURL('app://localhost/index.html');
   }
 
   // Cmd-Opt-I (mac) / Ctrl-Shift-I (win/linux) toggles DevTools in any build
@@ -112,7 +119,36 @@ async function createWindow(): Promise<void> {
   });
 }
 
+// Custom `app://` protocol — must be registered as standard + secure BEFORE
+// app.whenReady so BrowserWindow can use it as a renderer origin without
+// CORS/cookie quirks. Registration is a no-op cost in dev (we still load
+// from http://localhost:5173) but harmless to keep unconditional.
+protocol.registerSchemesAsPrivileged([
+  { scheme: 'app', privileges: { standard: true, secure: true, supportFetchAPI: true } },
+]);
+
 app.whenReady().then(() => {
+  // Map app://localhost/<path> requests to the packaged client/dist tree.
+  // electron-builder copies client/dist into the asar root at app/client/dist
+  // (per package.json `build.files`), so __dirname (electron/dist inside the
+  // asar) → ../../client/dist is the right anchor in both dev and prod.
+  const distRoot = path.resolve(__dirname, '..', '..', 'client', 'dist');
+  protocol.handle('app', (request) => {
+    const url = new URL(request.url);
+    // Drop leading slash + strip query/hash; default to index.html for the
+    // SPA root so `app://localhost/` works as well as `app://localhost/index.html`.
+    let pathname = decodeURIComponent(url.pathname).replace(/^\/+/, '');
+    if (!pathname || pathname.endsWith('/')) pathname += 'index.html';
+    const filePath = path.join(distRoot, pathname);
+    // Defense against path traversal — the resolved file must stay under
+    // distRoot. `..` segments would let a renderer compromise read arbitrary
+    // host files via `app://localhost/../../etc/passwd`.
+    if (!filePath.startsWith(distRoot)) {
+      return new Response('forbidden', { status: 403 });
+    }
+    return net.fetch(pathToFileURL(filePath).toString());
+  });
+
   applyCsp();
   void createWindow();
 

@@ -61,15 +61,26 @@ export const ASSET_BASE_URL: string = (() => {
  * platform. Pass paths starting with `/` (e.g. `/cards/COIN.webp`).
  *
  * - Web: returns the path unchanged (browser resolves against current origin).
- * - Native: prefixes with the asset CDN so WKWebView / Electron fetches over
- *   HTTPS from Firebase Hosting instead of trying to load from the bundle.
+ * - iOS Capacitor: same — the WKWebView serves at https://localhost so
+ *   absolute paths resolve into the bundled `public/` folder.
+ * - Electron prod: file:// scheme means absolute `/cards/X.webp` would
+ *   resolve to filesystem root (broken). Strip the leading slash so the
+ *   path becomes relative to the loaded `index.html` — which sits next to
+ *   the bundled `cards/` directory in the packaged app.
+ *
+ * VITE_ASSET_BASE_URL override wins for ad-hoc CDN tests.
  *
  * Idempotent: if `path` is already an absolute URL, it's returned unchanged.
  */
 export function assetUrl(path: string): string {
   if (!path) return path;
   if (/^https?:\/\//i.test(path)) return path;
-  if (!ASSET_BASE_URL) return path;
-  if (path.startsWith('/')) return ASSET_BASE_URL + path;
-  return ASSET_BASE_URL + '/' + path;
+  if (ASSET_BASE_URL) {
+    if (path.startsWith('/')) return ASSET_BASE_URL + path;
+    return ASSET_BASE_URL + '/' + path;
+  }
+  // Electron prod uses the custom app:// protocol (registered in
+  // electron/main.ts) — absolute `/cards/X.webp` resolves cleanly to the
+  // bundled client/dist tree without any rewrite here.
+  return path;
 }
