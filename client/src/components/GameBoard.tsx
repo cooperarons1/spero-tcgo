@@ -627,6 +627,7 @@ function BoardMinionCard({
   const isFrozen = minion.isFrozen;
   const isStealth = minion.hasStealthUntilAttack;
   const hasDeathrattle = !isSilenced && def?.keywords.includes('DEATHRATTLE');
+  const hasLifesteal = !isSilenced && def?.keywords.includes('LIFESTEAL');
   const rarityColor = def ? RARITY_COLORS[def.rarity] : undefined;
 
   return (
@@ -765,6 +766,29 @@ function BoardMinionCard({
       `}>
         {minion.currentHealth}
       </div>
+      {/* Lifesteal blood-drop badge — bottom-center, only on lifesteal
+           minions. Shifted up when also Deathrattle so the two don't
+           overlap (Deathrattle skull also lives at bottom-center). */}
+      {hasLifesteal && (
+        <div
+          className={`absolute left-1/2 -translate-x-1/2 z-30 pointer-events-none ${hasDeathrattle ? 'bottom-7' : 'bottom-0'}`}
+          aria-label="Lifesteal"
+          title="Lifesteal: damage dealt also heals your hero"
+        >
+          <svg viewBox="0 0 16 20" className="w-4 h-5" style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.8))' }}>
+            <defs>
+              <linearGradient id={`ls-drop-bm-${minion.instanceId}`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#fb7185" />
+                <stop offset="60%" stopColor="#be123c" />
+                <stop offset="100%" stopColor="#6d0b22" />
+              </linearGradient>
+            </defs>
+            <path d="M8 0 C 4 8 0 11 0 14 a 8 6 0 0 0 16 0 c 0 -3 -4 -6 -8 -14 z" fill={`url(#ls-drop-bm-${minion.instanceId})`} stroke="#fecdd3" strokeWidth="0.5"/>
+            <ellipse cx="5.5" cy="13" rx="2" ry="2.5" fill="#fecaca" opacity="0.45"/>
+          </svg>
+        </div>
+      )}
+
       {/* Deathrattle skull icon — bottom center */}
       {hasDeathrattle && (
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-30 pointer-events-none">

@@ -15,7 +15,7 @@
     "build:electron-mac": "npm run build:client-electron && npm run build:electron-tsc && electron-builder --mac --x64 --arm64",
     "build:electron-win": "npm run build:client-electron && npm run build:electron-tsc && electron-builder --win --x64",
     "build:electron-linux": "npm run build:client-electron && npm run build:electron-tsc && electron-builder --linux --x64",
-    "build:ios": "npm run build:client && npx cap sync ios",
+    "build:ios": "npm run build:client && npx cap sync ios && node scripts/strip-ios-bundle.mjs",
     "open:ios": "npx cap open ios",
     "deploy:server": "gcloud run deploy spero-tcgo-server --source . --project spero-tcgo --region us-west1 --allow-unauthenticated --session-affinity --port 8080 --env-vars-file .env.production.yaml",
     "deploy:client": "npm run build:client && firebase deploy --only hosting",

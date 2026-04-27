@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import cardsData from '../../../data/cards.json';
 import { CardArt } from '../utils/cardArt';
 import { GoldenEffectsOverlay as GoldenEffectsOverlayLazy } from './GoldenEffectsOverlay';
@@ -142,6 +143,139 @@ const KEYWORD_CHIPS: Array<{ id: string; label: string; cls: string }> = [
   { id: 'LIFESTEAL',     label: 'Lifesteal',     cls: 'bg-rose-900 text-rose-200' },
   { id: 'SPELL_DAMAGE',  label: 'Spell +1',      cls: 'bg-indigo-900 text-indigo-200' },
 ];
+
+// Inline-SVG keyword glyphs rendered as a row at the bottom of every Card.
+// Each entry is a self-contained SVG (with a viewBox of 24×24) so they all
+// scale uniformly. Rendered order in KeywordIcons is the order below; only
+// the keywords actually present on the card render. Heart for LIFESTEAL,
+// shield for TAUNT, sun for DIVINE_SHIELD, bolt for CHARGE, eye for
+// STEALTH, swirl for WINDFURY, spark for SPELL_DAMAGE, skull for
+// DEATHRATTLE. Tooltip via `title` for accessibility.
+const KEYWORD_ICONS: Array<{ id: string; title: string; node: ReactNode }> = [
+  {
+    id: 'LIFESTEAL', title: 'Lifesteal — damage dealt heals your hero',
+    node: (
+      <svg viewBox="0 0 24 24" aria-hidden>
+        <defs>
+          <linearGradient id="kw-lifesteal-fill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#fb7185"/>
+            <stop offset="55%" stopColor="#be123c"/>
+            <stop offset="100%" stopColor="#6d0b22"/>
+          </linearGradient>
+        </defs>
+        <path d="M12 21 C 5 16 1 12 1 8 a 6 6 0 0 1 11 -3 a 6 6 0 0 1 11 3 c 0 4 -4 8 -11 13 z" fill="url(#kw-lifesteal-fill)" stroke="#fecdd3" strokeWidth="1"/>
+      </svg>
+    ),
+  },
+  {
+    id: 'TAUNT', title: 'Taunt — enemies must attack this minion first',
+    node: (
+      <svg viewBox="0 0 24 24" aria-hidden>
+        <defs>
+          <linearGradient id="kw-taunt-fill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#cbd5e1"/>
+            <stop offset="100%" stopColor="#475569"/>
+          </linearGradient>
+        </defs>
+        <path d="M12 2 L 21 5 V 12 C 21 17 17 21 12 22 C 7 21 3 17 3 12 V 5 Z" fill="url(#kw-taunt-fill)" stroke="#1e293b" strokeWidth="1.2"/>
+      </svg>
+    ),
+  },
+  {
+    id: 'DIVINE_SHIELD', title: 'Divine Shield — first damage is ignored',
+    node: (
+      <svg viewBox="0 0 24 24" aria-hidden>
+        <defs>
+          <radialGradient id="kw-divine-fill" cx="0.5" cy="0.5" r="0.6">
+            <stop offset="0%" stopColor="#fff8c5"/>
+            <stop offset="60%" stopColor="#facc15"/>
+            <stop offset="100%" stopColor="#92580d"/>
+          </radialGradient>
+        </defs>
+        <circle cx="12" cy="12" r="6" fill="url(#kw-divine-fill)" stroke="#7c4a04" strokeWidth="1"/>
+        <g stroke="#fde68a" strokeWidth="1.4" strokeLinecap="round">
+          <line x1="12" y1="1" x2="12" y2="4"/>
+          <line x1="12" y1="20" x2="12" y2="23"/>
+          <line x1="1" y1="12" x2="4" y2="12"/>
+          <line x1="20" y1="12" x2="23" y2="12"/>
+          <line x1="4.2" y1="4.2" x2="6.3" y2="6.3"/>
+          <line x1="17.7" y1="17.7" x2="19.8" y2="19.8"/>
+          <line x1="4.2" y1="19.8" x2="6.3" y2="17.7"/>
+          <line x1="17.7" y1="6.3" x2="19.8" y2="4.2"/>
+        </g>
+      </svg>
+    ),
+  },
+  {
+    id: 'CHARGE', title: 'Charge — can attack the turn it is summoned',
+    node: (
+      <svg viewBox="0 0 24 24" aria-hidden>
+        <path d="M14 2 L 4 14 H 11 L 8 22 L 20 9 H 13 Z" fill="#fde047" stroke="#a16207" strokeWidth="1" strokeLinejoin="round"/>
+      </svg>
+    ),
+  },
+  {
+    id: 'STEALTH', title: 'Stealth — cannot be targeted until it attacks',
+    node: (
+      <svg viewBox="0 0 24 24" aria-hidden>
+        <ellipse cx="12" cy="12" rx="10" ry="6" fill="#1e293b" stroke="#94a3b8" strokeWidth="1"/>
+        <circle cx="12" cy="12" r="3" fill="#0f172a"/>
+        <line x1="3" y1="3" x2="21" y2="21" stroke="#cbd5e1" strokeWidth="1.6" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
+  {
+    id: 'WINDFURY', title: 'Windfury — can attack twice each turn',
+    node: (
+      <svg viewBox="0 0 24 24" aria-hidden fill="none" stroke="#67e8f9" strokeWidth="2" strokeLinecap="round">
+        <path d="M3 8 H 13 a 3 3 0 1 0 -3 -3"/>
+        <path d="M3 14 H 17 a 3 3 0 1 1 -3 3"/>
+        <path d="M3 20 H 9"/>
+      </svg>
+    ),
+  },
+  {
+    id: 'SPELL_DAMAGE', title: 'Spell Damage +1',
+    node: (
+      <svg viewBox="0 0 24 24" aria-hidden>
+        <path d="M12 2 L 14 10 L 22 12 L 14 14 L 12 22 L 10 14 L 2 12 L 10 10 Z" fill="#a78bfa" stroke="#5b21b6" strokeWidth="1" strokeLinejoin="round"/>
+      </svg>
+    ),
+  },
+  {
+    id: 'DEATHRATTLE', title: 'Deathrattle — triggers when this minion dies',
+    node: (
+      <svg viewBox="0 0 24 24" aria-hidden>
+        <path d="M12 2 a 8 8 0 0 1 8 8 v 4 a 4 4 0 0 1 -2 3.5 V 21 H 6 V 17.5 A 4 4 0 0 1 4 14 V 10 a 8 8 0 0 1 8 -8 z" fill="#e5e7eb" stroke="#1f2937" strokeWidth="1"/>
+        <circle cx="9" cy="11" r="2" fill="#1f2937"/>
+        <circle cx="15" cy="11" r="2" fill="#1f2937"/>
+        <rect x="11" y="14.5" width="2" height="3" fill="#1f2937"/>
+      </svg>
+    ),
+  },
+];
+
+function KeywordIcons({ keywords, small }: { keywords: string[]; small?: boolean }) {
+  const present = KEYWORD_ICONS.filter((kw) => keywords.includes(kw.id));
+  if (!present.length) return null;
+  // Above stat circles + minion-type label so we don't fight bottom-corners.
+  // Centered horizontally; max-width keeps the row from intruding on the
+  // attack/health badges (each ~24px corner). Compact gap so 3+ icons fit.
+  const sizeCls = small ? 'w-2.5 h-2.5' : 'w-3.5 h-3.5';
+  const bottomCls = small ? 'bottom-[18px]' : 'bottom-[26px]';
+  return (
+    <div
+      className={`absolute ${bottomCls} left-1/2 -translate-x-1/2 z-[22] pointer-events-none flex items-center justify-center gap-0.5`}
+      style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.85))' }}
+    >
+      {present.map((kw) => (
+        <span key={kw.id} className={`${sizeCls} block`} title={kw.title} aria-label={kw.id.toLowerCase()}>
+          {kw.node}
+        </span>
+      ))}
+    </div>
+  );
+}
 
 // Diamond-faceted mana gem modeled on the Shadow-of-Demise style: blue
 // gem with bronze ring, light-reflected facets. Used for the mana cost
@@ -470,30 +604,8 @@ export function Card({ cardCode, onClick, selected, greyed, small, className, go
 
       {/* Keyword chip strip removed — the text box already shows each
            keyword by name, so the stacked badges above the art were
-           redundant and obscured the portrait (e.g. Windfury chip sat
-           over the character's head on Jax, Desert Coyote).
-           Exception: LIFESTEAL — hard to read in the 5.5px text box on
-           small hand cards, so show a tiny blood-drop badge in the top
-           right corner. Sits above the art circle; never on the face. */}
-      {def.keywords.includes('LIFESTEAL') && (
-        <div
-          className={`absolute ${small ? 'top-[18px] right-[2px]' : 'top-[22px] right-[3px]'} z-[25] pointer-events-none`}
-          aria-label="Lifesteal"
-          title="Lifesteal: damage dealt also heals your hero"
-        >
-          <svg viewBox="0 0 16 20" className={small ? 'w-3 h-3.5' : 'w-4 h-5'} style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.8))' }}>
-            <defs>
-              <linearGradient id="ls-drop" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#fb7185" />
-                <stop offset="60%" stopColor="#be123c" />
-                <stop offset="100%" stopColor="#6d0b22" />
-              </linearGradient>
-            </defs>
-            <path d="M8 0 C 4 8 0 11 0 14 a 8 6 0 0 0 16 0 c 0 -3 -4 -6 -8 -14 z" fill="url(#ls-drop)" stroke="#fecdd3" strokeWidth="0.5"/>
-            <ellipse cx="5.5" cy="13" rx="2" ry="2.5" fill="#fecaca" opacity="0.45"/>
-          </svg>
-        </div>
-      )}
+           redundant and obscured the portrait. Replaced with the
+           bottom-of-card KeywordIcons row (rendered below). */}
 
       {/* ── Card text — parchment-tan panel inside a dark stone cutout.
            Full card width — the gold ring lives outside layout (ring-2),
@@ -521,6 +633,12 @@ export function Card({ cardCode, onClick, selected, greyed, small, className, go
       ) : (
         <div className="flex-1" />
       )}
+
+      {/* ── Keyword icons row — bottom of card, above the stat circles.
+           One small SVG glyph per keyword the card has. Lifesteal heart,
+           Taunt shield, Divine Shield sun, Charge bolt, Stealth eye,
+           Windfury swirl, Spell Damage spark, Deathrattle skull. ── */}
+      <KeywordIcons keywords={def.keywords} small={small} />
 
       {/* ── Bottom stats — absolute positioned inside card ── */}
       {hasStats && (
