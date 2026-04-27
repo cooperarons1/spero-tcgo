@@ -78,7 +78,13 @@ export function useAuth() {
 
   const signUp = async (email: string, password: string, displayName: string) => {
     if (PLATFORM === 'ios') {
-      await nativeSignUp(email, password, displayName);
+      const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication');
+      await FirebaseAuthentication.createUserWithEmailAndPassword({ email, password });
+      await FirebaseAuthentication.updateProfile({ displayName });
+      // Plugin syncs to JS SDK; fall back to manual setUser if the listener
+      // is slow so the AuthScreen handler doesn't appear hung.
+      const { user: native } = await FirebaseAuthentication.getCurrentUser();
+      if (native) setUser({ uid: native.uid, email: native.email, displayName: native.displayName ?? displayName } as unknown as User);
       return;
     }
     const cred = await createUserWithEmailAndPassword(auth, email, password);
@@ -89,7 +95,14 @@ export function useAuth() {
 
   const signIn = async (email: string, password: string) => {
     if (PLATFORM === 'ios') {
-      await nativeSignIn(email, password);
+      const { FirebaseAuthentication } = await import('@capacitor-firebase/authentication');
+      await FirebaseAuthentication.signInWithEmailAndPassword({ email, password });
+      // Plugin SHOULD sync to JS SDK and trigger onAuthStateChanged, but in
+      // practice that listener can be slow or skip a fire on the first
+      // signin. Pull the current user from the plugin and push it into
+      // local state so the App switches to Lobby immediately.
+      const { user: native } = await FirebaseAuthentication.getCurrentUser();
+      if (native) setUser({ uid: native.uid, email: native.email, displayName: native.displayName } as unknown as User);
       return;
     }
     await signInWithEmailAndPassword(auth, email, password);

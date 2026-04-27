@@ -24,11 +24,13 @@ const config: CapacitorConfig = {
   appName: 'Miro TCG',
   webDir: 'client/dist',
   ios: {
-    contentInset: 'always',
+    // contentInset 'always' was indenting the WKWebView from the safe area
+    // — in landscape that produced a wide dark void on the Dynamic Island
+    // side because the web content was pushed inward. 'never' lets the
+    // gradient fill edge-to-edge; UI elements that need notch clearance
+    // use env(safe-area-inset-*) (already wired in index.css).
+    contentInset: 'never',
     scheme: 'https',
-    // Match the in-app gradient so the native WKWebView backdrop doesn't
-    // show as a white stripe under the home indicator or as a dark void
-    // beside the safe-area inset on landscape iPhones with Dynamic Island.
     backgroundColor: '#0b0613',
   },
   // No `server.url` — bundled mode. Pointing this at a remote URL would let
@@ -46,6 +48,11 @@ const config: CapacitorConfig = {
     FirebaseAuthentication: {
       skipNativeAuth: false,
       providers: ['password'],
+    },
+    // Stop iOS from resizing the WKWebView when the keyboard appears —
+    // otherwise the layout reflows mid-typing and the form jumps around.
+    Keyboard: {
+      resize: 'none',
     },
   },
 };
