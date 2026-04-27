@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { LobbyState } from '../../../shared/types';
 import type { User } from 'firebase/auth';
-import { socket } from '../socket';
+import { socket, useSocketConnected } from '../socket';
 import { FEATURE_FLAGS } from '../utils/featureFlags';
 import { assetUrl } from '../config';
 
@@ -70,6 +70,7 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
   const [showSeasonRewards, setShowSeasonRewards] = useState(false);
   const [claimingRewards, setClaimingRewards] = useState(false);
   const [rewardsClaimed, setRewardsClaimed] = useState<{ goldReward: number; dustReward: number; packReward: number; cardBack: string | null; newRankTier: string } | null>(null);
+  const socketConnected = useSocketConnected();
 
   useEffect(() => {
     socket.emit('get-rank');
@@ -193,6 +194,17 @@ export function Lobby({ lobby, user, onCollection, onMatchHistory, onFriends, on
       <div className="absolute inset-0 pointer-events-none opacity-20" style={{
         background: 'radial-gradient(circle at 20% 80%, rgba(217,169,56,0.12) 0%, transparent 30%), radial-gradient(circle at 80% 20%, rgba(139,92,246,0.15) 0%, transparent 35%)',
       }} />
+
+      {/* Connection-state pill — surfaces websocket handshake delay so the
+          user knows the wait is the server cold-starting, not the app
+          hanging. Only renders when not connected. Top-center, above the
+          logo, non-blocking. */}
+      {!socketConnected && (
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 rounded-full bg-amber-900/70 border border-amber-500/50 px-3 py-1 text-amber-100 text-xs shadow-lg backdrop-blur">
+          <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+          Connecting to server…
+        </div>
+      )}
 
       {/* ── Main content ── */}
       <div className="flex-1 flex flex-col items-center justify-center px-4 pb-2 relative min-h-0 z-10">

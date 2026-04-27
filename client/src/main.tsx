@@ -26,9 +26,14 @@ createRoot(document.getElementById('root')!).render(
 // Hide the splash *after* React has rendered the gradient background so users
 // see the game's own background, not a white flash. requestIdleCallback (or
 // setTimeout fallback) gives the browser a tick to paint before we tell the
-// native splash to fade.
+// native splash to fade. A hard 2.5s deadline guarantees the splash never
+// gets stuck even if the dynamic import rejects, idle-callback never fires,
+// or React throws mid-mount — calling hide() twice is a harmless no-op.
 if (PLATFORM === 'ios') {
+  let hidden = false;
   const hide = () => {
+    if (hidden) return;
+    hidden = true;
     void import('@capacitor/splash-screen').then(({ SplashScreen }) =>
       SplashScreen.hide({ fadeOutDuration: 250 })
     ).catch(() => { /* plugin missing → splash fades out via Info.plist default */ });
@@ -38,4 +43,5 @@ if (PLATFORM === 'ios') {
   } else {
     setTimeout(hide, 0);
   }
+  setTimeout(hide, 2500);
 }

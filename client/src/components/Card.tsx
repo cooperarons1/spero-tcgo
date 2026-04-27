@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import cardsData from '../../../data/cards.json';
+import { assetUrl } from '../config';
 import { CardArt } from '../utils/cardArt';
 import { GoldenEffectsOverlay as GoldenEffectsOverlayLazy } from './GoldenEffectsOverlay';
 import { FEATURE_FLAGS } from '../utils/featureFlags';
@@ -393,7 +394,7 @@ export function Card({ cardCode, onClick, selected, greyed, small, className, go
           ${className ?? ''}
         `}
       >
-        <img src="/cards/card-back.png" alt="" className="absolute inset-0 w-full h-full object-cover rounded-md" />
+        <img src={assetUrl('/cards/card-back.png')} alt="" className="absolute inset-0 w-full h-full object-cover rounded-md" />
       </button>
     );
   }
@@ -719,7 +720,7 @@ export function CardBack({ size = 'md', onClick, disabled }: { size?: 'sm' | 'md
         ${disabled ? 'cursor-not-allowed' : ''}
       `}
     >
-      <img src="/cards/card-back.png" alt="" className="absolute inset-0 w-full h-full object-cover rounded-md" />
+      <img src={assetUrl('/cards/card-back.png')} alt="" className="absolute inset-0 w-full h-full object-cover rounded-md" />
     </button>
   );
 }
