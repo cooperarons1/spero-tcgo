@@ -54,6 +54,21 @@ body {
 html, body, #root { height: 100%; }
 #root { min-height: 100dvh; }
 
+/* iOS / mobile UX: prevent text selection on long-press, kill the blue
+   selection highlight, and suppress the WKWebView grey/blue tap flash on
+   buttons. Inputs/textareas opt back in so chat + search still work. */
+html, body, button {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+input, textarea, [contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+
 /* Override Tailwind's h-screen / min-h-screen everywhere — 100vh on iOS
    landscape leaves a stripe under the home indicator (the static viewport
    height includes browser chrome that isn't actually visible). 100dvh is
