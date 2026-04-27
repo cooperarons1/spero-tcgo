@@ -54,6 +54,15 @@ body {
 html, body, #root { height: 100%; }
 #root { min-height: 100dvh; }
 
+/* Override Tailwind's h-screen / min-h-screen everywhere — 100vh on iOS
+   landscape leaves a stripe under the home indicator (the static viewport
+   height includes browser chrome that isn't actually visible). 100dvh is
+   the dynamic viewport, which honors the actual visible area. Safer to
+   redefine the utility once than touch ~20 components individually. */
+.h-screen { height: 100dvh; }
+.min-h-screen { min-height: 100dvh; }
+.max-h-screen { max-height: 100dvh; }
+
 @keyframes slide-up {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
