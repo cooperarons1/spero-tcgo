@@ -17,6 +17,13 @@ export function AuthScreen({ onSignIn, onSignUp }: AuthScreenProps) {
     e.preventDefault();
     setError(null);
     setLoading(true);
+    // Race the auth call against a 15s timeout so a hung Firebase request
+    // (network drop, CSP block, API-key restriction) surfaces an error
+    // instead of leaving the button stuck on "Loading..." forever.
+    const TIMEOUT_MS = 15000;
+    const timeout = new Promise<never>((_, rej) =>
+      setTimeout(() => rej(new Error('Network timeout — check your connection and try again.')), TIMEOUT_MS)
+    );
     try {
       if (tab === 'signup') {
         if (!displayName.trim()) {
@@ -24,9 +31,9 @@ export function AuthScreen({ onSignIn, onSignUp }: AuthScreenProps) {
           setLoading(false);
           return;
         }
-        await onSignUp(email, password, displayName.trim());
+        await Promise.race([onSignUp(email, password, displayName.trim()), timeout]);
       } else {
-        await onSignIn(email, password);
+        await Promise.race([onSignIn(email, password), timeout]);
       }
     } catch (err: any) {
       const code = err?.code || '';
@@ -34,7 +41,15 @@ export function AuthScreen({ onSignIn, onSignUp }: AuthScreenProps) {
       else if (code === 'auth/weak-password') setError('Password must be at least 6 characters');
       else if (code === 'auth/invalid-email') setError('Invalid email address');
       else if (code === 'auth/invalid-credential') setError('Invalid email or password');
-      else setError(err?.message || 'Something went wrong');
+      else if (code === 'auth/user-not-found') setError('No account with that email');
+      else if (code === 'auth/wrong-password') setError('Wrong password');
+      else if (code === 'auth/network-request-failed') setError('Network request failed — check connectivity.');
+      else if (code === 'auth/too-many-requests') setError('Too many attempts — wait a minute and try again.');
+      else setError(err?.message || `Something went wrong${code ? ` (${code})` : ''}`);
+      // Surface in the WKWebView console so the issue can be diagnosed via
+      // Safari Web Inspector even when no email-readable error message
+      // makes it onto the screen.
+      console.error('[auth] sign-in failed', { code, err });
     } finally {
       setLoading(false);
     }
